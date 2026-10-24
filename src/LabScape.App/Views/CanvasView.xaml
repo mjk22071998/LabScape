@@ -15,57 +15,105 @@
         <ContextMenu x:Key="ItemContextMenu">
             <MenuItem Header="Cut" Command="{Binding PlacementTarget.Tag.CutSelectedCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+X">
                 <MenuItem.Icon>
-                    <TextBlock Text="✂" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Image Source="{StaticResource IconCut}" Width="15" Height="15"/>
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="Copy" Command="{Binding PlacementTarget.Tag.CopySelectedCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+C">
                 <MenuItem.Icon>
-                    <TextBlock Text="📄" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Image Source="{StaticResource IconCopy}" Width="15" Height="15"/>
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="Paste" Command="{Binding PlacementTarget.Tag.PasteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+V">
                 <MenuItem.Icon>
-                    <TextBlock Text="📋" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Image Source="{StaticResource IconPaste}" Width="15" Height="15"/>
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="Duplicate" Command="{Binding PlacementTarget.Tag.DuplicateSelectedCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+D">
                 <MenuItem.Icon>
-                    <TextBlock Text="⧉" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Image Source="{StaticResource IconDuplicate}" Width="15" Height="15"/>
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="Delete" Command="{Binding PlacementTarget.Tag.DeleteSelectedCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Del">
                 <MenuItem.Icon>
-                    <TextBlock Text="🗑" FontSize="12" Foreground="#EF4444" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Image Source="{StaticResource IconDelete}" Width="15" Height="15"/>
                 </MenuItem.Icon>
             </MenuItem>
             <Separator/>
             <MenuItem Header="Order">
                 <MenuItem.Icon>
-                    <TextBlock Text="📑" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Image Source="{StaticResource IconLayers}" Width="15" Height="15"/>
                 </MenuItem.Icon>
-                <MenuItem Header="Move to Front" Command="{Binding PlacementTarget.Tag.MoveToFrontCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+Shift+]"/>
-                <MenuItem Header="Move Forward" Command="{Binding PlacementTarget.Tag.MoveForwardCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+]"/>
-                <MenuItem Header="Send Backward" Command="{Binding PlacementTarget.Tag.SendBackwardCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+["/>
-                <MenuItem Header="Send to Back" Command="{Binding PlacementTarget.Tag.SendToBackCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+Shift+["/>
+                <MenuItem Header="Move to Front" Command="{Binding PlacementTarget.Tag.MoveToFrontCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+Shift+]">
+                    <MenuItem.Icon>
+                        <Image Source="{StaticResource IconMoveToFront}" Width="15" Height="15"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Move Forward" Command="{Binding PlacementTarget.Tag.MoveForwardCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+]">
+                    <MenuItem.Icon>
+                        <Image Source="{StaticResource IconMoveForward}" Width="15" Height="15"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Send Backward" Command="{Binding PlacementTarget.Tag.SendBackwardCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+[">
+                    <MenuItem.Icon>
+                        <Image Source="{StaticResource IconSendBackward}" Width="15" Height="15"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Send to Back" Command="{Binding PlacementTarget.Tag.SendToBackCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+Shift+[">
+                    <MenuItem.Icon>
+                        <Image Source="{StaticResource IconSendToBack}" Width="15" Height="15"/>
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="Grouping">
                 <MenuItem.Icon>
-                    <TextBlock Text="📦" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Image Source="{StaticResource IconGroup}" Width="15" Height="15"/>
                 </MenuItem.Icon>
-                <MenuItem Header="Group" Command="{Binding PlacementTarget.Tag.GroupSelectedCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+G"/>
-                <MenuItem Header="Ungroup" Command="{Binding PlacementTarget.Tag.UngroupSelectedCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+Shift+G"/>
+                <MenuItem Header="Group" Command="{Binding PlacementTarget.Tag.GroupSelectedCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+G">
+                    <MenuItem.Icon>
+                        <Image Source="{StaticResource IconGroup}" Width="15" Height="15"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Ungroup" Command="{Binding PlacementTarget.Tag.UngroupSelectedCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+Shift+G">
+                    <MenuItem.Icon>
+                        <Image Source="{StaticResource IconUngroup}" Width="15" Height="15"/>
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="Alignment">
                 <MenuItem.Icon>
-                    <TextBlock Text="📐" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Image Source="{StaticResource IconAlignCenter}" Width="15" Height="15"/>
                 </MenuItem.Icon>
-                <MenuItem Header="Align Left" Command="{Binding PlacementTarget.Tag.AlignLeftCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
-                <MenuItem Header="Align Center" Command="{Binding PlacementTarget.Tag.AlignCenterCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
-                <MenuItem Header="Align Right" Command="{Binding PlacementTarget.Tag.AlignRightCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                <MenuItem Header="Align Left" Command="{Binding PlacementTarget.Tag.AlignLeftCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                    <MenuItem.Icon>
+                        <Image Source="{StaticResource IconAlignLeft}" Width="15" Height="15"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Align Center" Command="{Binding PlacementTarget.Tag.AlignCenterCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                    <MenuItem.Icon>
+                        <Image Source="{StaticResource IconAlignCenter}" Width="15" Height="15"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Align Right" Command="{Binding PlacementTarget.Tag.AlignRightCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                    <MenuItem.Icon>
+                        <Image Source="{StaticResource IconAlignRight}" Width="15" Height="15"/>
+                    </MenuItem.Icon>
+                </MenuItem>
                 <Separator/>
-                <MenuItem Header="Align Top" Command="{Binding PlacementTarget.Tag.AlignTopCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
-                <MenuItem Header="Align Middle" Command="{Binding PlacementTarget.Tag.AlignMiddleCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
-                <MenuItem Header="Align Bottom" Command="{Binding PlacementTarget.Tag.AlignBottomCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                <MenuItem Header="Align Top" Command="{Binding PlacementTarget.Tag.AlignTopCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                    <MenuItem.Icon>
+                        <Image Source="{StaticResource IconAlignTop}" Width="15" Height="15"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Align Middle" Command="{Binding PlacementTarget.Tag.AlignMiddleCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                    <MenuItem.Icon>
+                        <Image Source="{StaticResource IconAlignMiddle}" Width="15" Height="15"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Align Bottom" Command="{Binding PlacementTarget.Tag.AlignBottomCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                    <MenuItem.Icon>
+                        <Image Source="{StaticResource IconAlignBottom}" Width="15" Height="15"/>
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
         </ContextMenu>
 
@@ -73,36 +121,56 @@
         <ContextMenu x:Key="CanvasContextMenu">
             <MenuItem Header="Paste" Command="{Binding PasteCommand}" InputGestureText="Ctrl+V">
                 <MenuItem.Icon>
-                    <TextBlock Text="📋" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Image Source="{StaticResource IconPaste}" Width="15" Height="15"/>
                 </MenuItem.Icon>
             </MenuItem>
             <Separator/>
-            <MenuItem Header="Select All" Command="{Binding SelectAllCommand}" InputGestureText="Ctrl+A"/>
+            <MenuItem Header="Select All" Command="{Binding SelectAllCommand}" InputGestureText="Ctrl+A">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconSelectAll}" Width="15" Height="15"/>
+                </MenuItem.Icon>
+            </MenuItem>
             <Separator/>
             <MenuItem Header="Zoom In" Command="{Binding ZoomInCommand}" InputGestureText="Ctrl++">
                 <MenuItem.Icon>
-                    <TextBlock Text="🔍" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Image Source="{StaticResource IconZoomIn}" Width="15" Height="15"/>
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="Zoom Out" Command="{Binding ZoomOutCommand}" InputGestureText="Ctrl+-">
                 <MenuItem.Icon>
-                    <TextBlock Text="🔎" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Image Source="{StaticResource IconZoomOut}" Width="15" Height="15"/>
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Header="Reset Zoom (100%)" Command="{Binding ResetZoomCommand}" InputGestureText="Ctrl+0"/>
+            <MenuItem Header="Reset Zoom (100%)" Command="{Binding ResetZoomCommand}" InputGestureText="Ctrl+0">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconResetZoom}" Width="15" Height="15"/>
+                </MenuItem.Icon>
+            </MenuItem>
             <Separator/>
-            <MenuItem Header="Show Grid" IsCheckable="True" IsChecked="{Binding ShowGrid}"/>
-            <MenuItem Header="Snap to Grid" IsCheckable="True" IsChecked="{Binding SnapToGrid}"/>
-            <MenuItem Header="Show Rulers" IsCheckable="True" IsChecked="{Binding ShowRulers}"/>
+            <MenuItem Header="Show Grid" IsCheckable="True" IsChecked="{Binding ShowGrid}">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconShowGrid}" Width="15" Height="15"/>
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Snap to Grid" IsCheckable="True" IsChecked="{Binding SnapToGrid}">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconSnapToGrid}" Width="15" Height="15"/>
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Show Rulers" IsCheckable="True" IsChecked="{Binding ShowRulers}">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconShowRulers}" Width="15" Height="15"/>
+                </MenuItem.Icon>
+            </MenuItem>
             <Separator/>
             <MenuItem Header="Undo" Command="{Binding UndoCommand}" InputGestureText="Ctrl+Z">
                 <MenuItem.Icon>
-                    <TextBlock Text="↶" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Image Source="{StaticResource IconUndo}" Width="15" Height="15"/>
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="Redo" Command="{Binding RedoCommand}" InputGestureText="Ctrl+Y">
                 <MenuItem.Icon>
-                    <TextBlock Text="↷" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Image Source="{StaticResource IconRedo}" Width="15" Height="15"/>
                 </MenuItem.Icon>
             </MenuItem>
         </ContextMenu>

@@ -16,24 +16,36 @@
         <ContextMenu x:Key="TabContextMenu">
             <MenuItem Header="Close Tab" Command="{Binding PlacementTarget.Tag.CloseTabCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+W">
                 <MenuItem.Icon>
-                    <TextBlock Text="✕" FontSize="11" Foreground="#EF4444" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <Image Source="{StaticResource IconCloseTab}" Width="15" Height="15"/>
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Header="Close Other Tabs" Command="{Binding PlacementTarget.Tag.CloseOtherTabsCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
-            <MenuItem Header="Close All Tabs" Command="{Binding PlacementTarget.Tag.CloseAllTabsCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+            <MenuItem Header="Close Other Tabs" Command="{Binding PlacementTarget.Tag.CloseOtherTabsCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconCloseOthers}" Width="15" Height="15"/>
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Close All Tabs" Command="{Binding PlacementTarget.Tag.CloseAllTabsCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconCloseAll}" Width="15" Height="15"/>
+                </MenuItem.Icon>
+            </MenuItem>
             <Separator/>
             <MenuItem Header="New Tab" Command="{Binding PlacementTarget.Tag.NewTabCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+N">
                 <MenuItem.Icon>
-                    <TextBlock Text="➕" FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <Image Source="{StaticResource IconNewTab}" Width="15" Height="15"/>
                 </MenuItem.Icon>
             </MenuItem>
             <Separator/>
             <MenuItem Header="Save Floorplan" Click="SaveJson_Click" InputGestureText="Ctrl+S">
                 <MenuItem.Icon>
-                    <TextBlock Text="💾" FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <Image Source="{StaticResource IconSave}" Width="15" Height="15"/>
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Header="Save As..." Click="SaveAsJson_Click" InputGestureText="Ctrl+Shift+S"/>
+            <MenuItem Header="Save As..." Click="SaveAsJson_Click" InputGestureText="Ctrl+Shift+S">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconSaveAs}" Width="15" Height="15"/>
+                </MenuItem.Icon>
+            </MenuItem>
         </ContextMenu>
     </fluent:RibbonWindow.Resources>
 
@@ -58,13 +70,20 @@
             <fluent:Ribbon.Menu>
                 <fluent:Backstage Header="File">
                     <fluent:BackstageTabControl>
-                        <fluent:Button Header="New Floorplan (Ctrl+N)" Command="{Binding NewTabCommand}"/>
-                        <fluent:Button Header="Open / Import JSON... (Ctrl+O)" Click="OpenJson_Click"/>
-                        <fluent:Button Header="Save JSON (Ctrl+S)" Click="SaveJson_Click"/>
-                        <fluent:Button Header="Save As JSON... (Ctrl+Shift+S)" Click="SaveAsJson_Click"/>
-                        <fluent:Button Header="Close Tab (Ctrl+W)" Command="{Binding CloseActiveTabCommand}"/>
-                        <fluent:Button Header="Export to Web JSON..." Click="ExportJson_Click"/>
-                        <fluent:Button Header="Exit" Click="Exit_Click"/>
+                        <fluent:Button Header="New Floorplan (Ctrl+N)" Command="{Binding NewTabCommand}"
+                                       Icon="{StaticResource IconNewTab}" LargeIcon="{StaticResource IconNewTab}"/>
+                        <fluent:Button Header="Open / Import JSON... (Ctrl+O)" Click="OpenJson_Click"
+                                       Icon="{StaticResource IconOpen}" LargeIcon="{StaticResource IconOpen}"/>
+                        <fluent:Button Header="Save JSON (Ctrl+S)" Click="SaveJson_Click"
+                                       Icon="{StaticResource IconSave}" LargeIcon="{StaticResource IconSave}"/>
+                        <fluent:Button Header="Save As JSON... (Ctrl+Shift+S)" Click="SaveAsJson_Click"
+                                       Icon="{StaticResource IconSaveAs}" LargeIcon="{StaticResource IconSaveAs}"/>
+                        <fluent:Button Header="Close Tab (Ctrl+W)" Command="{Binding CloseActiveTabCommand}"
+                                       Icon="{StaticResource IconCloseTab}" LargeIcon="{StaticResource IconCloseTab}"/>
+                        <fluent:Button Header="Export to Web JSON..." Click="ExportJson_Click"
+                                       Icon="{StaticResource IconExport}" LargeIcon="{StaticResource IconExport}"/>
+                        <fluent:Button Header="Exit" Click="Exit_Click"
+                                       Icon="{StaticResource IconExit}" LargeIcon="{StaticResource IconExit}"/>
                     </fluent:BackstageTabControl>
                 </fluent:Backstage>
             </fluent:Ribbon.Menu>
@@ -80,81 +99,118 @@
             <fluent:RibbonTabItem Header="Home">
                 <!-- Tabs & File Management -->
                 <fluent:RibbonGroupBox Header="Tabs &amp; Documents">
-                    <fluent:Button Header="New Tab" Command="{Binding NewTabCommand}" ToolTip="New floorplan tab (Ctrl+N)"/>
-                    <fluent:Button Header="Close Tab" Command="{Binding CloseActiveTabCommand}" ToolTip="Close current tab (Ctrl+W)"/>
-                    <fluent:Button x:Name="BtnSave" Header="Save" Click="SaveJson_Click" ToolTip="Save floorplan JSON (Ctrl+S)"/>
+                    <fluent:Button Header="New Tab" Command="{Binding NewTabCommand}" ToolTip="New floorplan tab (Ctrl+N)"
+                                   Icon="{StaticResource IconNewTab}" LargeIcon="{StaticResource IconNewTab}"/>
+                    <fluent:Button Header="Close Tab" Command="{Binding CloseActiveTabCommand}" ToolTip="Close current tab (Ctrl+W)"
+                                   Icon="{StaticResource IconCloseTab}" LargeIcon="{StaticResource IconCloseTab}"/>
+                    <fluent:Button x:Name="BtnSave" Header="Save" Click="SaveJson_Click" ToolTip="Save floorplan JSON (Ctrl+S)"
+                                   Icon="{StaticResource IconSave}" LargeIcon="{StaticResource IconSave}"/>
                 </fluent:RibbonGroupBox>
 
                 <!-- Undo/Redo & Clipboard -->
                 <fluent:RibbonGroupBox Header="History &amp; Clipboard">
-                    <fluent:Button x:Name="BtnUndo" Header="Undo" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}" ToolTip="Undo (Ctrl+Z)"/>
-                    <fluent:Button x:Name="BtnRedo" Header="Redo" Command="{Binding RedoCommand}" IsEnabled="{Binding CanRedo}" ToolTip="Redo (Ctrl+Y / Ctrl+Shift+Z)"/>
-                    <fluent:Button Header="Cut" Command="{Binding Canvas.CutSelectedCommand}" ToolTip="Cut selected items (Ctrl+X)"/>
-                    <fluent:Button Header="Copy" Command="{Binding Canvas.CopySelectedCommand}" ToolTip="Copy selected items (Ctrl+C)"/>
-                    <fluent:Button Header="Paste" Command="{Binding Canvas.PasteCommand}" ToolTip="Paste items (Ctrl+V)"/>
-                    <fluent:Button Header="Duplicate" Command="{Binding Canvas.DuplicateSelectedCommand}" ToolTip="Duplicate in place (Ctrl+D)"/>
-                    <fluent:Button Header="Delete" Command="{Binding Canvas.DeleteSelectedCommand}" ToolTip="Delete selected (Del)"/>
+                    <fluent:Button x:Name="BtnUndo" Header="Undo" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}" ToolTip="Undo (Ctrl+Z)"
+                                   Icon="{StaticResource IconUndo}" LargeIcon="{StaticResource IconUndo}"/>
+                    <fluent:Button x:Name="BtnRedo" Header="Redo" Command="{Binding RedoCommand}" IsEnabled="{Binding CanRedo}" ToolTip="Redo (Ctrl+Y / Ctrl+Shift+Z)"
+                                   Icon="{StaticResource IconRedo}" LargeIcon="{StaticResource IconRedo}"/>
+                    <fluent:Button Header="Cut" Command="{Binding Canvas.CutSelectedCommand}" ToolTip="Cut selected items (Ctrl+X)"
+                                   Icon="{StaticResource IconCut}" LargeIcon="{StaticResource IconCut}"/>
+                    <fluent:Button Header="Copy" Command="{Binding Canvas.CopySelectedCommand}" ToolTip="Copy selected items (Ctrl+C)"
+                                   Icon="{StaticResource IconCopy}" LargeIcon="{StaticResource IconCopy}"/>
+                    <fluent:Button Header="Paste" Command="{Binding Canvas.PasteCommand}" ToolTip="Paste items (Ctrl+V)"
+                                   Icon="{StaticResource IconPaste}" LargeIcon="{StaticResource IconPaste}"/>
+                    <fluent:Button Header="Duplicate" Command="{Binding Canvas.DuplicateSelectedCommand}" ToolTip="Duplicate in place (Ctrl+D)"
+                                   Icon="{StaticResource IconDuplicate}" LargeIcon="{StaticResource IconDuplicate}"/>
+                    <fluent:Button Header="Delete" Command="{Binding Canvas.DeleteSelectedCommand}" ToolTip="Delete selected (Del)"
+                                   Icon="{StaticResource IconDelete}" LargeIcon="{StaticResource IconDelete}"/>
                 </fluent:RibbonGroupBox>
 
                 <!-- Tools & Zoom Navigation -->
                 <fluent:RibbonGroupBox Header="Navigation &amp; Tools">
-                    <fluent:ToggleButton Header="Select" IsChecked="True"/>
-                    <fluent:Button Header="Zoom 100%" Command="{Binding Canvas.ResetZoomCommand}" ToolTip="Reset Zoom (Ctrl+0)"/>
-                    <fluent:Button Header="Zoom In" Command="{Binding Canvas.ZoomInCommand}" ToolTip="Zoom In (Ctrl++)"/>
-                    <fluent:Button Header="Zoom Out" Command="{Binding Canvas.ZoomOutCommand}" ToolTip="Zoom Out (Ctrl+-)"/>
+                    <fluent:ToggleButton Header="Select" IsChecked="True"
+                                         Icon="{StaticResource IconSelect}" LargeIcon="{StaticResource IconSelect}"/>
+                    <fluent:Button Header="Zoom 100%" Command="{Binding Canvas.ResetZoomCommand}" ToolTip="Reset Zoom (Ctrl+0)"
+                                   Icon="{StaticResource IconResetZoom}" LargeIcon="{StaticResource IconResetZoom}"/>
+                    <fluent:Button Header="Zoom In" Command="{Binding Canvas.ZoomInCommand}" ToolTip="Zoom In (Ctrl++)"
+                                   Icon="{StaticResource IconZoomIn}" LargeIcon="{StaticResource IconZoomIn}"/>
+                    <fluent:Button Header="Zoom Out" Command="{Binding Canvas.ZoomOutCommand}" ToolTip="Zoom Out (Ctrl+-)"
+                                   Icon="{StaticResource IconZoomOut}" LargeIcon="{StaticResource IconZoomOut}"/>
                 </fluent:RibbonGroupBox>
 
                 <!-- Grouping & Hierarchy -->
                 <fluent:RibbonGroupBox Header="Grouping (Ctrl+G)">
                     <fluent:Button Header="Group" Command="{Binding Canvas.GroupSelectedCommand}"
-                                   ToolTip="Group selected items (Ctrl+G)"/>
+                                   ToolTip="Group selected items (Ctrl+G)"
+                                   Icon="{StaticResource IconGroup}" LargeIcon="{StaticResource IconGroup}"/>
                     <fluent:Button Header="Ungroup" Command="{Binding Canvas.UngroupSelectedCommand}"
-                                   ToolTip="Ungroup selected items (Ctrl+Shift+G)"/>
+                                   ToolTip="Ungroup selected items (Ctrl+Shift+G)"
+                                   Icon="{StaticResource IconUngroup}" LargeIcon="{StaticResource IconUngroup}"/>
                 </fluent:RibbonGroupBox>
 
                 <!-- Layering & Arrange (Layers) -->
                 <fluent:RibbonGroupBox Header="Layers">
-                    <fluent:Button Header="Move to Front" Command="{Binding Canvas.MoveToFrontCommand}" ToolTip="Move to Front (Ctrl+Shift+] / Shift+PageUp)"/>
-                    <fluent:Button Header="Move Forward" Command="{Binding Canvas.MoveForwardCommand}" ToolTip="Move Forward (Ctrl+] / PageUp)"/>
-                    <fluent:Button Header="Send Backward" Command="{Binding Canvas.SendBackwardCommand}" ToolTip="Send Backward (Ctrl+[ / PageDown)"/>
-                    <fluent:Button Header="Send to Back" Command="{Binding Canvas.SendToBackCommand}" ToolTip="Send to Back (Ctrl+Shift+[ / Shift+PageDown)"/>
+                    <fluent:Button Header="Move to Front" Command="{Binding Canvas.MoveToFrontCommand}" ToolTip="Move to Front (Ctrl+Shift+] / Shift+PageUp)"
+                                   Icon="{StaticResource IconMoveToFront}" LargeIcon="{StaticResource IconMoveToFront}"/>
+                    <fluent:Button Header="Move Forward" Command="{Binding Canvas.MoveForwardCommand}" ToolTip="Move Forward (Ctrl+] / PageUp)"
+                                   Icon="{StaticResource IconMoveForward}" LargeIcon="{StaticResource IconMoveForward}"/>
+                    <fluent:Button Header="Send Backward" Command="{Binding Canvas.SendBackwardCommand}" ToolTip="Send Backward (Ctrl+[ / PageDown)"
+                                   Icon="{StaticResource IconSendBackward}" LargeIcon="{StaticResource IconSendBackward}"/>
+                    <fluent:Button Header="Send to Back" Command="{Binding Canvas.SendToBackCommand}" ToolTip="Send to Back (Ctrl+Shift+[ / Shift+PageDown)"
+                                   Icon="{StaticResource IconSendToBack}" LargeIcon="{StaticResource IconSendToBack}"/>
                 </fluent:RibbonGroupBox>
 
                 <!-- Align & Distribute -->
                 <fluent:RibbonGroupBox Header="Alignment">
-                    <fluent:Button Header="Align Left" Command="{Binding Canvas.AlignLeftCommand}"/>
-                    <fluent:Button Header="Align Center" Command="{Binding Canvas.AlignCenterCommand}"/>
-                    <fluent:Button Header="Align Right" Command="{Binding Canvas.AlignRightCommand}"/>
-                    <fluent:Button Header="Align Top" Command="{Binding Canvas.AlignTopCommand}"/>
-                    <fluent:Button Header="Align Middle" Command="{Binding Canvas.AlignMiddleCommand}"/>
-                    <fluent:Button Header="Align Bottom" Command="{Binding Canvas.AlignBottomCommand}"/>
+                    <fluent:Button Header="Align Left" Command="{Binding Canvas.AlignLeftCommand}"
+                                   Icon="{StaticResource IconAlignLeft}"/>
+                    <fluent:Button Header="Align Center" Command="{Binding Canvas.AlignCenterCommand}"
+                                   Icon="{StaticResource IconAlignCenter}"/>
+                    <fluent:Button Header="Align Right" Command="{Binding Canvas.AlignRightCommand}"
+                                   Icon="{StaticResource IconAlignRight}"/>
+                    <fluent:Button Header="Align Top" Command="{Binding Canvas.AlignTopCommand}"
+                                   Icon="{StaticResource IconAlignTop}"/>
+                    <fluent:Button Header="Align Middle" Command="{Binding Canvas.AlignMiddleCommand}"
+                                   Icon="{StaticResource IconAlignMiddle}"/>
+                    <fluent:Button Header="Align Bottom" Command="{Binding Canvas.AlignBottomCommand}"
+                                   Icon="{StaticResource IconAlignBottom}"/>
                 </fluent:RibbonGroupBox>
 
                 <!-- Canvas Surface & Grid View -->
                 <fluent:RibbonGroupBox Header="Grid &amp; Guides">
-                    <fluent:CheckBox Header="Show Grid" IsChecked="{Binding Canvas.ShowGrid}"/>
-                    <fluent:CheckBox Header="Snap to Grid" IsChecked="{Binding Canvas.SnapToGrid}"/>
-                    <fluent:CheckBox Header="Show Rulers" IsChecked="{Binding Canvas.ShowRulers}"/>
+                    <fluent:CheckBox Header="Show Grid" IsChecked="{Binding Canvas.ShowGrid}"
+                                     Icon="{StaticResource IconShowGrid}"/>
+                    <fluent:CheckBox Header="Snap to Grid" IsChecked="{Binding Canvas.SnapToGrid}"
+                                     Icon="{StaticResource IconSnapToGrid}"/>
+                    <fluent:CheckBox Header="Show Rulers" IsChecked="{Binding Canvas.ShowRulers}"
+                                     Icon="{StaticResource IconShowRulers}"/>
                 </fluent:RibbonGroupBox>
             </fluent:RibbonTabItem>
 
             <!-- 2. Database Tab -->
             <fluent:RibbonTabItem Header="Database">
                 <fluent:RibbonGroupBox Header="PostgreSQL Inventory Connection">
-                    <fluent:Button Header="Connect Database..." Click="DatabaseConnect_Click"/>
-                    <fluent:Button Header="Sync Inventory" Click="SyncInventory_Click"/>
+                    <fluent:Button Header="Connect Database..." Click="DatabaseConnect_Click"
+                                   Icon="{StaticResource IconDatabase}" LargeIcon="{StaticResource IconDatabase}"/>
+                    <fluent:Button Header="Sync Inventory" Click="SyncInventory_Click"
+                                   Icon="{StaticResource IconSync}" LargeIcon="{StaticResource IconSync}"/>
                 </fluent:RibbonGroupBox>
             </fluent:RibbonTabItem>
 
             <!-- 3. Export & Web Tab -->
             <fluent:RibbonTabItem Header="Export &amp; Web">
                 <fluent:RibbonGroupBox Header="JSON Document Interchange">
-                    <fluent:Button Header="Save JSON" Click="SaveJson_Click" ToolTip="Save current layout to JSON (Ctrl+S)"/>
-                    <fluent:Button Header="Save As JSON..." Click="SaveAsJson_Click" ToolTip="Save current layout to new JSON file (Ctrl+Shift+S)"/>
-                    <fluent:Button Header="Open JSON..." Click="OpenJson_Click" ToolTip="Open existing JSON file into tab (Ctrl+O)"/>
-                    <fluent:Button Header="Import into Canvas" Click="ImportIntoActive_Click" ToolTip="Import and merge items from JSON into active canvas"/>
-                    <fluent:Button Header="Export JSON..." Click="ExportJson_Click" ToolTip="Validate and export JSON for web"/>
-                    <fluent:Button Header="Open in Web Viewer" Click="PreviewWebViewer_Click" ToolTip="Launch standalone HTML5 2D Canvas viewer in browser"/>
+                    <fluent:Button Header="Save JSON" Click="SaveJson_Click" ToolTip="Save current layout to JSON (Ctrl+S)"
+                                   Icon="{StaticResource IconSave}" LargeIcon="{StaticResource IconSave}"/>
+                    <fluent:Button Header="Save As JSON..." Click="SaveAsJson_Click" ToolTip="Save current layout to new JSON file (Ctrl+Shift+S)"
+                                   Icon="{StaticResource IconSaveAs}" LargeIcon="{StaticResource IconSaveAs}"/>
+                    <fluent:Button Header="Open JSON..." Click="OpenJson_Click" ToolTip="Open existing JSON file into tab (Ctrl+O)"
+                                   Icon="{StaticResource IconOpen}" LargeIcon="{StaticResource IconOpen}"/>
+                    <fluent:Button Header="Import into Canvas" Click="ImportIntoActive_Click" ToolTip="Import and merge items from JSON into active canvas"
+                                   Icon="{StaticResource IconImport}" LargeIcon="{StaticResource IconImport}"/>
+                    <fluent:Button Header="Export JSON..." Click="ExportJson_Click" ToolTip="Validate and export JSON for web"
+                                   Icon="{StaticResource IconExport}" LargeIcon="{StaticResource IconExport}"/>
+                    <fluent:Button Header="Open in Web Viewer" Click="PreviewWebViewer_Click" ToolTip="Launch standalone HTML5 2D Canvas viewer in browser"
+                                   Icon="{StaticResource IconWebViewer}" LargeIcon="{StaticResource IconWebViewer}"/>
                 </fluent:RibbonGroupBox>
             </fluent:RibbonTabItem>
         </fluent:Ribbon>
@@ -220,7 +276,7 @@
                                                             </Border.Style>
                                                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                                 <!-- Tab Icon -->
-                                                                <TextBlock Text="📄" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                                                <Image Source="{StaticResource IconNewTab}" Width="14" Height="14" Margin="0,0,6,0" VerticalAlignment="Center"/>
 
                                                                 <!-- Tab Title & Modified Mark -->
                                                                 <TextBlock FontSize="12" VerticalAlignment="Center">
