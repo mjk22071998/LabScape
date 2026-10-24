@@ -214,6 +214,42 @@ public class ModifyBezierControlPointsCommand : IUndoableCommand
     }
 }
 
+public class ModifyCornerRadiusCommand : IUndoableCommand
+{
+    private readonly ShapeItemViewModel _item;
+    private readonly double _oldRadius, _newRadius;
+
+    public string Description => $"Change Corner Radius on {_item.Name}";
+
+    public ModifyCornerRadiusCommand(ShapeItemViewModel item, double oldRadius, double newRadius)
+    {
+        _item = item;
+        _oldRadius = oldRadius;
+        _newRadius = newRadius;
+    }
+
+    public void Execute() => _item.CornerRadius = _newRadius;
+    public void Unexecute() => _item.CornerRadius = _oldRadius;
+}
+
+public class ModifyInnerRadiusCommand : IUndoableCommand
+{
+    private readonly ShapeItemViewModel _item;
+    private readonly double _oldRadius, _newRadius;
+
+    public string Description => $"Change Inner Radius on {_item.Name}";
+
+    public ModifyInnerRadiusCommand(ShapeItemViewModel item, double oldRadius, double newRadius)
+    {
+        _item = item;
+        _oldRadius = oldRadius;
+        _newRadius = newRadius;
+    }
+
+    public void Execute() => _item.InnerRadius = _newRadius;
+    public void Unexecute() => _item.InnerRadius = _oldRadius;
+}
+
 public class ReorderLayerZIndexCommand : IUndoableCommand
 {
     private readonly List<(ItemViewModel Item, int OldZ, int NewZ)> _changes;

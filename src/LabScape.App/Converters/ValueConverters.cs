@@ -113,7 +113,7 @@ public class FurnitureTypeToImageConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
 }
 
-public class ShapeToGeometryConverter : IValueConverter
+public class ShapeToGeometryConverter : IValueConverter, IMultiValueConverter
 {
     public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
@@ -125,6 +125,17 @@ public class ShapeToGeometryConverter : IValueConverter
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+
+    public object? Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (values.Length > 0 && values[0] is ShapeItemViewModel shape)
+        {
+            return ShapeGeometryHelper.CreateGeometry(shape);
+        }
+        return null;
+    }
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => throw new NotImplementedException();
 }
 
 public class ResourceKeyToImageConverter : IValueConverter

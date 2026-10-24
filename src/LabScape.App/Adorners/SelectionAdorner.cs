@@ -687,7 +687,8 @@ public class SelectionAdorner : Adorner
             case DragMode.CornerRadius:
                 if (_item is ShapeItemViewModel shapeCr)
                 {
-                    double newCr = Math.Clamp(_initialCornerRadius + deltaX, 0, Math.Min(_item.Width, _item.Height) / 2);
+                    double maxCr = Math.Min(_item.Width, _item.Height) / 2.0;
+                    double newCr = Math.Clamp(currentLocal.X, 0, maxCr);
                     shapeCr.CornerRadius = Math.Round(newCr);
                 }
                 break;
@@ -695,7 +696,10 @@ public class SelectionAdorner : Adorner
             case DragMode.DonutInnerRadius:
                 if (_item is ShapeItemViewModel shapeDonut)
                 {
-                    double newInner = Math.Clamp(_initialInnerRadius + deltaX / 2.0, 5, 45);
+                    double dist = Math.Abs(currentLocal.X - (_item.Width / 2.0));
+                    double maxRx = _item.Width / 2.0;
+                    double donutRatio = maxRx > 0 ? dist / maxRx : 0.5;
+                    double newInner = Math.Clamp(donutRatio * 50.0, 5, 45);
                     shapeDonut.InnerRadius = Math.Round(newInner);
                 }
                 break;
@@ -710,7 +714,21 @@ public class SelectionAdorner : Adorner
         base.OnMouseUp(e);
         if (_activeDrag != DragMode.None)
         {
-            if (_activeDrag is DragMode.BezierControlPoint1 or DragMode.BezierControlPoint2)
+            if (_activeDrag == DragMode.CornerRadius)
+            {
+                if (_item is ShapeItemViewModel shape && Math.Abs(shape.CornerRadius - _initialCornerRadius) > 0.1)
+                {
+                    _undoRedoService.ExecuteCommand(new ModifyCornerRadiusCommand(shape, _initialCornerRadius, shape.CornerRadius));
+                }
+            }
+            else if (_activeDrag == DragMode.DonutInnerRadius)
+            {
+                if (_item is ShapeItemViewModel shape && Math.Abs(shape.InnerRadius - _initialInnerRadius) > 0.1)
+                {
+                    _undoRedoService.ExecuteCommand(new ModifyInnerRadiusCommand(shape, _initialInnerRadius, shape.InnerRadius));
+                }
+            }
+            else if (_activeDrag is DragMode.BezierControlPoint1 or DragMode.BezierControlPoint2)
             {
                 if (_item is ShapeItemViewModel shape)
                 {
@@ -790,6 +808,30 @@ public class SelectionAdorner : Adorner
             return;
         }
 
+        // Check special handles for RoundedRectangle & Donut
+        if (_item is ShapeItemViewModel shapeSpecial)
+        {
+            if (shapeSpecial.ShapeType == ShapeType.RoundedRectangle || shapeSpecial.ShapeType == ShapeType.RoundedCornerTriangle)
+            {
+                double crOffset = Math.Min(shapeSpecial.CornerRadius, Math.Min(w, h) / 2);
+                if (IsHit(p, new Point(crOffset, 4), SpecialHandleSize))
+                {
+                    Cursor = Cursors.Hand;
+                    return;
+                }
+            }
+            else if (shapeSpecial.ShapeType == ShapeType.Donut)
+            {
+                double innerRatio = Math.Clamp(shapeSpecial.InnerRadius / 50.0, 0.1, 0.9);
+                double innerRx = (w / 2.0) * innerRatio;
+                if (IsHit(p, new Point(w / 2.0 + innerRx, h / 2.0), SpecialHandleSize))
+                {
+                    Cursor = Cursors.Hand;
+                    return;
+                }
+            }
+        }
+
         if (IsHit(p, new Point(-2, -2), HandleSize) || IsHit(p, new Point(w + 2, h + 2), HandleSize))
             Cursor = Cursors.SizeNWSE;
         else if (IsHit(p, new Point(w + 2, -2), HandleSize) || IsHit(p, new Point(-2, h + 2), HandleSize))
@@ -846,6 +888,24 @@ public class SelectionAdorner : Adorner
             return null;
         }
 
+        // Check special handles for RoundedRectangle & Donut FIRST (so they take precedence over resize/rotate)
+        if (_item is ShapeItemViewModel shapeSpecial)
+        {
+            if (shapeSpecial.ShapeType == ShapeType.RoundedRectangle || shapeSpecial.ShapeType == ShapeType.RoundedCornerTriangle)
+            {
+                double crOffset = Math.Min(shapeSpecial.CornerRadius, Math.Min(w, h) / 2);
+                if (IsHit(p, new Point(crOffset, 4), SpecialHandleSize + 6))
+                    return new PointHitTestResult(this, p);
+            }
+            else if (shapeSpecial.ShapeType == ShapeType.Donut)
+            {
+                double innerRatio = Math.Clamp(shapeSpecial.InnerRadius / 50.0, 0.1, 0.9);
+                double innerRx = (w / 2.0) * innerRatio;
+                if (IsHit(p, new Point(w / 2.0 + innerRx, h / 2.0), SpecialHandleSize + 6))
+                    return new PointHitTestResult(this, p);
+            }
+        }
+
         // Check rotate handle for standard items
         if (IsHit(p, new Point(w / 2, -20), HandleSize + 6))
             return new PointHitTestResult(this, p);
@@ -861,24 +921,6 @@ public class SelectionAdorner : Adorner
             IsHit(p, new Point(-2, h / 2), HandleSize + 4))
         {
             return new PointHitTestResult(this, p);
-        }
-
-        // Check special handles for RoundedRectangle & Donut
-        if (_item is ShapeItemViewModel shape)
-        {
-            if (shape.ShapeType == ShapeType.RoundedRectangle || shape.ShapeType == ShapeType.RoundedCornerTriangle)
-            {
-                double crOffset = Math.Min(shape.CornerRadius, Math.Min(w, h) / 2);
-                if (IsHit(p, new Point(crOffset, 4), SpecialHandleSize + 4))
-                    return new PointHitTestResult(this, p);
-            }
-            else if (shape.ShapeType == ShapeType.Donut)
-            {
-                double innerRatio = Math.Clamp(shape.InnerRadius / 50.0, 0.1, 0.9);
-                double innerRx = (w / 2.0) * innerRatio;
-                if (IsHit(p, new Point(w / 2.0 + innerRx, h / 2.0), SpecialHandleSize + 4))
-                    return new PointHitTestResult(this, p);
-            }
         }
 
         return null;

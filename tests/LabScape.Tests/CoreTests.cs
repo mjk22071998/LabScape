@@ -1018,4 +1018,67 @@ public class CoreTests
         Assert.Contains("DragMode.BezierControlPoint1", code);
         Assert.Contains("DragMode.BezierControlPoint2", code);
     }
+
+    [Fact]
+    public void ShapeGeometry_CornerRadius_AndInnerRadius_UpdateCanvasAndSupportUndoRedo()
+    {
+        var donut = new ShapeItemViewModel(new ShapeItem
+        {
+            Name = "Donut",
+            ShapeType = ShapeType.Donut,
+            Width = 100,
+            Height = 100,
+            InnerRadius = 25
+        });
+
+        var roundedRect = new ShapeItemViewModel(new ShapeItem
+        {
+            Name = "RoundedRect",
+            ShapeType = ShapeType.RoundedRectangle,
+            Width = 100,
+            Height = 100,
+            CornerRadius = 12
+        });
+
+        var undoService = new UndoRedoService();
+
+        // 1. Donut Inner Radius Undo/Redo
+        var donutCmd = new ModifyInnerRadiusCommand(donut, 25, 40);
+        undoService.ExecuteCommand(donutCmd);
+        Assert.Equal(40, donut.InnerRadius);
+        undoService.Undo();
+        Assert.Equal(25, donut.InnerRadius);
+        undoService.Redo();
+        Assert.Equal(40, donut.InnerRadius);
+
+        // 2. Corner Radius Undo/Redo
+        var crCmd = new ModifyCornerRadiusCommand(roundedRect, 12, 28);
+        undoService.ExecuteCommand(crCmd);
+        Assert.Equal(28, roundedRect.CornerRadius);
+        undoService.Undo();
+        Assert.Equal(12, roundedRect.CornerRadius);
+        undoService.Redo();
+        Assert.Equal(28, roundedRect.CornerRadius);
+
+        // 3. Verify CanvasView.xaml uses MultiBinding for Path.Data
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(projectRoot);
+        string canvasViewPath = Path.Combine(projectRoot, "src", "LabScape.App", "Views", "CanvasView.xaml");
+        string canvasContent = File.ReadAllText(canvasViewPath);
+
+        Assert.Contains("MultiBinding Converter=\"{StaticResource ShapeToGeometryConverter}\"", canvasContent);
+        Assert.Contains("Binding Path=\"CornerRadius\"", canvasContent);
+        Assert.Contains("Binding Path=\"InnerRadius\"", canvasContent);
+    }
 }

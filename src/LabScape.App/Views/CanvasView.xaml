@@ -379,11 +379,25 @@
                                     <RotateTransform Angle="{Binding Rotation}" CenterX="{Binding Width, Converter={StaticResource HalfValueConverter}}" CenterY="{Binding Height, Converter={StaticResource HalfValueConverter}}"/>
                                 </Grid.RenderTransform>
 
-                                <Path Data="{Binding Converter={StaticResource ShapeToGeometryConverter}}"
-                                      Fill="{Binding Fill, Converter={StaticResource HexToBrushConverter}}"
+                                <Path Fill="{Binding Fill, Converter={StaticResource HexToBrushConverter}}"
                                       Stroke="{Binding Stroke, Converter={StaticResource HexToBrushConverter}}"
                                       StrokeThickness="{Binding StrokeThickness}"
-                                      Stretch="None"/>
+                                      Stretch="None">
+                                    <Path.Data>
+                                        <MultiBinding Converter="{StaticResource ShapeToGeometryConverter}">
+                                            <Binding />
+                                            <Binding Path="CornerRadius" />
+                                            <Binding Path="InnerRadius" />
+                                            <Binding Path="ShapeType" />
+                                            <Binding Path="Width" />
+                                            <Binding Path="Height" />
+                                            <Binding Path="ControlPoint1X" />
+                                            <Binding Path="ControlPoint1Y" />
+                                            <Binding Path="ControlPoint2X" />
+                                            <Binding Path="ControlPoint2Y" />
+                                        </MultiBinding>
+                                    </Path.Data>
+                                </Path>
                             </Grid>
                         </DataTemplate>
 
