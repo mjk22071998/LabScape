@@ -172,3 +172,33 @@ public class TransformItemCommand : IUndoableCommand
         _item.Rotation = _oldRot;
     }
 }
+
+public class ReorderLayerZIndexCommand : IUndoableCommand
+{
+    private readonly List<(ItemViewModel Item, int OldZ, int NewZ)> _changes;
+    private readonly string _description;
+
+    public string Description => _description;
+
+    public ReorderLayerZIndexCommand(List<(ItemViewModel Item, int OldZ, int NewZ)> changes, string description = "Reorder Layer")
+    {
+        _changes = changes;
+        _description = description;
+    }
+
+    public void Execute()
+    {
+        foreach (var c in _changes)
+        {
+            c.Item.Z = c.NewZ;
+        }
+    }
+
+    public void Unexecute()
+    {
+        foreach (var c in _changes)
+        {
+            c.Item.Z = c.OldZ;
+        }
+    }
+}

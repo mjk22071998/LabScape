@@ -23,6 +23,11 @@
         <!-- ==================================================== -->
         <fluent:Ribbon Grid.Row="0">
 
+            <!-- Office Window TitleBar Integration -->
+            <fluent:Ribbon.TitleBar>
+                <fluent:RibbonTitleBar Header="LabScape - Enterprise Physical Layout Designer"/>
+            </fluent:Ribbon.TitleBar>
+
             <!-- Backstage / Application Menu -->
             <fluent:Ribbon.Menu>
                 <fluent:Backstage Header="File">
@@ -81,12 +86,12 @@
                                    ToolTip="Ungroup selected items (Ctrl+Shift+G)"/>
                 </fluent:RibbonGroupBox>
 
-                <!-- Layering & Z-Index -->
-                <fluent:RibbonGroupBox Header="Z-Index Layering">
-                    <fluent:Button Header="Bring to Front" Command="{Binding Canvas.BringToFrontCommand}" ToolTip="Bring to Front (PageUp)"/>
-                    <fluent:Button Header="Send to Back" Command="{Binding Canvas.SendToBackCommand}" ToolTip="Send to Back (PageDown)"/>
-                    <fluent:Button Header="Bring Forward" Command="{Binding Canvas.BringForwardCommand}" ToolTip="Bring Forward (Ctrl+])"/>
-                    <fluent:Button Header="Send Backward" Command="{Binding Canvas.SendBackwardCommand}" ToolTip="Send Backward (Ctrl+[)"/>
+                <!-- Layering & Arrange (Layers) -->
+                <fluent:RibbonGroupBox Header="Layers">
+                    <fluent:Button Header="Move to Front" Command="{Binding Canvas.MoveToFrontCommand}" ToolTip="Move to Front (Ctrl+Shift+] / Shift+PageUp)"/>
+                    <fluent:Button Header="Move Forward" Command="{Binding Canvas.MoveForwardCommand}" ToolTip="Move Forward (Ctrl+] / PageUp)"/>
+                    <fluent:Button Header="Send Backward" Command="{Binding Canvas.SendBackwardCommand}" ToolTip="Send Backward (Ctrl+[ / PageDown)"/>
+                    <fluent:Button Header="Send to Back" Command="{Binding Canvas.SendToBackCommand}" ToolTip="Send to Back (Ctrl+Shift+[ / Shift+PageDown)"/>
                 </fluent:RibbonGroupBox>
 
                 <!-- Align & Distribute -->

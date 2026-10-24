@@ -173,16 +173,32 @@ public partial class MainWindow : RibbonWindow
                 return;
             }
 
-            // 6. Layering Shortcuts (PageUp, PageDown, Ctrl+], Ctrl+[)
-            if (e.Key == Key.PageUp || (isCtrl && e.Key == Key.OemCloseBrackets))
+            // 6. Layering Shortcuts (Send Backward, Send to Back, Move Forward, Move to Front)
+            // Move to Front: Ctrl+Shift+] or Shift+PageUp
+            if ((isCtrl && isShift && e.Key == Key.OemCloseBrackets) || (isShift && e.Key == Key.PageUp))
             {
-                if (isCtrl) canvas.BringForward(); else canvas.BringToFront();
+                canvas.MoveToFront();
                 e.Handled = true;
                 return;
             }
-            if (e.Key == Key.PageDown || (isCtrl && e.Key == Key.OemOpenBrackets))
+            // Move Forward: Ctrl+] or PageUp
+            if ((isCtrl && !isShift && e.Key == Key.OemCloseBrackets) || (!isShift && e.Key == Key.PageUp))
             {
-                if (isCtrl) canvas.SendBackward(); else canvas.SendToBack();
+                canvas.MoveForward();
+                e.Handled = true;
+                return;
+            }
+            // Send to Back: Ctrl+Shift+[ or Shift+PageDown
+            if ((isCtrl && isShift && e.Key == Key.OemOpenBrackets) || (isShift && e.Key == Key.PageDown))
+            {
+                canvas.SendToBack();
+                e.Handled = true;
+                return;
+            }
+            // Send Backward: Ctrl+[ or PageDown
+            if ((isCtrl && !isShift && e.Key == Key.OemOpenBrackets) || (!isShift && e.Key == Key.PageDown))
+            {
+                canvas.SendBackward();
                 e.Handled = true;
                 return;
             }

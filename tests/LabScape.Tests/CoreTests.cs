@@ -244,6 +244,23 @@ public class CoreTests
         canvas.SelectItem(itemA);
         canvas.BringToFront();
         Assert.True(itemA.Z > itemB.Z);
+
+        // Undo BringToFront
+        undoService.Undo();
+        Assert.Equal(1, itemA.Z);
+
+        // SendToBack
+        canvas.SendToBack();
+        Assert.True(itemA.Z < itemB.Z);
+
+        // MoveForward
+        int prevZ = itemA.Z;
+        canvas.MoveForward();
+        Assert.True(itemA.Z > prevZ);
+
+        // SendBackward
+        canvas.SendBackward();
+        Assert.Equal(prevZ, itemA.Z);
     }
 
     [Fact]

@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LabScape.Core.Enums;
 using LabScape.Core.Models;
 using LabScape.ViewModels.Items;
@@ -11,6 +12,18 @@ public partial class PropertiesViewModel : ObservableObject
 {
     private CanvasViewModel? _canvasViewModel;
     private NotifyCollectionChangedEventHandler? _selectionHandler;
+
+    [RelayCommand]
+    public void MoveToFront() => _canvasViewModel?.MoveToFront();
+
+    [RelayCommand]
+    public void MoveForward() => _canvasViewModel?.MoveForward();
+
+    [RelayCommand]
+    public void SendBackward() => _canvasViewModel?.SendBackward();
+
+    [RelayCommand]
+    public void SendToBack() => _canvasViewModel?.SendToBack();
 
     [ObservableProperty]
     private ItemViewModel? _selectedItem;

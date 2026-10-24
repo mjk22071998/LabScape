@@ -210,43 +210,69 @@ public partial class CanvasViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public void BringToFront()
+    public void MoveToFront()
     {
         if (SelectedItems.Count == 0 || Items.Count == 0) return;
-        int maxZ = Items.Max(i => i.Z);
-        foreach (var item in SelectedItems)
+        var nonSelected = Items.Except(SelectedItems).ToList();
+        int nonSelectedMax = nonSelected.Count > 0 ? nonSelected.Max(i => i.Z) : 0;
+        var orderedSelected = SelectedItems.OrderBy(i => i.Z).ToList();
+        int nextZ = Math.Max(nonSelectedMax + 1, orderedSelected.First().Z);
+        var changes = new List<(ItemViewModel Item, int OldZ, int NewZ)>();
+        for (int i = 0; i < orderedSelected.Count; i++)
         {
-            item.Z = ++maxZ;
+            changes.Add((orderedSelected[i], orderedSelected[i].Z, nextZ + i));
         }
+        _undoRedoService.ExecuteCommand(new ReorderLayerZIndexCommand(changes, "Move to Front"));
     }
+
+    [RelayCommand]
+    public void BringToFront() => MoveToFront();
 
     [RelayCommand]
     public void SendToBack()
     {
         if (SelectedItems.Count == 0 || Items.Count == 0) return;
-        int minZ = Items.Min(i => i.Z);
-        foreach (var item in SelectedItems)
+        var nonSelected = Items.Except(SelectedItems).ToList();
+        int nonSelectedMin = nonSelected.Count > 0 ? nonSelected.Min(i => i.Z) : 0;
+        var orderedSelected = SelectedItems.OrderBy(i => i.Z).ToList();
+        int baseZ = nonSelectedMin - orderedSelected.Count;
+        var changes = new List<(ItemViewModel Item, int OldZ, int NewZ)>();
+        for (int i = 0; i < orderedSelected.Count; i++)
         {
-            item.Z = --minZ;
+            changes.Add((orderedSelected[i], orderedSelected[i].Z, baseZ + i));
         }
+        _undoRedoService.ExecuteCommand(new ReorderLayerZIndexCommand(changes, "Send to Back"));
     }
 
     [RelayCommand]
-    public void BringForward()
+    public void MoveForward()
     {
-        foreach (var item in SelectedItems)
+        if (SelectedItems.Count == 0 || Items.Count == 0) return;
+        var changes = new List<(ItemViewModel Item, int OldZ, int NewZ)>();
+        foreach (var item in SelectedItems.OrderByDescending(i => i.Z))
         {
-            item.Z += 1;
+            var above = Items.Where(i => !SelectedItems.Contains(i) && i.Z >= item.Z).OrderBy(i => i.Z).FirstOrDefault();
+            int newZ = above != null ? above.Z + 1 : item.Z + 1;
+            changes.Add((item, item.Z, newZ));
         }
+        _undoRedoService.ExecuteCommand(new ReorderLayerZIndexCommand(changes, "Move Forward"));
     }
+
+    [RelayCommand]
+    public void BringForward() => MoveForward();
 
     [RelayCommand]
     public void SendBackward()
     {
-        foreach (var item in SelectedItems)
+        if (SelectedItems.Count == 0 || Items.Count == 0) return;
+        var changes = new List<(ItemViewModel Item, int OldZ, int NewZ)>();
+        foreach (var item in SelectedItems.OrderBy(i => i.Z))
         {
-            item.Z -= 1;
+            var below = Items.Where(i => !SelectedItems.Contains(i) && i.Z <= item.Z).OrderByDescending(i => i.Z).FirstOrDefault();
+            int newZ = below != null ? below.Z - 1 : item.Z - 1;
+            changes.Add((item, item.Z, newZ));
         }
+        _undoRedoService.ExecuteCommand(new ReorderLayerZIndexCommand(changes, "Send Backward"));
     }
 
     [RelayCommand]

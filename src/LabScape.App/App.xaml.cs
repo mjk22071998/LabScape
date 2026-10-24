@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Threading;
+using ControlzEx.Theming;
 
 namespace LabScape.App;
 
@@ -10,6 +11,15 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        try
+        {
+            ThemeManager.Current.ChangeTheme(this, "Light.Cobalt");
+        }
+        catch
+        {
+            // Fallback if theme manager fails
+        }
 
         DispatcherUnhandledException += App_DispatcherUnhandledException;
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
