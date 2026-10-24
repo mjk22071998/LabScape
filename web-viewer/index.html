@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LabScape Web Viewer — HTML5 2D Canvas</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #1f2937;
+      color: #f3f4f6;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: #111827;
+      border-bottom: 1px solid #374151;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #60a5fa;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .doc-info {
+      font-size: 13px;
+      color: #9ca3af;
+      padding-left: 12px;
+      border-left: 1px solid #4b5563;
+    }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    button, label.btn {
+      background: #374151;
+      color: #f3f4f6;
+      border: 1px solid #4b5563;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    button:hover, label.btn:hover {
+      background: #4b5563;
+      border-color: #60a5fa;
+    }
+    button.primary, label.btn.primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+    }
+    button.primary:hover, label.btn.primary:hover {
+      background: #1d4ed8;
+    }
+    input[type="file"] {
+      display: none;
+    }
+    .zoom-indicator {
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+      color: #d1d5db;
+      min-width: 50px;
+      text-align: center;
+    }
+    #viewport-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: #1e2430;
+      cursor: grab;
+    }
+    #viewport-container:active {
+      cursor: grabbing;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: block;
+    }
+    /* Floating Info Card */
+    #info-card {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(17, 24, 39, 0.92);
+      backdrop-filter: blur(8px);
+      border: 1px solid #374151;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 12px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      min-width: 240px;
+      max-width: 340px;
+      pointer-events: none;
+      display: none;
+      z-index: 20;
+    }
+    #info-card.active {
+      display: block;
+    }
+    #info-card h4 {
+      font-size: 13px;
+      color: #60a5fa;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+    #info-card .row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+      color: #9ca3af;
+    }
+    #info-card .row span.val {
+      color: #f3f4f6;
+      font-family: monospace;
+      font-weight: 600;
+    }
+    /* Drag & Drop Overlay */
+    #drop-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(37, 99, 235, 0.25);
+      border: 3px dashed #60a5fa;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 600;
+      color: #ffffff;
+      z-index: 50;
+      pointer-events: none;
+    }
+    #drop-overlay.active {
+      display: flex;
+    }
+    .stats-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+    .badge-warn {
+      background: #78350f;
+      color: #fde68a;
+    }
+    .badge-err {
+      background: #7f1d1d;
+      color: #fca5a5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header>
+    <div class="header-left">
+      <div class="brand-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+          <line x1="3" y1="9" x2="21" y2="9"/>
+          <line x1="9" y1="21" x2="9" y2="9"/>
+        </svg>
+        <span>LabScape 2D Web Viewer</span>
+      </div>
+      <div class="doc-info" id="doc-title-display">Document: Untitled Floorplan</div>
+      <div id="stats-container" style="display: flex; gap: 6px;"></div>
+    </div>
+
+    <div class="toolbar">
+      <label class="btn primary" title="Open any exported LabScape JSON file">
+        📂 Open JSON
+        <input type="file" id="file-input" accept=".json,application/json" />
+      </label>
+      <button id="btn-load-demo" title="Load sample lab floorplan with devices, furniture, and shapes">
+        🏢 Load Sample Lab
+      </button>
+
+      <span style="color: #4b5563; margin: 0 4px;">|</span>
+
+      <button id="btn-zoom-in" title="Zoom In">+</button>
+      <span class="zoom-indicator" id="zoom-text">100%</span>
+      <button id="btn-zoom-out" title="Zoom Out">-</button>
+      <button id="btn-zoom-reset" title="Reset Zoom to 100%">100%</button>
+      <button id="btn-fit-view" title="Fit floorplan to screen">Fit</button>
+      <button id="btn-toggle-grid" title="Toggle background grid">Grid: ON</button>
+    </div>
+  </header>
+
+  <!-- Viewport Container for Pan and Zoom -->
+  <div id="viewport-container">
+    <canvas id="layout-canvas"></canvas>
+    <div id="drop-overlay">Drop LabScape JSON file here</div>
+
+    <!-- Hover / Selection Info Card -->
+    <div id="info-card">
+      <h4 id="info-title">Item Details</h4>
+      <div class="row"><span>Type:</span><span class="val" id="info-type">-</span></div>
+      <div class="row"><span>ID:</span><span class="val" id="info-id">-</span></div>
+      <div class="row" id="info-row-ip"><span>IP Address:</span><span class="val" id="info-ip">-</span></div>
+      <div class="row" id="info-row-device-id"><span>Device ID:</span><span class="val" id="info-device-id">-</span></div>
+      <div class="row"><span>Position (X, Y):</span><span class="val" id="info-pos">-</span></div>
+      <div class="row"><span>Size (W x H):</span><span class="val" id="info-size">-</span></div>
+      <div class="row"><span>Z-Index:</span><span class="val" id="info-z">-</span></div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * LabScape Standalone HTML5 2D Canvas Viewer
+     * Zero external dependencies — pure CanvasRenderingContext2D
+     * Full pan & zoom, recursive group rendering, 9 shapes, and vector stencils.
+     */
+
+    // --- State Variables ---
+    let documentData = {
+      version: "1.0.0",
+      metadata: {
+        title: "Untitled Floorplan",
+        canvas_width: 3000,
+        canvas_height: 2000,
+        grid_size: 20
+      },
+      items: []
+    };
+
+    let scale = 1.0;
+    let panX = 40;
+    let panY = 40;
+    let isPanning = false;
+    let startPanX = 0;
+    let startPanY = 0;
+    let showGrid = true;
+    let hoveredItem = null;
+    let selectedItem = null;
+
+    const container = document.getElementById("viewport-container");
+    const canvas = document.getElementById("layout-canvas");
+    const ctx = canvas.getContext("2d");
+    const zoomText = document.getElementById("zoom-text");
+    const docTitleDisplay = document.getElementById("doc-title-display");
+    const statsContainer = document.getElementById("stats-container");
+    const infoCard = document.getElementById("info-card");
+    const dropOverlay = document.getElementById("drop-overlay");
+
+    // --- Canvas Resize Handling ---
+    function resizeCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = container.clientWidth * dpr;
+      canvas.height = container.clientHeight * dpr;
+      canvas.style.width = container.clientWidth + "px";
+      canvas.style.height = container.clientHeight + "px";
+      render();
+    }
+    window.addEventListener("resize", resizeCanvas);
+
+    // --- Rendering Pipeline ---
+    function render() {
+      const dpr = window.devicePixelRatio || 1;
+      ctx.save();
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, container.clientWidth, container.clientHeight);
+
+      // Apply Pan and Zoom Transform
+      ctx.save();
+      ctx.translate(panX, panY);
+      ctx.scale(scale, scale);
+
+      const docW = documentData.metadata.canvas_width || 3000;
+      const docH = documentData.metadata.canvas_height || 2000;
+      const gridSize = documentData.metadata.grid_size || 20;
+
+      // 1. Draw Document Boundary / Workspace Paper
+      ctx.fillStyle = "#ffffff";
+      ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
+      ctx.shadowBlur = 15;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 4;
+      ctx.fillRect(0, 0, docW, docH);
+      ctx.shadowColor = "transparent";
+
+      // 2. Draw Dynamic Grid if enabled
+      if (showGrid) {
+        ctx.strokeStyle = "#e5e7eb";
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        for (let x = 0; x <= docW; x += gridSize) {
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, docH);
+        }
+        for (let y = 0; y <= docH; y += gridSize) {
+          ctx.moveTo(0, y);
+          ctx.lineTo(docW, y);
+        }
+        ctx.stroke();
+
+        // Major grid lines every 5 units
+        ctx.strokeStyle = "#d1d5db";
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        const majorGrid = gridSize * 5;
+        for (let x = 0; x <= docW; x += majorGrid) {
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, docH);
+        }
+        for (let y = 0; y <= docH; y += majorGrid) {
+          ctx.moveTo(0, y);
+          ctx.lineTo(docW, y);
+        }
+        ctx.stroke();
+      }
+
+      // 3. Flatten and Sort items by Z-Index
+      const renderQueue = [];
+      collectRenderItems(documentData.items, renderQueue);
+      renderQueue.sort((a, b) => (a.z || 0) - (b.z || 0));
+
+      // 4. Render All Items
+      for (const item of renderQueue) {
+        ctx.save();
+        ctx.translate(item.x, item.y);
+        if (item.rotation) {
+          ctx.translate(item.width / 2, item.height / 2);
+          ctx.rotate((item.rotation * Math.PI) / 180);
+          ctx.translate(-item.width / 2, -item.height / 2);
+        }
+
+        renderItem(item);
+
+        // Highlight if hovered or selected
+        if (item === hoveredItem || item === selectedItem) {
+          ctx.strokeStyle = item === selectedItem ? "#2563eb" : "#60a5fa";
+          ctx.lineWidth = 2 / scale;
+          ctx.setLineDash([4 / scale, 2 / scale]);
+          ctx.strokeRect(-2, -2, item.width + 4, item.height + 4);
+          ctx.setLineDash([]);
+        }
+
+        ctx.restore();
+      }
+
+      ctx.restore(); // Pan & Zoom restore
+      ctx.restore(); // DPR restore
+
+      zoomText.textContent = Math.round(scale * 100) + "%";
+    }
+
+    /**
+     * Recursively collect items (expanding groups)
+     * Groups manage positions and children, group names are not drawn on canvas.
+     */
+    function collectRenderItems(items, queue, parentX = 0, parentY = 0) {
+      if (!items || !Array.isArray(items)) return;
+      for (const item of items) {
+        if (item.type === "group" || item.type === "Group") {
+          // If group has children, recursively add them with relative coordinates
+          if (item.children && Array.isArray(item.children)) {
+            collectRenderItems(item.children, queue, parentX + (item.x || 0), parentY + (item.y || 0));
+          }
+        } else {
+          // Flattened item with global world coordinate
+          const globalItem = Object.assign({}, item);
+          globalItem.x = parentX + (item.x || 0);
+          globalItem.y = parentY + (item.y || 0);
+          globalItem._source = item;
+          queue.push(globalItem);
+        }
+      }
+    }
+
+    // --- Item Rendering Router ---
+    function renderItem(item) {
+      const type = (item.type || "").toLowerCase();
+      switch (type) {
+        case "device":
+          renderDevice(item);
+          break;
+        case "furniture":
+          renderFurniture(item);
+          break;
+        case "shape":
+          renderShape(item);
+          break;
+      }
+    }
+
+    // ========================================================
+    // 1. DEVICE RENDERING (With Device-Only Canvas Text Labels)
+    // ========================================================
+    function renderDevice(item) {
+      const w = item.width || 80;
+      const h = item.height || 80;
+      const devType = (item.device_type || item.deviceType || "desktop_pc").toLowerCase();
+
+      // Render vector stencil graphic
+      switch (devType) {
+        case "desktop_pc":
+          drawDesktopPC(w, h);
+          break;
+        case "laptop":
+          drawLaptop(w, h);
+          break;
+        case "server_rack":
+          drawServerRack(w, h);
+          break;
+        case "switch":
+          drawNetworkSwitch(w, h);
+          break;
+        case "printer":
+          drawPrinter(w, h);
+          break;
+        default:
+          drawDesktopPC(w, h);
+          break;
+      }
+
+      // Render Validation Badge if unassigned or duplicate IP
+      const status = (item.validation_status || item.validationStatus || "").toLowerCase();
+      if (status === "unassigned") {
+        drawValidationBadge(w, 0, "⚠️", "#fef3c7", "#f59e0b");
+      } else if (status === "duplicateip" || status === "duplicate_ip") {
+        drawValidationBadge(w, 0, "⛔", "#fee2e2", "#ef4444");
+      }
+
+      // =======================================================
+      // MANDATORY RULE: ONLY DEVICES SHOW TEXT LABELS ON LAYOUT
+      // =======================================================
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.font = "bold 11px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif";
+      ctx.fillStyle = "#111827";
+      ctx.fillText(item.name || "Device", w / 2, h + 4);
+
+      const ip = item.ip_address || item.ipAddress;
+      if (ip) {
+        ctx.font = "10px monospace";
+        ctx.fillStyle = "#4b5563";
+        ctx.fillText(ip, w / 2, h + 18);
+      }
+    }
+
+    function drawValidationBadge(x, y, icon, bg, border) {
+      ctx.save();
+      ctx.translate(x - 12, y - 4);
+      ctx.fillStyle = bg;
+      ctx.strokeStyle = border;
+      ctx.lineWidth = 1.2;
+      roundRect(ctx, 0, 0, 18, 18, 9, true, true);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = "10px sans-serif";
+      ctx.fillText(icon, 9, 9);
+      ctx.restore();
+    }
+
+    // --- Vector Hardware Stencils (100x100 relative scales) ---
+    function drawDesktopPC(w, h) {
+      const sx = w / 100;
+      const sy = h / 100;
+      ctx.save();
+      ctx.scale(sx, sy);
+
+      // Base Stand
+      ctx.fillStyle = "#9ca3af";
+      ctx.strokeStyle = "#374151";
+      ctx.lineWidth = 2;
+      roundRect(ctx, 38, 24, 24, 12, 3, true, true);
+
+      // Monitor Screen (Curved Top-Down)
+      ctx.fillStyle = "#1f2937";
+      ctx.strokeStyle = "#111827";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(12, 18);
+      ctx.bezierCurveTo(30, 15, 70, 15, 88, 18);
+      ctx.lineTo(88, 22);
+      ctx.bezierCurveTo(70, 19, 30, 19, 12, 22);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Keyboard
+      ctx.fillStyle = "#e5e7eb";
+      ctx.strokeStyle = "#374151";
+      ctx.lineWidth = 2;
+      roundRect(ctx, 18, 44, 46, 20, 3, true, true);
+
+      // Mouse
+      roundRect(ctx, 69, 48, 9, 14, 4.5, true, true);
+
+      // PC Tower Body
+      ctx.fillStyle = "#374151";
+      ctx.strokeStyle = "#1f2937";
+      roundRect(ctx, 18, 72, 50, 14, 2, true, true);
+
+      ctx.restore();
+    }
+
+    function drawLaptop(w, h) {
+      const sx = w / 100;
+      const sy = h / 100;
+      ctx.save();
+      ctx.scale(sx, sy);
+
+      // Tilted Back Screen Panel
+      ctx.fillStyle = "#1f2937";
+      ctx.strokeStyle = "#111827";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(20, 12);
+      ctx.lineTo(80, 12);
+      ctx.lineTo(76, 36);
+      ctx.lineTo(24, 36);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Hinge Bar
+      ctx.fillStyle = "#111827";
+      roundRect(ctx, 22, 34, 56, 5, 1.5, true, false);
+
+      // Base Chassis
+      ctx.fillStyle = "#e5e7eb";
+      ctx.strokeStyle = "#374151";
+      ctx.lineWidth = 2;
+      roundRect(ctx, 18, 38, 64, 48, 4, true, true);
+
+      // Keyboard Inset
+      ctx.fillStyle = "#d1d5db";
+      ctx.strokeStyle = "#6b7280";
+      ctx.lineWidth = 1;
+      roundRect(ctx, 22, 44, 56, 22, 2, true, true);
+
+      // Trackpad
+      ctx.fillStyle = "#f3f4f6";
+      ctx.strokeStyle = "#9ca3af";
+      roundRect(ctx, 38, 69, 24, 13, 2, true, true);
+
+      ctx.restore();
+    }
+
+    function drawServerRack(w, h) {
+      const sx = w / 100;
+      const sy = h / 100;
+      ctx.save();
+      ctx.scale(sx, sy);
+
+      // Outer Rack Cabinet
+      ctx.fillStyle = "#1f2937";
+      ctx.strokeStyle = "#111827";
+      ctx.lineWidth = 2.5;
+      roundRect(ctx, 18, 10, 64, 80, 4, true, true);
+
+      // Inner Rack Bays
+      ctx.fillStyle = "#111827";
+      ctx.strokeStyle = "#4b5563";
+      ctx.lineWidth = 1.5;
+      ctx.fillRect(27, 26, 46, 48);
+      ctx.strokeRect(27, 26, 46, 48);
+
+      // Server Blade Slots
+      ctx.fillStyle = "#374151";
+      for (let y = 30; y <= 62; y += 8) {
+        ctx.fillRect(30, y, 40, 4);
+      }
+
+      ctx.restore();
+    }
+
+    function drawNetworkSwitch(w, h) {
+      const sx = w / 100;
+      const sy = h / 50;
+      ctx.save();
+      ctx.scale(sx, sy);
+
+      ctx.fillStyle = "#1f2937";
+      ctx.strokeStyle = "#111827";
+      ctx.lineWidth = 2;
+      roundRect(ctx, 5, 10, 90, 30, 3, true, true);
+
+      // RJ45 Ports
+      ctx.fillStyle = "#374151";
+      for (let x = 12; x <= 68; x += 14) {
+        roundRect(ctx, x, 18, 10, 6, 1, true, false);
+      }
+
+      // Status LEDs
+      ctx.fillStyle = "#10b981";
+      ctx.beginPath();
+      ctx.arc(84, 21, 2, 0, Math.PI * 2);
+      ctx.arc(89, 21, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    function drawPrinter(w, h) {
+      const sx = w / 80;
+      const sy = h / 80;
+      ctx.save();
+      ctx.scale(sx, sy);
+
+      ctx.fillStyle = "#e5e7eb";
+      ctx.strokeStyle = "#374151";
+      ctx.lineWidth = 2;
+      roundRect(ctx, 15, 20, 50, 45, 4, true, true);
+
+      // Paper Tray
+      ctx.fillStyle = "#ffffff";
+      ctx.strokeStyle = "#9ca3af";
+      ctx.lineWidth = 1.5;
+      roundRect(ctx, 25, 10, 30, 15, 2, true, true);
+
+      // Output Slot
+      ctx.fillStyle = "#374151";
+      ctx.strokeStyle = "#1f2937";
+      ctx.lineWidth = 1;
+      roundRect(ctx, 22, 48, 36, 10, 1, true, true);
+
+      ctx.restore();
+    }
+
+    // ========================================================
+    // 2. FURNITURE RENDERING (Zero Text on Canvas)
+    // ========================================================
+    function renderFurniture(item) {
+      const w = item.width || 120;
+      const h = item.height || 70;
+      const fType = (item.furniture_type || item.furnitureType || "desk").toLowerCase();
+
+      switch (fType) {
+        case "desk":
+          drawDesk(w, h, item.fill, item.stroke);
+          break;
+        case "office_chair":
+          drawOfficeChair(w, h);
+          break;
+        case "conference_table_8":
+          drawConferenceTable8(w, h);
+          break;
+        case "sofa_3_seater":
+          drawSofa3Seater(w, h);
+          break;
+        case "bookcase":
+          drawBookcase(w, h);
+          break;
+        case "plant":
+          drawFloorPlant(w, h);
+          break;
+        default:
+          drawDesk(w, h, item.fill, item.stroke);
+          break;
+      }
+    }
+
+    function drawDesk(w, h, fill = "#f3f4f6", stroke = "#374151") {
+      ctx.fillStyle = fill;
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = 2;
+      roundRect(ctx, 0, 0, w, h, 4, true, true);
+
+      // Desk Drawer Inset
+      ctx.fillStyle = "#e5e7eb";
+      ctx.strokeStyle = "#6b7280";
+      ctx.lineWidth = 1.5;
+      roundRect(ctx, 4, 4, w * 0.22, h - 8, 2, true, true);
+
+      // Cable Grommet Hole
+      ctx.fillStyle = stroke;
+      ctx.beginPath();
+      ctx.arc(w - 12, 12, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawOfficeChair(w, h) {
+      const sx = w / 100;
+      const sy = h / 100;
+      ctx.save();
+      ctx.scale(sx, sy);
+
+      // Seat Cushion
+      ctx.fillStyle = "#e5e7eb";
+      ctx.strokeStyle = "#374151";
+      ctx.lineWidth = 2.5;
+      roundRect(ctx, 27, 32, 46, 40, 12, true, true);
+
+      // Armrests
+      ctx.fillStyle = "#374151";
+      roundRect(ctx, 19, 38, 7, 28, 3.5, true, false);
+      roundRect(ctx, 74, 38, 7, 28, 3.5, true, false);
+
+      // Curved Backrest
+      ctx.fillStyle = "#4b5563";
+      ctx.strokeStyle = "#1f2937";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(23, 28);
+      ctx.quadraticCurveTo(50, 16, 77, 28);
+      ctx.quadraticCurveTo(50, 22, 23, 28);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawConferenceTable8(w, h) {
+      // 8-Seater Conference Table without adjacent chairs
+      ctx.fillStyle = "#f3f4f6";
+      ctx.strokeStyle = "#374151";
+      ctx.lineWidth = 2.5;
+      roundRect(ctx, 0, 0, w, h, 14, true, true);
+
+      // Center AV / Power Inset Box
+      ctx.fillStyle = "#e5e7eb";
+      ctx.strokeStyle = "#6b7280";
+      ctx.lineWidth = 1.5;
+      const boxW = Math.min(60, w * 0.3);
+      const boxH = Math.min(24, h * 0.25);
+      roundRect(ctx, (w - boxW) / 2, (h - boxH) / 2, boxW, boxH, 3, true, true);
+    }
+
+    function drawSofa3Seater(w, h) {
+      ctx.fillStyle = "#e5e7eb";
+      ctx.strokeStyle = "#374151";
+      ctx.lineWidth = 2.5;
+      roundRect(ctx, 0, 0, w, h, 8, true, true);
+
+      // Thick Backrest Cushion
+      ctx.fillStyle = "#d1d5db";
+      ctx.strokeStyle = "#4b5563";
+      ctx.lineWidth = 1.5;
+      roundRect(ctx, 4, 4, w - 8, h * 0.3, 5, true, true);
+    }
+
+    function drawBookcase(w, h) {
+      ctx.fillStyle = "#f3f4f6";
+      ctx.strokeStyle = "#374151";
+      ctx.lineWidth = 2;
+      roundRect(ctx, 0, 0, w, h, 2, true, true);
+
+      // Shelf Dividers
+      ctx.fillStyle = "#9ca3af";
+      ctx.strokeStyle = "#4b5563";
+      ctx.lineWidth = 1;
+      const numBooks = 6;
+      const colW = (w - 10) / numBooks;
+      for (let i = 0; i < numBooks; i++) {
+        roundRect(ctx, 5 + i * colW + 2, 4, colW - 4, h - 8, 1, true, true);
+      }
+    }
+
+    function drawFloorPlant(w, h) {
+      ctx.fillStyle = "#f3f4f6";
+      ctx.strokeStyle = "#374151";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(w / 2, h / 2, Math.min(w, h) / 2 - 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Stylized Leaf Pedals
+      ctx.fillStyle = "#10b981";
+      ctx.strokeStyle = "#047857";
+      ctx.lineWidth = 1.5;
+      const cx = w / 2;
+      const cy = h / 2;
+      const rx = w * 0.12;
+      const ry = h * 0.28;
+
+      ctx.beginPath();
+      ctx.ellipse(cx, cy - ry / 2, rx, ry, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx, cy + ry / 2, rx, ry, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx - ry / 2, cy, ry, rx, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx + ry / 2, cy, ry, rx, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Center Node
+      ctx.fillStyle = "#059669";
+      ctx.beginPath();
+      ctx.arc(cx, cy, Math.min(w, h) * 0.12, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // ========================================================
+    // 3. GEOMETRIC SHAPES (9 Canonical Types)
+    // ========================================================
+    function renderShape(item) {
+      const w = item.width || 100;
+      const h = item.height || 100;
+      const shapeType = (item.shape_type || item.shapeType || "rectangle").toLowerCase();
+      const fill = item.fill || "#e0e7ff";
+      const stroke = item.stroke || "#4338ca";
+      const strokeThickness = item.stroke_thickness || item.strokeThickness || 2;
+      const cornerRadius = item.corner_radius || item.cornerRadius || 12;
+      const innerRadius = item.inner_radius || item.innerRadius || 25;
+
+      ctx.fillStyle = fill;
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = strokeThickness;
+
+      ctx.beginPath();
+
+      switch (shapeType) {
+        case "rectangle":
+          ctx.rect(0, 0, w, h);
+          ctx.fill();
+          ctx.stroke();
+          break;
+
+        case "roundedrectangle":
+        case "rounded_rectangle":
+          roundRect(ctx, 0, 0, w, h, cornerRadius, true, true);
+          break;
+
+        case "circle":
+          ctx.arc(w / 2, h / 2, Math.min(w, h) / 2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          break;
+
+        case "semicircle":
+        case "semi_circle":
+          // Semicircle with flat bottom chord
+          ctx.arc(w / 2, h, Math.min(w / 2, h), Math.PI, 0, false);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          break;
+
+        case "triangle":
+          ctx.moveTo(w / 2, 0);
+          ctx.lineTo(w, h);
+          ctx.lineTo(0, h);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          break;
+
+        case "roundedcornertriangle":
+        case "rounded_corner_triangle":
+          drawRoundedTriangle(ctx, 0, 0, w, h, cornerRadius);
+          ctx.fill();
+          ctx.stroke();
+          break;
+
+        case "donut":
+          // Donut: outer circle minus inner circle hole via evenodd rule
+          const outerR = Math.min(w, h) / 2;
+          const innerR = Math.min(outerR - 2, innerRadius);
+          const cx = w / 2;
+          const cy = h / 2;
+
+          ctx.arc(cx, cy, outerR, 0, Math.PI * 2, false);
+          ctx.arc(cx, cy, innerR, 0, Math.PI * 2, true); // counter-clockwise hole
+          ctx.fill();
+
+          // Stroke both outer and inner circumferences
+          ctx.beginPath();
+          ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(cx, cy, innerR, 0, Math.PI * 2);
+          ctx.stroke();
+          break;
+
+        case "line":
+          ctx.moveTo(0, h / 2);
+          ctx.lineTo(w, h / 2);
+          ctx.stroke();
+          break;
+
+        case "bezier":
+          const cp1x = item.control_point1_x ?? item.controlPoint1X ?? w * 0.25;
+          const cp1y = item.control_point1_y ?? item.controlPoint1Y ?? 0;
+          const cp2x = item.control_point2_x ?? item.controlPoint2X ?? w * 0.75;
+          const cp2y = item.control_point2_y ?? item.controlPoint2Y ?? h;
+
+          ctx.moveTo(0, h * 0.65);
+          ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, w, h * 0.15);
+          ctx.stroke();
+          break;
+
+        default:
+          ctx.rect(0, 0, w, h);
+          ctx.fill();
+          ctx.stroke();
+          break;
+      }
+    }
+
+    function drawRoundedTriangle(ctx, x, y, w, h, radius) {
+      const r = Math.min(radius, w / 4, h / 4);
+      const p1 = { x: x + w / 2, y: y };
+      const p2 = { x: x + w, y: y + h };
+      const p3 = { x: x, y: y + h };
+
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y + r);
+      ctx.arcTo(p2.x, p2.y, p3.x, p3.y, r);
+      ctx.arcTo(p3.x, p3.y, p1.x, p1.y, r);
+      ctx.arcTo(p1.x, p1.y, p2.x, p2.y, r);
+      ctx.closePath();
+    }
+
+    // --- Helper for Rounded Rectangle ---
+    function roundRect(ctx, x, y, width, height, radius = 5, fill = false, stroke = true) {
+      if (typeof radius === "number") {
+        radius = { tl: radius, tr: radius, br: radius, bl: radius };
+      }
+      ctx.beginPath();
+      ctx.moveTo(x + radius.tl, y);
+      ctx.lineTo(x + width - radius.tr, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+      ctx.lineTo(x + width, y + height - radius.br);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+      ctx.lineTo(x + radius.bl, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+      ctx.lineTo(x, y + radius.tl);
+      ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+      ctx.closePath();
+      if (fill) ctx.fill();
+      if (stroke) ctx.stroke();
+    }
+
+    // ========================================================
+    // 4. PAN AND ZOOM INTERACTION ENGINE
+    // ========================================================
+    container.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const rect = container.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      const zoomFactor = e.deltaY < 0 ? 1.15 : 0.87;
+      const newScale = Math.min(Math.max(0.1, scale * zoomFactor), 8.0);
+
+      // Zoom towards mouse cursor point
+      panX = mouseX - (mouseX - panX) * (newScale / scale);
+      panY = mouseY - (mouseY - panY) * (newScale / scale);
+      scale = newScale;
+
+      render();
+    }, { passive: false });
+
+    container.addEventListener("mousedown", (e) => {
+      if (e.button === 0 || e.button === 1) { // Left or Middle Click
+        isPanning = true;
+        startPanX = e.clientX - panX;
+        startPanY = e.clientY - panY;
+      }
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (isPanning) {
+        panX = e.clientX - startPanX;
+        panY = e.clientY - startPanY;
+        render();
+        return;
+      }
+
+      // Hit Testing for Hover Inspector
+      const rect = container.getBoundingClientRect();
+      const mouseWorldX = (e.clientX - rect.left - panX) / scale;
+      const mouseWorldY = (e.clientY - rect.top - panY) / scale;
+
+      const renderQueue = [];
+      collectRenderItems(documentData.items, renderQueue);
+      renderQueue.sort((a, b) => (b.z || 0) - (a.z || 0)); // top-to-bottom for hit test
+
+      let found = null;
+      for (const item of renderQueue) {
+        if (
+          mouseWorldX >= item.x &&
+          mouseWorldX <= item.x + item.width &&
+          mouseWorldY >= item.y &&
+          mouseWorldY <= item.y + item.height
+        ) {
+          found = item;
+          break;
+        }
+      }
+
+      if (found !== hoveredItem) {
+        hoveredItem = found;
+        updateInfoCard(hoveredItem);
+        render();
+      }
+    });
+
+    window.addEventListener("mouseup", () => {
+      isPanning = false;
+    });
+
+    // --- Toolbar Buttons ---
+    document.getElementById("btn-zoom-in").addEventListener("click", () => {
+      scale = Math.min(8.0, scale * 1.25);
+      render();
+    });
+
+    document.getElementById("btn-zoom-out").addEventListener("click", () => {
+      scale = Math.max(0.1, scale * 0.8);
+      render();
+    });
+
+    document.getElementById("btn-zoom-reset").addEventListener("click", () => {
+      scale = 1.0;
+      panX = 40;
+      panY = 40;
+      render();
+    });
+
+    document.getElementById("btn-fit-view").addEventListener("click", fitToViewport);
+
+    function fitToViewport() {
+      const docW = documentData.metadata.canvas_width || 3000;
+      const docH = documentData.metadata.canvas_height || 2000;
+      const availW = container.clientWidth - 80;
+      const availH = container.clientHeight - 80;
+
+      const fitScale = Math.min(availW / docW, availH / docH);
+      scale = Math.max(0.1, Math.min(fitScale, 2.0));
+      panX = (container.clientWidth - docW * scale) / 2;
+      panY = (container.clientHeight - docH * scale) / 2;
+      render();
+    }
+
+    const btnGrid = document.getElementById("btn-toggle-grid");
+    btnGrid.addEventListener("click", () => {
+      showGrid = !showGrid;
+      btnGrid.textContent = showGrid ? "Grid: ON" : "Grid: OFF";
+      render();
+    });
+
+    // --- Info Card Updater ---
+    function updateInfoCard(item) {
+      if (!item) {
+        infoCard.classList.remove("active");
+        return;
+      }
+      infoCard.classList.add("active");
+      document.getElementById("info-title").textContent = item.name || "Item Details";
+      document.getElementById("info-type").textContent = item.type;
+      document.getElementById("info-id").textContent = (item.id || "").substring(0, 8) + "...";
+      document.getElementById("info-pos").textContent = `(${Math.round(item.x)}, ${Math.round(item.y)})`;
+      document.getElementById("info-size").textContent = `${Math.round(item.width)} × ${Math.round(item.height)}`;
+      document.getElementById("info-z").textContent = item.z || 0;
+
+      const rowIp = document.getElementById("info-row-ip");
+      const rowDev = document.getElementById("info-row-device-id");
+      if (item.type === "device") {
+        rowIp.style.display = "flex";
+        rowDev.style.display = "flex";
+        document.getElementById("info-ip").textContent = item.ip_address || item.ipAddress || "Unassigned";
+        document.getElementById("info-device-id").textContent = item.device_id || item.deviceId || "-";
+      } else {
+        rowIp.style.display = "none";
+        rowDev.style.display = "none";
+      }
+    }
+
+    // --- File Input & Drag and Drop ---
+    const fileInput = document.getElementById("file-input");
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) loadJsonFile(file);
+    });
+
+    window.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropOverlay.classList.add("active");
+    });
+
+    window.addEventListener("dragleave", (e) => {
+      if (e.relatedTarget === null) {
+        dropOverlay.classList.remove("active");
+      }
+    });
+
+    window.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropOverlay.classList.remove("active");
+      const file = e.dataTransfer.files[0];
+      if (file && (file.name.endsWith(".json") || file.type === "application/json")) {
+        loadJsonFile(file);
+      }
+    });
+
+    function loadJsonFile(file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const parsed = JSON.parse(event.target.result);
+          setDocumentData(parsed, file.name);
+        } catch (err) {
+          alert("Error parsing LabScape JSON file:\n" + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function setDocumentData(data, filename) {
+      documentData = data;
+      const title = (data.metadata && data.metadata.title) ? data.metadata.title : filename || "Loaded Layout";
+      docTitleDisplay.textContent = `Document: ${title}`;
+      updateStats();
+      fitToViewport();
+    }
+
+    function updateStats() {
+      const queue = [];
+      collectRenderItems(documentData.items, queue);
+      const devices = queue.filter(i => i.type === "device");
+      const unassigned = devices.filter(d => (d.validation_status || d.validationStatus || "").toLowerCase() === "unassigned").length;
+      
+      const ipCounts = {};
+      for (const d of devices) {
+        const ip = d.ip_address || d.ipAddress;
+        if (ip) ipCounts[ip] = (ipCounts[ip] || 0) + 1;
+      }
+      const duplicates = devices.filter(d => {
+        const ip = d.ip_address || d.ipAddress;
+        return ip && ipCounts[ip] > 1;
+      }).length;
+
+      statsContainer.innerHTML = "";
+      if (unassigned > 0) {
+        const warnSpan = document.createElement("span");
+        warnSpan.className = "stats-badge badge-warn";
+        warnSpan.textContent = `⚠️ ${unassigned} Unassigned`;
+        statsContainer.appendChild(warnSpan);
+      }
+      if (duplicates > 0) {
+        const errSpan = document.createElement("span");
+        errSpan.className = "stats-badge badge-err";
+        errSpan.textContent = `⛔ ${duplicates} IP Conflict`;
+        statsContainer.appendChild(errSpan);
+      }
+    }
+
+    // --- Load Demo Lab Floorplan ---
+    document.getElementById("btn-load-demo").addEventListener("click", () => {
+      const demoDoc = generateDemoFloorplan();
+      setDocumentData(demoDoc, "Enterprise Lab Floorplan Demo");
+    });
+
+    function generateDemoFloorplan() {
+      return {
+        version: "1.0.0",
+        metadata: {
+          title: "Enterprise Computing Lab — Floor 2",
+          canvas_width: 2400,
+          canvas_height: 1600,
+          grid_size: 20
+        },
+        items: [
+          // Room Perimeter (Rounded Rectangle)
+          {
+            type: "shape",
+            id: "room-wall-01",
+            name: "Lab Outer Boundary",
+            shape_type: "rounded_rectangle",
+            x: 80,
+            y: 80,
+            z: 0,
+            width: 2200,
+            height: 1400,
+            corner_radius: 16,
+            fill: "#f8fafc",
+            stroke: "#475569",
+            stroke_thickness: 3
+          },
+          // Server / Telecom Enclosure Zone
+          {
+            type: "shape",
+            id: "server-zone-01",
+            name: "Server Enclosure",
+            shape_type: "rectangle",
+            x: 140,
+            y: 140,
+            z: 1,
+            width: 480,
+            height: 380,
+            fill: "#f1f5f9",
+            stroke: "#94a3b8",
+            stroke_thickness: 1.5
+          },
+          // Server Racks inside Server Zone
+          {
+            type: "device",
+            id: "rack-01",
+            name: "Server-Rack-Alpha",
+            device_type: "server_rack",
+            device_id: "DEV-SRV-01",
+            ip_address: "10.0.1.10",
+            validation_status: "valid",
+            x: 180,
+            y: 180,
+            z: 10,
+            width: 80,
+            height: 100
+          },
+          {
+            type: "device",
+            id: "rack-02",
+            name: "Server-Rack-Beta",
+            device_type: "server_rack",
+            device_id: "DEV-SRV-02",
+            ip_address: "10.0.1.11",
+            validation_status: "valid",
+            x: 300,
+            y: 180,
+            z: 10,
+            width: 80,
+            height: 100
+          },
+          {
+            type: "device",
+            id: "switch-01",
+            name: "Core-Switch-01",
+            device_type: "switch",
+            device_id: "DEV-SW-01",
+            ip_address: "10.0.1.1",
+            validation_status: "valid",
+            x: 420,
+            y: 200,
+            z: 10,
+            width: 100,
+            height: 50
+          },
+          // Workstation Group 1 (Dual Pod Desk with PC & Laptop)
+          {
+            type: "group",
+            id: "grp-workstation-pod-1",
+            name: "Engineering Pod 1",
+            x: 750,
+            y: 200,
+            z: 5,
+            width: 400,
+            height: 240,
+            children: [
+              {
+                type: "furniture",
+                id: "desk-pod-1a",
+                name: "Work Desk Left",
+                furniture_type: "desk",
+                x: 0,
+                y: 0,
+                z: 6,
+                width: 140,
+                height: 80,
+                fill: "#f3f4f6",
+                stroke: "#374151"
+              },
+              {
+                type: "device",
+                id: "dev-cad-01",
+                name: "CAD-Workstation-01",
+                device_type: "desktop_pc",
+                device_id: "DEV-101",
+                ip_address: "192.168.10.101",
+                validation_status: "valid",
+                x: 30,
+                y: 5,
+                z: 8,
+                width: 80,
+                height: 80
+              },
+              {
+                type: "furniture",
+                id: "chair-pod-1a",
+                name: "Swivel Chair Left",
+                furniture_type: "office_chair",
+                x: 40,
+                y: 95,
+                z: 7,
+                width: 60,
+                height: 60
+              },
+              {
+                type: "furniture",
+                id: "desk-pod-1b",
+                name: "Work Desk Right",
+                furniture_type: "desk",
+                x: 160,
+                y: 0,
+                z: 6,
+                width: 140,
+                height: 80,
+                fill: "#f3f4f6",
+                stroke: "#374151"
+              },
+              {
+                type: "device",
+                id: "dev-laptop-01",
+                name: "Lead-Dev-Laptop",
+                device_type: "laptop",
+                device_id: "DEV-103",
+                ip_address: "192.168.10.103",
+                validation_status: "valid",
+                x: 190,
+                y: 5,
+                z: 8,
+                width: 80,
+                height: 80
+              },
+              {
+                type: "furniture",
+                id: "chair-pod-1b",
+                name: "Swivel Chair Right",
+                furniture_type: "office_chair",
+                x: 200,
+                y: 95,
+                z: 7,
+                width: 60,
+                height: 60
+              }
+            ]
+          },
+          // Workstation Group 2 (Pods with Unassigned Warning)
+          {
+            type: "group",
+            id: "grp-workstation-pod-2",
+            name: "Engineering Pod 2",
+            x: 750,
+            y: 500,
+            z: 5,
+            width: 400,
+            height: 240,
+            children: [
+              {
+                type: "furniture",
+                id: "desk-pod-2a",
+                name: "Work Desk Left",
+                furniture_type: "desk",
+                x: 0,
+                y: 0,
+                z: 6,
+                width: 140,
+                height: 80
+              },
+              {
+                type: "device",
+                id: "dev-cad-02",
+                name: "CAD-Workstation-02",
+                device_type: "desktop_pc",
+                device_id: "DEV-102",
+                ip_address: "192.168.10.102",
+                validation_status: "valid",
+                x: 30,
+                y: 5,
+                z: 8,
+                width: 80,
+                height: 80
+              },
+              {
+                type: "furniture",
+                id: "chair-pod-2a",
+                name: "Swivel Chair",
+                furniture_type: "office_chair",
+                x: 40,
+                y: 95,
+                z: 7,
+                width: 60,
+                height: 60
+              },
+              {
+                type: "furniture",
+                id: "desk-pod-2b",
+                name: "Work Desk Right",
+                furniture_type: "desk",
+                x: 160,
+                y: 0,
+                z: 6,
+                width: 140,
+                height: 80
+              },
+              {
+                type: "device",
+                id: "dev-pc-unassigned",
+                name: "Spare-Lab-PC",
+                device_type: "desktop_pc",
+                device_id: null,
+                ip_address: null,
+                validation_status: "unassigned",
+                x: 190,
+                y: 5,
+                z: 8,
+                width: 80,
+                height: 80
+              },
+              {
+                type: "furniture",
+                id: "chair-pod-2b",
+                name: "Swivel Chair",
+                furniture_type: "office_chair",
+                x: 200,
+                y: 95,
+                z: 7,
+                width: 60,
+                height: 60
+              }
+            ]
+          },
+          // Boardroom / Conference Area
+          {
+            type: "furniture",
+            id: "conf-table-01",
+            name: "Main Conference Table",
+            furniture_type: "conference_table_8",
+            x: 1400,
+            y: 200,
+            z: 5,
+            width: 240,
+            height: 110
+          },
+          {
+            type: "device",
+            id: "dev-conf-av",
+            name: "Conf-AV-Controller",
+            device_type: "desktop_pc",
+            device_id: "DEV-107",
+            ip_address: "192.168.10.107",
+            validation_status: "valid",
+            x: 1480,
+            y: 215,
+            z: 8,
+            width: 80,
+            height: 80
+          },
+          // Lounge Area
+          {
+            type: "furniture",
+            id: "sofa-01",
+            name: "Collaboration Sofa",
+            furniture_type: "sofa_3_seater",
+            x: 1400,
+            y: 450,
+            z: 5,
+            width: 200,
+            height: 90
+          },
+          {
+            type: "furniture",
+            id: "bookcase-01",
+            name: "Technical Library",
+            furniture_type: "bookcase",
+            x: 1800,
+            y: 200,
+            z: 5,
+            width: 160,
+            height: 50
+          },
+          {
+            type: "furniture",
+            id: "plant-01",
+            name: "Lobby Plant",
+            furniture_type: "plant",
+            x: 1650,
+            y: 470,
+            z: 6,
+            width: 60,
+            height: 60
+          },
+          // Department Printer
+          {
+            type: "device",
+            id: "printer-01",
+            name: "Floor-2-Printer",
+            device_type: "printer",
+            device_id: "DEV-PRN-01",
+            ip_address: "192.168.10.200",
+            validation_status: "valid",
+            x: 1800,
+            y: 350,
+            z: 10,
+            width: 70,
+            height: 70
+          },
+          // Showcase of All 9 Geometric Shapes
+          {
+            type: "shape",
+            id: "shape-donut-01",
+            name: "Central Hub Donut",
+            shape_type: "donut",
+            x: 200,
+            y: 750,
+            z: 4,
+            width: 140,
+            height: 140,
+            inner_radius: 35,
+            fill: "#dbeafe",
+            stroke: "#2563eb",
+            stroke_thickness: 2.5
+          },
+          {
+            type: "shape",
+            id: "shape-triangle-01",
+            name: "Warning Zone Triangle",
+            shape_type: "triangle",
+            x: 400,
+            y: 760,
+            z: 4,
+            width: 120,
+            height: 110,
+            fill: "#fef3c7",
+            stroke: "#d97706",
+            stroke_thickness: 2
+          },
+          {
+            type: "shape",
+            id: "shape-rounded-tri-01",
+            name: "Safety Triangle",
+            shape_type: "rounded_corner_triangle",
+            x: 580,
+            y: 760,
+            z: 4,
+            width: 120,
+            height: 110,
+            corner_radius: 14,
+            fill: "#ede9fe",
+            stroke: "#7c3aed",
+            stroke_thickness: 2
+          },
+          {
+            type: "shape",
+            id: "shape-semicircle-01",
+            name: "Alcove Semicircle",
+            shape_type: "semi_circle",
+            x: 760,
+            y: 760,
+            z: 4,
+            width: 130,
+            height: 110,
+            fill: "#fee2e2",
+            stroke: "#dc2626",
+            stroke_thickness: 2
+          },
+          {
+            type: "shape",
+            id: "shape-circle-01",
+            name: "Meeting Circle",
+            shape_type: "circle",
+            x: 940,
+            y: 760,
+            z: 4,
+            width: 120,
+            height: 120,
+            fill: "#dcfce7",
+            stroke: "#16a34a",
+            stroke_thickness: 2
+          },
+          {
+            type: "shape",
+            id: "shape-bezier-01",
+            name: "Curved Pathway",
+            shape_type: "bezier",
+            x: 1120,
+            y: 780,
+            z: 4,
+            width: 180,
+            height: 80,
+            stroke: "#6366f1",
+            stroke_thickness: 3
+          },
+          {
+            type: "shape",
+            id: "shape-line-01",
+            name: "Demarcation Line",
+            shape_type: "line",
+            x: 1350,
+            y: 810,
+            z: 4,
+            width: 160,
+            height: 20,
+            stroke: "#94a3b8",
+            stroke_thickness: 3
+          }
+        ]
+      };
+    }
+
+    // Initial Load: Demo Lab
+    window.addEventListener("DOMContentLoaded", () => {
+      resizeCanvas();
+      const demoDoc = generateDemoFloorplan();
+      setDocumentData(demoDoc, "Enterprise Lab Floorplan Demo");
+    });
+  </script>
+</body>
+</html>

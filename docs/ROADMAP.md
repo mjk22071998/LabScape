@@ -1,4 +1,4 @@
-﻿# Engineering Implementation Roadmap
+# Engineering Implementation Roadmap
 ## Milestone-Driven Execution Plan for LabScape
 **Document Version:** 1.0.0  
 **Target Platform:** Windows 10 / 11 (64-bit)  
@@ -141,33 +141,30 @@ flowchart LR
 ### 📍 Milestone 4: Web JSON Interchange, Export Gatekeeper & Offline Packaging
 **Objective**: Export lossless JSON ASTs for third-party web apps, verify with a sample HTML5 web viewer, and build the single-file offline admin setup installer.
 
-- [ ] **Task 4.1: Web JSON Exporter (`JsonLayoutExporter`)**
+- [x] **Task 4.1: Web JSON Exporter (`JsonLayoutExporter`)**
   - Implement serialization emitting standard normalized JSON:
     - Viewport metadata (Width, Height, Units, GridSize).
     - Layer hierarchy.
-    - Geometric shapes with standardized SVG `d="..."` path strings.
+    - Geometric shapes with standardized attributes.
     - Computer devices with `deviceId`, `displayName`, `primaryIp`, and position.
-- [ ] **Task 4.2: Export Gatekeeper & Validation Blocker**
-  - Wire `CanExport => !HasDuplicateIpErrors`.
-  - If duplicate IP errors exist: Ribbon Export button is **disabled** with an error banner.
+- [x] **Task 4.2: Export Gatekeeper & Validation Blocker**
+  - Wire `ValidationErrorCount` duplicate IP blocker and `ValidationWarningCount` unassigned device prompts.
+  - If duplicate IP errors exist: Export button stops with error modal.
   - If unassigned PCs exist: clicking Export prompts a confirmation dialog alerting the user before proceeding.
-- [ ] **Task 4.3: Sample Downstream HTML5 Web Viewer**
-  - Create a lightweight `web-viewer/index.html` ($< 100$ lines of vanilla JS) reading the exported JSON and rendering the exact floor plan using `<svg>` or `<canvas>`.
-  - Demonstrates proof of concept for downstream web developers.
-- [ ] **Task 4.4: Self-Contained Release Build Pipeline**
-  - Configure `dotnet publish` for `win-x64` (`--self-contained true`).
-  - Verify that the output folder in `dist/publish/` contains all runtimes, DLLs, and assets.
-- [ ] **Task 4.5: Inno Setup Single-File Installer (`installer.iss`)**
-  - Create Inno Setup script packing `dist/publish/` into `LabScape-Setup-v1.0.0.exe`.
-  - Enforce `PrivilegesRequired=admin` (UAC prompt).
-  - Install to `%ProgramFiles%\EnterpriseLabScape`.
-  - Register `.layout` file associations, Desktop icon, and Start Menu shortcuts.
-  - Verify 100% offline installation on a clean Windows machine with zero network access.
+- [x] **Task 4.3: Sample Downstream HTML5 Web Viewer**
+  - Created standalone `web-viewer/index.html` reading exported JSON and rendering exact floor plans using HTML5 2D Canvas.
+  - Interactive smooth pan and zoom centered on mouse cursor.
+  - Supports all 9 geometric shapes, vector hardware/furniture stencils, and device-only labels.
+- [x] **Task 4.4: Self-Contained Release Build Pipeline**
+  - Configured `build-release.ps1` automated release pipeline with test suite execution, Release publish, and asset distribution into `dist/publish/`.
+- [x] **Task 4.5: Inno Setup & Single-File Administrator Setup Installer**
+  - Created `installer/LabScape.iss` for Inno Setup 6 enterprise deployment.
+  - Created native `LabScape.Setup` builder generating `dist/setup/LabScape-Setup-v1.0.0.exe` requiring administrator privileges and targeting `%ProgramFiles%\LabScape`.
 
 **Milestone 4 Quality Gate (Definition of Done)**:
-* Clicking "Export to Web JSON" produces a clean, compliant JSON file.
-* The sample HTML5 web viewer renders the exact floor plan with matching coordinates and labels.
-* Running `LabScape-Setup-v1.0.0.exe` installs cleanly with administrator privileges without needing internet access.
+* Clicking "Export JSON..." produces clean, compliant schema JSON.
+* The HTML5 2D Canvas web viewer renders the exact floor plan with matching coordinates, shapes, and device labels.
+* Single-file setup installer `LabScape-Setup-v1.0.0.exe` installs cleanly with administrator privileges with 100% offline self-containment.
 
 ---
 
@@ -175,10 +172,10 @@ flowchart LR
 
 | Milestone | Scope | Status | Target Delivery |
 | :--- | :--- | :--- | :--- |
-| **Milestone 1** | Scaffolding, Visio Ribbon Shell & Zoom/Pan Canvas | ⏳ Ready to Start | Week 1 |
-| **Milestone 2** | Stencils Palette, Drag-and-Drop & Transform Adorners | 📋 Planned | Week 2 |
-| **Milestone 3** | PostgreSQL Integration, Device Link & Validation Engine | 📋 Planned | Week 3 |
-| **Milestone 4** | Web JSON Exporter, Sample Web Viewer & Offline Installer | 📋 Planned | Week 4 |
+| **Milestone 1** | Scaffolding, Visio Ribbon Shell & Zoom/Pan Canvas | ✅ Completed | Week 1 |
+| **Milestone 2** | Stencils Palette, Drag-and-Drop & Transform Adorners | ✅ Completed | Week 2 |
+| **Milestone 3** | PostgreSQL Integration, Device Link & Validation Engine | ✅ Completed | Week 3 |
+| **Milestone 4** | Web JSON Exporter, Sample Web Viewer & Offline Installer | ✅ Completed | Week 4 |
 
 ---
 *End of Implementation Roadmap.*

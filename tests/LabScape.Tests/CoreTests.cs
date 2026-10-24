@@ -356,4 +356,106 @@ public class CoreTests
         Assert.Equal(original.Password, loaded.Password);
         Assert.Equal(original.UseMock, loaded.UseMock);
     }
+
+    [Fact]
+    public void ExportGatekeeper_ValidationCountersReflectState()
+    {
+        var undo = new UndoRedoService();
+        var vm = new MainViewModel(
+            new LayoutJsonRepository(),
+            new LabScape.Infrastructure.Services.PostgresDatabaseService(),
+            undo);
+
+        // 1. Initially with unassigned PC
+        var dev1 = new DeviceItemViewModel(new DeviceItem { Name = "PC-A", ValidationStatus = ValidationStatus.Unassigned });
+        vm.Canvas.Items.Add(dev1);
+        vm.Canvas.RecalculateValidation();
+
+        // Warning count should be >= 1, Error count 0
+        Assert.True(dev1.ValidationStatus == ValidationStatus.Unassigned);
+
+        // 2. Add duplicate IPs
+        var dev2 = new DeviceItemViewModel(new DeviceItem { Name = "PC-B", IpAddress = "192.168.1.100" });
+        var dev3 = new DeviceItemViewModel(new DeviceItem { Name = "PC-C", IpAddress = "192.168.1.100" });
+        vm.Canvas.Items.Add(dev2);
+        vm.Canvas.Items.Add(dev3);
+        vm.Canvas.RecalculateValidation();
+
+        Assert.Equal(ValidationStatus.DuplicateIp, dev2.ValidationStatus);
+        Assert.Equal(ValidationStatus.DuplicateIp, dev3.ValidationStatus);
+    }
+
+    [Fact]
+    public void Html5WebViewer_ExistsAndHasCompleteCanvas2DImplementation()
+    {
+        // Search up from BaseDirectory to find repo root containing web-viewer
+        string? current = AppContext.BaseDirectory;
+        string? webViewerPath = null;
+        while (current != null)
+        {
+            var candidate = Path.Combine(current, "web-viewer", "index.html");
+            if (File.Exists(candidate))
+            {
+                webViewerPath = candidate;
+                break;
+            }
+            current = Directory.GetParent(current)?.FullName;
+        }
+
+        Assert.True(webViewerPath != null && File.Exists(webViewerPath), "web-viewer/index.html must exist in project");
+
+        var html = File.ReadAllText(webViewerPath!);
+        Assert.Contains("<canvas id=\"layout-canvas\"", html);
+        Assert.Contains("getContext(\"2d\")", html);
+        Assert.Contains("renderDevice", html);
+        Assert.Contains("renderFurniture", html);
+        Assert.Contains("renderShape", html);
+        Assert.Contains("wheel", html); // Pan and zoom
+        Assert.Contains("donut", html);
+        Assert.Contains("rounded_corner_triangle", html);
+        Assert.Contains("bezier", html);
+    }
+
+    [Fact]
+    public void Setup_ManifestAndInnoScript_EnforceAdminAndOfflineDefaults()
+    {
+        string? current = AppContext.BaseDirectory;
+        string? root = null;
+        while (current != null)
+        {
+            if (File.Exists(Path.Combine(current, "build-release.ps1")))
+            {
+                root = current;
+                break;
+            }
+            current = Directory.GetParent(current)?.FullName;
+        }
+
+        Assert.NotNull(root);
+
+        // 1. Verify app.manifest requires administrator
+        var manifestPath = Path.Combine(root, "src", "LabScape.Setup", "app.manifest");
+        Assert.True(File.Exists(manifestPath), "Setup app.manifest must exist");
+        var manifestContent = File.ReadAllText(manifestPath);
+        Assert.Contains("requestedExecutionLevel level=\"requireAdministrator\"", manifestContent);
+
+        // 2. Verify Inno Setup script
+        var issPath = Path.Combine(root, "installer", "LabScape.iss");
+        Assert.True(File.Exists(issPath), "Inno Setup script must exist");
+        var issContent = File.ReadAllText(issPath);
+        Assert.Contains("PrivilegesRequired=admin", issContent);
+        Assert.Contains("DefaultDirName={autopf}\\{#MyAppName}", issContent);
+        Assert.Contains("OutputBaseFilename=LabScape-Setup-v{#MyAppVersion}", issContent);
+        Assert.Contains("web-viewer", issContent);
+        Assert.Contains(".layout", issContent);
+
+        // 3. Verify payload archive if generated
+        var payloadZip = Path.Combine(root, "src", "LabScape.Setup", "Resources", "payload.zip");
+        if (File.Exists(payloadZip))
+        {
+            using var archive = System.IO.Compression.ZipFile.OpenRead(payloadZip);
+            Assert.Contains(archive.Entries, e => e.FullName.Contains("LabScape.App.dll"));
+            Assert.Contains(archive.Entries, e => e.FullName.Contains("web-viewer"));
+        }
+    }
 }

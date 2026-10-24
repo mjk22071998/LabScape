@@ -98,6 +98,14 @@
                     <fluent:Button Header="Sync Inventory" Click="SyncInventory_Click"/>
                 </fluent:RibbonGroupBox>
             </fluent:RibbonTabItem>
+
+            <!-- 3. Export & Web Tab -->
+            <fluent:RibbonTabItem Header="Export &amp; Web">
+                <fluent:RibbonGroupBox Header="HTML5 &amp; JSON Interchange">
+                    <fluent:Button Header="Export JSON..." Click="ExportJson_Click" ToolTip="Export lossless layout JSON for downstream web canvas"/>
+                    <fluent:Button Header="Open in Web Viewer" Click="PreviewWebViewer_Click" ToolTip="Launch standalone HTML5 2D Canvas viewer in browser"/>
+                </fluent:RibbonGroupBox>
+            </fluent:RibbonTabItem>
         </fluent:Ribbon>
 
         <!-- ==================================================== -->

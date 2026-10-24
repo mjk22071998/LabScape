@@ -35,6 +35,30 @@ public partial class MainWindow : RibbonWindow
 
     private void ExportJson_Click(object sender, RoutedEventArgs e)
     {
+        // 1. Export Gatekeeper: Duplicate IP Conflict Blocker
+        if (ViewModel.ValidationErrorCount > 0)
+        {
+            System.Windows.MessageBox.Show(
+                $"Cannot export layout: {ViewModel.ValidationErrorCount} duplicate IP conflict(s) detected!\n\nPlease resolve all duplicate IP addresses before exporting.",
+                "Export Blocked — IP Conflict",
+                MessageBoxButton.OK,
+                MessageBoxImage.Stop);
+            return;
+        }
+
+        // 2. Export Gatekeeper: Unassigned Devices Warning
+        if (ViewModel.ValidationWarningCount > 0)
+        {
+            var promptResult = System.Windows.MessageBox.Show(
+                $"Warning: There are {ViewModel.ValidationWarningCount} unassigned device(s) without an IP address on the canvas.\n\nDo you want to proceed with exporting anyway?",
+                "Unassigned Devices Warning",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (promptResult != MessageBoxResult.Yes)
+                return;
+        }
+
         var sfd = new SaveFileDialog
         {
             Filter = "Layout JSON (*.json)|*.json|All Files (*.*)|*.*",
@@ -54,6 +78,38 @@ public partial class MainWindow : RibbonWindow
             {
                 System.Windows.MessageBox.Show($"Error saving file: {ex.Message}", "Save Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+    }
+
+    private void PreviewWebViewer_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            var candidates = new[]
+            {
+                System.IO.Path.Combine(baseDir, "web-viewer", "index.html"),
+                System.IO.Path.Combine(baseDir, "..", "..", "..", "..", "web-viewer", "index.html"),
+                System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "web-viewer", "index.html")
+            };
+
+            string? htmlPath = candidates.FirstOrDefault(System.IO.File.Exists);
+            if (htmlPath == null)
+            {
+                System.Windows.MessageBox.Show("Web viewer (index.html) could not be located.", "Viewer Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var fullPath = System.IO.Path.GetFullPath(htmlPath);
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = fullPath,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show($"Error opening Web Viewer: {ex.Message}", "Launch Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 

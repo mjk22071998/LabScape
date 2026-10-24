@@ -3,6 +3,7 @@
     <Project Path="src/LabScape.App/LabScape.App.csproj" />
     <Project Path="src/LabScape.Core/LabScape.Core.csproj" />
     <Project Path="src/LabScape.Infrastructure/LabScape.Infrastructure.csproj" />
+    <Project Path="src/LabScape.Setup/LabScape.Setup.csproj" />
     <Project Path="src/LabScape.ViewModels/LabScape.ViewModels.csproj" />
   </Folder>
   <Folder Name="/tests/">

@@ -4,3 +4,5 @@ obj/
 .vs/
 *.suo
 .idea/
+dist/
+src/LabScape.Setup/Resources/payload.zip
