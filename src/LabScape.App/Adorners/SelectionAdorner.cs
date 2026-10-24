@@ -461,6 +461,50 @@ public class SelectionAdorner : Adorner
             Cursor = Cursors.Arrow;
     }
 
+    protected override HitTestResult? HitTestCore(PointHitTestParameters hitTestParameters)
+    {
+        Point p = hitTestParameters.HitPoint;
+        double w = _item.Width;
+        double h = _item.Height;
+
+        // Check rotate handle
+        if (IsHit(p, new Point(w / 2, -20), HandleSize + 6))
+            return new PointHitTestResult(this, p);
+
+        // Check 8 resize handles
+        if (IsHit(p, new Point(-2, -2), HandleSize + 4) ||
+            IsHit(p, new Point(w / 2, -2), HandleSize + 4) ||
+            IsHit(p, new Point(w + 2, -2), HandleSize + 4) ||
+            IsHit(p, new Point(w + 2, h / 2), HandleSize + 4) ||
+            IsHit(p, new Point(w + 2, h + 2), HandleSize + 4) ||
+            IsHit(p, new Point(w / 2, h + 2), HandleSize + 4) ||
+            IsHit(p, new Point(-2, h + 2), HandleSize + 4) ||
+            IsHit(p, new Point(-2, h / 2), HandleSize + 4))
+        {
+            return new PointHitTestResult(this, p);
+        }
+
+        // Check special handles
+        if (_item is ShapeItemViewModel shape)
+        {
+            if (shape.ShapeType == ShapeType.RoundedRectangle || shape.ShapeType == ShapeType.RoundedCornerTriangle)
+            {
+                double crOffset = Math.Min(shape.CornerRadius, Math.Min(w, h) / 2);
+                if (IsHit(p, new Point(crOffset, 4), SpecialHandleSize + 4))
+                    return new PointHitTestResult(this, p);
+            }
+            else if (shape.ShapeType == ShapeType.Donut)
+            {
+                double innerRatio = Math.Clamp(shape.InnerRadius / 50.0, 0.1, 0.9);
+                double innerRx = (w / 2.0) * innerRatio;
+                if (IsHit(p, new Point(w / 2.0 + innerRx, h / 2.0), SpecialHandleSize + 4))
+                    return new PointHitTestResult(this, p);
+            }
+        }
+
+        return null;
+    }
+
     private static bool IsHit(Point test, Point center, double radius)
     {
         return (Math.Abs(test.X - center.X) <= radius) && (Math.Abs(test.Y - center.Y) <= radius);

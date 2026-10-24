@@ -262,8 +262,9 @@
                     </DrawingBrush>
                 </Canvas.Background>
 
-                <!-- Interactive Items Container -->
-                <ItemsControl x:Name="ItemsHost" ItemsSource="{Binding Items}">
+                <!-- Interactive Items Container with Local Adorner Decorator -->
+                <AdornerDecorator Canvas.Left="0" Canvas.Top="0" Width="{Binding CanvasWidth}" Height="{Binding CanvasHeight}">
+                    <ItemsControl x:Name="ItemsHost" ItemsSource="{Binding Items}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <Canvas/>
@@ -412,6 +413,7 @@
                         </DataTemplate>
                     </ItemsControl.Resources>
                 </ItemsControl>
+                </AdornerDecorator>
 
                 <!-- Marquee Selection Rectangle -->
                 <Rectangle x:Name="RubberbandRect"

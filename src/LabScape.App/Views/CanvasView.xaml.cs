@@ -1,3 +1,4 @@
+using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -24,23 +25,68 @@ public partial class CanvasView : UserControl
     private bool _isSelectingMarquee;
     private Point _marqueeStart;
 
-    private SelectionAdorner? _currentAdorner;
-    private FrameworkElement? _adornedElement;
+    private readonly List<SelectionAdorner> _currentAdorners = new();
+    private readonly List<FrameworkElement> _adornedElements = new();
+    private CanvasViewModel? _subscribedVm;
 
     private const double SnapTolerance = 6.0;
 
     public CanvasView()
     {
         InitializeComponent();
-        Loaded += OnLoaded;
+        DataContextChanged += CanvasView_DataContextChanged;
+        Loaded += CanvasView_Loaded;
+        Unloaded += CanvasView_Unloaded;
     }
 
-    private void OnLoaded(object sender, RoutedEventArgs e)
+    private void CanvasView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
+        HookViewModel();
+    }
+
+    private void CanvasView_Loaded(object sender, RoutedEventArgs e)
+    {
+        HookViewModel();
+    }
+
+    private void CanvasView_Unloaded(object sender, RoutedEventArgs e)
+    {
+        UnhookViewModel();
+    }
+
+    private void HookViewModel()
+    {
+        if (_subscribedVm != null)
+        {
+            _subscribedVm.SelectedItems.CollectionChanged -= OnSelectedItemsChanged;
+            _subscribedVm = null;
+        }
+
         if (DataContext is CanvasViewModel vm)
         {
-            vm.SelectedItems.CollectionChanged += (s, ev) => UpdateAdorner();
+            _subscribedVm = vm;
+            _subscribedVm.SelectedItems.CollectionChanged += OnSelectedItemsChanged;
+            UpdateAdorner();
         }
+        else
+        {
+            RemoveAllAdorners();
+        }
+    }
+
+    private void UnhookViewModel()
+    {
+        if (_subscribedVm != null)
+        {
+            _subscribedVm.SelectedItems.CollectionChanged -= OnSelectedItemsChanged;
+            _subscribedVm = null;
+        }
+        RemoveAllAdorners();
+    }
+
+    private void OnSelectedItemsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        UpdateAdorner();
     }
 
     private CanvasViewModel? ViewModel => DataContext as CanvasViewModel;
@@ -66,18 +112,24 @@ public partial class CanvasView : UserControl
             return;
         }
 
-        // 2. Click on empty canvas surface
-        if (e.RightButton == MouseButtonState.Pressed && (e.OriginalSource == sender || e.OriginalSource == CanvasSurface))
+        // 2. Click on empty canvas surface (start marquee or clear selection)
+        bool isCanvasClick = e.OriginalSource == sender || 
+                             e.OriginalSource == CanvasSurface || 
+                             (e.OriginalSource as FrameworkElement)?.DataContext is not ItemViewModel;
+
+        if (e.RightButton == MouseButtonState.Pressed && isCanvasClick)
         {
             ViewModel?.ClearSelection();
+            UpdateAdorner();
         }
 
-        if (e.LeftButton == MouseButtonState.Pressed && (e.OriginalSource == sender || e.OriginalSource == CanvasSurface))
+        if (e.LeftButton == MouseButtonState.Pressed && isCanvasClick)
         {
             bool isCtrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
             if (!isCtrl)
             {
                 ViewModel?.ClearSelection();
+                UpdateAdorner();
             }
 
             _isSelectingMarquee = true;
@@ -279,11 +331,25 @@ public partial class CanvasView : UserControl
                     return marquee.IntersectsWith(itemRect);
                 }).ToList();
 
+                bool isCtrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
                 if (matched.Count > 0)
                 {
-                    ViewModel.SetSelection(matched);
+                    if (isCtrl)
+                    {
+                        var combined = ViewModel.SelectedItems.Union(matched).ToList();
+                        ViewModel.SetSelection(combined);
+                    }
+                    else
+                    {
+                        ViewModel.SetSelection(matched);
+                    }
+                }
+                else if (!isCtrl)
+                {
+                    ViewModel.ClearSelection();
                 }
             }
+            UpdateAdorner();
         }
 
         if (_isDraggingItem && ViewModel != null)
@@ -332,6 +398,7 @@ public partial class CanvasView : UserControl
             if (!itemVm.IsSelected)
             {
                 ViewModel.SelectItem(itemVm, addToExisting: false);
+                UpdateAdorner();
             }
             return;
         }
@@ -354,6 +421,8 @@ public partial class CanvasView : UserControl
             }
         }
 
+        UpdateAdorner();
+
         // Start Dragging items
         _isDraggingItem = true;
         _itemDragStart = e.GetPosition(CanvasSurface);
@@ -369,36 +438,49 @@ public partial class CanvasView : UserControl
 
     private void UpdateAdorner()
     {
-        RemoveCurrentAdorner();
+        RemoveAllAdorners();
 
-        if (ViewModel == null || ViewModel.SelectedItems.Count != 1) return;
-        var selectedItem = ViewModel.SelectedItems[0];
+        if (ViewModel == null || ViewModel.SelectedItems.Count == 0) return;
 
-        // Find visual element container
-        var presenter = ItemsHost.ItemContainerGenerator.ContainerFromItem(selectedItem) as FrameworkElement;
-        if (presenter == null) return;
+        bool hasMissingContainers = false;
 
-        var layer = AdornerLayer.GetAdornerLayer(presenter);
-        if (layer != null)
+        foreach (var selectedItem in ViewModel.SelectedItems)
         {
-            _adornedElement = presenter;
-            _currentAdorner = new SelectionAdorner(presenter, selectedItem, ViewModel.UndoRedoService, () =>
+            var presenter = ItemsHost.ItemContainerGenerator.ContainerFromItem(selectedItem) as FrameworkElement;
+            if (presenter == null)
             {
-                if (selectedItem is GroupItemViewModel grp) grp.RecalculateBounds();
-            });
-            layer.Add(_currentAdorner);
+                hasMissingContainers = true;
+                continue;
+            }
+
+            var layer = AdornerLayer.GetAdornerLayer(presenter);
+            if (layer != null)
+            {
+                var adorner = new SelectionAdorner(presenter, selectedItem, ViewModel.UndoRedoService, () =>
+                {
+                    if (selectedItem is GroupItemViewModel grp) grp.RecalculateBounds();
+                });
+                layer.Add(adorner);
+                _currentAdorners.Add(adorner);
+                _adornedElements.Add(presenter);
+            }
+        }
+
+        if (hasMissingContainers && ViewModel.SelectedItems.Count > 0)
+        {
+            Dispatcher.InvokeAsync(UpdateAdorner, System.Windows.Threading.DispatcherPriority.Loaded);
         }
     }
 
-    private void RemoveCurrentAdorner()
+    private void RemoveAllAdorners()
     {
-        if (_currentAdorner != null && _adornedElement != null)
+        for (int i = 0; i < _currentAdorners.Count && i < _adornedElements.Count; i++)
         {
-            var layer = AdornerLayer.GetAdornerLayer(_adornedElement);
-            layer?.Remove(_currentAdorner);
-            _currentAdorner = null;
-            _adornedElement = null;
+            var layer = AdornerLayer.GetAdornerLayer(_adornedElements[i]);
+            layer?.Remove(_currentAdorners[i]);
         }
+        _currentAdorners.Clear();
+        _adornedElements.Clear();
     }
 
     private void Viewport_DragOver(object sender, DragEventArgs e)

@@ -396,6 +396,61 @@ public class CoreTests
     }
 
     [Fact]
+    public void PropertiesViewModel_MultiSelection_DisablesXY_AllowsCommonProperties()
+    {
+        var canvas = new CanvasViewModel(new UndoRedoService());
+        var props = new PropertiesViewModel(canvas);
+
+        var item1 = new ShapeItemViewModel(new ShapeItem { Name = "Shape1", X = 100, Y = 100, Width = 80, Height = 60, Z = 1 });
+        var item2 = new ShapeItemViewModel(new ShapeItem { Name = "Shape2", X = 300, Y = 250, Width = 90, Height = 70, Z = 2 });
+        canvas.Items.Add(item1);
+        canvas.Items.Add(item2);
+
+        // 1. Single selection: XY must be editable
+        canvas.SelectItem(item1);
+        Assert.True(props.HasSelection);
+        Assert.True(props.IsSingleSelection);
+        Assert.False(props.IsMultiSelection);
+        Assert.True(props.CanEditCoordinates, "Single selection must allow editing XY coordinates");
+        Assert.Equal("100.0", props.DisplayX);
+        Assert.Equal("100.0", props.DisplayY);
+
+        // Edit single item X
+        props.DisplayX = "150";
+        Assert.Equal(150, item1.X);
+
+        // 2. Multi selection: XY must be disabled, but common properties (Width, Height, Z, Rotation) editable
+        canvas.SelectItem(item2, addToExisting: true);
+        Assert.Equal(2, canvas.SelectedItems.Count);
+        Assert.True(props.HasSelection);
+        Assert.True(props.IsMultiSelection);
+        Assert.False(props.IsSingleSelection);
+        Assert.False(props.CanEditCoordinates, "Multi-selection must NOT allow editing XY coordinates");
+        Assert.Equal("(Multiple)", props.DisplayX);
+        Assert.Equal("(Multiple)", props.DisplayY);
+
+        // Edit common width across all selected items
+        props.CommonWidth = "200";
+        Assert.Equal(200, item1.Width);
+        Assert.Equal(200, item2.Width);
+
+        // Edit common height across all selected items
+        props.CommonHeight = "120";
+        Assert.Equal(120, item1.Height);
+        Assert.Equal(120, item2.Height);
+
+        // Edit common rotation across all selected items
+        props.CommonRotation = "45";
+        Assert.Equal(45, item1.Rotation);
+        Assert.Equal(45, item2.Rotation);
+
+        // Edit common Z across all selected items
+        props.CommonZ = "10";
+        Assert.Equal(10, item1.Z);
+        Assert.Equal(10, item2.Z);
+    }
+
+    [Fact]
     public void ExportGatekeeper_ValidationCountersReflectState()
     {
         var undo = new UndoRedoService();

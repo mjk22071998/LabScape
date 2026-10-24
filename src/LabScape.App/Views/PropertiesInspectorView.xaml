@@ -47,9 +47,9 @@
                 <!-- Header / Item Type Banner -->
                 <Border Background="{DynamicResource SectionHeaderBackgroundBrush}" BorderBrush="{DynamicResource SectionHeaderBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,12">
                     <StackPanel>
-                        <TextBlock Text="{Binding SelectedItem.ItemType, StringFormat='ITEM TYPE: {0}'}"
+                        <TextBlock Text="{Binding HeaderTitle}"
                                    FontWeight="Bold" FontSize="11" Foreground="{DynamicResource SectionHeaderForegroundBrush}"/>
-                        <TextBlock Text="{Binding SelectedItem.Name}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource SectionHeaderSubForegroundBrush}" Margin="0,2,0,0"/>
+                        <TextBlock Text="{Binding HeaderSubtitle}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SectionHeaderSubForegroundBrush}" Margin="0,2,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
 
@@ -57,18 +57,21 @@
                 <GroupBox Header="Identity" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
                     <StackPanel Margin="6" TextElement.FontWeight="Normal">
                         <TextBlock Text="Item Name:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,2,0,2"/>
-                        <TextBox Text="{Binding SelectedItem.Name, UpdateSourceTrigger=PropertyChanged}" Padding="4" Margin="0,0,0,6"/>
+                        <TextBox Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsSingleSelection}" Padding="4" Margin="0,0,0,6"/>
 
                         <!-- Note for Group Name -->
                         <TextBlock Text="ℹ️ Group name is saved in schema and exported, but hidden from canvas layout."
                                    FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}" TextWrapping="Wrap" Margin="0,0,0,4"
                                    Visibility="{Binding IsGroup, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        <TextBlock Text="ℹ️ Name editing disabled for multiple selected items."
+                                   FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}" TextWrapping="Wrap" Margin="0,0,0,4"
+                                   Visibility="{Binding IsMultiSelection, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                     </StackPanel>
                 </GroupBox>
 
                 <!-- 2. Device IP Configuration (Searchable Dropdown) -->
                 <GroupBox Header="Network &amp; IP Configuration" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}"
-                          Visibility="{Binding IsDevice, Converter={StaticResource BooleanToVisibilityConverter}}">
+                          Visibility="{Binding IsSingleDevice, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <StackPanel Margin="6" TextElement.FontWeight="Normal">
                         <TextBlock Text="IP Address (Manual or from Database):" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,2,0,2"/>
                         <TextBox Text="{Binding SelectedItem.IpAddress, UpdateSourceTrigger=PropertyChanged}" Padding="4" Margin="0,0,0,6"/>
@@ -107,23 +110,26 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="65"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- X -->
+                        <!-- X (Disabled on multi-selection as requested) -->
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="X (px):" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,3"/>
-                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SelectedItem.X, UpdateSourceTrigger=PropertyChanged}" Padding="3" Margin="0,3"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding DisplayX, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEditCoordinates}"
+                                 ToolTip="{Binding CoordinatesToolTip}" Padding="3" Margin="0,3"/>
 
-                        <!-- Y -->
+                        <!-- Y (Disabled on multi-selection as requested) -->
                         <TextBlock Grid.Row="1" Grid.Column="0" Text="Y (px):" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,3"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding SelectedItem.Y, UpdateSourceTrigger=PropertyChanged}" Padding="3" Margin="0,3"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding DisplayY, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEditCoordinates}"
+                                 ToolTip="{Binding CoordinatesToolTip}" Padding="3" Margin="0,3"/>
 
                         <!-- Z (Layering) -->
                         <TextBlock Grid.Row="2" Grid.Column="0" Text="Z (Layer):" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,3"/>
-                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding SelectedItem.Z, UpdateSourceTrigger=PropertyChanged}" Padding="3" Margin="0,3"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding CommonZ, UpdateSourceTrigger=PropertyChanged}" Padding="3" Margin="0,3"/>
 
                         <!-- Layer Order Action Buttons -->
                         <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,3,0,6">
@@ -133,13 +139,17 @@
                             <Button Content="▼ Back" Command="{Binding SendToBackCommand}" ToolTip="Send to Back (Ctrl+Shift+[)" Padding="5,2" Margin="1,0" FontSize="10"/>
                         </StackPanel>
 
-                        <!-- Width -->
+                        <!-- Width (Common Property) -->
                         <TextBlock Grid.Row="4" Grid.Column="0" Text="Width:" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,3"/>
-                        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding SelectedItem.Width, UpdateSourceTrigger=PropertyChanged}" Padding="3" Margin="0,3"/>
+                        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding CommonWidth, UpdateSourceTrigger=PropertyChanged}" Padding="3" Margin="0,3"/>
 
-                        <!-- Height -->
+                        <!-- Height (Common Property) -->
                         <TextBlock Grid.Row="5" Grid.Column="0" Text="Height:" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,3"/>
-                        <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding SelectedItem.Height, UpdateSourceTrigger=PropertyChanged}" Padding="3" Margin="0,3"/>
+                        <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding CommonHeight, UpdateSourceTrigger=PropertyChanged}" Padding="3" Margin="0,3"/>
+
+                        <!-- Rotation (Common Property) -->
+                        <TextBlock Grid.Row="6" Grid.Column="0" Text="Rotation:" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,3"/>
+                        <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding CommonRotation, UpdateSourceTrigger=PropertyChanged}" Padding="3" Margin="0,3"/>
                     </Grid>
                 </GroupBox>
 
@@ -152,26 +162,26 @@
                         <StackPanel Visibility="{Binding IsRoundedShape, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,0,0,8">
                             <DockPanel Margin="0,0,0,2">
                                 <TextBlock Text="Corner Radius (px):" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
-                                <TextBlock Text="{Binding SelectedItem.CornerRadius, StringFormat='{}{0:F0} px'}" Foreground="{DynamicResource AppTextPrimaryBrush}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding CommonCornerRadius, StringFormat='{}{0:F0} px'}" Foreground="{DynamicResource AppTextPrimaryBrush}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
                             </DockPanel>
-                            <Slider Minimum="0" Maximum="60" Value="{Binding SelectedItem.CornerRadius}" TickFrequency="2" IsSnapToTickEnabled="True"/>
+                            <Slider Minimum="0" Maximum="60" Value="{Binding CommonCornerRadius}" TickFrequency="2" IsSnapToTickEnabled="True"/>
                         </StackPanel>
 
                         <!-- Donut Inner Radius -->
                         <StackPanel Visibility="{Binding IsDonut, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,0,0,8">
                             <DockPanel Margin="0,0,0,2">
                                 <TextBlock Text="Donut Inner Radius (%):" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
-                                <TextBlock Text="{Binding SelectedItem.InnerRadius, StringFormat='{}{0:F0}'}" Foreground="{DynamicResource AppTextPrimaryBrush}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding CommonInnerRadius, StringFormat='{}{0:F0}'}" Foreground="{DynamicResource AppTextPrimaryBrush}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
                             </DockPanel>
-                            <Slider Minimum="5" Maximum="45" Value="{Binding SelectedItem.InnerRadius}" TickFrequency="1" IsSnapToTickEnabled="True"/>
+                            <Slider Minimum="5" Maximum="45" Value="{Binding CommonInnerRadius}" TickFrequency="1" IsSnapToTickEnabled="True"/>
                         </StackPanel>
 
                         <!-- Stroke Thickness -->
                         <DockPanel Margin="0,4,0,2">
                             <TextBlock Text="Stroke Thickness:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
-                            <TextBlock Text="{Binding SelectedItem.StrokeThickness, StringFormat='{}{0:F0} px'}" Foreground="{DynamicResource AppTextPrimaryBrush}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding CommonStrokeThickness, StringFormat='{}{0:F0} px'}" Foreground="{DynamicResource AppTextPrimaryBrush}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
                         </DockPanel>
-                        <Slider Minimum="1" Maximum="10" Value="{Binding SelectedItem.StrokeThickness}" TickFrequency="1" IsSnapToTickEnabled="True"/>
+                        <Slider Minimum="1" Maximum="10" Value="{Binding CommonStrokeThickness}" TickFrequency="1" IsSnapToTickEnabled="True"/>
                     </StackPanel>
                 </GroupBox>
 

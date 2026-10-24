@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LabScape.Core.Enums;
@@ -12,6 +13,7 @@ public partial class PropertiesViewModel : ObservableObject
 {
     private CanvasViewModel? _canvasViewModel;
     private NotifyCollectionChangedEventHandler? _selectionHandler;
+    private bool _isInternalPropertyUpdate;
 
     [RelayCommand]
     public void MoveToFront() => _canvasViewModel?.MoveToFront();
@@ -32,7 +34,61 @@ public partial class PropertiesViewModel : ObservableObject
     private bool _hasSelection;
 
     [ObservableProperty]
+    private bool _isMultiSelection;
+
+    [ObservableProperty]
+    private bool _isSingleSelection;
+
+    [ObservableProperty]
+    private int _selectedCount;
+
+    [ObservableProperty]
+    private bool _canEditCoordinates;
+
+    [ObservableProperty]
+    private string _headerTitle = string.Empty;
+
+    [ObservableProperty]
+    private string _headerSubtitle = string.Empty;
+
+    [ObservableProperty]
+    private string _displayName = string.Empty;
+
+    [ObservableProperty]
+    private string _displayX = "0";
+
+    [ObservableProperty]
+    private string _displayY = "0";
+
+    [ObservableProperty]
+    private string _coordinatesToolTip = "Item coordinates";
+
+    [ObservableProperty]
+    private string _commonWidth = "0";
+
+    [ObservableProperty]
+    private string _commonHeight = "0";
+
+    [ObservableProperty]
+    private string _commonZ = "0";
+
+    [ObservableProperty]
+    private string _commonRotation = "0";
+
+    [ObservableProperty]
+    private double _commonStrokeThickness = 2.0;
+
+    [ObservableProperty]
+    private double _commonCornerRadius = 10.0;
+
+    [ObservableProperty]
+    private double _commonInnerRadius = 25.0;
+
+    [ObservableProperty]
     private bool _isDevice;
+
+    [ObservableProperty]
+    private bool _isSingleDevice;
 
     [ObservableProperty]
     private bool _isFurniture;
@@ -79,11 +135,57 @@ public partial class PropertiesViewModel : ObservableObject
 
     private void UpdateSelection()
     {
-        if (_canvasViewModel != null && _canvasViewModel.SelectedItems.Count == 1)
+        if (SelectedItem != null)
         {
-            SelectedItem = _canvasViewModel.SelectedItems[0];
-            HasSelection = true;
+            SelectedItem.PropertyChanged -= OnSelectedItemPropertyChanged;
+        }
+
+        if (_canvasViewModel == null || _canvasViewModel.SelectedItems.Count == 0)
+        {
+            SelectedItem = null;
+            HasSelection = false;
+            IsMultiSelection = false;
+            IsSingleSelection = false;
+            SelectedCount = 0;
+            CanEditCoordinates = false;
+            HeaderTitle = string.Empty;
+            HeaderSubtitle = string.Empty;
+            DisplayName = string.Empty;
+            IsDevice = false;
+            IsSingleDevice = false;
+            IsFurniture = false;
+            IsShape = false;
+            IsGroup = false;
+            IsRoundedShape = false;
+            IsDonut = false;
+            DisplayX = "0";
+            DisplayY = "0";
+            CommonWidth = "0";
+            CommonHeight = "0";
+            CommonZ = "0";
+            CommonRotation = "0";
+            CoordinatesToolTip = "No item selected";
+            return;
+        }
+
+        HasSelection = true;
+        SelectedCount = _canvasViewModel.SelectedItems.Count;
+        IsMultiSelection = SelectedCount > 1;
+        IsSingleSelection = SelectedCount == 1;
+        CanEditCoordinates = !IsMultiSelection;
+
+        SelectedItem = _canvasViewModel.SelectedItems[0];
+        SelectedItem.PropertyChanged += OnSelectedItemPropertyChanged;
+
+        if (IsSingleSelection)
+        {
+            HeaderTitle = $"ITEM TYPE: {SelectedItem.ItemType.ToString().ToUpperInvariant()}";
+            HeaderSubtitle = SelectedItem.Name;
+            DisplayName = SelectedItem.Name;
+            CoordinatesToolTip = "Canvas coordinate position (px)";
+
             IsDevice = SelectedItem is DeviceItemViewModel;
+            IsSingleDevice = IsDevice;
             IsFurniture = SelectedItem is FurnitureItemViewModel;
             IsShape = SelectedItem is ShapeItemViewModel;
             IsGroup = SelectedItem is GroupItemViewModel;
@@ -93,6 +195,9 @@ public partial class PropertiesViewModel : ObservableObject
                 IsRoundedShape = shapeVm.ShapeType == ShapeType.RoundedRectangle ||
                                  shapeVm.ShapeType == ShapeType.RoundedCornerTriangle;
                 IsDonut = shapeVm.ShapeType == ShapeType.Donut;
+                CommonCornerRadius = shapeVm.CornerRadius;
+                CommonInnerRadius = shapeVm.InnerRadius;
+                CommonStrokeThickness = shapeVm.StrokeThickness;
             }
             else
             {
@@ -102,14 +207,193 @@ public partial class PropertiesViewModel : ObservableObject
         }
         else
         {
-            SelectedItem = null;
-            HasSelection = false;
+            HeaderTitle = "MULTIPLE ITEMS SELECTED";
+            HeaderSubtitle = $"{SelectedCount} items selected (Common properties editable below)";
+            DisplayName = "(Multiple Items Selected)";
+            CoordinatesToolTip = "X/Y coordinate editing is disabled when multiple items are selected. Move items directly on canvas or use alignment tools.";
+
             IsDevice = false;
+            IsSingleDevice = false;
             IsFurniture = false;
-            IsShape = false;
             IsGroup = false;
-            IsRoundedShape = false;
-            IsDonut = false;
+            IsShape = _canvasViewModel.SelectedItems.Any(i => i is ShapeItemViewModel);
+            IsRoundedShape = _canvasViewModel.SelectedItems.All(i => i is ShapeItemViewModel s && (s.ShapeType == ShapeType.RoundedRectangle || s.ShapeType == ShapeType.RoundedCornerTriangle));
+            IsDonut = _canvasViewModel.SelectedItems.All(i => i is ShapeItemViewModel s && s.ShapeType == ShapeType.Donut);
+
+            var firstShape = _canvasViewModel.SelectedItems.OfType<ShapeItemViewModel>().FirstOrDefault();
+            if (firstShape != null)
+            {
+                CommonStrokeThickness = firstShape.StrokeThickness;
+                CommonCornerRadius = firstShape.CornerRadius;
+                CommonInnerRadius = firstShape.InnerRadius;
+            }
+        }
+
+        SyncFieldsFromSelection();
+    }
+
+    private void OnSelectedItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (_isInternalPropertyUpdate) return;
+
+        if (e.PropertyName is nameof(ItemViewModel.X) or nameof(ItemViewModel.Y) or
+            nameof(ItemViewModel.Width) or nameof(ItemViewModel.Height) or
+            nameof(ItemViewModel.Z) or nameof(ItemViewModel.Rotation) or
+            nameof(ItemViewModel.Name))
+        {
+            SyncFieldsFromSelection();
+        }
+    }
+
+    private void SyncFieldsFromSelection()
+    {
+        if (_canvasViewModel == null || _canvasViewModel.SelectedItems.Count == 0) return;
+
+        _isInternalPropertyUpdate = true;
+        try
+        {
+            if (IsSingleSelection && SelectedItem != null)
+            {
+                DisplayName = SelectedItem.Name;
+                HeaderSubtitle = SelectedItem.Name;
+                DisplayX = SelectedItem.X.ToString("F1");
+                DisplayY = SelectedItem.Y.ToString("F1");
+                CommonWidth = SelectedItem.Width.ToString("F1");
+                CommonHeight = SelectedItem.Height.ToString("F1");
+                CommonZ = SelectedItem.Z.ToString();
+                CommonRotation = SelectedItem.Rotation.ToString("F1");
+            }
+            else
+            {
+                // Multi-selection: X and Y are non-editable
+                DisplayX = "(Multiple)";
+                DisplayY = "(Multiple)";
+
+                var first = _canvasViewModel.SelectedItems[0];
+
+                CommonWidth = _canvasViewModel.SelectedItems.All(i => Math.Abs(i.Width - first.Width) < 0.1)
+                    ? first.Width.ToString("F1")
+                    : _canvasViewModel.SelectedItems.Average(i => i.Width).ToString("F1");
+
+                CommonHeight = _canvasViewModel.SelectedItems.All(i => Math.Abs(i.Height - first.Height) < 0.1)
+                    ? first.Height.ToString("F1")
+                    : _canvasViewModel.SelectedItems.Average(i => i.Height).ToString("F1");
+
+                CommonZ = _canvasViewModel.SelectedItems.All(i => i.Z == first.Z)
+                    ? first.Z.ToString()
+                    : first.Z.ToString();
+
+                CommonRotation = _canvasViewModel.SelectedItems.All(i => Math.Abs(i.Rotation - first.Rotation) < 0.1)
+                    ? first.Rotation.ToString("F1")
+                    : "0";
+            }
+        }
+        finally
+        {
+            _isInternalPropertyUpdate = false;
+        }
+    }
+
+    partial void OnDisplayNameChanged(string value)
+    {
+        if (_isInternalPropertyUpdate || !IsSingleSelection || SelectedItem == null) return;
+        if (!string.IsNullOrWhiteSpace(value) && value != "(Multiple Items Selected)")
+        {
+            SelectedItem.Name = value;
+            HeaderSubtitle = value;
+        }
+    }
+
+    partial void OnDisplayXChanged(string value)
+    {
+        if (_isInternalPropertyUpdate || !IsSingleSelection || SelectedItem == null) return;
+        if (double.TryParse(value, out double x))
+        {
+            SelectedItem.X = Math.Max(0, x);
+        }
+    }
+
+    partial void OnDisplayYChanged(string value)
+    {
+        if (_isInternalPropertyUpdate || !IsSingleSelection || SelectedItem == null) return;
+        if (double.TryParse(value, out double y))
+        {
+            SelectedItem.Y = Math.Max(0, y);
+        }
+    }
+
+    partial void OnCommonWidthChanged(string value)
+    {
+        if (_isInternalPropertyUpdate || _canvasViewModel == null) return;
+        if (double.TryParse(value, out double w) && w >= 10)
+        {
+            foreach (var item in _canvasViewModel.SelectedItems)
+            {
+                item.Width = w;
+            }
+        }
+    }
+
+    partial void OnCommonHeightChanged(string value)
+    {
+        if (_isInternalPropertyUpdate || _canvasViewModel == null) return;
+        if (double.TryParse(value, out double h) && h >= 10)
+        {
+            foreach (var item in _canvasViewModel.SelectedItems)
+            {
+                item.Height = h;
+            }
+        }
+    }
+
+    partial void OnCommonZChanged(string value)
+    {
+        if (_isInternalPropertyUpdate || _canvasViewModel == null) return;
+        if (int.TryParse(value, out int z))
+        {
+            foreach (var item in _canvasViewModel.SelectedItems)
+            {
+                item.Z = z;
+            }
+        }
+    }
+
+    partial void OnCommonRotationChanged(string value)
+    {
+        if (_isInternalPropertyUpdate || _canvasViewModel == null) return;
+        if (double.TryParse(value, out double rot))
+        {
+            foreach (var item in _canvasViewModel.SelectedItems)
+            {
+                item.Rotation = rot;
+            }
+        }
+    }
+
+    partial void OnCommonStrokeThicknessChanged(double value)
+    {
+        if (_isInternalPropertyUpdate || _canvasViewModel == null) return;
+        foreach (var shape in _canvasViewModel.SelectedItems.OfType<ShapeItemViewModel>())
+        {
+            shape.StrokeThickness = value;
+        }
+    }
+
+    partial void OnCommonCornerRadiusChanged(double value)
+    {
+        if (_isInternalPropertyUpdate || _canvasViewModel == null) return;
+        foreach (var shape in _canvasViewModel.SelectedItems.OfType<ShapeItemViewModel>())
+        {
+            shape.CornerRadius = value;
+        }
+    }
+
+    partial void OnCommonInnerRadiusChanged(double value)
+    {
+        if (_isInternalPropertyUpdate || _canvasViewModel == null) return;
+        foreach (var shape in _canvasViewModel.SelectedItems.OfType<ShapeItemViewModel>())
+        {
+            shape.InnerRadius = value;
         }
     }
 
