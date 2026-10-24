@@ -16,10 +16,10 @@ public partial class DatabaseSettingsDialog : Window
         InitializeComponent();
         Profile = DpapiCredentialVault.LoadProfile();
 
-        TxtHost.Text = Profile.Host;
-        TxtPort.Text = Profile.Port.ToString();
-        TxtDatabase.Text = Profile.Database;
-        TxtUsername.Text = Profile.Username;
+        TxtHost.Text = string.IsNullOrWhiteSpace(Profile.Host) ? "127.0.0.1" : Profile.Host;
+        TxtPort.Text = Profile.Port > 0 ? Profile.Port.ToString() : "5432";
+        TxtDatabase.Text = string.IsNullOrWhiteSpace(Profile.Database) ? "network_observer" : Profile.Database;
+        TxtUsername.Text = string.IsNullOrWhiteSpace(Profile.Username) ? "postgres" : Profile.Username;
         TxtPassword.Password = Profile.Password;
         ChkUseMock.IsChecked = Profile.UseMock;
 
@@ -58,10 +58,18 @@ public partial class DatabaseSettingsDialog : Window
         {
             var mockRepo = new MockDeviceRepository();
             var latency = await mockRepo.MeasureLatencyAsync("");
+            var devices = await mockRepo.GetDevicesAsync("");
+
+            // Auto-persist successfully tested mock configuration
+            Profile.IsConfigured = true;
+            Profile.LastConnected = DateTime.UtcNow;
+            DpapiCredentialVault.SaveProfile(Profile);
+            DpapiCredentialVault.SaveInventoryCache(devices);
+
             DiagnosticBanner.Background = new SolidColorBrush(Color.FromArgb(40, 16, 185, 129)); // Green tint
             DiagnosticBanner.BorderBrush = new SolidColorBrush(Color.FromRgb(16, 185, 129));
             TxtDiagnosticResult.Foreground = new SolidColorBrush(Color.FromRgb(4, 120, 87));
-            TxtDiagnosticResult.Text = $"✅ Simulated Lab Workstation Engine ready! Latency: {latency.TotalMilliseconds:F1} ms (25 simulated devices available).";
+            TxtDiagnosticResult.Text = $"✅ Simulated Lab Workstation Engine ready! Latency: {latency.TotalMilliseconds:F1} ms ({devices.Count} simulated devices available).";
             BtnTest.IsEnabled = true;
             return;
         }
@@ -94,6 +102,12 @@ public partial class DatabaseSettingsDialog : Window
             var pgRepo = new PostgreSqlDeviceRepository();
             var devices = await pgRepo.GetDevicesAsync(connStr);
 
+            // Auto-persist successfully tested connection so user doesn't have to reconnect
+            Profile.IsConfigured = true;
+            Profile.LastConnected = DateTime.UtcNow;
+            DpapiCredentialVault.SaveProfile(Profile);
+            DpapiCredentialVault.SaveInventoryCache(devices);
+
             DiagnosticBanner.Background = new SolidColorBrush(Color.FromArgb(40, 16, 185, 129)); // Green tint
             DiagnosticBanner.BorderBrush = new SolidColorBrush(Color.FromRgb(16, 185, 129));
             TxtDiagnosticResult.Foreground = new SolidColorBrush(Color.FromRgb(4, 120, 87));
@@ -125,6 +139,8 @@ public partial class DatabaseSettingsDialog : Window
     private void BtnSave_Click(object sender, RoutedEventArgs e)
     {
         UpdateProfileFromUi();
+        Profile.IsConfigured = true;
+        Profile.LastConnected = DateTime.UtcNow;
         DpapiCredentialVault.SaveProfile(Profile);
         DialogResult = true;
         Close();

@@ -354,25 +354,53 @@ public class CoreTests
     {
         if (!OperatingSystem.IsWindows()) return;
 
-        var original = new LabScape.Infrastructure.Services.DatabaseConnectionProfile
+        string tempVault = Path.Combine(Path.GetTempPath(), $"labscape_test_vault_{Guid.NewGuid()}.dat");
+        string tempCache = Path.Combine(Path.GetTempPath(), $"labscape_test_cache_{Guid.NewGuid()}.json");
+
+        try
         {
-            Host = "10.0.0.99",
-            Port = 5432,
-            Database = "test_lab_db",
-            Username = "lab_admin",
-            Password = "SecurePassword123!",
-            UseMock = false
-        };
+            LabScape.Infrastructure.Services.DpapiCredentialVault.CustomVaultPath = tempVault;
+            LabScape.Infrastructure.Services.DpapiCredentialVault.CustomCachePath = tempCache;
 
-        LabScape.Infrastructure.Services.DpapiCredentialVault.SaveProfile(original);
-        var loaded = LabScape.Infrastructure.Services.DpapiCredentialVault.LoadProfile();
+            var original = new LabScape.Infrastructure.Services.DatabaseConnectionProfile
+            {
+                Host = "10.0.0.99",
+                Port = 5432,
+                Database = "test_lab_db",
+                Username = "lab_admin",
+                Password = "SecurePassword123!",
+                UseMock = false,
+                IsConfigured = true
+            };
 
-        Assert.Equal(original.Host, loaded.Host);
-        Assert.Equal(original.Port, loaded.Port);
-        Assert.Equal(original.Database, loaded.Database);
-        Assert.Equal(original.Username, loaded.Username);
-        Assert.Equal(original.Password, loaded.Password);
-        Assert.Equal(original.UseMock, loaded.UseMock);
+            LabScape.Infrastructure.Services.DpapiCredentialVault.SaveProfile(original);
+            var loaded = LabScape.Infrastructure.Services.DpapiCredentialVault.LoadProfile();
+
+            Assert.Equal(original.Host, loaded.Host);
+            Assert.Equal(original.Port, loaded.Port);
+            Assert.Equal(original.Database, loaded.Database);
+            Assert.Equal(original.Username, loaded.Username);
+            Assert.Equal(original.Password, loaded.Password);
+            Assert.Equal(original.UseMock, loaded.UseMock);
+            Assert.Equal(original.IsConfigured, loaded.IsConfigured);
+
+            // Test Inventory Cache Roundtrip
+            var testDevices = new List<DatabaseDevice>
+            {
+                new DatabaseDevice { DeviceId = "D1", DisplayName = "Workstation 1", PrimaryIp = "192.168.1.10", MacAddress = "00:11:22:33:44:55" }
+            };
+            LabScape.Infrastructure.Services.DpapiCredentialVault.SaveInventoryCache(testDevices);
+            var cached = LabScape.Infrastructure.Services.DpapiCredentialVault.LoadInventoryCache();
+            Assert.Single(cached);
+            Assert.Equal("Workstation 1", cached[0].DisplayName);
+        }
+        finally
+        {
+            LabScape.Infrastructure.Services.DpapiCredentialVault.CustomVaultPath = null;
+            LabScape.Infrastructure.Services.DpapiCredentialVault.CustomCachePath = null;
+            if (File.Exists(tempVault)) File.Delete(tempVault);
+            if (File.Exists(tempCache)) File.Delete(tempCache);
+        }
     }
 
     [Fact]

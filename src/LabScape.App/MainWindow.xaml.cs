@@ -31,34 +31,76 @@ public partial class MainWindow : RibbonWindow
 
         DataContext = ViewModel;
 
-        Loaded += async (s, e) =>
+        Loaded += (s, e) =>
         {
             UpdateThemeToggleState();
             Services.ThemeService.ThemeChanged += OnThemeChanged;
 
-            // Auto-sync if user previously configured and saved PostgreSQL database credentials
+            // 1. Instant Cache Restoration (Zero-wait offline-first startup)
+            var cachedDevices = DpapiCredentialVault.LoadInventoryCache();
+            if (cachedDevices != null && cachedDevices.Count > 0)
+            {
+                ViewModel.Properties.SetInventoryDevices(cachedDevices);
+                ViewModel.IsDatabaseConnected = true;
+                ViewModel.DatabaseStatusText = $"Database: PostgreSQL ({cachedDevices.Count} devices - Cached)";
+            }
+
+            // 2. Background Reconnect & Live Sync
             try
             {
                 var profile = DpapiCredentialVault.LoadProfile();
-                if (!profile.UseMock && !string.IsNullOrWhiteSpace(profile.Host) && !string.IsNullOrWhiteSpace(profile.Database))
+                if (profile.IsConfigured || (!profile.UseMock && !string.IsNullOrWhiteSpace(profile.Host) && !string.IsNullOrWhiteSpace(profile.Database)))
                 {
-                    var repo = new PostgreSqlDeviceRepository();
-                    var connStr = profile.BuildConnectionString();
-                    var reachable = await repo.TestConnectionAsync(connStr);
-                    if (reachable)
+                    _ = Task.Run(async () =>
                     {
-                        var devices = await repo.GetDevicesAsync(connStr);
-                        ViewModel.Properties.SetInventoryDevices(devices);
-                        ViewModel.IsDatabaseConnected = true;
-                        ViewModel.DatabaseStatusText = $"Database: PostgreSQL ({devices.Count} devices)";
-                    }
-                    else
-                    {
-                        ViewModel.IsDatabaseConnected = false;
-                        ViewModel.DatabaseStatusText = "Database: Disconnected (Click to Connect)";
-                    }
+                        try
+                        {
+                            Core.Interfaces.IDeviceRepository repo = profile.UseMock
+                                ? new MockDeviceRepository()
+                                : new PostgreSqlDeviceRepository();
+
+                            var connStr = profile.BuildConnectionString();
+                            var reachable = await repo.TestConnectionAsync(connStr);
+                            if (reachable)
+                            {
+                                var devices = await repo.GetDevicesAsync(connStr);
+                                DpapiCredentialVault.SaveInventoryCache(devices);
+                                profile.LastConnected = DateTime.UtcNow;
+                                profile.IsConfigured = true;
+                                DpapiCredentialVault.SaveProfile(profile);
+
+                                Dispatcher.Invoke(() =>
+                                {
+                                    ViewModel.Properties.SetInventoryDevices(devices);
+                                    ViewModel.IsDatabaseConnected = true;
+                                    ViewModel.DatabaseStatusText = profile.UseMock
+                                        ? $"Database: Simulated ({devices.Count} devices)"
+                                        : $"Database: PostgreSQL ({devices.Count} devices)";
+                                });
+                            }
+                            else if (cachedDevices == null || cachedDevices.Count == 0)
+                            {
+                                Dispatcher.Invoke(() =>
+                                {
+                                    ViewModel.IsDatabaseConnected = false;
+                                    ViewModel.DatabaseStatusText = "Database: Disconnected (Click to Connect)";
+                                });
+                            }
+                        }
+                        catch
+                        {
+                            if (cachedDevices == null || cachedDevices.Count == 0)
+                            {
+                                Dispatcher.Invoke(() =>
+                                {
+                                    ViewModel.IsDatabaseConnected = false;
+                                    ViewModel.DatabaseStatusText = "Database: Disconnected (Click to Connect)";
+                                });
+                            }
+                        }
+                    });
                 }
-                else
+                else if (cachedDevices == null || cachedDevices.Count == 0)
                 {
                     ViewModel.IsDatabaseConnected = false;
                     ViewModel.DatabaseStatusText = "Database: Disconnected (Click to Connect)";
@@ -66,8 +108,11 @@ public partial class MainWindow : RibbonWindow
             }
             catch
             {
-                ViewModel.IsDatabaseConnected = false;
-                ViewModel.DatabaseStatusText = "Database: Disconnected (Click to Connect)";
+                if (cachedDevices == null || cachedDevices.Count == 0)
+                {
+                    ViewModel.IsDatabaseConnected = false;
+                    ViewModel.DatabaseStatusText = "Database: Disconnected (Click to Connect)";
+                }
             }
         };
         Unloaded += (s, e) =>
@@ -552,6 +597,13 @@ public partial class MainWindow : RibbonWindow
 
             var connStr = profile.BuildConnectionString();
             var devices = await repo.GetDevicesAsync(connStr);
+
+            // Persist profile & cached devices immediately
+            profile.IsConfigured = true;
+            profile.LastConnected = DateTime.UtcNow;
+            DpapiCredentialVault.SaveProfile(profile);
+            DpapiCredentialVault.SaveInventoryCache(devices);
+
             ViewModel.Properties.SetInventoryDevices(devices);
             ViewModel.IsDatabaseConnected = true;
             ViewModel.DatabaseStatusText = profile.UseMock
@@ -559,7 +611,7 @@ public partial class MainWindow : RibbonWindow
                 : $"Database: PostgreSQL ({devices.Count} devices)";
 
             MessageBox.Show(
-                $"Successfully retrieved {devices.Count} device(s) from {(profile.UseMock ? "Simulated Lab Inventory" : "PostgreSQL database")}.\n\nSearchable IP dropdown in the Properties panel has been updated.",
+                $"Successfully retrieved {devices.Count} device(s) from {(profile.UseMock ? "Simulated Lab Inventory" : "PostgreSQL database")}.\n\nDatabase connection and inventory cache have been persisted securely. You will not need to reconnect next time.",
                 "Inventory Synced",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
