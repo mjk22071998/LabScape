@@ -375,6 +375,27 @@ public class CoreTests
     }
 
     [Fact]
+    public void DpapiCredentialVault_Defaults_ToRealPostgreSql_NotMock()
+    {
+        var defaultProfile = new LabScape.Infrastructure.Services.DatabaseConnectionProfile();
+        Assert.False(defaultProfile.UseMock, "Default profile must target real PostgreSQL, not simulated mock");
+    }
+
+    [Fact]
+    public void MainViewModel_Startup_InitializesWithEmptyInventory_NoDummyData()
+    {
+        var vm = new MainViewModel(
+            new LayoutJsonRepository(),
+            new LabScape.Infrastructure.Services.PostgresDatabaseService(),
+            new UndoRedoService());
+
+        Assert.Empty(vm.Properties.AvailableDatabaseDevices);
+        Assert.Empty(vm.Properties.FilteredDatabaseDevices);
+        Assert.False(vm.IsDatabaseConnected);
+        Assert.Equal("Database: Disconnected", vm.DatabaseStatusText);
+    }
+
+    [Fact]
     public void ExportGatekeeper_ValidationCountersReflectState()
     {
         var undo = new UndoRedoService();

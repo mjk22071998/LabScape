@@ -76,17 +76,8 @@ public partial class MainViewModel : ObservableObject
         Tabs.Add(initialTab);
         ActiveTab = initialTab;
 
-        // Sample initial devices for searchable dropdown
-        Properties.SetInventoryDevices(new List<DatabaseDevice>
-        {
-            new DatabaseDevice { DeviceId = "DEV-101", DisplayName = "CAD-Workstation-01", PrimaryIp = "192.168.10.101", MacAddress = "00:1A:2B:3C:4D:5E" },
-            new DatabaseDevice { DeviceId = "DEV-102", DisplayName = "CAD-Workstation-02", PrimaryIp = "192.168.10.102", MacAddress = "00:1A:2B:3C:4D:5F" },
-            new DatabaseDevice { DeviceId = "DEV-103", DisplayName = "Dev-Laptop-Engineering", PrimaryIp = "192.168.10.103", MacAddress = "00:1A:2B:3C:4D:60" },
-            new DatabaseDevice { DeviceId = "DEV-104", DisplayName = "Rack-Server-Primary", PrimaryIp = "192.168.10.104", MacAddress = "00:1A:2B:3C:4D:61" },
-            new DatabaseDevice { DeviceId = "DEV-105", DisplayName = "Rack-Server-Backup", PrimaryIp = "192.168.10.105", MacAddress = "00:1A:2B:3C:4D:62" },
-            new DatabaseDevice { DeviceId = "DEV-106", DisplayName = "Reception-PC", PrimaryIp = "192.168.10.106", MacAddress = "00:1A:2B:3C:4D:63" },
-            new DatabaseDevice { DeviceId = "DEV-107", DisplayName = "Conference-AV-Unit", PrimaryIp = "192.168.10.107", MacAddress = "00:1A:2B:3C:4D:64" }
-        });
+        // Device inventory starts empty until connected to database
+        Properties.SetInventoryDevices(Array.Empty<DatabaseDevice>());
     }
 
     partial void OnActiveTabChanged(LayoutTabViewModel? oldValue, LayoutTabViewModel? newValue)

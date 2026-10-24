@@ -31,10 +31,44 @@ public partial class MainWindow : RibbonWindow
 
         DataContext = ViewModel;
 
-        Loaded += (s, e) =>
+        Loaded += async (s, e) =>
         {
             UpdateThemeToggleState();
             Services.ThemeService.ThemeChanged += OnThemeChanged;
+
+            // Auto-sync if user previously configured and saved PostgreSQL database credentials
+            try
+            {
+                var profile = DpapiCredentialVault.LoadProfile();
+                if (!profile.UseMock && !string.IsNullOrWhiteSpace(profile.Host) && !string.IsNullOrWhiteSpace(profile.Database))
+                {
+                    var repo = new PostgreSqlDeviceRepository();
+                    var connStr = profile.BuildConnectionString();
+                    var reachable = await repo.TestConnectionAsync(connStr);
+                    if (reachable)
+                    {
+                        var devices = await repo.GetDevicesAsync(connStr);
+                        ViewModel.Properties.SetInventoryDevices(devices);
+                        ViewModel.IsDatabaseConnected = true;
+                        ViewModel.DatabaseStatusText = $"Database: PostgreSQL ({devices.Count} devices)";
+                    }
+                    else
+                    {
+                        ViewModel.IsDatabaseConnected = false;
+                        ViewModel.DatabaseStatusText = "Database: Disconnected (Click to Connect)";
+                    }
+                }
+                else
+                {
+                    ViewModel.IsDatabaseConnected = false;
+                    ViewModel.DatabaseStatusText = "Database: Disconnected (Click to Connect)";
+                }
+            }
+            catch
+            {
+                ViewModel.IsDatabaseConnected = false;
+                ViewModel.DatabaseStatusText = "Database: Disconnected (Click to Connect)";
+            }
         };
         Unloaded += (s, e) =>
         {
@@ -510,23 +544,36 @@ public partial class MainWindow : RibbonWindow
 
     private async Task SyncInventoryWithProfileAsync(DatabaseConnectionProfile profile)
     {
-        Core.Interfaces.IDeviceRepository repo = profile.UseMock
-            ? new MockDeviceRepository()
-            : new PostgreSqlDeviceRepository();
+        try
+        {
+            Core.Interfaces.IDeviceRepository repo = profile.UseMock
+                ? new MockDeviceRepository()
+                : new PostgreSqlDeviceRepository();
 
-        var connStr = profile.BuildConnectionString();
-        var devices = await repo.GetDevicesAsync(connStr);
-        ViewModel.Properties.SetInventoryDevices(devices);
-        ViewModel.IsDatabaseConnected = true;
-        ViewModel.DatabaseStatusText = profile.UseMock
-            ? $"Database: Simulated ({devices.Count} devices)"
-            : $"Database: PostgreSQL ({devices.Count} devices)";
+            var connStr = profile.BuildConnectionString();
+            var devices = await repo.GetDevicesAsync(connStr);
+            ViewModel.Properties.SetInventoryDevices(devices);
+            ViewModel.IsDatabaseConnected = true;
+            ViewModel.DatabaseStatusText = profile.UseMock
+                ? $"Database: Simulated ({devices.Count} devices)"
+                : $"Database: PostgreSQL ({devices.Count} devices)";
 
-        MessageBox.Show(
-            $"Successfully synced {devices.Count} devices from {(profile.UseMock ? "Simulated Lab Inventory" : "PostgreSQL public.devices")}.\nSearchable IP dropdown updated in Properties panel.",
-            "Inventory Synced",
-            MessageBoxButton.OK,
-            MessageBoxImage.Information);
+            MessageBox.Show(
+                $"Successfully retrieved {devices.Count} device(s) from {(profile.UseMock ? "Simulated Lab Inventory" : "PostgreSQL database")}.\n\nSearchable IP dropdown in the Properties panel has been updated.",
+                "Inventory Synced",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            ViewModel.IsDatabaseConnected = false;
+            ViewModel.DatabaseStatusText = "Database: Connection Failed";
+            MessageBox.Show(
+                $"Failed to retrieve device information from database:\n\n{ex.Message}\n\nPlease check your Database Connection Settings in the Database tab.",
+                "Database Connection Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
     }
 
     private void OnThemeChanged(bool isDark)

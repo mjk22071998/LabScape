@@ -11,7 +11,7 @@ public class DatabaseConnectionProfile
     public string Database { get; set; } = "inventory_db";
     public string Username { get; set; } = "postgres";
     public string Password { get; set; } = string.Empty;
-    public bool UseMock { get; set; } = true;
+    public bool UseMock { get; set; } = false;
 
     public string BuildConnectionString()
     {

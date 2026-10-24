@@ -45,27 +45,96 @@ public class PostgreSqlDeviceRepository : IDeviceRepository
 
     public async Task<IReadOnlyList<DatabaseDevice>> GetDevicesAsync(string connectionString)
     {
-        try
-        {
-            await using var conn = new NpgsqlConnection(connectionString);
-            await conn.OpenAsync();
-            const string sql = @"
-                SELECT 
-                    device_id AS DeviceId,
-                    display_name AS DisplayName,
-                    primary_ip AS PrimaryIp,
-                    mac_address AS MacAddress,
-                    COALESCE(is_assigned, false) AS IsAssigned
-                FROM public.devices
-                ORDER BY display_name ASC";
+        await using var conn = new NpgsqlConnection(connectionString);
+        await conn.OpenAsync();
 
-            var rows = await conn.QueryAsync<DatabaseDevice>(sql);
-            return rows.ToList();
-        }
-        catch
+        // 1. Detect table name (try 'devices', 'public.devices', 'device')
+        const string checkTableSql = @"
+            SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_schema NOT IN ('information_schema', 'pg_catalog')
+              AND lower(table_name) IN ('devices', 'device', 'inventory_devices', 'lab_devices')
+            LIMIT 1;";
+
+        var tableName = await conn.QueryFirstOrDefaultAsync<string>(checkTableSql);
+        if (string.IsNullOrEmpty(tableName))
         {
-            return Array.Empty<DatabaseDevice>();
+            // Fallback: check if standard devices query works directly
+            try
+            {
+                var standardRows = await conn.QueryAsync<DatabaseDevice>(@"
+                    SELECT 
+                        device_id AS DeviceId,
+                        display_name AS DisplayName,
+                        primary_ip AS PrimaryIp,
+                        mac_address AS MacAddress,
+                        COALESCE(is_assigned, false) AS IsAssigned
+                    FROM devices
+                    ORDER BY display_name ASC;");
+                return standardRows.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(
+                    "Table 'devices' was not found in the PostgreSQL database.\n\n" +
+                    "Please ensure your database contains a table named 'devices' with columns:\n" +
+                    "• device_id (text/varchar)\n" +
+                    "• display_name (text/varchar)\n" +
+                    "• primary_ip (text/varchar)\n" +
+                    "• mac_address (text/varchar)\n\n" +
+                    $"Database error: {ex.Message}", ex);
+            }
         }
+
+        // 2. Discover available columns to map flexibly
+        const string colsSql = @"
+            SELECT lower(column_name) 
+            FROM information_schema.columns 
+            WHERE lower(table_name) = lower(@tableName);";
+
+        var colList = (await conn.QueryAsync<string>(colsSql, new { tableName })).ToList();
+        var colSet = new HashSet<string>(colList, StringComparer.OrdinalIgnoreCase);
+
+        // Identify device_id column
+        string idCol = colSet.Contains("device_id") ? "device_id" :
+                       colSet.Contains("id") ? "id" :
+                       colSet.Contains("asset_id") ? "asset_id" :
+                       colSet.Contains("dev_id") ? "dev_id" : "1::text";
+
+        // Identify display_name column
+        string nameCol = colSet.Contains("display_name") ? "display_name" :
+                         colSet.Contains("name") ? "name" :
+                         colSet.Contains("hostname") ? "hostname" :
+                         colSet.Contains("device_name") ? "device_name" :
+                         colSet.Contains("title") ? "title" : idCol;
+
+        // Identify primary_ip column
+        string ipCol = colSet.Contains("primary_ip") ? "primary_ip" :
+                       colSet.Contains("ip_address") ? "ip_address" :
+                       colSet.Contains("ip") ? "ip" :
+                       colSet.Contains("ipv4") ? "ipv4" : "''";
+
+        // Identify mac_address column
+        string macCol = colSet.Contains("mac_address") ? "mac_address" :
+                        colSet.Contains("mac") ? "mac" :
+                        colSet.Contains("hardware_address") ? "hardware_address" : "''";
+
+        // Identify is_assigned column
+        string assignedCol = colSet.Contains("is_assigned") ? "COALESCE(is_assigned, false)" :
+                             colSet.Contains("assigned") ? "COALESCE(assigned, false)" : "false";
+
+        string query = $@"
+            SELECT 
+                {idCol}::text AS DeviceId,
+                {nameCol}::text AS DisplayName,
+                {ipCol}::text AS PrimaryIp,
+                {macCol}::text AS MacAddress,
+                {assignedCol}::boolean AS IsAssigned
+            FROM {tableName}
+            ORDER BY {nameCol} ASC;";
+
+        var rows = await conn.QueryAsync<DatabaseDevice>(query);
+        return rows.ToList();
     }
 }
 

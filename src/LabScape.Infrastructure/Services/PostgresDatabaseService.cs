@@ -1,50 +1,25 @@
-﻿using Dapper;
 using LabScape.Core.Interfaces;
 using LabScape.Core.Models;
-using Npgsql;
+using LabScape.Infrastructure.Repositories;
 
 namespace LabScape.Infrastructure.Services;
 
 public class PostgresDatabaseService : IDatabaseService
 {
-    public async Task<bool> TestConnectionAsync(string connectionString)
+    private readonly IDeviceRepository _deviceRepository;
+
+    public PostgresDatabaseService(IDeviceRepository? deviceRepository = null)
     {
-        try
-        {
-            await using var connection = new NpgsqlConnection(connectionString);
-            await connection.OpenAsync();
-            using var cmd = new NpgsqlCommand("SELECT 1", connection);
-            var result = await cmd.ExecuteScalarAsync();
-            return result != null;
-        }
-        catch
-        {
-            return false;
-        }
+        _deviceRepository = deviceRepository ?? new PostgreSqlDeviceRepository();
     }
 
-    public async Task<IReadOnlyList<DatabaseDevice>> GetInventoryDevicesAsync(string connectionString)
+    public Task<bool> TestConnectionAsync(string connectionString)
     {
-        try
-        {
-            await using var connection = new NpgsqlConnection(connectionString);
-            await connection.OpenAsync();
-            const string query = @"
-                SELECT 
-                    device_id AS DeviceId,
-                    display_name AS DisplayName,
-                    primary_ip AS PrimaryIp,
-                    mac_address AS MacAddress,
-                    COALESCE(is_assigned, false) AS IsAssigned
-                FROM public.devices
-                ORDER BY display_name ASC";
+        return _deviceRepository.TestConnectionAsync(connectionString);
+    }
 
-            var rows = await connection.QueryAsync<DatabaseDevice>(query);
-            return rows.ToList();
-        }
-        catch
-        {
-            return Array.Empty<DatabaseDevice>();
-        }
+    public Task<IReadOnlyList<DatabaseDevice>> GetInventoryDevicesAsync(string connectionString)
+    {
+        return _deviceRepository.GetDevicesAsync(connectionString);
     }
 }

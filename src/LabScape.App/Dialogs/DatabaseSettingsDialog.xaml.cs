@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media;
 using LabScape.Infrastructure.Repositories;
 using LabScape.Infrastructure.Services;
+using Npgsql;
 
 namespace LabScape.App.Dialogs;
 
@@ -20,15 +22,19 @@ public partial class DatabaseSettingsDialog : Window
         TxtUsername.Text = Profile.Username;
         TxtPassword.Password = Profile.Password;
         ChkUseMock.IsChecked = Profile.UseMock;
-        UpdateFormState();
-    }
 
-    private void ChkUseMock_Checked(object sender, RoutedEventArgs e) => UpdateFormState();
-    private void ChkUseMock_Unchecked(object sender, RoutedEventArgs e) => UpdateFormState();
+        UpdateFormState();
+
+        // Wire event handlers safely after component initialization
+        ChkUseMock.Checked += (s, e) => UpdateFormState();
+        ChkUseMock.Unchecked += (s, e) => UpdateFormState();
+    }
 
     private void UpdateFormState()
     {
-        if (ChkUseMock == null || TxtHost == null || TxtPort == null || TxtDatabase == null || TxtUsername == null || TxtPassword == null) return;
+        if (ChkUseMock == null || TxtHost == null || TxtPort == null || TxtDatabase == null || TxtUsername == null || TxtPassword == null)
+            return;
+
         bool useMock = ChkUseMock.IsChecked == true;
         TxtHost.IsEnabled = !useMock;
         TxtPort.IsEnabled = !useMock;
@@ -41,9 +47,10 @@ public partial class DatabaseSettingsDialog : Window
     {
         BtnTest.IsEnabled = false;
         DiagnosticBanner.Visibility = Visibility.Visible;
-        DiagnosticBanner.Background = new SolidColorBrush(Color.FromRgb(254, 243, 199)); // Amber
-        TxtDiagnosticResult.Foreground = new SolidColorBrush(Color.FromRgb(146, 64, 14));
-        TxtDiagnosticResult.Text = "Testing connection...";
+        DiagnosticBanner.Background = new SolidColorBrush(Color.FromArgb(40, 245, 158, 11)); // Amber tint
+        DiagnosticBanner.BorderBrush = new SolidColorBrush(Color.FromRgb(245, 158, 11));
+        TxtDiagnosticResult.Foreground = new SolidColorBrush(Color.FromRgb(180, 83, 9));
+        TxtDiagnosticResult.Text = "Testing connection and querying inventory schema...";
 
         bool useMock = ChkUseMock.IsChecked == true;
 
@@ -51,34 +58,58 @@ public partial class DatabaseSettingsDialog : Window
         {
             var mockRepo = new MockDeviceRepository();
             var latency = await mockRepo.MeasureLatencyAsync("");
-            DiagnosticBanner.Background = new SolidColorBrush(Color.FromRgb(220, 252, 231)); // Green
-            TxtDiagnosticResult.Foreground = new SolidColorBrush(Color.FromRgb(22, 101, 52));
-            TxtDiagnosticResult.Text = $"✅ Simulated Lab Workstation Engine ready! Latency: {latency.TotalMilliseconds:F1} ms (25 devices available)";
+            DiagnosticBanner.Background = new SolidColorBrush(Color.FromArgb(40, 16, 185, 129)); // Green tint
+            DiagnosticBanner.BorderBrush = new SolidColorBrush(Color.FromRgb(16, 185, 129));
+            TxtDiagnosticResult.Foreground = new SolidColorBrush(Color.FromRgb(4, 120, 87));
+            TxtDiagnosticResult.Text = $"✅ Simulated Lab Workstation Engine ready! Latency: {latency.TotalMilliseconds:F1} ms (25 simulated devices available).";
             BtnTest.IsEnabled = true;
             return;
         }
 
         UpdateProfileFromUi();
-        var pgRepo = new PostgreSqlDeviceRepository();
         var connStr = Profile.BuildConnectionString();
-        var reachable = await pgRepo.TestConnectionAsync(connStr);
 
-        if (reachable)
+        try
         {
-            var latency = await pgRepo.MeasureLatencyAsync(connStr);
+            var sw = Stopwatch.StartNew();
+            string pgVersion = "PostgreSQL";
+            await using (var conn = new NpgsqlConnection(connStr))
+            {
+                await conn.OpenAsync();
+                sw.Stop();
+
+                try
+                {
+                    await using var verCmd = new NpgsqlCommand("SELECT version();", conn);
+                    var verObj = await verCmd.ExecuteScalarAsync();
+                    if (verObj != null)
+                    {
+                        pgVersion = verObj.ToString()?.Split('\n')[0] ?? "PostgreSQL";
+                    }
+                }
+                catch { }
+            }
+
+            // Test device retrieval
+            var pgRepo = new PostgreSqlDeviceRepository();
             var devices = await pgRepo.GetDevicesAsync(connStr);
-            DiagnosticBanner.Background = new SolidColorBrush(Color.FromRgb(220, 252, 231));
-            TxtDiagnosticResult.Foreground = new SolidColorBrush(Color.FromRgb(22, 101, 52));
-            TxtDiagnosticResult.Text = $"✅ Connected to PostgreSQL! Round-trip latency: {latency.TotalMilliseconds:F1} ms. Found {devices.Count} inventory devices.";
-        }
-        else
-        {
-            DiagnosticBanner.Background = new SolidColorBrush(Color.FromRgb(254, 226, 226)); // Red
-            TxtDiagnosticResult.Foreground = new SolidColorBrush(Color.FromRgb(153, 27, 27));
-            TxtDiagnosticResult.Text = "❌ Connection failed: Unable to connect to host or authenticate credentials. Verify host, port, and credentials.";
-        }
 
-        BtnTest.IsEnabled = true;
+            DiagnosticBanner.Background = new SolidColorBrush(Color.FromArgb(40, 16, 185, 129)); // Green tint
+            DiagnosticBanner.BorderBrush = new SolidColorBrush(Color.FromRgb(16, 185, 129));
+            TxtDiagnosticResult.Foreground = new SolidColorBrush(Color.FromRgb(4, 120, 87));
+            TxtDiagnosticResult.Text = $"✅ Connection successful! Latency: {sw.ElapsedMilliseconds} ms.\nDatabase: {Profile.Database} on {Profile.Host}:{Profile.Port}\nServer: {pgVersion}\nFound {devices.Count} device(s) ready in inventory.";
+        }
+        catch (Exception ex)
+        {
+            DiagnosticBanner.Background = new SolidColorBrush(Color.FromArgb(40, 239, 68, 68)); // Red tint
+            DiagnosticBanner.BorderBrush = new SolidColorBrush(Color.FromRgb(239, 68, 68));
+            TxtDiagnosticResult.Foreground = new SolidColorBrush(Color.FromRgb(185, 28, 28));
+            TxtDiagnosticResult.Text = $"❌ Connection Failed:\n{ex.Message}";
+        }
+        finally
+        {
+            BtnTest.IsEnabled = true;
+        }
     }
 
     private void UpdateProfileFromUi()

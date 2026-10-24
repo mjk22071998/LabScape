@@ -424,7 +424,7 @@
             </StatusBar.ItemsPanel>
 
             <!-- 1. Database Connection Status -->
-            <StatusBarItem Grid.Column="0">
+            <StatusBarItem Grid.Column="0" MouseLeftButtonUp="DatabaseConnect_Click" Cursor="Hand" ToolTip="Click to configure PostgreSQL connection">
                 <StackPanel Orientation="Horizontal" Margin="4,0">
                     <Ellipse Width="8" Height="8" Margin="0,0,6,0">
                         <Ellipse.Style>
