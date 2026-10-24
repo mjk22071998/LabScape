@@ -9,32 +9,34 @@
 
     <Grid Background="{DynamicResource PanelBackgroundBrush}">
         <!-- When No Item Selected -->
-        <TextBlock Text="No item selected&#x0a;Click an item on the canvas to inspect its properties."
-                   Foreground="{DynamicResource AppTextMutedBrush}" FontSize="12" TextAlignment="Center" VerticalAlignment="Center"
-                   Margin="16" TextWrapping="Wrap"
-                   Visibility="{Binding HasSelection, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
-            <TextBlock.Style>
-                <Style TargetType="TextBlock">
+        <Border VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed"/>
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding HasSelection}" Value="True">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                        </DataTrigger>
                         <DataTrigger Binding="{Binding HasSelection}" Value="False">
                             <Setter Property="Visibility" Value="Visible"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
-            </TextBlock.Style>
-        </TextBlock>
+            </Border.Style>
+            <StackPanel HorizontalAlignment="Center">
+                <TextBlock Text="No item selected"
+                           FontWeight="SemiBold" FontSize="13"
+                           Foreground="{DynamicResource AppTextMutedBrush}"
+                           HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                <TextBlock Text="Click an item on the canvas to view and edit its properties."
+                           FontSize="11" Foreground="{DynamicResource AppTextMutedBrush}"
+                           TextAlignment="Center" TextWrapping="Wrap" MaxWidth="220"/>
+            </StackPanel>
+        </Border>
 
         <!-- When Item Selected -->
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <ScrollViewer.Style>
                 <Style TargetType="ScrollViewer">
+                    <Setter Property="Visibility" Value="Collapsed"/>
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding HasSelection}" Value="False">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                        </DataTrigger>
                         <DataTrigger Binding="{Binding HasSelection}" Value="True">
                             <Setter Property="Visibility" Value="Visible"/>
                         </DataTrigger>
@@ -100,12 +102,10 @@
                     </StackPanel>
                 </GroupBox>
 
-                <!-- 3. Coordinates & Layering (All Items) -->
+                <!-- 3. Transform & Coordinates (Geometric Dimensions) -->
                 <GroupBox Header="Transform &amp; Coordinates" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
                     <Grid Margin="6" TextElement.FontWeight="Normal">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
@@ -127,30 +127,61 @@
                         <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding DisplayY, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEditCoordinates}"
                                  ToolTip="{Binding CoordinatesToolTip}" Padding="3" Margin="0,3"/>
 
-                        <!-- Z (Layering) -->
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Z (Layer):" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,3"/>
-                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding CommonZ, UpdateSourceTrigger=PropertyChanged}" Padding="3" Margin="0,3"/>
-
-                        <!-- Layer Order Action Buttons -->
-                        <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,3,0,6">
-                            <Button Content="▲ Front" Command="{Binding MoveToFrontCommand}" ToolTip="Move to Front (Ctrl+Shift+])" Padding="5,2" Margin="1,0" FontSize="10"/>
-                            <Button Content="↑ Forward" Command="{Binding MoveForwardCommand}" ToolTip="Move Forward (Ctrl+])" Padding="5,2" Margin="1,0" FontSize="10"/>
-                            <Button Content="↓ Backward" Command="{Binding SendBackwardCommand}" ToolTip="Send Backward (Ctrl+[)" Padding="5,2" Margin="1,0" FontSize="10"/>
-                            <Button Content="▼ Back" Command="{Binding SendToBackCommand}" ToolTip="Send to Back (Ctrl+Shift+[)" Padding="5,2" Margin="1,0" FontSize="10"/>
-                        </StackPanel>
-
                         <!-- Width (Common Property) -->
-                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Width:" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,3"/>
-                        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding CommonWidth, UpdateSourceTrigger=PropertyChanged}" Padding="3" Margin="0,3"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Width:" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,3"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding CommonWidth, UpdateSourceTrigger=PropertyChanged}" Padding="3" Margin="0,3"/>
 
                         <!-- Height (Common Property) -->
-                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Height:" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,3"/>
-                        <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding CommonHeight, UpdateSourceTrigger=PropertyChanged}" Padding="3" Margin="0,3"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Height:" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,3"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding CommonHeight, UpdateSourceTrigger=PropertyChanged}" Padding="3" Margin="0,3"/>
 
                         <!-- Rotation (Common Property) -->
-                        <TextBlock Grid.Row="6" Grid.Column="0" Text="Rotation:" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,3"/>
-                        <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding CommonRotation, UpdateSourceTrigger=PropertyChanged}" Padding="3" Margin="0,3"/>
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Rotation:" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,3"/>
+                        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding CommonRotation, UpdateSourceTrigger=PropertyChanged}" Padding="3" Margin="0,3"/>
                     </Grid>
+                </GroupBox>
+
+                <!-- 4. Layering & Stacking Order (Dedicated Proper Section) -->
+                <GroupBox Header="Layering &amp; Order" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
+                    <StackPanel Margin="6" TextElement.FontWeight="Normal">
+                        <!-- Z-Index Input -->
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="65"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Z (Layer):" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="1" Text="{Binding CommonZ, UpdateSourceTrigger=PropertyChanged}" Padding="3"/>
+                        </Grid>
+
+                        <!-- Standard Layer Action Buttons with Vector Icons -->
+                        <UniformGrid Columns="2" Rows="2" Margin="0,2,0,2">
+                            <Button Command="{Binding MoveToFrontCommand}" ToolTip="Bring to Front (Ctrl+Shift+])" Margin="2" Padding="6,5">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Image Source="{StaticResource IconMoveToFront}" Width="15" Height="15" Margin="0,0,6,0"/>
+                                    <TextBlock Text="To Front" FontSize="11" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding MoveForwardCommand}" ToolTip="Bring Forward (Ctrl+])" Margin="2" Padding="6,5">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Image Source="{StaticResource IconMoveForward}" Width="15" Height="15" Margin="0,0,6,0"/>
+                                    <TextBlock Text="Forward" FontSize="11" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding SendBackwardCommand}" ToolTip="Send Backward (Ctrl+[)" Margin="2" Padding="6,5">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Image Source="{StaticResource IconSendBackward}" Width="15" Height="15" Margin="0,0,6,0"/>
+                                    <TextBlock Text="Backward" FontSize="11" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding SendToBackCommand}" ToolTip="Send to Back (Ctrl+Shift+[)" Margin="2" Padding="6,5">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Image Source="{StaticResource IconSendToBack}" Width="15" Height="15" Margin="0,0,6,0"/>
+                                    <TextBlock Text="To Back" FontSize="11" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </UniformGrid>
+                    </StackPanel>
                 </GroupBox>
 
                 <!-- 4. Shape Parameters (Corner Radius & Donut Inner Radius) -->

@@ -854,4 +854,42 @@ public class CoreTests
         Assert.Contains("MaxWidth=\"{Binding Width}\"", canvasContent);
         Assert.Contains("Converter={StaticResource DeviceLabelWrapConverter}", canvasContent);
     }
+
+    [Fact]
+    public void PropertiesInspector_HasDedicatedLayerSection_WithStandardIcons_AndNoGhostText()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(projectRoot);
+        string viewPath = Path.Combine(projectRoot, "src", "LabScape.App", "Views", "PropertiesInspectorView.xaml");
+        Assert.True(File.Exists(viewPath));
+
+        string content = File.ReadAllText(viewPath);
+
+        // Dedicated Layering Section
+        Assert.Contains("Header=\"Layering &amp; Order\"", content);
+
+        // Standard Vector Icons
+        Assert.Contains("StaticResource IconMoveToFront", content);
+        Assert.Contains("StaticResource IconMoveForward", content);
+        Assert.Contains("StaticResource IconSendBackward", content);
+        Assert.Contains("StaticResource IconSendToBack", content);
+
+        // No more raw ASCII arrows
+        Assert.DoesNotContain("Content=\"▲ Front\"", content);
+        Assert.DoesNotContain("Content=\"▼ Back\"", content);
+
+        // No ghost background text (no conflicting local Visibility attribute on empty-state TextBlock)
+        Assert.DoesNotContain("ConverterParameter=Inverse", content);
+    }
 }
