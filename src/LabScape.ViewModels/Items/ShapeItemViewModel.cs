@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using LabScape.Core.Enums;
 using LabScape.Core.Models;
 
@@ -54,14 +54,58 @@ public partial class ShapeItemViewModel : ItemViewModel
         _controlPoint2Y = model.ControlPoint2Y;
     }
 
-    partial void OnShapeTypeChanged(ShapeType value) => ShapeModel.ShapeType = value;
-    partial void OnCornerRadiusChanged(double value) => ShapeModel.CornerRadius = value;
-    partial void OnInnerRadiusChanged(double value) => ShapeModel.InnerRadius = value;
+    partial void OnShapeTypeChanged(ShapeType value)
+    {
+        ShapeModel.ShapeType = value;
+        OnPropertyChanged(string.Empty);
+    }
+
+    partial void OnCornerRadiusChanged(double value)
+    {
+        ShapeModel.CornerRadius = value;
+        OnPropertyChanged(string.Empty);
+    }
+
+    partial void OnInnerRadiusChanged(double value)
+    {
+        ShapeModel.InnerRadius = value;
+        OnPropertyChanged(string.Empty);
+    }
+
     partial void OnFillChanged(string value) => ShapeModel.Fill = value;
     partial void OnStrokeChanged(string value) => ShapeModel.Stroke = value;
     partial void OnStrokeThicknessChanged(double value) => ShapeModel.StrokeThickness = value;
-    partial void OnControlPoint1XChanged(double value) => ShapeModel.ControlPoint1X = value;
-    partial void OnControlPoint1YChanged(double value) => ShapeModel.ControlPoint1Y = value;
-    partial void OnControlPoint2XChanged(double value) => ShapeModel.ControlPoint2X = value;
-    partial void OnControlPoint2YChanged(double value) => ShapeModel.ControlPoint2Y = value;
+
+    partial void OnControlPoint1XChanged(double value)
+    {
+        ShapeModel.ControlPoint1X = value;
+        OnPropertyChanged(string.Empty);
+    }
+
+    partial void OnControlPoint1YChanged(double value)
+    {
+        ShapeModel.ControlPoint1Y = value;
+        OnPropertyChanged(string.Empty);
+    }
+
+    partial void OnControlPoint2XChanged(double value)
+    {
+        ShapeModel.ControlPoint2X = value;
+        OnPropertyChanged(string.Empty);
+    }
+
+    partial void OnControlPoint2YChanged(double value)
+    {
+        ShapeModel.ControlPoint2Y = value;
+        OnPropertyChanged(string.Empty);
+    }
+
+    protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+        if (e.PropertyName is nameof(Width) or nameof(Height))
+        {
+            OnPropertyChanged(string.Empty);
+        }
+    }
 }

@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -22,6 +23,14 @@ public class SelectionAdorner : Adorner
     private static readonly Brush HandleBrush = Brushes.White;
     private static readonly Pen HandlePen = new(new SolidColorBrush(Color.FromRgb(37, 99, 235)), 1.5);
 
+    // Tangent dotted lines connecting Bezier control points to originating endpoints
+    private static readonly Pen DottedTangentPen = new(new SolidColorBrush(Color.FromRgb(99, 102, 241)), 1.5)
+    {
+        DashStyle = DashStyles.Dot
+    };
+    private static readonly Brush ControlPointBrush = new SolidColorBrush(Color.FromRgb(99, 102, 241)); // Indigo accent
+    private static readonly Pen ControlPointPen = new(Brushes.White, 1.5);
+
     private static readonly Brush CornerRadiusBrush = new SolidColorBrush(Color.FromRgb(245, 158, 11)); // Amber
     private static readonly Pen CornerRadiusPen = new(new SolidColorBrush(Color.FromRgb(180, 83, 9)), 1.5);
 
@@ -37,7 +46,10 @@ public class SelectionAdorner : Adorner
         ResizeNW, ResizeN, ResizeNE, ResizeE, ResizeSE, ResizeS, ResizeSW, ResizeW,
         Rotate,
         CornerRadius,
-        DonutInnerRadius
+        DonutInnerRadius,
+        LineStart, LineEnd,
+        BezierStart, BezierEnd,
+        BezierControlPoint1, BezierControlPoint2
     }
 
     private DragMode _activeDrag = DragMode.None;
@@ -46,11 +58,16 @@ public class SelectionAdorner : Adorner
     private double _initialAngleOffset;
     private double _initialX, _initialY, _initialW, _initialH, _initialRot;
     private double _initialCornerRadius, _initialInnerRadius;
+    private double _initialCP1X, _initialCP1Y, _initialCP2X, _initialCP2Y;
+    private Point _initialCanvasStart, _initialCanvasEnd;
 
     static SelectionAdorner()
     {
         BoxPen.Freeze();
         HandlePen.Freeze();
+        DottedTangentPen.Freeze();
+        ControlPointBrush.Freeze();
+        ControlPointPen.Freeze();
         CornerRadiusBrush.Freeze();
         CornerRadiusPen.Freeze();
         DonutBrush.Freeze();
@@ -71,7 +88,12 @@ public class SelectionAdorner : Adorner
 
     private void OnItemPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(ItemViewModel.Rotation) or nameof(ItemViewModel.Width) or nameof(ItemViewModel.Height) or nameof(ItemViewModel.X) or nameof(ItemViewModel.Y))
+        if (string.IsNullOrEmpty(e.PropertyName) ||
+            e.PropertyName is nameof(ItemViewModel.Rotation) or nameof(ItemViewModel.Width) or nameof(ItemViewModel.Height) or nameof(ItemViewModel.X) or nameof(ItemViewModel.Y)
+            or nameof(ShapeItemViewModel.ControlPoint1X) or nameof(ShapeItemViewModel.ControlPoint1Y)
+            or nameof(ShapeItemViewModel.ControlPoint2X) or nameof(ShapeItemViewModel.ControlPoint2Y)
+            or nameof(ShapeItemViewModel.CornerRadius) or nameof(ShapeItemViewModel.InnerRadius)
+            or nameof(ShapeItemViewModel.ShapeType))
         {
             InvalidateAdorner();
         }
@@ -110,7 +132,59 @@ public class SelectionAdorner : Adorner
         double w = _item.Width;
         double h = _item.Height;
 
-        // Bounding selection rectangle
+        // 1. Line Shape: Exactly 3 handles (Start, End, Rotation) - no outer bounding box
+        if (_item is ShapeItemViewModel shapeLine && shapeLine.ShapeType == ShapeType.Line)
+        {
+            Point pStart = new(0, h / 2.0);
+            Point pEnd = new(w, h / 2.0);
+            Point pMid = new(w / 2.0, h / 2.0);
+            Point pRot = new(w / 2.0, -20.0);
+
+            // Selection guide line
+            dc.DrawLine(BoxPen, pStart, pEnd);
+
+            // Rotation stalk
+            dc.DrawLine(BoxPen, pMid, pRot);
+
+            // 1 & 2: Start and End handles
+            DrawHandle(dc, pStart);
+            DrawHandle(dc, pEnd);
+
+            // 3: Rotation handle
+            dc.DrawEllipse(Brushes.White, HandlePen, pRot, HandleSize / 2, HandleSize / 2);
+            return;
+        }
+
+        // 2. Bezier Curve Shape: Exactly 5 handles (Start, End, 2 Control Points with dotted originating lines, Rotation)
+        if (_item is ShapeItemViewModel shapeBezier && shapeBezier.ShapeType == ShapeType.Bezier)
+        {
+            Point pStart = new(0, h);
+            Point pEnd = new(w, 0);
+            Point cp1 = new(shapeBezier.ControlPoint1X, shapeBezier.ControlPoint1Y);
+            Point cp2 = new(shapeBezier.ControlPoint2X, shapeBezier.ControlPoint2Y);
+            Point pRot = new(w / 2.0, -20.0);
+
+            // Dotted lines connecting control points to their respective originating anchor points
+            dc.DrawLine(DottedTangentPen, pStart, cp1);
+            dc.DrawLine(DottedTangentPen, pEnd, cp2);
+
+            // Rotation stalk
+            dc.DrawLine(BoxPen, new Point(w / 2.0, 0), pRot);
+
+            // 1 & 2: Start and End anchor handles
+            DrawHandle(dc, pStart);
+            DrawHandle(dc, pEnd);
+
+            // 3 & 4: Control points connected to originating points
+            dc.DrawEllipse(ControlPointBrush, ControlPointPen, cp1, SpecialHandleSize / 2, SpecialHandleSize / 2);
+            dc.DrawEllipse(ControlPointBrush, ControlPointPen, cp2, SpecialHandleSize / 2, SpecialHandleSize / 2);
+
+            // 5: Rotation handle
+            dc.DrawEllipse(Brushes.White, HandlePen, pRot, HandleSize / 2, HandleSize / 2);
+            return;
+        }
+
+        // 3. Standard Bounding Box for other shapes & items
         dc.DrawRectangle(null, BoxPen, new Rect(-2, -2, w + 4, h + 4));
 
         // 8 standard resize handles
@@ -170,29 +244,125 @@ public class SelectionAdorner : Adorner
         _dragStartPoint = PointToScreen(p);
         _dragStartLocal = p;
 
-        // Check special handles first
-        if (_item is ShapeItemViewModel shape)
+        // Line-specific handle hit testing (Exactly 3 handles)
+        if (_item is ShapeItemViewModel shapeLine && shapeLine.ShapeType == ShapeType.Line)
         {
-            if (shape.ShapeType == ShapeType.RoundedRectangle || shape.ShapeType == ShapeType.RoundedCornerTriangle)
+            Point pStart = new(0, h / 2.0);
+            Point pEnd = new(w, h / 2.0);
+            Point pRot = new(w / 2.0, -20.0);
+
+            if (IsHit(p, pRot, HandleSize))
             {
-                double crOffset = Math.Min(shape.CornerRadius, Math.Min(w, h) / 2);
+                _activeDrag = DragMode.Rotate;
+                SetupRotateDrag(e, w, h);
+                CaptureMouse();
+                e.Handled = true;
+                return;
+            }
+
+            double rad = _initialRot * Math.PI / 180.0;
+            double cos = Math.Cos(rad);
+            double sin = Math.Sin(rad);
+            Point center = new(_initialX + _initialW / 2.0, _initialY + _initialH / 2.0);
+
+            _initialCanvasStart = new Point(center.X - cos * (_initialW / 2.0), center.Y - sin * (_initialW / 2.0));
+            _initialCanvasEnd = new Point(center.X + cos * (_initialW / 2.0), center.Y + sin * (_initialW / 2.0));
+
+            if (IsHit(p, pStart, HandleSize))
+            {
+                _activeDrag = DragMode.LineStart;
+                CaptureMouse();
+                e.Handled = true;
+                return;
+            }
+            else if (IsHit(p, pEnd, HandleSize))
+            {
+                _activeDrag = DragMode.LineEnd;
+                CaptureMouse();
+                e.Handled = true;
+                return;
+            }
+
+            return; // Never trigger 8-box resize handles for Line
+        }
+
+        // Bezier-specific handle hit testing (Exactly 5 handles)
+        if (_item is ShapeItemViewModel shapeBezier && shapeBezier.ShapeType == ShapeType.Bezier)
+        {
+            Point pStart = new(0, h);
+            Point pEnd = new(w, 0);
+            Point cp1 = new(shapeBezier.ControlPoint1X, shapeBezier.ControlPoint1Y);
+            Point cp2 = new(shapeBezier.ControlPoint2X, shapeBezier.ControlPoint2Y);
+            Point pRot = new(w / 2.0, -20.0);
+
+            _initialCP1X = shapeBezier.ControlPoint1X;
+            _initialCP1Y = shapeBezier.ControlPoint1Y;
+            _initialCP2X = shapeBezier.ControlPoint2X;
+            _initialCP2Y = shapeBezier.ControlPoint2Y;
+
+            if (IsHit(p, cp1, SpecialHandleSize))
+            {
+                _activeDrag = DragMode.BezierControlPoint1;
+                CaptureMouse();
+                e.Handled = true;
+                return;
+            }
+            else if (IsHit(p, cp2, SpecialHandleSize))
+            {
+                _activeDrag = DragMode.BezierControlPoint2;
+                CaptureMouse();
+                e.Handled = true;
+                return;
+            }
+            else if (IsHit(p, pRot, HandleSize))
+            {
+                _activeDrag = DragMode.Rotate;
+                SetupRotateDrag(e, w, h);
+                CaptureMouse();
+                e.Handled = true;
+                return;
+            }
+            else if (IsHit(p, pStart, HandleSize))
+            {
+                _activeDrag = DragMode.BezierStart;
+                CaptureMouse();
+                e.Handled = true;
+                return;
+            }
+            else if (IsHit(p, pEnd, HandleSize))
+            {
+                _activeDrag = DragMode.BezierEnd;
+                CaptureMouse();
+                e.Handled = true;
+                return;
+            }
+
+            return; // Never trigger 8-box resize handles for Bezier
+        }
+
+        // Check special handles for RoundedRectangle & Donut
+        if (_item is ShapeItemViewModel shapeSpecial)
+        {
+            if (shapeSpecial.ShapeType == ShapeType.RoundedRectangle || shapeSpecial.ShapeType == ShapeType.RoundedCornerTriangle)
+            {
+                double crOffset = Math.Min(shapeSpecial.CornerRadius, Math.Min(w, h) / 2);
                 if (IsHit(p, new Point(crOffset, 4), SpecialHandleSize))
                 {
                     _activeDrag = DragMode.CornerRadius;
-                    _initialCornerRadius = shape.CornerRadius;
+                    _initialCornerRadius = shapeSpecial.CornerRadius;
                     CaptureMouse();
                     e.Handled = true;
                     return;
                 }
             }
-            else if (shape.ShapeType == ShapeType.Donut)
+            else if (shapeSpecial.ShapeType == ShapeType.Donut)
             {
-                double innerRatio = Math.Clamp(shape.InnerRadius / 50.0, 0.1, 0.9);
+                double innerRatio = Math.Clamp(shapeSpecial.InnerRadius / 50.0, 0.1, 0.9);
                 double innerRx = (w / 2.0) * innerRatio;
                 if (IsHit(p, new Point(w / 2.0 + innerRx, h / 2.0), SpecialHandleSize))
                 {
                     _activeDrag = DragMode.DonutInnerRadius;
-                    _initialInnerRadius = shape.InnerRadius;
+                    _initialInnerRadius = shapeSpecial.InnerRadius;
                     CaptureMouse();
                     e.Handled = true;
                     return;
@@ -200,24 +370,17 @@ public class SelectionAdorner : Adorner
             }
         }
 
-        // Check rotate handle
+        // Check rotate handle for standard items
         if (IsHit(p, new Point(w / 2, -20), HandleSize))
         {
             _activeDrag = DragMode.Rotate;
-            Point mouseInAdorned = e.GetPosition(AdornedElement);
-            double clickDx = mouseInAdorned.X - (w / 2.0);
-            double clickDy = mouseInAdorned.Y - (h / 2.0);
-            double clickAngleRad = Math.Atan2(clickDy, clickDx);
-            double clickAngleDeg = (clickAngleRad * 180.0 / Math.PI) + 90.0;
-            if (clickAngleDeg < 0) clickAngleDeg += 360.0;
-
-            _initialAngleOffset = _initialRot - clickAngleDeg;
+            SetupRotateDrag(e, w, h);
             CaptureMouse();
             e.Handled = true;
             return;
         }
 
-        // Check 8 resize handles
+        // Check 8 resize handles for standard items
         if (IsHit(p, new Point(-2, -2), HandleSize)) _activeDrag = DragMode.ResizeNW;
         else if (IsHit(p, new Point(w / 2, -2), HandleSize)) _activeDrag = DragMode.ResizeN;
         else if (IsHit(p, new Point(w + 2, -2), HandleSize)) _activeDrag = DragMode.ResizeNE;
@@ -234,6 +397,28 @@ public class SelectionAdorner : Adorner
         }
     }
 
+    private void SetupRotateDrag(MouseButtonEventArgs e, double w, double h)
+    {
+        Point mouseInAdorned = e.GetPosition(AdornedElement);
+        double clickDx = mouseInAdorned.X - (w / 2.0);
+        double clickDy = mouseInAdorned.Y - (h / 2.0);
+        double clickAngleRad = Math.Atan2(clickDy, clickDx);
+        double clickAngleDeg = (clickAngleRad * 180.0 / Math.PI) + 90.0;
+        if (clickAngleDeg < 0) clickAngleDeg += 360.0;
+
+        _initialAngleOffset = _initialRot - clickAngleDeg;
+    }
+
+    private Point GetMouseOnCanvas(MouseEventArgs e)
+    {
+        var parent = VisualTreeHelper.GetParent(AdornedElement) as UIElement;
+        while (parent != null && parent is not Canvas && parent is not ItemsControl)
+        {
+            parent = VisualTreeHelper.GetParent(parent) as UIElement;
+        }
+        return parent != null ? e.GetPosition(parent) : e.GetPosition(AdornedElement);
+    }
+
     protected override void OnMouseMove(MouseEventArgs e)
     {
         base.OnMouseMove(e);
@@ -245,7 +430,6 @@ public class SelectionAdorner : Adorner
             return;
         }
 
-        Point currentScreen = PointToScreen(currentLocal);
         double deltaX = currentLocal.X - _dragStartLocal.X;
         double deltaY = currentLocal.Y - _dragStartLocal.Y;
 
@@ -256,6 +440,112 @@ public class SelectionAdorner : Adorner
 
         switch (_activeDrag)
         {
+            case DragMode.LineEnd:
+            {
+                Point mouseCanvas = GetMouseOnCanvas(e);
+                double vx = mouseCanvas.X - _initialCanvasStart.X;
+                double vy = mouseCanvas.Y - _initialCanvasStart.Y;
+                double len = Math.Max(15.0, Math.Sqrt(vx * vx + vy * vy));
+                double angleDeg = Math.Atan2(vy, vx) * 180.0 / Math.PI;
+                if (angleDeg < 0) angleDeg += 360.0;
+
+                if (shiftHeld)
+                {
+                    angleDeg = Math.Round(angleDeg / 15.0) * 15.0;
+                    if (angleDeg >= 360.0) angleDeg = 0.0;
+                }
+
+                double rad = angleDeg * Math.PI / 180.0;
+                double cos = Math.Cos(rad);
+                double sin = Math.Sin(rad);
+                Point newCenter = new(_initialCanvasStart.X + cos * (len / 2.0), _initialCanvasStart.Y + sin * (len / 2.0));
+
+                _item.X = Math.Round(newCenter.X - len / 2.0, 1);
+                _item.Y = Math.Round(newCenter.Y - _initialH / 2.0, 1);
+                _item.Width = Math.Round(len, 1);
+                _item.Rotation = Math.Round(angleDeg, 1);
+                break;
+            }
+
+            case DragMode.LineStart:
+            {
+                Point mouseCanvas = GetMouseOnCanvas(e);
+                double vx = _initialCanvasEnd.X - mouseCanvas.X;
+                double vy = _initialCanvasEnd.Y - mouseCanvas.Y;
+                double len = Math.Max(15.0, Math.Sqrt(vx * vx + vy * vy));
+                double angleDeg = Math.Atan2(vy, vx) * 180.0 / Math.PI;
+                if (angleDeg < 0) angleDeg += 360.0;
+
+                if (shiftHeld)
+                {
+                    angleDeg = Math.Round(angleDeg / 15.0) * 15.0;
+                    if (angleDeg >= 360.0) angleDeg = 0.0;
+                }
+
+                double rad = angleDeg * Math.PI / 180.0;
+                double cos = Math.Cos(rad);
+                double sin = Math.Sin(rad);
+                Point newCenter = new(_initialCanvasEnd.X - cos * (len / 2.0), _initialCanvasEnd.Y - sin * (len / 2.0));
+
+                _item.X = Math.Round(newCenter.X - len / 2.0, 1);
+                _item.Y = Math.Round(newCenter.Y - _initialH / 2.0, 1);
+                _item.Width = Math.Round(len, 1);
+                _item.Rotation = Math.Round(angleDeg, 1);
+                break;
+            }
+
+            case DragMode.BezierControlPoint1:
+                if (_item is ShapeItemViewModel shapeCp1)
+                {
+                    shapeCp1.ControlPoint1X = Math.Round(currentLocal.X, 1);
+                    shapeCp1.ControlPoint1Y = Math.Round(currentLocal.Y, 1);
+                }
+                break;
+
+            case DragMode.BezierControlPoint2:
+                if (_item is ShapeItemViewModel shapeCp2)
+                {
+                    shapeCp2.ControlPoint2X = Math.Round(currentLocal.X, 1);
+                    shapeCp2.ControlPoint2Y = Math.Round(currentLocal.Y, 1);
+                }
+                break;
+
+            case DragMode.BezierStart:
+                if (_item is ShapeItemViewModel shapeStart)
+                {
+                    double nwW = Math.Max(20.0, _initialW - deltaX);
+                    double nwH = Math.Max(20.0, _initialH + deltaY);
+                    _item.X = Math.Round(_initialX + (_initialW - nwW), 1);
+                    _item.Width = Math.Round(nwW, 1);
+                    _item.Height = Math.Round(nwH, 1);
+
+                    double sx = nwW / _initialW;
+                    double sy = nwH / _initialH;
+                    shapeStart.ControlPoint1X = Math.Round(_initialCP1X * sx, 1);
+                    shapeStart.ControlPoint1Y = Math.Round(_initialCP1Y * sy, 1);
+                    shapeStart.ControlPoint2X = Math.Round(_initialCP2X * sx, 1);
+                    shapeStart.ControlPoint2Y = Math.Round(_initialCP2Y * sy, 1);
+                }
+                break;
+
+            case DragMode.BezierEnd:
+                if (_item is ShapeItemViewModel shapeEnd)
+                {
+                    double nwW = Math.Max(20.0, _initialW + deltaX);
+                    double nwH = Math.Max(20.0, _initialH - deltaY);
+                    _item.Y = Math.Round(_initialY + (_initialH - nwH), 1);
+                    _item.Width = Math.Round(nwW, 1);
+                    _item.Height = Math.Round(nwH, 1);
+
+                    double sx = nwW / _initialW;
+                    double sy = nwH / _initialH;
+                    shapeEnd.ControlPoint1X = Math.Round(_initialCP1X * sx, 1);
+                    shapeEnd.ControlPoint1Y = Math.Round(_initialCP1Y * sy, 1);
+                    shapeEnd.ControlPoint2X = Math.Round(_initialCP2X * sx, 1);
+                    shapeEnd.ControlPoint2Y = Math.Round(_initialCP2Y * sy, 1);
+                }
+                break;
+
             case DragMode.ResizeSE:
             {
                 double targetW = Math.Max(20, _initialW + deltaX);
@@ -420,19 +710,40 @@ public class SelectionAdorner : Adorner
         base.OnMouseUp(e);
         if (_activeDrag != DragMode.None)
         {
-            // Record Undoable Command if bounds or rotation changed
-            bool hasChanged = Math.Abs(_item.X - _initialX) > 0.1 ||
-                              Math.Abs(_item.Y - _initialY) > 0.1 ||
-                              Math.Abs(_item.Width - _initialW) > 0.1 ||
-                              Math.Abs(_item.Height - _initialH) > 0.1 ||
-                              Math.Abs(_item.Rotation - _initialRot) > 0.1;
-
-            if (hasChanged)
+            if (_activeDrag is DragMode.BezierControlPoint1 or DragMode.BezierControlPoint2)
             {
-                _undoRedoService.ExecuteCommand(new TransformItemCommand(
-                    _item,
-                    _initialX, _initialY, _initialW, _initialH, _initialRot,
-                    _item.X, _item.Y, _item.Width, _item.Height, _item.Rotation));
+                if (_item is ShapeItemViewModel shape)
+                {
+                    bool changed = Math.Abs(shape.ControlPoint1X - _initialCP1X) > 0.1 ||
+                                  Math.Abs(shape.ControlPoint1Y - _initialCP1Y) > 0.1 ||
+                                  Math.Abs(shape.ControlPoint2X - _initialCP2X) > 0.1 ||
+                                  Math.Abs(shape.ControlPoint2Y - _initialCP2Y) > 0.1;
+
+                    if (changed)
+                    {
+                        _undoRedoService.ExecuteCommand(new ModifyBezierControlPointsCommand(
+                            shape,
+                            _initialCP1X, _initialCP1Y, _initialCP2X, _initialCP2Y,
+                            shape.ControlPoint1X, shape.ControlPoint1Y, shape.ControlPoint2X, shape.ControlPoint2Y));
+                    }
+                }
+            }
+            else
+            {
+                // Record Undoable Command if bounds or rotation changed
+                bool hasChanged = Math.Abs(_item.X - _initialX) > 0.1 ||
+                                  Math.Abs(_item.Y - _initialY) > 0.1 ||
+                                  Math.Abs(_item.Width - _initialW) > 0.1 ||
+                                  Math.Abs(_item.Height - _initialH) > 0.1 ||
+                                  Math.Abs(_item.Rotation - _initialRot) > 0.1;
+
+                if (hasChanged)
+                {
+                    _undoRedoService.ExecuteCommand(new TransformItemCommand(
+                        _item,
+                        _initialX, _initialY, _initialW, _initialH, _initialRot,
+                        _item.X, _item.Y, _item.Width, _item.Height, _item.Rotation));
+                }
             }
 
             _activeDrag = DragMode.None;
@@ -446,6 +757,38 @@ public class SelectionAdorner : Adorner
     {
         double w = _item.Width;
         double h = _item.Height;
+
+        if (_item is ShapeItemViewModel shapeLine && shapeLine.ShapeType == ShapeType.Line)
+        {
+            Point pStart = new(0, h / 2.0);
+            Point pEnd = new(w, h / 2.0);
+            Point pRot = new(w / 2.0, -20.0);
+
+            if (IsHit(p, pRot, HandleSize))
+                Cursor = Cursors.Hand;
+            else if (IsHit(p, pStart, HandleSize) || IsHit(p, pEnd, HandleSize))
+                Cursor = Cursors.Cross;
+            else
+                Cursor = Cursors.Arrow;
+            return;
+        }
+
+        if (_item is ShapeItemViewModel shapeBezier && shapeBezier.ShapeType == ShapeType.Bezier)
+        {
+            Point pStart = new(0, h);
+            Point pEnd = new(w, 0);
+            Point cp1 = new(shapeBezier.ControlPoint1X, shapeBezier.ControlPoint1Y);
+            Point cp2 = new(shapeBezier.ControlPoint2X, shapeBezier.ControlPoint2Y);
+            Point pRot = new(w / 2.0, -20.0);
+
+            if (IsHit(p, pRot, HandleSize) || IsHit(p, cp1, SpecialHandleSize) || IsHit(p, cp2, SpecialHandleSize))
+                Cursor = Cursors.Hand;
+            else if (IsHit(p, pStart, HandleSize) || IsHit(p, pEnd, HandleSize))
+                Cursor = Cursors.Cross;
+            else
+                Cursor = Cursors.Arrow;
+            return;
+        }
 
         if (IsHit(p, new Point(-2, -2), HandleSize) || IsHit(p, new Point(w + 2, h + 2), HandleSize))
             Cursor = Cursors.SizeNWSE;
@@ -467,11 +810,47 @@ public class SelectionAdorner : Adorner
         double w = _item.Width;
         double h = _item.Height;
 
-        // Check rotate handle
+        // Line item has only 3 handles (Start, End, Rotation)
+        if (_item is ShapeItemViewModel shapeLine && shapeLine.ShapeType == ShapeType.Line)
+        {
+            Point pStart = new(0, h / 2.0);
+            Point pEnd = new(w, h / 2.0);
+            Point pRot = new(w / 2.0, -20.0);
+
+            if (IsHit(p, pRot, HandleSize + 6) ||
+                IsHit(p, pStart, HandleSize + 4) ||
+                IsHit(p, pEnd, HandleSize + 4))
+            {
+                return new PointHitTestResult(this, p);
+            }
+            return null;
+        }
+
+        // Bezier curve has only 5 handles (Start, End, CP1, CP2, Rotation)
+        if (_item is ShapeItemViewModel shapeBezier && shapeBezier.ShapeType == ShapeType.Bezier)
+        {
+            Point pStart = new(0, h);
+            Point pEnd = new(w, 0);
+            Point cp1 = new(shapeBezier.ControlPoint1X, shapeBezier.ControlPoint1Y);
+            Point cp2 = new(shapeBezier.ControlPoint2X, shapeBezier.ControlPoint2Y);
+            Point pRot = new(w / 2.0, -20.0);
+
+            if (IsHit(p, pRot, HandleSize + 6) ||
+                IsHit(p, cp1, SpecialHandleSize + 4) ||
+                IsHit(p, cp2, SpecialHandleSize + 4) ||
+                IsHit(p, pStart, HandleSize + 4) ||
+                IsHit(p, pEnd, HandleSize + 4))
+            {
+                return new PointHitTestResult(this, p);
+            }
+            return null;
+        }
+
+        // Check rotate handle for standard items
         if (IsHit(p, new Point(w / 2, -20), HandleSize + 6))
             return new PointHitTestResult(this, p);
 
-        // Check 8 resize handles
+        // Check 8 resize handles for standard items
         if (IsHit(p, new Point(-2, -2), HandleSize + 4) ||
             IsHit(p, new Point(w / 2, -2), HandleSize + 4) ||
             IsHit(p, new Point(w + 2, -2), HandleSize + 4) ||
@@ -484,7 +863,7 @@ public class SelectionAdorner : Adorner
             return new PointHitTestResult(this, p);
         }
 
-        // Check special handles
+        // Check special handles for RoundedRectangle & Donut
         if (_item is ShapeItemViewModel shape)
         {
             if (shape.ShapeType == ShapeType.RoundedRectangle || shape.ShapeType == ShapeType.RoundedCornerTriangle)

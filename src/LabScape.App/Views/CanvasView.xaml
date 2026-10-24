@@ -383,7 +383,7 @@
                                       Fill="{Binding Fill, Converter={StaticResource HexToBrushConverter}}"
                                       Stroke="{Binding Stroke, Converter={StaticResource HexToBrushConverter}}"
                                       StrokeThickness="{Binding StrokeThickness}"
-                                      Stretch="Fill"/>
+                                      Stretch="None"/>
                             </Grid>
                         </DataTemplate>
 

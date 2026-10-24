@@ -3,6 +3,7 @@ using LabScape.Core.Helpers;
 using LabScape.Core.Models;
 using LabScape.Infrastructure.Services;
 using LabScape.ViewModels;
+using LabScape.ViewModels.Commands;
 using LabScape.ViewModels.Items;
 using Xunit;
 
@@ -919,5 +920,102 @@ public class CoreTests
 
         // No ghost background text (no conflicting local Visibility attribute on empty-state TextBlock)
         Assert.DoesNotContain("ConverterParameter=Inverse", content);
+    }
+
+    [Fact]
+    public void SelectionAdorner_LineAndBezier_HandleConfigurations_AndUndoRedo()
+    {
+        var lineItem = new ShapeItemViewModel(new ShapeItem
+        {
+            Name = "Line 1",
+            ShapeType = ShapeType.Line,
+            Width = 100,
+            Height = 20
+        });
+
+        Assert.Equal(ShapeType.Line, lineItem.ShapeType);
+        Assert.Equal(100, lineItem.Width);
+        Assert.Equal(20, lineItem.Height);
+
+        var bezierItem = new ShapeItemViewModel(new ShapeItem
+        {
+            Name = "Bezier 1",
+            ShapeType = ShapeType.Bezier,
+            Width = 120,
+            Height = 80,
+            ControlPoint1X = 30,
+            ControlPoint1Y = 10,
+            ControlPoint2X = 90,
+            ControlPoint2Y = 70
+        });
+
+        Assert.Equal(ShapeType.Bezier, bezierItem.ShapeType);
+        Assert.Equal(30, bezierItem.ControlPoint1X);
+        Assert.Equal(10, bezierItem.ControlPoint1Y);
+        Assert.Equal(90, bezierItem.ControlPoint2X);
+        Assert.Equal(70, bezierItem.ControlPoint2Y);
+
+        // Test ModifyBezierControlPointsCommand Undo/Redo
+        var undoService = new UndoRedoService();
+        var cmd = new ModifyBezierControlPointsCommand(
+            bezierItem,
+            oldCp1X: 30, oldCp1Y: 10, oldCp2X: 90, oldCp2Y: 70,
+            newCp1X: 45, newCp1Y: 25, newCp2X: 110, newCp2Y: 85);
+
+        undoService.ExecuteCommand(cmd);
+        Assert.Equal(45, bezierItem.ControlPoint1X);
+        Assert.Equal(25, bezierItem.ControlPoint1Y);
+        Assert.Equal(110, bezierItem.ControlPoint2X);
+        Assert.Equal(85, bezierItem.ControlPoint2Y);
+
+        undoService.Undo();
+        Assert.Equal(30, bezierItem.ControlPoint1X);
+        Assert.Equal(10, bezierItem.ControlPoint1Y);
+        Assert.Equal(90, bezierItem.ControlPoint2X);
+        Assert.Equal(70, bezierItem.ControlPoint2Y);
+
+        undoService.Redo();
+        Assert.Equal(45, bezierItem.ControlPoint1X);
+        Assert.Equal(25, bezierItem.ControlPoint1Y);
+        Assert.Equal(110, bezierItem.ControlPoint2X);
+        Assert.Equal(85, bezierItem.ControlPoint2Y);
+    }
+
+    [Fact]
+    public void SelectionAdorner_CodeAnalysis_VerifiesLine3Handles_AndBezier5HandlesWithDottedTangents()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(projectRoot);
+        string adornerPath = Path.Combine(projectRoot, "src", "LabScape.App", "Adorners", "SelectionAdorner.cs");
+        Assert.True(File.Exists(adornerPath));
+
+        string code = File.ReadAllText(adornerPath);
+
+        // 1. Line must have only 3 handles (Start, End, Rotation)
+        Assert.Contains("shapeLine.ShapeType == ShapeType.Line", code);
+        Assert.Contains("pStart", code);
+        Assert.Contains("pEnd", code);
+        Assert.Contains("pRot", code);
+        Assert.Contains("DragMode.LineStart", code);
+        Assert.Contains("DragMode.LineEnd", code);
+
+        // 2. Bezier must have 5 handles (Start, End, CP1, CP2, Rotation) and dotted line connecting control points to originating endpoints
+        Assert.Contains("shapeBezier.ShapeType == ShapeType.Bezier", code);
+        Assert.Contains("DottedTangentPen", code);
+        Assert.Contains("dc.DrawLine(DottedTangentPen, pStart, cp1);", code);
+        Assert.Contains("dc.DrawLine(DottedTangentPen, pEnd, cp2);", code);
+        Assert.Contains("DragMode.BezierControlPoint1", code);
+        Assert.Contains("DragMode.BezierControlPoint2", code);
     }
 }
