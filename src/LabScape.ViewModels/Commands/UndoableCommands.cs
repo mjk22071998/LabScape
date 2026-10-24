@@ -231,6 +231,7 @@ public class ModifyBezierControlPointsCommand : IUndoableCommand
         _item.ControlPoint1Y = _newCp1Y;
         _item.ControlPoint2X = _newCp2X;
         _item.ControlPoint2Y = _newCp2Y;
+        UpdateDimensions(_item);
     }
 
     public void Unexecute()
@@ -243,6 +244,21 @@ public class ModifyBezierControlPointsCommand : IUndoableCommand
         _item.ControlPoint1Y = _oldCp1Y;
         _item.ControlPoint2X = _oldCp2X;
         _item.ControlPoint2Y = _oldCp2Y;
+        UpdateDimensions(_item);
+    }
+
+    private static void UpdateDimensions(ShapeItemViewModel shape)
+    {
+        double minX = Math.Min(Math.Min(shape.StartX, shape.EndX), Math.Min(shape.ControlPoint1X, shape.ControlPoint2X));
+        double maxX = Math.Max(Math.Max(shape.StartX, shape.EndX), Math.Max(shape.ControlPoint1X, shape.ControlPoint2X));
+        double minY = Math.Min(Math.Min(shape.StartY, shape.EndY), Math.Min(shape.ControlPoint1Y, shape.ControlPoint2Y));
+        double maxY = Math.Max(Math.Max(shape.StartY, shape.EndY), Math.Max(shape.ControlPoint1Y, shape.ControlPoint2Y));
+
+        double spanX = minX < 0 ? maxX - minX : maxX;
+        double spanY = minY < 0 ? maxY - minY : maxY;
+
+        shape.Width = Math.Max(20.0, Math.Round(spanX, 1));
+        shape.Height = Math.Max(20.0, Math.Round(spanY, 1));
     }
 }
 

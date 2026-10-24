@@ -513,6 +513,7 @@ public class SelectionAdorner : Adorner
                 {
                     shapeCp1.ControlPoint1X = Math.Round(currentLocal.X, 1);
                     shapeCp1.ControlPoint1Y = Math.Round(currentLocal.Y, 1);
+                    UpdateBezierDimensions(shapeCp1);
                 }
                 break;
 
@@ -521,6 +522,7 @@ public class SelectionAdorner : Adorner
                 {
                     shapeCp2.ControlPoint2X = Math.Round(currentLocal.X, 1);
                     shapeCp2.ControlPoint2Y = Math.Round(currentLocal.Y, 1);
+                    UpdateBezierDimensions(shapeCp2);
                 }
                 break;
 
@@ -529,6 +531,7 @@ public class SelectionAdorner : Adorner
                 {
                     shapeStart.StartX = Math.Round(currentLocal.X, 1);
                     shapeStart.StartY = Math.Round(currentLocal.Y, 1);
+                    UpdateBezierDimensions(shapeStart);
                 }
                 break;
 
@@ -537,6 +540,7 @@ public class SelectionAdorner : Adorner
                 {
                     shapeEnd.EndX = Math.Round(currentLocal.X, 1);
                     shapeEnd.EndY = Math.Round(currentLocal.Y, 1);
+                    UpdateBezierDimensions(shapeEnd);
                 }
                 break;
 
@@ -930,6 +934,20 @@ public class SelectionAdorner : Adorner
         }
 
         return null;
+    }
+
+    private static void UpdateBezierDimensions(ShapeItemViewModel shape)
+    {
+        double minX = Math.Min(Math.Min(shape.StartX, shape.EndX), Math.Min(shape.ControlPoint1X, shape.ControlPoint2X));
+        double maxX = Math.Max(Math.Max(shape.StartX, shape.EndX), Math.Max(shape.ControlPoint1X, shape.ControlPoint2X));
+        double minY = Math.Min(Math.Min(shape.StartY, shape.EndY), Math.Min(shape.ControlPoint1Y, shape.ControlPoint2Y));
+        double maxY = Math.Max(Math.Max(shape.StartY, shape.EndY), Math.Max(shape.ControlPoint1Y, shape.ControlPoint2Y));
+
+        double spanX = minX < 0 ? maxX - minX : maxX;
+        double spanY = minY < 0 ? maxY - minY : maxY;
+
+        shape.Width = Math.Max(20.0, Math.Round(spanX, 1));
+        shape.Height = Math.Max(20.0, Math.Round(spanY, 1));
     }
 
     private static bool IsHit(Point test, Point center, double radius)

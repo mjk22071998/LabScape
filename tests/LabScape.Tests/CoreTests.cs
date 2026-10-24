@@ -1177,5 +1177,13 @@ public class CoreTests
         Assert.Contains("Setter Property=\"Background\" Value=\"{x:Null}\"", canvasCode);
         Assert.Contains("Stroke=\"Transparent\"", canvasCode);
         Assert.Contains("StrokeThickness=\"12\"", canvasCode);
+
+        // Verify Bezier Grid layout does not hardcode Width/Height restricting WPF layout slot
+        Assert.Contains("DataTrigger Binding=\"{Binding ShapeType}\" Value=\"Bezier\">\r\n                                                <Setter Property=\"Width\" Value=\"Auto\"/>\r\n                                                <Setter Property=\"Height\" Value=\"Auto\"/>", canvasCode.Replace("\r\n", "\n").Replace("\n", "\r\n"));
+
+        // Verify Undoable command synchronizes dimensions dynamically
+        Assert.True(bezier.Width >= 270, $"Expected Bezier width >= 270 after Redo, got {bezier.Width}");
+        undoService.Undo();
+        Assert.True(bezier.Width >= 120, $"Expected Bezier width >= 120 after Undo, got {bezier.Width}");
     }
 }

@@ -371,18 +371,21 @@
 
                         <!-- Shape DataTemplate -->
                         <DataTemplate DataType="{x:Type items:ShapeItemViewModel}">
-                            <Grid Width="{Binding Width}" Height="{Binding Height}"
-                                  ClipToBounds="False"
+                            <Grid ClipToBounds="False"
                                   Cursor="SizeAll"
                                   MouseDown="Item_MouseDown">
                                 <Grid.Style>
                                     <Style TargetType="Grid">
+                                        <Setter Property="Width" Value="{Binding Width}"/>
+                                        <Setter Property="Height" Value="{Binding Height}"/>
                                         <Setter Property="Background" Value="Transparent"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding ShapeType}" Value="Line">
                                                 <Setter Property="Background" Value="{x:Null}"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding ShapeType}" Value="Bezier">
+                                                <Setter Property="Width" Value="Auto"/>
+                                                <Setter Property="Height" Value="Auto"/>
                                                 <Setter Property="Background" Value="{x:Null}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
