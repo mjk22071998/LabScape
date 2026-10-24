@@ -374,18 +374,44 @@
                             <Grid Width="{Binding Width}" Height="{Binding Height}"
                                   ClipToBounds="False"
                                   Cursor="SizeAll"
-                                  MouseDown="Item_MouseDown"
-                                  Background="Transparent">
+                                  MouseDown="Item_MouseDown">
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ShapeType}" Value="Line">
+                                                <Setter Property="Background" Value="{x:Null}"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding ShapeType}" Value="Bezier">
+                                                <Setter Property="Background" Value="{x:Null}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
 
                                 <Grid.RenderTransform>
                                     <RotateTransform Angle="{Binding Rotation}" CenterX="{Binding Width, Converter={StaticResource HalfValueConverter}}" CenterY="{Binding Height, Converter={StaticResource HalfValueConverter}}"/>
                                 </Grid.RenderTransform>
 
-                                <Path Fill="{Binding Fill, Converter={StaticResource HexToBrushConverter}}"
+                                <!-- Visual Path -->
+                                <Path x:Name="VisiblePath"
                                       Stroke="{Binding Stroke, Converter={StaticResource HexToBrushConverter}}"
                                       StrokeThickness="{Binding StrokeThickness}"
                                       ClipToBounds="False"
                                       Stretch="None">
+                                    <Path.Style>
+                                        <Style TargetType="Path">
+                                            <Setter Property="Fill" Value="{Binding Fill, Converter={StaticResource HexToBrushConverter}}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ShapeType}" Value="Line">
+                                                    <Setter Property="Fill" Value="{x:Null}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding ShapeType}" Value="Bezier">
+                                                    <Setter Property="Fill" Value="{x:Null}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Path.Style>
                                     <Path.Data>
                                         <MultiBinding Converter="{StaticResource ShapeToGeometryConverter}">
                                             <Binding />
@@ -405,6 +431,13 @@
                                         </MultiBinding>
                                     </Path.Data>
                                 </Path>
+
+                                <!-- Hit-test buffer: makes clicking thin lines/curves effortless without selecting on whitespace -->
+                                <Path Stroke="Transparent"
+                                      StrokeThickness="12"
+                                      ClipToBounds="False"
+                                      Stretch="None"
+                                      Data="{Binding Data, ElementName=VisiblePath}"/>
                             </Grid>
                         </DataTemplate>
 

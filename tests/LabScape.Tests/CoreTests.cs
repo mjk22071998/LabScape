@@ -1170,5 +1170,12 @@ public class CoreTests
         Assert.Contains("Binding Path=\"StartX\"", canvasCode);
         Assert.Contains("Binding Path=\"EndX\"", canvasCode);
         Assert.Contains("Setter Property=\"ClipToBounds\" Value=\"False\"", canvasCode);
+
+        // Verify Line and Bezier are only selected when line/curve is clicked (null background & null fill on empty box, plus hit-test stroke buffer)
+        Assert.Contains("DataTrigger Binding=\"{Binding ShapeType}\" Value=\"Line\"", canvasCode);
+        Assert.Contains("DataTrigger Binding=\"{Binding ShapeType}\" Value=\"Bezier\"", canvasCode);
+        Assert.Contains("Setter Property=\"Background\" Value=\"{x:Null}\"", canvasCode);
+        Assert.Contains("Stroke=\"Transparent\"", canvasCode);
+        Assert.Contains("StrokeThickness=\"12\"", canvasCode);
     }
 }
