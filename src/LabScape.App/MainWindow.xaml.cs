@@ -1,6 +1,7 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Input;
 using Fluent;
+using LabScape.Infrastructure.Repositories;
 using LabScape.Infrastructure.Services;
 using LabScape.ViewModels;
 using Microsoft.Win32;
@@ -85,13 +86,39 @@ public partial class MainWindow : RibbonWindow
         Close();
     }
 
-    private void DatabaseConnect_Click(object sender, RoutedEventArgs e)
+    private async void DatabaseConnect_Click(object sender, RoutedEventArgs e)
     {
-        System.Windows.MessageBox.Show("PostgreSQL Database configuration dialog.\nDefault connection will query public.devices.", "Database Settings", MessageBoxButton.OK, MessageBoxImage.Information);
+        var dlg = new Dialogs.DatabaseSettingsDialog { Owner = this };
+        if (dlg.ShowDialog() == true)
+        {
+            await SyncInventoryWithProfileAsync(dlg.Profile);
+        }
     }
 
-    private void SyncInventory_Click(object sender, RoutedEventArgs e)
+    private async void SyncInventory_Click(object sender, RoutedEventArgs e)
     {
-        System.Windows.MessageBox.Show("Inventory synced from database.\nUpdated searchable IP list with available network units.", "Sync Inventory", MessageBoxButton.OK, MessageBoxImage.Information);
+        var profile = DpapiCredentialVault.LoadProfile();
+        await SyncInventoryWithProfileAsync(profile);
+    }
+
+    private async Task SyncInventoryWithProfileAsync(DatabaseConnectionProfile profile)
+    {
+        Core.Interfaces.IDeviceRepository repo = profile.UseMock
+            ? new MockDeviceRepository()
+            : new PostgreSqlDeviceRepository();
+
+        var connStr = profile.BuildConnectionString();
+        var devices = await repo.GetDevicesAsync(connStr);
+        ViewModel.Properties.SetInventoryDevices(devices);
+        ViewModel.IsDatabaseConnected = true;
+        ViewModel.DatabaseStatusText = profile.UseMock
+            ? $"Database: Simulated ({devices.Count} devices)"
+            : $"Database: PostgreSQL ({devices.Count} devices)";
+
+        System.Windows.MessageBox.Show(
+            $"Successfully synced {devices.Count} devices from {(profile.UseMock ? "Simulated Lab Inventory" : "PostgreSQL public.devices")}.\nSearchable IP dropdown updated in Properties panel.",
+            "Inventory Synced",
+            MessageBoxButton.OK,
+            MessageBoxImage.Information);
     }
 }

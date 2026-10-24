@@ -315,4 +315,45 @@ public class CoreTests
             }
         }
     }
+
+    [Fact]
+    public async Task MockDeviceRepository_ReturnsSimulatedWorkstationsWithLatency()
+    {
+        var repo = new LabScape.Infrastructure.Repositories.MockDeviceRepository();
+        var isConnected = await repo.TestConnectionAsync("");
+        var latency = await repo.MeasureLatencyAsync("");
+        var devices = await repo.GetDevicesAsync("");
+
+        Assert.True(isConnected);
+        Assert.True(latency.TotalMilliseconds >= 0);
+        Assert.True(devices.Count >= 25);
+        Assert.Contains(devices, d => d.DisplayName.Contains("CAD-Workstation"));
+        Assert.Contains(devices, d => d.DisplayName.Contains("Server-Node"));
+    }
+
+    [Fact]
+    public void DpapiCredentialVault_RoundTrip_PreservesConnectionProfile()
+    {
+        if (!OperatingSystem.IsWindows()) return;
+
+        var original = new LabScape.Infrastructure.Services.DatabaseConnectionProfile
+        {
+            Host = "10.0.0.99",
+            Port = 5432,
+            Database = "test_lab_db",
+            Username = "lab_admin",
+            Password = "SecurePassword123!",
+            UseMock = false
+        };
+
+        LabScape.Infrastructure.Services.DpapiCredentialVault.SaveProfile(original);
+        var loaded = LabScape.Infrastructure.Services.DpapiCredentialVault.LoadProfile();
+
+        Assert.Equal(original.Host, loaded.Host);
+        Assert.Equal(original.Port, loaded.Port);
+        Assert.Equal(original.Database, loaded.Database);
+        Assert.Equal(original.Username, loaded.Username);
+        Assert.Equal(original.Password, loaded.Password);
+        Assert.Equal(original.UseMock, loaded.UseMock);
+    }
 }
