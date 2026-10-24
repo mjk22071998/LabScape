@@ -1,14 +1,15 @@
 <fluent:RibbonWindow x:Class="LabScape.App.MainWindow"
-                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                     xmlns:fluent="urn:fluent-ribbon"
-                     xmlns:dock="https://github.com/Dirkster99/AvalonDock"
-                     xmlns:views="clr-namespace:LabScape.App.Views"
-                     mc:Ignorable="d"
-                     Title="LabScape - Enterprise Physical Layout Designer" Height="800" Width="1200"
-                     WindowStartupLocation="CenterScreen">
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                      xmlns:fluent="urn:fluent-ribbon"
+                      xmlns:dock="https://github.com/Dirkster99/AvalonDock"
+                      xmlns:views="clr-namespace:LabScape.App.Views"
+                      mc:Ignorable="d"
+                      Title="LabScape - Enterprise Physical Layout Designer" Height="800" Width="1200"
+                      WindowStartupLocation="CenterScreen"
+                      PreviewKeyDown="Window_PreviewKeyDown">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -26,9 +27,12 @@
             <fluent:Ribbon.Menu>
                 <fluent:Backstage Header="File">
                     <fluent:BackstageTabControl>
-                        <fluent:Button Header="New Floorplan" Command="{Binding NewDocumentCommand}"/>
-                        <fluent:Button Header="Save As JSON..." Click="ExportJson_Click"/>
-                        <fluent:Button Header="Open JSON..." Click="OpenJson_Click"/>
+                        <fluent:Button Header="New Floorplan (Ctrl+N)" Command="{Binding NewTabCommand}"/>
+                        <fluent:Button Header="Open / Import JSON... (Ctrl+O)" Click="OpenJson_Click"/>
+                        <fluent:Button Header="Save JSON (Ctrl+S)" Click="SaveJson_Click"/>
+                        <fluent:Button Header="Save As JSON... (Ctrl+Shift+S)" Click="SaveAsJson_Click"/>
+                        <fluent:Button Header="Close Tab (Ctrl+W)" Command="{Binding CloseActiveTabCommand}"/>
+                        <fluent:Button Header="Export to Web JSON..." Click="ExportJson_Click"/>
                         <fluent:Button Header="Exit" Click="Exit_Click"/>
                     </fluent:BackstageTabControl>
                 </fluent:Backstage>
@@ -36,25 +40,37 @@
 
             <!-- Quick Access Toolbar -->
             <fluent:Ribbon.QuickAccessItems>
+                <fluent:QuickAccessMenuItem Target="{Binding ElementName=BtnSave}"/>
                 <fluent:QuickAccessMenuItem Target="{Binding ElementName=BtnUndo}"/>
                 <fluent:QuickAccessMenuItem Target="{Binding ElementName=BtnRedo}"/>
             </fluent:Ribbon.QuickAccessItems>
 
             <!-- 1. Home Tab -->
             <fluent:RibbonTabItem Header="Home">
-                <!-- Undo/Redo & Clipboard -->
-                <fluent:RibbonGroupBox Header="History &amp; Clipboard">
-                    <fluent:Button x:Name="BtnUndo" Header="Undo" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}" LargeIcon="Undo"/>
-                    <fluent:Button x:Name="BtnRedo" Header="Redo" Command="{Binding RedoCommand}" IsEnabled="{Binding CanRedo}" LargeIcon="Redo"/>
-                    <fluent:Button Header="Delete" Command="{Binding Canvas.DeleteSelectedCommand}" LargeIcon="Delete"/>
+                <!-- Tabs & File Management -->
+                <fluent:RibbonGroupBox Header="Tabs &amp; Documents">
+                    <fluent:Button Header="New Tab" Command="{Binding NewTabCommand}" ToolTip="New floorplan tab (Ctrl+N)"/>
+                    <fluent:Button Header="Close Tab" Command="{Binding CloseActiveTabCommand}" ToolTip="Close current tab (Ctrl+W)"/>
+                    <fluent:Button x:Name="BtnSave" Header="Save" Click="SaveJson_Click" ToolTip="Save floorplan JSON (Ctrl+S)"/>
                 </fluent:RibbonGroupBox>
 
-                <!-- Tools -->
+                <!-- Undo/Redo & Clipboard -->
+                <fluent:RibbonGroupBox Header="History &amp; Clipboard">
+                    <fluent:Button x:Name="BtnUndo" Header="Undo" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}" ToolTip="Undo (Ctrl+Z)"/>
+                    <fluent:Button x:Name="BtnRedo" Header="Redo" Command="{Binding RedoCommand}" IsEnabled="{Binding CanRedo}" ToolTip="Redo (Ctrl+Y / Ctrl+Shift+Z)"/>
+                    <fluent:Button Header="Cut" Command="{Binding Canvas.CutSelectedCommand}" ToolTip="Cut selected items (Ctrl+X)"/>
+                    <fluent:Button Header="Copy" Command="{Binding Canvas.CopySelectedCommand}" ToolTip="Copy selected items (Ctrl+C)"/>
+                    <fluent:Button Header="Paste" Command="{Binding Canvas.PasteCommand}" ToolTip="Paste items (Ctrl+V)"/>
+                    <fluent:Button Header="Duplicate" Command="{Binding Canvas.DuplicateSelectedCommand}" ToolTip="Duplicate in place (Ctrl+D)"/>
+                    <fluent:Button Header="Delete" Command="{Binding Canvas.DeleteSelectedCommand}" ToolTip="Delete selected (Del)"/>
+                </fluent:RibbonGroupBox>
+
+                <!-- Tools & Zoom Navigation -->
                 <fluent:RibbonGroupBox Header="Navigation &amp; Tools">
                     <fluent:ToggleButton Header="Select" IsChecked="True"/>
-                    <fluent:Button Header="Zoom 100%" Command="{Binding Canvas.ResetZoomCommand}"/>
-                    <fluent:Button Header="Zoom In" Command="{Binding Canvas.ZoomInCommand}"/>
-                    <fluent:Button Header="Zoom Out" Command="{Binding Canvas.ZoomOutCommand}"/>
+                    <fluent:Button Header="Zoom 100%" Command="{Binding Canvas.ResetZoomCommand}" ToolTip="Reset Zoom (Ctrl+0)"/>
+                    <fluent:Button Header="Zoom In" Command="{Binding Canvas.ZoomInCommand}" ToolTip="Zoom In (Ctrl++)"/>
+                    <fluent:Button Header="Zoom Out" Command="{Binding Canvas.ZoomOutCommand}" ToolTip="Zoom Out (Ctrl+-)"/>
                 </fluent:RibbonGroupBox>
 
                 <!-- Grouping & Hierarchy -->
@@ -67,10 +83,10 @@
 
                 <!-- Layering & Z-Index -->
                 <fluent:RibbonGroupBox Header="Z-Index Layering">
-                    <fluent:Button Header="Bring to Front" Command="{Binding Canvas.BringToFrontCommand}"/>
-                    <fluent:Button Header="Send to Back" Command="{Binding Canvas.SendToBackCommand}"/>
-                    <fluent:Button Header="Bring Forward" Command="{Binding Canvas.BringForwardCommand}"/>
-                    <fluent:Button Header="Send Backward" Command="{Binding Canvas.SendBackwardCommand}"/>
+                    <fluent:Button Header="Bring to Front" Command="{Binding Canvas.BringToFrontCommand}" ToolTip="Bring to Front (PageUp)"/>
+                    <fluent:Button Header="Send to Back" Command="{Binding Canvas.SendToBackCommand}" ToolTip="Send to Back (PageDown)"/>
+                    <fluent:Button Header="Bring Forward" Command="{Binding Canvas.BringForwardCommand}" ToolTip="Bring Forward (Ctrl+])"/>
+                    <fluent:Button Header="Send Backward" Command="{Binding Canvas.SendBackwardCommand}" ToolTip="Send Backward (Ctrl+[)"/>
                 </fluent:RibbonGroupBox>
 
                 <!-- Align & Distribute -->
@@ -101,8 +117,12 @@
 
             <!-- 3. Export & Web Tab -->
             <fluent:RibbonTabItem Header="Export &amp; Web">
-                <fluent:RibbonGroupBox Header="HTML5 &amp; JSON Interchange">
-                    <fluent:Button Header="Export JSON..." Click="ExportJson_Click" ToolTip="Export lossless layout JSON for downstream web canvas"/>
+                <fluent:RibbonGroupBox Header="JSON Document Interchange">
+                    <fluent:Button Header="Save JSON" Click="SaveJson_Click" ToolTip="Save current layout to JSON (Ctrl+S)"/>
+                    <fluent:Button Header="Save As JSON..." Click="SaveAsJson_Click" ToolTip="Save current layout to new JSON file (Ctrl+Shift+S)"/>
+                    <fluent:Button Header="Open JSON..." Click="OpenJson_Click" ToolTip="Open existing JSON file into tab (Ctrl+O)"/>
+                    <fluent:Button Header="Import into Canvas" Click="ImportIntoActive_Click" ToolTip="Import and merge items from JSON into active canvas"/>
+                    <fluent:Button Header="Export JSON..." Click="ExportJson_Click" ToolTip="Validate and export JSON for web"/>
                     <fluent:Button Header="Open in Web Viewer" Click="PreviewWebViewer_Click" ToolTip="Launch standalone HTML5 2D Canvas viewer in browser"/>
                 </fluent:RibbonGroupBox>
             </fluent:RibbonTabItem>
@@ -122,10 +142,155 @@
                         </dock:LayoutAnchorable>
                     </dock:LayoutAnchorablePane>
 
-                    <!-- Center: Interactive Floorplan Canvas -->
+                    <!-- Center: Browser-Style Tabbed Document Workspace -->
                     <dock:LayoutDocumentPane>
-                        <dock:LayoutDocument Title="Floorplan Canvas" CanClose="False">
-                            <views:CanvasView DataContext="{Binding Canvas}"/>
+                        <dock:LayoutDocument Title="Lab Workspace" CanClose="False">
+                            <Grid Background="#1E293B">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="34"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Browser Tab Bar Strip -->
+                                <Grid Grid.Row="0" Background="#0F172A">
+                                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Focusable="False">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+                                            <ItemsControl ItemsSource="{Binding Tabs}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Horizontal"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Margin="2,0,2,0"
+                                                                CornerRadius="6,6,0,0"
+                                                                Padding="10,5,8,5"
+                                                                Cursor="Hand"
+                                                                MouseDown="TabItem_MouseDown">
+                                                            <Border.Style>
+                                                                <Style TargetType="Border">
+                                                                    <Setter Property="Background" Value="#1E293B"/>
+                                                                    <Setter Property="BorderThickness" Value="1,1,1,0"/>
+                                                                    <Setter Property="BorderBrush" Value="#334155"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                                            <Setter Property="Background" Value="#374151"/>
+                                                                            <Setter Property="BorderBrush" Value="#3B82F6"/>
+                                                                            <Setter Property="BorderThickness" Value="1,2,1,0"/>
+                                                                        </DataTrigger>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter Property="Background" Value="#334155"/>
+                                                                        </Trigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Border.Style>
+                                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                                <!-- Tab Icon -->
+                                                                <TextBlock Text="📄" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center"/>
+
+                                                                <!-- Tab Title & Modified Mark -->
+                                                                <TextBlock FontSize="12" VerticalAlignment="Center">
+                                                                    <TextBlock.Style>
+                                                                        <Style TargetType="TextBlock">
+                                                                            <Setter Property="Foreground" Value="#94A3B8"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                                                    <Setter Property="Foreground" Value="#F8FAFC"/>
+                                                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </TextBlock.Style>
+                                                                    <Run Text="{Binding Title}"/>
+                                                                    <Run Text="*" Foreground="#F59E0B" FontWeight="Bold">
+                                                                        <Run.Style>
+                                                                            <Style TargetType="Run">
+                                                                                <Setter Property="Text" Value=""/>
+                                                                                <Style.Triggers>
+                                                                                    <DataTrigger Binding="{Binding IsModified}" Value="True">
+                                                                                        <Setter Property="Text" Value=" *"/>
+                                                                                    </DataTrigger>
+                                                                                </Style.Triggers>
+                                                                            </Style>
+                                                                        </Run.Style>
+                                                                    </Run>
+                                                                </TextBlock>
+
+                                                                <!-- Close Tab Button -->
+                                                                <Button Margin="8,0,0,0" Width="16" Height="16"
+                                                                        Content="✕" FontSize="9" FontWeight="Bold"
+                                                                        Background="Transparent" BorderThickness="0"
+                                                                        Foreground="#94A3B8"
+                                                                        Cursor="Hand"
+                                                                        Click="TabClose_Click"
+                                                                        ToolTip="Close tab (Ctrl+W)">
+                                                                    <Button.Style>
+                                                                        <Style TargetType="Button">
+                                                                            <Setter Property="Template">
+                                                                                <Setter.Value>
+                                                                                    <ControlTemplate TargetType="Button">
+                                                                                        <Border Background="{TemplateBinding Background}" CornerRadius="3">
+                                                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                                        </Border>
+                                                                                    </ControlTemplate>
+                                                                                </Setter.Value>
+                                                                            </Setter>
+                                                                            <Style.Triggers>
+                                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                                    <Setter Property="Foreground" Value="#EF4444"/>
+                                                                                    <Setter Property="Background" Value="#451A1A"/>
+                                                                                </Trigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </Button.Style>
+                                                                </Button>
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                            <!-- Add New Tab Button (+) -->
+                                            <Button Width="26" Height="26" Margin="4,0,4,2"
+                                                    Content="+" FontSize="16" FontWeight="Bold"
+                                                    Background="#1E293B" Foreground="#94A3B8"
+                                                    BorderBrush="#334155" BorderThickness="1"
+                                                    Cursor="Hand"
+                                                    VerticalAlignment="Bottom"
+                                                    Command="{Binding NewTabCommand}"
+                                                    ToolTip="New Tab (Ctrl+N)">
+                                                <Button.Style>
+                                                    <Style TargetType="Button">
+                                                        <Setter Property="Template">
+                                                            <Setter.Value>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border Background="{TemplateBinding Background}"
+                                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                                            CornerRadius="4">
+                                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                    </Border>
+                                                                </ControlTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Foreground" Value="#F8FAFC"/>
+                                                                <Setter Property="Background" Value="#334155"/>
+                                                                <Setter Property="BorderBrush" Value="#60A5FA"/>
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                        </StackPanel>
+                                    </ScrollViewer>
+                                </Grid>
+
+                                <!-- Active Tab Canvas Viewport -->
+                                <views:CanvasView Grid.Row="1" DataContext="{Binding ActiveTab.Canvas}"/>
+                            </Grid>
                         </dock:LayoutDocument>
                     </dock:LayoutDocumentPane>
 
@@ -149,7 +314,6 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
@@ -159,42 +323,58 @@
                 </ItemsPanelTemplate>
             </StatusBar.ItemsPanel>
 
-            <!-- Cursor X, Y -->
+            <!-- 1. Database Connection Status -->
             <StatusBarItem Grid.Column="0">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Cursor: " Foreground="#6B7280" FontSize="11"/>
-                    <TextBlock Text="{Binding Canvas.CursorX, StringFormat='X: {0}px, '}" FontSize="11" FontWeight="SemiBold"/>
-                    <TextBlock Text="{Binding Canvas.CursorY, StringFormat='Y: {0}px'}" FontSize="11" FontWeight="SemiBold"/>
+                <StackPanel Orientation="Horizontal" Margin="4,0">
+                    <Ellipse Width="8" Height="8" Margin="0,0,6,0">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="#9CA3AF"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsDatabaseConnected}" Value="True">
+                                        <Setter Property="Fill" Value="#10B981"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                    <TextBlock Text="{Binding DatabaseStatusText}" FontSize="11" Foreground="#4B5563"/>
                 </StackPanel>
             </StatusBarItem>
 
-            <!-- Selection Count -->
-            <StatusBarItem Grid.Column="1" Margin="16,0,0,0">
-                <TextBlock Text="{Binding Canvas.SelectedItems.Count, StringFormat='Selected: {0} items'}" FontSize="11" Foreground="#4B5563"/>
+            <!-- 2. Active Tab & Document Info -->
+            <StatusBarItem Grid.Column="1">
+                <TextBlock Text="{Binding ActiveTab.Title, StringFormat='Active Tab: {0}'}" FontSize="11" Foreground="#4B5563" Margin="12,0"/>
             </StatusBarItem>
 
-            <!-- Validation Counters -->
-            <StatusBarItem Grid.Column="3" Margin="10,0">
-                <StackPanel Orientation="Horizontal">
-                    <Border Background="#FEF3C7" BorderBrush="#F59E0B" BorderThickness="1" CornerRadius="3" Padding="4,1" Margin="0,0,6,0">
-                        <TextBlock Text="{Binding ValidationWarningCount, StringFormat='⚠️ {0} Unassigned'}" FontSize="10" FontWeight="SemiBold" Foreground="#92400E"/>
-                    </Border>
-                    <Border Background="#FEE2E2" BorderBrush="#EF4444" BorderThickness="1" CornerRadius="3" Padding="4,1">
-                        <TextBlock Text="{Binding ValidationErrorCount, StringFormat='⛔ {0} IP Conflicts'}" FontSize="10" FontWeight="SemiBold" Foreground="#991B1B"/>
-                    </Border>
+            <!-- 3. Validation Warnings Counter (Unassigned PCs) -->
+            <StatusBarItem Grid.Column="2" Visibility="{Binding ValidationWarningCount, Converter={StaticResource IntToVisibilityConverter}}">
+                <Border Background="#FEF3C7" BorderBrush="#F59E0B" BorderThickness="1" CornerRadius="4" Padding="6,1" Margin="4,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⚠️ " FontSize="10"/>
+                        <TextBlock Text="{Binding ValidationWarningCount, StringFormat='{}{0} Unassigned PC(s)'}" FontSize="11" FontWeight="SemiBold" Foreground="#92400E"/>
+                    </StackPanel>
+                </Border>
+            </StatusBarItem>
+
+            <!-- 4. Validation Errors Counter (Duplicate IP Conflicts) -->
+            <StatusBarItem Grid.Column="3" Visibility="{Binding ValidationErrorCount, Converter={StaticResource IntToVisibilityConverter}}">
+                <Border Background="#FEE2E2" BorderBrush="#EF4444" BorderThickness="1" CornerRadius="4" Padding="6,1" Margin="4,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⛔ " FontSize="10"/>
+                        <TextBlock Text="{Binding ValidationErrorCount, StringFormat='❌ {0} IP Conflict(s)'}" FontSize="11" FontWeight="Bold" Foreground="#B91C1C"/>
+                    </StackPanel>
+                </Border>
+            </StatusBarItem>
+
+            <!-- 5. Zoom & Coordinates -->
+            <StatusBarItem Grid.Column="4">
+                <StackPanel Orientation="Horizontal" Margin="8,0">
+                    <TextBlock Text="{Binding Canvas.ZoomLevel, StringFormat='Zoom: {0:P0}'}" FontSize="11" Foreground="#4B5563" Margin="0,0,12,0"/>
+                    <TextBlock Text="{Binding Canvas.CursorX, StringFormat='X: {0:F0}px'}" FontSize="11" Foreground="#6B7280" Margin="0,0,6,0"/>
+                    <TextBlock Text="{Binding Canvas.CursorY, StringFormat='Y: {0:F0}px'}" FontSize="11" Foreground="#6B7280"/>
                 </StackPanel>
-            </StatusBarItem>
-
-            <!-- Zoom Level -->
-            <StatusBarItem Grid.Column="4" Margin="10,0">
-                <TextBlock Text="{Binding Canvas.ZoomLevel, StringFormat='Zoom: {0:P0}'}" FontSize="11" FontWeight="SemiBold" Foreground="#1F2937"/>
-            </StatusBarItem>
-
-            <!-- Database Status -->
-            <StatusBarItem Grid.Column="5" Margin="10,0">
-                <TextBlock Text="{Binding DatabaseStatusText}" FontSize="11" Foreground="#6B7280"/>
             </StatusBarItem>
         </StatusBar>
-
     </Grid>
 </fluent:RibbonWindow>

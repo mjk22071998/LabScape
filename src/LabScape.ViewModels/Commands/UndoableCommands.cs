@@ -29,6 +29,37 @@ public class AddItemCommand : IUndoableCommand
     }
 }
 
+public class AddItemsBatchCommand : IUndoableCommand
+{
+    private readonly ObservableCollection<ItemViewModel> _collection;
+    private readonly List<ItemViewModel> _items;
+
+    public string Description => $"Add {_items.Count} items";
+
+    public AddItemsBatchCommand(ObservableCollection<ItemViewModel> collection, IEnumerable<ItemViewModel> items)
+    {
+        _collection = collection;
+        _items = items.ToList();
+    }
+
+    public void Execute()
+    {
+        foreach (var item in _items)
+        {
+            if (!_collection.Contains(item))
+                _collection.Add(item);
+        }
+    }
+
+    public void Unexecute()
+    {
+        foreach (var item in _items)
+        {
+            _collection.Remove(item);
+        }
+    }
+}
+
 public class RemoveItemCommand : IUndoableCommand
 {
     private readonly ObservableCollection<ItemViewModel> _collection;

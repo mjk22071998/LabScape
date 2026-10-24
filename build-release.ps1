@@ -30,7 +30,11 @@ if (-not $SkipTests) {
 Write-Host "`n[2/4] Publishing LabScape.App in Release mode..." -ForegroundColor Yellow
 $PublishDir = Join-Path $ScriptDir "dist\publish"
 if (Test-Path $PublishDir) {
-    Remove-Item -Recurse -Force $PublishDir
+    try {
+        Get-ChildItem -Path $PublishDir -Recurse -ErrorAction SilentlyContinue | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
+    } catch {
+        # Continue if any locked file
+    }
 }
 
 dotnet publish src/LabScape.App/LabScape.App.csproj -c Release -o $PublishDir

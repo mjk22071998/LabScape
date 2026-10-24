@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LabScape.Core.Enums;
 using LabScape.Core.Models;
@@ -8,7 +9,8 @@ namespace LabScape.ViewModels;
 
 public partial class PropertiesViewModel : ObservableObject
 {
-    private readonly CanvasViewModel _canvasViewModel;
+    private CanvasViewModel? _canvasViewModel;
+    private NotifyCollectionChangedEventHandler? _selectionHandler;
 
     [ObservableProperty]
     private ItemViewModel? _selectedItem;
@@ -41,15 +43,30 @@ public partial class PropertiesViewModel : ObservableObject
     public ObservableCollection<DatabaseDevice> AvailableDatabaseDevices { get; } = new();
     public ObservableCollection<DatabaseDevice> FilteredDatabaseDevices { get; } = new();
 
-    public PropertiesViewModel(CanvasViewModel canvasViewModel)
+    public PropertiesViewModel(CanvasViewModel? canvasViewModel = null)
     {
-        _canvasViewModel = canvasViewModel;
-        _canvasViewModel.SelectedItems.CollectionChanged += (s, e) => UpdateSelection();
+        if (canvasViewModel != null)
+        {
+            AttachCanvas(canvasViewModel);
+        }
+    }
+
+    public void AttachCanvas(CanvasViewModel canvas)
+    {
+        if (_canvasViewModel != null && _selectionHandler != null)
+        {
+            _canvasViewModel.SelectedItems.CollectionChanged -= _selectionHandler;
+        }
+
+        _canvasViewModel = canvas;
+        _selectionHandler = (s, e) => UpdateSelection();
+        _canvasViewModel.SelectedItems.CollectionChanged += _selectionHandler;
+        UpdateSelection();
     }
 
     private void UpdateSelection()
     {
-        if (_canvasViewModel.SelectedItems.Count == 1)
+        if (_canvasViewModel != null && _canvasViewModel.SelectedItems.Count == 1)
         {
             SelectedItem = _canvasViewModel.SelectedItems[0];
             HasSelection = true;
@@ -126,7 +143,7 @@ public partial class PropertiesViewModel : ObservableObject
             {
                 dev.Name = dbDevice.DisplayName;
             }
-            _canvasViewModel.RecalculateValidation();
+            _canvasViewModel?.RecalculateValidation();
         }
     }
 }

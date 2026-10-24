@@ -5,6 +5,7 @@ using LabScape.Core.Enums;
 using LabScape.Core.Interfaces;
 using LabScape.ViewModels.Commands;
 using LabScape.ViewModels.Items;
+using LabScape.ViewModels.Services;
 
 namespace LabScape.ViewModels;
 
@@ -126,6 +127,70 @@ public partial class CanvasViewModel : ObservableObject
         if (SelectedItems.Count == 0) return;
         _undoRedoService.ExecuteCommand(new RemoveItemCommand(Items, SelectedItems.ToList()));
         ClearSelection();
+    }
+
+    [RelayCommand]
+    public void SelectAll()
+    {
+        SetSelection(Items);
+    }
+
+    [RelayCommand]
+    public void CutSelected()
+    {
+        if (SelectedItems.Count == 0) return;
+        LayoutClipboard.Copy(SelectedItems);
+        _undoRedoService.ExecuteCommand(new RemoveItemCommand(Items, SelectedItems.ToList()));
+        ClearSelection();
+    }
+
+    [RelayCommand]
+    public void CopySelected()
+    {
+        if (SelectedItems.Count == 0) return;
+        LayoutClipboard.Copy(SelectedItems);
+    }
+
+    [RelayCommand]
+    public void Paste()
+    {
+        if (!LayoutClipboard.HasContent) return;
+        var newItems = LayoutClipboard.Paste(GridSize, GridSize);
+        if (newItems.Count == 0) return;
+
+        // Ensure unique Z
+        int maxZ = Items.Count > 0 ? Items.Max(i => i.Z) : 0;
+        foreach (var item in newItems)
+        {
+            item.Z = ++maxZ;
+        }
+
+        _undoRedoService.ExecuteCommand(new AddItemsBatchCommand(Items, newItems));
+        SetSelection(newItems);
+    }
+
+    [RelayCommand]
+    public void DuplicateSelected()
+    {
+        if (SelectedItems.Count == 0) return;
+        var duplicates = LayoutClipboard.Duplicate(SelectedItems, GridSize, GridSize);
+        if (duplicates.Count == 0) return;
+
+        int maxZ = Items.Count > 0 ? Items.Max(i => i.Z) : 0;
+        foreach (var item in duplicates)
+        {
+            item.Z = ++maxZ;
+        }
+
+        _undoRedoService.ExecuteCommand(new AddItemsBatchCommand(Items, duplicates));
+        SetSelection(duplicates);
+    }
+
+    public void Nudge(double deltaX, double deltaY)
+    {
+        if (SelectedItems.Count == 0) return;
+        var moves = SelectedItems.Select(i => (i, i.X, i.Y, i.X + deltaX, i.Y + deltaY)).ToList();
+        _undoRedoService.ExecuteCommand(new MoveItemsCommand(moves));
     }
 
     [RelayCommand]

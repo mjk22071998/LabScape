@@ -458,4 +458,198 @@ public class CoreTests
             Assert.Contains(archive.Entries, e => e.FullName.Contains("web-viewer"));
         }
     }
+
+    [Fact]
+    public void MultiTabBrowserArchitecture_MaintainsSeparateCanvasesAndHistories()
+    {
+        var jsonRepo = new LayoutJsonRepository();
+        var db = new LabScape.Infrastructure.Services.PostgresDatabaseService();
+        var vm = new MainViewModel(jsonRepo, db, new UndoRedoService(), () => new UndoRedoService());
+
+        // Tab 1 exists by default
+        Assert.Single(vm.Tabs);
+        var tab1 = vm.ActiveTab;
+        Assert.NotNull(tab1);
+
+        // Add item to Tab 1
+        var item1 = new DeviceItemViewModel(new DeviceItem { Name = "PC-Tab1", IpAddress = "10.0.0.1" });
+        tab1.Canvas.AddItem(item1);
+        Assert.Single(tab1.Canvas.Items);
+        Assert.True(tab1.UndoRedoService.CanUndo);
+
+        // Create Tab 2
+        var tab2 = vm.CreateNewTab("Engineering Lab 2");
+        Assert.Equal(2, vm.Tabs.Count);
+        Assert.Same(tab2, vm.ActiveTab);
+        Assert.Empty(tab2.Canvas.Items);
+        Assert.False(tab2.UndoRedoService.CanUndo, "New tab must have its own fresh undo stack");
+
+        // Add 2 items to Tab 2
+        var item2A = new FurnitureItemViewModel(new FurnitureItem { Name = "Desk-Tab2" });
+        var item2B = new ShapeItemViewModel(new ShapeItem { Name = "Circle-Tab2", ShapeType = ShapeType.Circle });
+        tab2.Canvas.AddItem(item2A);
+        tab2.Canvas.AddItem(item2B);
+        Assert.Equal(2, tab2.Canvas.Items.Count);
+        Assert.Single(tab1.Canvas.Items); // Tab 1 unaffected
+
+        // Switch back to Tab 1
+        vm.SelectTab(tab1);
+        Assert.Same(tab1, vm.ActiveTab);
+        Assert.Same(tab1.Canvas, vm.ActiveCanvas);
+        Assert.Single(vm.Canvas.Items);
+        Assert.True(vm.CanUndo);
+
+        // Undo on Tab 1
+        vm.Undo();
+        Assert.Empty(tab1.Canvas.Items);
+        Assert.Equal(2, tab2.Canvas.Items.Count); // Tab 2 unaffected
+
+        // Cycle tabs
+        vm.NextTab();
+        Assert.Same(tab2, vm.ActiveTab);
+        vm.PreviousTab();
+        Assert.Same(tab1, vm.ActiveTab);
+
+        // Close Tab 1
+        vm.CloseTab(tab1);
+        Assert.Single(vm.Tabs);
+        Assert.Same(tab2, vm.ActiveTab);
+
+        // Close last tab creates a new empty tab
+        vm.CloseTab(tab2);
+        Assert.Single(vm.Tabs);
+        Assert.NotNull(vm.ActiveTab);
+        Assert.Empty(vm.ActiveTab.Canvas.Items);
+    }
+
+    [Fact]
+    public void UnifiedJsonSchema_ImportAndExport_FullBidirectionalFidelity()
+    {
+        var jsonRepo = new LayoutJsonRepository();
+        var db = new LabScape.Infrastructure.Services.PostgresDatabaseService();
+        var vm = new MainViewModel(jsonRepo, db, new UndoRedoService(), () => new UndoRedoService());
+
+        // 1. Create a rich document
+        var originalDoc = new LayoutDocument
+        {
+            Metadata = new DocumentMetadata
+            {
+                Title = "Network Operations Center",
+                CanvasWidth = 3200,
+                CanvasHeight = 2400,
+                GridSize = 20
+            }
+        };
+
+        var switchDev = new DeviceItem
+        {
+            Name = "Core-Switch",
+            DeviceType = "switch",
+            IpAddress = "10.10.0.1",
+            ValidationStatus = ValidationStatus.Valid,
+            X = 100,
+            Y = 100
+        };
+        var confTable = new FurnitureItem
+        {
+            Name = "Board Table",
+            FurnitureType = "conference_table_8",
+            X = 400,
+            Y = 200
+        };
+        var donutShape = new ShapeItem
+        {
+            Name = "Pillar",
+            ShapeType = ShapeType.Donut,
+            InnerRadius = 35,
+            X = 800,
+            Y = 300
+        };
+
+        originalDoc.Items.Add(switchDev);
+        originalDoc.Items.Add(confTable);
+        originalDoc.Items.Add(donutShape);
+
+        // 2. Export / Serialize to JSON (The EXACT same format for import and export)
+        var exportedJson = jsonRepo.SerializeToJson(originalDoc);
+        Assert.Contains("\"type\": \"device\"", exportedJson);
+        Assert.Contains("\"type\": \"furniture\"", exportedJson);
+        Assert.Contains("\"type\": \"shape\"", exportedJson);
+        Assert.Contains("\"shape_type\": \"donut\"", exportedJson);
+
+        // 3. Import / Open into tab
+        var deserializedDoc = jsonRepo.DeserializeFromJson(exportedJson);
+        var tab = vm.LoadDocumentIntoTab(deserializedDoc, "test_noc.json", "NOC Floorplan");
+
+        Assert.Equal("NOC Floorplan", tab.Title);
+        Assert.Equal(3, tab.Canvas.Items.Count);
+        Assert.Contains(tab.Canvas.Items, i => i.Name == "Core-Switch" && i is DeviceItemViewModel);
+        Assert.Contains(tab.Canvas.Items, i => i.Name == "Board Table" && i is FurnitureItemViewModel);
+        Assert.Contains(tab.Canvas.Items, i => i.Name == "Pillar" && i is ShapeItemViewModel s && s.InnerRadius == 35);
+
+        // 4. Test Import into Active Canvas (Merging)
+        var mergeDoc = new LayoutDocument();
+        mergeDoc.Items.Add(new DeviceItem { Name = "Secondary-Router", IpAddress = "10.10.0.2" });
+        vm.ImportItemsIntoActiveCanvas(mergeDoc);
+
+        Assert.Equal(4, tab.Canvas.Items.Count);
+        Assert.Contains(tab.Canvas.Items, i => i.Name == "Secondary-Router");
+    }
+
+    [Fact]
+    public void StandardShortcuts_ClipboardDuplicateSelectAllAndNudge_OperateWithUndo()
+    {
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo);
+
+        var dev = new DeviceItemViewModel(new DeviceItem { Name = "PC-Alpha", X = 100, Y = 100, Width = 80, Height = 80 });
+        var shape = new ShapeItemViewModel(new ShapeItem { Name = "Box", X = 300, Y = 100, Width = 100, Height = 100 });
+
+        canvas.AddItem(dev);
+        canvas.AddItem(shape);
+        Assert.Equal(2, canvas.Items.Count);
+
+        // 1. Select All (Ctrl+A)
+        canvas.SelectAll();
+        Assert.Equal(2, canvas.SelectedItems.Count);
+
+        // 2. Nudge (Arrow Keys)
+        canvas.Nudge(10, 20);
+        Assert.Equal(110, dev.X);
+        Assert.Equal(120, dev.Y);
+        Assert.Equal(310, shape.X);
+        Assert.Equal(120, shape.Y);
+
+        // Undo Nudge
+        undo.Undo();
+        Assert.Equal(100, dev.X);
+        Assert.Equal(100, dev.Y);
+
+        // 3. Duplicate (Ctrl+D)
+        canvas.SetSelection(new[] { dev });
+        canvas.DuplicateSelected();
+        Assert.Equal(3, canvas.Items.Count);
+        var dup = canvas.SelectedItems.First();
+        Assert.StartsWith("PC-Alpha", dup.Name);
+        Assert.NotEqual(dev.Model.Id, dup.Model.Id);
+
+        // Undo Duplicate
+        undo.Undo();
+        Assert.Equal(2, canvas.Items.Count);
+
+        // 4. Cut and Paste (Ctrl+X, Ctrl+V)
+        canvas.SetSelection(new[] { shape });
+        canvas.CutSelected();
+        Assert.Single(canvas.Items);
+        Assert.DoesNotContain(shape, canvas.Items);
+
+        canvas.Paste();
+        Assert.Equal(2, canvas.Items.Count);
+        var pasted = canvas.SelectedItems.First();
+        Assert.StartsWith("Box", pasted.Name);
+
+        // Undo Paste
+        undo.Undo();
+        Assert.Single(canvas.Items);
+    }
 }

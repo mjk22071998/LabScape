@@ -1,4 +1,6 @@
+using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Fluent;
 using LabScape.Infrastructure.Repositories;
@@ -10,27 +12,366 @@ namespace LabScape.App;
 
 public partial class MainWindow : RibbonWindow
 {
+    private readonly LayoutJsonRepository _jsonRepo;
     public MainViewModel ViewModel { get; }
 
     public MainWindow()
     {
         InitializeComponent();
 
-        var jsonRepo = new LayoutJsonRepository();
+        _jsonRepo = new LayoutJsonRepository();
         var dbService = new PostgresDatabaseService();
-        var undoService = new UndoRedoService();
+        var initialUndo = new UndoRedoService();
 
-        ViewModel = new MainViewModel(jsonRepo, dbService, undoService);
+        ViewModel = new MainViewModel(
+            _jsonRepo,
+            dbService,
+            initialUndo,
+            undoRedoFactory: () => new UndoRedoService());
+
         DataContext = ViewModel;
+    }
 
-        // Register Global Window KeyBindings for Grouping (Ctrl+G, Ctrl+Shift+G)
-        CommandBindings.Add(new CommandBinding(
-            new RoutedCommand("GroupCmd", typeof(MainWindow), new InputGestureCollection { new KeyGesture(Key.G, ModifierKeys.Control) }),
-            (s, e) => ViewModel.Canvas.GroupSelected()));
+    // ========================================================
+    // Comprehensive Global Standard Shortcut Keys Handling
+    // ========================================================
+    private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        // Don't intercept typing in text boxes or combo boxes
+        if (e.OriginalSource is System.Windows.Controls.TextBox ||
+            e.OriginalSource is System.Windows.Controls.ComboBox ||
+            e.OriginalSource is Fluent.TextBox ||
+            e.OriginalSource is Fluent.ComboBox)
+        {
+            return;
+        }
 
-        CommandBindings.Add(new CommandBinding(
-            new RoutedCommand("UngroupCmd", typeof(MainWindow), new InputGestureCollection { new KeyGesture(Key.G, ModifierKeys.Control | ModifierKeys.Shift) }),
-            (s, e) => ViewModel.Canvas.UngroupSelected()));
+        var isCtrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
+        var isShift = (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift;
+        var isAlt = (Keyboard.Modifiers & ModifierKeys.Alt) == ModifierKeys.Alt;
+
+        var canvas = ViewModel.ActiveCanvas;
+
+        // 1. Tab & File Shortcuts
+        if (isCtrl && !isShift && !isAlt && e.Key == Key.N)
+        {
+            ViewModel.NewTab();
+            e.Handled = true;
+            return;
+        }
+        if (isCtrl && !isShift && !isAlt && e.Key == Key.O)
+        {
+            OpenJsonDocument();
+            e.Handled = true;
+            return;
+        }
+        if (isCtrl && !isShift && !isAlt && e.Key == Key.S)
+        {
+            SaveJsonDocument();
+            e.Handled = true;
+            return;
+        }
+        if (isCtrl && isShift && !isAlt && e.Key == Key.S)
+        {
+            SaveAsJsonDocument();
+            e.Handled = true;
+            return;
+        }
+        if (isCtrl && !isShift && !isAlt && e.Key == Key.W)
+        {
+            ViewModel.CloseActiveTab();
+            e.Handled = true;
+            return;
+        }
+        if (isCtrl && !isShift && !isAlt && e.Key == Key.Tab)
+        {
+            ViewModel.NextTab();
+            e.Handled = true;
+            return;
+        }
+        if (isCtrl && isShift && !isAlt && e.Key == Key.Tab)
+        {
+            ViewModel.PreviousTab();
+            e.Handled = true;
+            return;
+        }
+
+        // 2. Undo / Redo Shortcuts (Ctrl+Z, Ctrl+Y, Ctrl+Shift+Z)
+        if (isCtrl && !isShift && !isAlt && e.Key == Key.Z)
+        {
+            if (ViewModel.CanUndo) ViewModel.Undo();
+            e.Handled = true;
+            return;
+        }
+        if ((isCtrl && !isShift && !isAlt && e.Key == Key.Y) ||
+            (isCtrl && isShift && !isAlt && e.Key == Key.Z))
+        {
+            if (ViewModel.CanRedo) ViewModel.Redo();
+            e.Handled = true;
+            return;
+        }
+
+        // 3. Selection & Clipboard Shortcuts
+        if (canvas != null)
+        {
+            if (isCtrl && !isShift && !isAlt && e.Key == Key.A)
+            {
+                canvas.SelectAll();
+                e.Handled = true;
+                return;
+            }
+            if (isCtrl && !isShift && !isAlt && e.Key == Key.X)
+            {
+                canvas.CutSelected();
+                e.Handled = true;
+                return;
+            }
+            if (isCtrl && !isShift && !isAlt && e.Key == Key.C)
+            {
+                canvas.CopySelected();
+                e.Handled = true;
+                return;
+            }
+            if (isCtrl && !isShift && !isAlt && e.Key == Key.V)
+            {
+                canvas.Paste();
+                e.Handled = true;
+                return;
+            }
+            if (isCtrl && !isShift && !isAlt && e.Key == Key.D)
+            {
+                canvas.DuplicateSelected();
+                e.Handled = true;
+                return;
+            }
+
+            // 4. Delete & Clear Selection
+            if (!isCtrl && !isShift && !isAlt && (e.Key == Key.Delete || e.Key == Key.Back))
+            {
+                canvas.DeleteSelected();
+                e.Handled = true;
+                return;
+            }
+            if (!isCtrl && !isShift && !isAlt && e.Key == Key.Escape)
+            {
+                canvas.ClearSelection();
+                e.Handled = true;
+                return;
+            }
+
+            // 5. Grouping Shortcuts (Ctrl+G, Ctrl+Shift+G)
+            if (isCtrl && !isShift && !isAlt && e.Key == Key.G)
+            {
+                canvas.GroupSelected();
+                e.Handled = true;
+                return;
+            }
+            if (isCtrl && isShift && !isAlt && e.Key == Key.G)
+            {
+                canvas.UngroupSelected();
+                e.Handled = true;
+                return;
+            }
+
+            // 6. Layering Shortcuts (PageUp, PageDown, Ctrl+], Ctrl+[)
+            if (e.Key == Key.PageUp || (isCtrl && e.Key == Key.OemCloseBrackets))
+            {
+                if (isCtrl) canvas.BringForward(); else canvas.BringToFront();
+                e.Handled = true;
+                return;
+            }
+            if (e.Key == Key.PageDown || (isCtrl && e.Key == Key.OemOpenBrackets))
+            {
+                if (isCtrl) canvas.SendBackward(); else canvas.SendToBack();
+                e.Handled = true;
+                return;
+            }
+
+            // 7. Zoom Shortcuts (Ctrl++, Ctrl+-, Ctrl+0)
+            if (isCtrl && (e.Key == Key.OemPlus || e.Key == Key.Add))
+            {
+                canvas.ZoomIn();
+                e.Handled = true;
+                return;
+            }
+            if (isCtrl && (e.Key == Key.OemMinus || e.Key == Key.Subtract))
+            {
+                canvas.ZoomOut();
+                e.Handled = true;
+                return;
+            }
+            if (isCtrl && (e.Key == Key.D0 || e.Key == Key.NumPad0))
+            {
+                canvas.ResetZoom();
+                e.Handled = true;
+                return;
+            }
+
+            // 8. Arrow Keys Nudging (1px normal, GridSize with Shift)
+            if (!isCtrl && !isAlt && (e.Key == Key.Up || e.Key == Key.Down || e.Key == Key.Left || e.Key == Key.Right))
+            {
+                if (canvas.SelectedItems.Count > 0)
+                {
+                    double step = isShift ? canvas.GridSize : 1.0;
+                    double dx = 0, dy = 0;
+                    if (e.Key == Key.Left) dx = -step;
+                    else if (e.Key == Key.Right) dx = step;
+                    else if (e.Key == Key.Up) dy = -step;
+                    else if (e.Key == Key.Down) dy = step;
+
+                    canvas.Nudge(dx, dy);
+                    e.Handled = true;
+                    return;
+                }
+            }
+        }
+    }
+
+    // ========================================================
+    // Browser-Style Tab Interactions
+    // ========================================================
+
+    private void TabItem_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is FrameworkElement elem && elem.DataContext is LayoutTabViewModel tab)
+        {
+            ViewModel.SelectTab(tab);
+        }
+    }
+
+    private void TabClose_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement elem && elem.DataContext is LayoutTabViewModel tab)
+        {
+            ViewModel.CloseTab(tab);
+        }
+    }
+
+    // ========================================================
+    // Unified JSON File Operations (Open, Save, Save As, Import)
+    // ========================================================
+
+    private void SaveJson_Click(object sender, RoutedEventArgs e)
+    {
+        SaveJsonDocument();
+    }
+
+    private void SaveAsJson_Click(object sender, RoutedEventArgs e)
+    {
+        SaveAsJsonDocument();
+    }
+
+    private void SaveJsonDocument()
+    {
+        var activeTab = ViewModel.ActiveTab;
+        if (activeTab == null) return;
+
+        if (string.IsNullOrWhiteSpace(activeTab.FilePath))
+        {
+            SaveAsJsonDocument();
+            return;
+        }
+
+        try
+        {
+            var doc = activeTab.BuildDocumentModel();
+            var json = _jsonRepo.SerializeToJson(doc);
+            File.WriteAllText(activeTab.FilePath, json);
+            activeTab.IsModified = false;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error saving floorplan: {ex.Message}", "Save Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void SaveAsJsonDocument()
+    {
+        var activeTab = ViewModel.ActiveTab;
+        if (activeTab == null) return;
+
+        var defaultName = string.IsNullOrWhiteSpace(activeTab.Title) ? "floorplan.json" : $"{activeTab.Title.Replace("*", "").Trim()}.json";
+        if (!defaultName.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+        {
+            defaultName += ".json";
+        }
+
+        var sfd = new SaveFileDialog
+        {
+            Filter = "Layout JSON (*.json)|*.json|All Files (*.*)|*.*",
+            FileName = defaultName,
+            Title = "Save Floorplan Layout as JSON"
+        };
+
+        if (sfd.ShowDialog() == true)
+        {
+            try
+            {
+                activeTab.FilePath = sfd.FileName;
+                activeTab.Title = Path.GetFileNameWithoutExtension(sfd.FileName);
+                var doc = activeTab.BuildDocumentModel();
+                var json = _jsonRepo.SerializeToJson(doc);
+                File.WriteAllText(sfd.FileName, json);
+                activeTab.IsModified = false;
+                MessageBox.Show($"Floorplan saved successfully to:\n{sfd.FileName}", "Save Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error saving floorplan: {ex.Message}", "Save Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+
+    private void OpenJson_Click(object sender, RoutedEventArgs e)
+    {
+        OpenJsonDocument();
+    }
+
+    private async void OpenJsonDocument()
+    {
+        var ofd = new OpenFileDialog
+        {
+            Filter = "Layout JSON (*.json)|*.json|All Files (*.*)|*.*",
+            Title = "Open / Import Floorplan Layout JSON"
+        };
+
+        if (ofd.ShowDialog() == true)
+        {
+            try
+            {
+                var doc = await _jsonRepo.LoadFromFileAsync(ofd.FileName);
+                var fileName = Path.GetFileNameWithoutExtension(ofd.FileName);
+                var loadedTab = ViewModel.LoadDocumentIntoTab(doc, ofd.FileName, fileName);
+                MessageBox.Show($"Opened floorplan '{loadedTab.Title}' with {doc.Items.Count} item(s) in tab.", "File Opened", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error reading floorplan JSON: {ex.Message}", "Open Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+
+    private async void ImportIntoActive_Click(object sender, RoutedEventArgs e)
+    {
+        var ofd = new OpenFileDialog
+        {
+            Filter = "Layout JSON (*.json)|*.json|All Files (*.*)|*.*",
+            Title = "Import and Merge Items from JSON into Active Canvas"
+        };
+
+        if (ofd.ShowDialog() == true)
+        {
+            try
+            {
+                var doc = await _jsonRepo.LoadFromFileAsync(ofd.FileName);
+                ViewModel.ImportItemsIntoActiveCanvas(doc);
+                MessageBox.Show($"Imported {doc.Items.Count} item(s) into the active canvas with undo support.", "Import Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error importing JSON: {ex.Message}", "Import Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 
     private void ExportJson_Click(object sender, RoutedEventArgs e)
@@ -38,7 +379,7 @@ public partial class MainWindow : RibbonWindow
         // 1. Export Gatekeeper: Duplicate IP Conflict Blocker
         if (ViewModel.ValidationErrorCount > 0)
         {
-            System.Windows.MessageBox.Show(
+            MessageBox.Show(
                 $"Cannot export layout: {ViewModel.ValidationErrorCount} duplicate IP conflict(s) detected!\n\nPlease resolve all duplicate IP addresses before exporting.",
                 "Export Blocked — IP Conflict",
                 MessageBoxButton.OK,
@@ -49,8 +390,8 @@ public partial class MainWindow : RibbonWindow
         // 2. Export Gatekeeper: Unassigned Devices Warning
         if (ViewModel.ValidationWarningCount > 0)
         {
-            var promptResult = System.Windows.MessageBox.Show(
-                $"Warning: There are {ViewModel.ValidationWarningCount} unassigned device(s) without an IP address on the canvas.\n\nDo you want to proceed with exporting anyway?",
+            var promptResult = MessageBox.Show(
+                $"Warning: There are {ViewModel.ValidationWarningCount} unassigned device(s) without an IP address on the active canvas.\n\nDo you want to proceed with exporting anyway?",
                 "Unassigned Devices Warning",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
@@ -71,12 +412,12 @@ public partial class MainWindow : RibbonWindow
             try
             {
                 var json = ViewModel.ExportJsonString();
-                System.IO.File.WriteAllText(sfd.FileName, json);
-                System.Windows.MessageBox.Show($"Floorplan exported successfully to:\n{sfd.FileName}", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                File.WriteAllText(sfd.FileName, json);
+                MessageBox.Show($"Floorplan exported successfully to:\n{sfd.FileName}", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Error saving file: {ex.Message}", "Save Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error saving export file: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
@@ -88,19 +429,19 @@ public partial class MainWindow : RibbonWindow
             var baseDir = AppDomain.CurrentDomain.BaseDirectory;
             var candidates = new[]
             {
-                System.IO.Path.Combine(baseDir, "web-viewer", "index.html"),
-                System.IO.Path.Combine(baseDir, "..", "..", "..", "..", "web-viewer", "index.html"),
-                System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "web-viewer", "index.html")
+                Path.Combine(baseDir, "web-viewer", "index.html"),
+                Path.Combine(baseDir, "..", "..", "..", "..", "web-viewer", "index.html"),
+                Path.Combine(Directory.GetCurrentDirectory(), "web-viewer", "index.html")
             };
 
-            string? htmlPath = candidates.FirstOrDefault(System.IO.File.Exists);
+            string? htmlPath = candidates.FirstOrDefault(File.Exists);
             if (htmlPath == null)
             {
-                System.Windows.MessageBox.Show("Web viewer (index.html) could not be located.", "Viewer Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Web viewer (index.html) could not be located.", "Viewer Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            var fullPath = System.IO.Path.GetFullPath(htmlPath);
+            var fullPath = Path.GetFullPath(htmlPath);
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
             {
                 FileName = fullPath,
@@ -109,31 +450,7 @@ public partial class MainWindow : RibbonWindow
         }
         catch (Exception ex)
         {
-            System.Windows.MessageBox.Show($"Error opening Web Viewer: {ex.Message}", "Launch Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-    }
-
-    private async void OpenJson_Click(object sender, RoutedEventArgs e)
-    {
-        var ofd = new OpenFileDialog
-        {
-            Filter = "Layout JSON (*.json)|*.json|All Files (*.*)|*.*",
-            Title = "Open Layout Document JSON"
-        };
-
-        if (ofd.ShowDialog() == true)
-        {
-            try
-            {
-                var repo = new LayoutJsonRepository();
-                var doc = await repo.LoadFromFileAsync(ofd.FileName);
-                ViewModel.LoadDocumentModel(doc);
-                System.Windows.MessageBox.Show($"Loaded floorplan with {doc.Items.Count} top-level items.", "Load Complete", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show($"Error reading file: {ex.Message}", "Load Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            MessageBox.Show($"Error opening Web Viewer: {ex.Message}", "Launch Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -171,7 +488,7 @@ public partial class MainWindow : RibbonWindow
             ? $"Database: Simulated ({devices.Count} devices)"
             : $"Database: PostgreSQL ({devices.Count} devices)";
 
-        System.Windows.MessageBox.Show(
+        MessageBox.Show(
             $"Successfully synced {devices.Count} devices from {(profile.UseMock ? "Simulated Lab Inventory" : "PostgreSQL public.devices")}.\nSearchable IP dropdown updated in Properties panel.",
             "Inventory Synced",
             MessageBoxButton.OK,
