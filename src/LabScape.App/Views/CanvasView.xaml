@@ -292,7 +292,7 @@
                                 </Grid.RenderTransform>
 
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*" MinHeight="24"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
@@ -337,12 +337,19 @@
                                     </TextBlock>
                                 </Border>
 
-                                <!-- Label Below Device (ONLY DEVICES SHOW LABELS) -->
-                                <StackPanel Grid.Row="1" HorizontalAlignment="Center" Margin="0,2,0,0">
-                                    <TextBlock Text="{Binding Name}" FontSize="10" FontWeight="SemiBold" Foreground="#1F2937" HorizontalAlignment="Center"/>
-                                    <TextBlock Text="{Binding IpAddress}" FontSize="9" Foreground="#6B7280" HorizontalAlignment="Center"
-                                               Visibility="{Binding IpAddress, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
-                                </StackPanel>
+                                <!-- Label Below Device (ONLY DEVICES SHOW LABELS; IP NOT SHOWN ON CANVAS; WRAPS ON BOUNDARY) -->
+                                <TextBlock Grid.Row="1"
+                                           Text="{Binding Name, Converter={StaticResource DeviceLabelWrapConverter}}"
+                                           FontSize="10"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           TextAlignment="Center"
+                                           TextWrapping="Wrap"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Top"
+                                           MaxWidth="{Binding Width}"
+                                           ToolTip="{Binding Name}"
+                                           Margin="2,2,2,0"/>
                             </Grid>
                         </DataTemplate>
 

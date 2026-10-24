@@ -24,6 +24,7 @@
             <converters:ShapeToGeometryConverter x:Key="ShapeToGeometryConverter"/>
             <converters:ResourceKeyToImageConverter x:Key="ResourceKeyToImageConverter"/>
             <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>
+            <converters:DeviceLabelWrapConverter x:Key="DeviceLabelWrapConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

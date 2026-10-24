@@ -455,18 +455,20 @@
 
       // =======================================================
       // MANDATORY RULE: ONLY DEVICES SHOW TEXT LABELS ON LAYOUT
+      // Wrap device name to next line when exceeding boundary w,
+      // displaying whole text without truncation; IP not shown on canvas.
       // =======================================================
       ctx.textAlign = "center";
       ctx.textBaseline = "top";
       ctx.font = "bold 11px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif";
       ctx.fillStyle = "#111827";
-      ctx.fillText(item.name || "Device", w / 2, h + 4);
 
-      const ip = item.ip_address || item.ipAddress;
-      if (ip) {
-        ctx.font = "10px monospace";
-        ctx.fillStyle = "#4b5563";
-        ctx.fillText(ip, w / 2, h + 18);
+      const deviceName = item.name || "Device";
+      const nameLines = wrapCanvasText(ctx, deviceName, Math.max(30, w));
+      let lineY = h + 4;
+      for (const line of nameLines) {
+        ctx.fillText(line, w / 2, lineY);
+        lineY += 13;
       }
     }
 
@@ -954,6 +956,40 @@
       ctx.closePath();
       if (fill) ctx.fill();
       if (stroke) ctx.stroke();
+    }
+
+    // --- Helper to wrap device names when exceeding boundary width ---
+    function wrapCanvasText(ctx, text, maxWidth) {
+      if (!text) return [];
+      if (ctx.measureText(text).width <= maxWidth) return [text];
+
+      const tokens = text.match(/([^\s\-_]+|[\s\-_])/g) || [text];
+      const lines = [];
+      let currentLine = "";
+
+      for (const token of tokens) {
+        const testLine = currentLine + token;
+        if (ctx.measureText(testLine).width <= maxWidth || !currentLine) {
+          currentLine = testLine;
+        } else {
+          lines.push(currentLine.trimEnd());
+          currentLine = token.trimStart();
+        }
+
+        while (ctx.measureText(currentLine).width > maxWidth && currentLine.length > 1) {
+          let fitCount = 1;
+          while (fitCount < currentLine.length && ctx.measureText(currentLine.substring(0, fitCount + 1)).width <= maxWidth) {
+            fitCount++;
+          }
+          lines.push(currentLine.substring(0, fitCount));
+          currentLine = currentLine.substring(fitCount);
+        }
+      }
+
+      if (currentLine.length > 0) {
+        lines.push(currentLine);
+      }
+      return lines;
     }
 
     // ========================================================

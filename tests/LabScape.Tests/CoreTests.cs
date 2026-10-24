@@ -1,4 +1,5 @@
 using LabScape.Core.Enums;
+using LabScape.Core.Helpers;
 using LabScape.Core.Models;
 using LabScape.Infrastructure.Services;
 using LabScape.ViewModels;
@@ -795,5 +796,62 @@ public class CoreTests
             Assert.Contains($"x:Key=\"{key}\"", lightContent);
             Assert.Contains($"x:Key=\"{key}\"", darkContent);
         }
+    }
+
+    [Fact]
+    public void DeviceLabelWrapping_InsertsSoftBreaks_AndPreservesWholeText()
+    {
+        // 1. Spaced / Hyphenated name
+        string normal = "PC-01 Desktop";
+        string wrappedNormal = TextWrapHelper.InsertSoftBreakOpportunities(normal);
+        Assert.Equal(normal, TextWrapHelper.StripSoftBreaks(wrappedNormal));
+
+        // 2. Underscored name
+        string underscored = "DESKTOP_FINANCE_BUILDING_10";
+        string wrappedUnderscored = TextWrapHelper.InsertSoftBreakOpportunities(underscored);
+        Assert.Contains(TextWrapHelper.SoftBreak, wrappedUnderscored);
+        Assert.Equal(underscored, TextWrapHelper.StripSoftBreaks(wrappedUnderscored));
+
+        // 3. Long continuous unbroken string
+        string unbroken = "WORKSTATIONENTERPRISE2026";
+        string wrappedUnbroken = TextWrapHelper.InsertSoftBreakOpportunities(unbroken, maxChunkLength: 7);
+        Assert.Contains(TextWrapHelper.SoftBreak, wrappedUnbroken);
+        Assert.Equal(unbroken, TextWrapHelper.StripSoftBreaks(wrappedUnbroken));
+
+        // 4. Dot-separated hostname
+        string dotted = "core.switch.datacenter.lan";
+        string wrappedDotted = TextWrapHelper.InsertSoftBreakOpportunities(dotted);
+        Assert.Contains(TextWrapHelper.SoftBreak, wrappedDotted);
+        Assert.Equal(dotted, TextWrapHelper.StripSoftBreaks(wrappedDotted));
+    }
+
+    [Fact]
+    public void Canvas_DeviceItemTemplate_DoesNotShowIpOnCanvas_AndWrapsDeviceName()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(projectRoot);
+        string canvasViewPath = Path.Combine(projectRoot, "src", "LabScape.App", "Views", "CanvasView.xaml");
+        Assert.True(File.Exists(canvasViewPath));
+
+        string canvasContent = File.ReadAllText(canvasViewPath);
+
+        // Requirement: Do NOT show IP on canvas
+        Assert.DoesNotContain("Text=\"{Binding IpAddress}\"", canvasContent);
+
+        // Requirement: Wrap PC name when exceeding boundary
+        Assert.Contains("TextWrapping=\"Wrap\"", canvasContent);
+        Assert.Contains("MaxWidth=\"{Binding Width}\"", canvasContent);
+        Assert.Contains("Converter={StaticResource DeviceLabelWrapConverter}", canvasContent);
     }
 }

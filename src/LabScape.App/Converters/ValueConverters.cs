@@ -4,6 +4,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using LabScape.App.Helpers;
 using LabScape.Core.Enums;
+using LabScape.Core.Helpers;
 using LabScape.ViewModels.Items;
 
 namespace LabScape.App.Converters;
@@ -153,4 +154,25 @@ public class IntToVisibilityConverter : IValueConverter
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
 }
+
+public class DeviceLabelWrapConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not string text || string.IsNullOrEmpty(text))
+            return value;
+
+        return TextWrapHelper.InsertSoftBreakOpportunities(text);
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is string s)
+        {
+            return TextWrapHelper.StripSoftBreaks(s);
+        }
+        return value ?? string.Empty;
+    }
+}
+
 
