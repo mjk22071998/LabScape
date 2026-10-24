@@ -263,11 +263,11 @@
                 </Canvas.Background>
 
                 <!-- Interactive Items Container with Local Adorner Decorator -->
-                <AdornerDecorator Canvas.Left="0" Canvas.Top="0" Width="{Binding CanvasWidth}" Height="{Binding CanvasHeight}">
-                    <ItemsControl x:Name="ItemsHost" ItemsSource="{Binding Items}">
+                <AdornerDecorator Canvas.Left="0" Canvas.Top="0" Width="{Binding CanvasWidth}" Height="{Binding CanvasHeight}" ClipToBounds="False">
+                    <ItemsControl x:Name="ItemsHost" ItemsSource="{Binding Items}" ClipToBounds="False">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <Canvas/>
+                            <Canvas ClipToBounds="False"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemContainerStyle>
@@ -275,6 +275,7 @@
                             <Setter Property="Canvas.Left" Value="{Binding X}"/>
                             <Setter Property="Canvas.Top" Value="{Binding Y}"/>
                             <Setter Property="Panel.ZIndex" Value="{Binding Z}"/>
+                            <Setter Property="ClipToBounds" Value="False"/>
                             <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}"/>
                             <Setter Property="Tag" Value="{Binding DataContext, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
                         </Style>
@@ -371,6 +372,7 @@
                         <!-- Shape DataTemplate -->
                         <DataTemplate DataType="{x:Type items:ShapeItemViewModel}">
                             <Grid Width="{Binding Width}" Height="{Binding Height}"
+                                  ClipToBounds="False"
                                   Cursor="SizeAll"
                                   MouseDown="Item_MouseDown"
                                   Background="Transparent">
@@ -382,6 +384,7 @@
                                 <Path Fill="{Binding Fill, Converter={StaticResource HexToBrushConverter}}"
                                       Stroke="{Binding Stroke, Converter={StaticResource HexToBrushConverter}}"
                                       StrokeThickness="{Binding StrokeThickness}"
+                                      ClipToBounds="False"
                                       Stretch="None">
                                     <Path.Data>
                                         <MultiBinding Converter="{StaticResource ShapeToGeometryConverter}">
@@ -395,6 +398,10 @@
                                             <Binding Path="ControlPoint1Y" />
                                             <Binding Path="ControlPoint2X" />
                                             <Binding Path="ControlPoint2Y" />
+                                            <Binding Path="StartX" />
+                                            <Binding Path="StartY" />
+                                            <Binding Path="EndX" />
+                                            <Binding Path="EndY" />
                                         </MultiBinding>
                                     </Path.Data>
                                 </Path>

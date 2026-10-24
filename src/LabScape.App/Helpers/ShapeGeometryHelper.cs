@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Media;
 using LabScape.Core.Enums;
 using LabScape.ViewModels.Items;
@@ -78,10 +78,16 @@ public static class ShapeGeometryHelper
 
             case ShapeType.Bezier:
             {
-                var fig = new PathFigure { StartPoint = new Point(0, h), IsClosed = false, IsFilled = false };
+                var fig = new PathFigure
+                {
+                    StartPoint = new Point(shape.StartX, shape.StartY),
+                    IsClosed = false,
+                    IsFilled = false
+                };
                 Point p1 = new(shape.ControlPoint1X, shape.ControlPoint1Y);
                 Point p2 = new(shape.ControlPoint2X, shape.ControlPoint2Y);
-                fig.Segments.Add(new BezierSegment(p1, p2, new Point(w, 0), true));
+                Point pEnd = new(shape.EndX, shape.EndY);
+                fig.Segments.Add(new BezierSegment(p1, p2, pEnd, true));
                 var geom = new PathGeometry();
                 geom.Figures.Add(fig);
                 return geom;

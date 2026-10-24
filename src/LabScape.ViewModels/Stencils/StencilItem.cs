@@ -321,18 +321,22 @@ public class StencilItem
                 Category = "Shapes",
                 Title = "Bezier Curve",
                 IconResourceKey = "Shape_Bezier",
-                DefaultWidth = 120,
-                DefaultHeight = 80,
+                DefaultWidth = 140,
+                DefaultHeight = 90,
                 CreateItem = () => new ShapeItemViewModel(new ShapeItem
                 {
                     Name = "Bezier",
                     ShapeType = ShapeType.Bezier,
-                    Width = 120,
-                    Height = 80,
-                    ControlPoint1X = 30,
-                    ControlPoint1Y = 10,
-                    ControlPoint2X = 90,
-                    ControlPoint2Y = 70,
+                    Width = 140,
+                    Height = 90,
+                    StartX = 10,
+                    StartY = 75,
+                    ControlPoint1X = 35,
+                    ControlPoint1Y = 15,
+                    ControlPoint2X = 105,
+                    ControlPoint2Y = 75,
+                    EndX = 130,
+                    EndY = 15,
                     StrokeThickness = 2.0
                 })
             }

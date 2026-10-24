@@ -1081,4 +1081,94 @@ public class CoreTests
         Assert.Contains("Binding Path=\"CornerRadius\"", canvasContent);
         Assert.Contains("Binding Path=\"InnerRadius\"", canvasContent);
     }
+
+    [Fact]
+    public void BezierCurve_HasFreeformEndpointsAndControlPoints_SupportsUndoRedoAndUnclippedRendering()
+    {
+        var bezier = new ShapeItemViewModel(new ShapeItem
+        {
+            Name = "Bezier",
+            ShapeType = ShapeType.Bezier,
+            Width = 140,
+            Height = 90,
+            StartX = 10,
+            StartY = 75,
+            ControlPoint1X = 35,
+            ControlPoint1Y = 15,
+            ControlPoint2X = 105,
+            ControlPoint2Y = 75,
+            EndX = 130,
+            EndY = 15
+        });
+
+        Assert.Equal(10, bezier.StartX);
+        Assert.Equal(75, bezier.StartY);
+        Assert.Equal(130, bezier.EndX);
+        Assert.Equal(15, bezier.EndY);
+        Assert.Equal(35, bezier.ControlPoint1X);
+        Assert.Equal(15, bezier.ControlPoint1Y);
+        Assert.Equal(105, bezier.ControlPoint2X);
+        Assert.Equal(75, bezier.ControlPoint2Y);
+
+        // Test Full Bezier Freeform Undo/Redo
+        var undoService = new UndoRedoService();
+        var cmd = new ModifyBezierControlPointsCommand(
+            bezier,
+            oldStartX: 10, oldStartY: 75, oldEndX: 130, oldEndY: 15,
+            oldCp1X: 35, oldCp1Y: 15, oldCp2X: 105, oldCp2Y: 75,
+            newStartX: -20, newStartY: 120, newEndX: 250, newEndY: -10,
+            newCp1X: 10, newCp1Y: -50, newCp2X: 180, newCp2Y: 160);
+
+        undoService.ExecuteCommand(cmd);
+        Assert.Equal(-20, bezier.StartX);
+        Assert.Equal(120, bezier.StartY);
+        Assert.Equal(250, bezier.EndX);
+        Assert.Equal(-10, bezier.EndY);
+        Assert.Equal(10, bezier.ControlPoint1X);
+        Assert.Equal(-50, bezier.ControlPoint1Y);
+        Assert.Equal(180, bezier.ControlPoint2X);
+        Assert.Equal(160, bezier.ControlPoint2Y);
+
+        undoService.Undo();
+        Assert.Equal(10, bezier.StartX);
+        Assert.Equal(75, bezier.StartY);
+        Assert.Equal(130, bezier.EndX);
+        Assert.Equal(15, bezier.EndY);
+        Assert.Equal(35, bezier.ControlPoint1X);
+        Assert.Equal(15, bezier.ControlPoint1Y);
+        Assert.Equal(105, bezier.ControlPoint2X);
+        Assert.Equal(75, bezier.ControlPoint2Y);
+
+        undoService.Redo();
+        Assert.Equal(-20, bezier.StartX);
+        Assert.Equal(120, bezier.StartY);
+        Assert.Equal(250, bezier.EndX);
+        Assert.Equal(-10, bezier.EndY);
+
+        // Verify XAML and Adorner have ClipToBounds="False" configured for unclipped rendering
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+        Assert.NotNull(projectRoot);
+
+        string adornerPath = Path.Combine(projectRoot, "src", "LabScape.App", "Adorners", "SelectionAdorner.cs");
+        string adornerCode = File.ReadAllText(adornerPath);
+        Assert.Contains("ClipToBounds = false;", adornerCode);
+        Assert.Contains("shapeStart.StartX = Math.Round(currentLocal.X, 1);", adornerCode);
+        Assert.Contains("shapeEnd.EndX = Math.Round(currentLocal.X, 1);", adornerCode);
+
+        string canvasPath = Path.Combine(projectRoot, "src", "LabScape.App", "Views", "CanvasView.xaml");
+        string canvasCode = File.ReadAllText(canvasPath);
+        Assert.Contains("Binding Path=\"StartX\"", canvasCode);
+        Assert.Contains("Binding Path=\"EndX\"", canvasCode);
+        Assert.Contains("Setter Property=\"ClipToBounds\" Value=\"False\"", canvasCode);
+    }
 }

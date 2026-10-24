@@ -27,6 +27,18 @@ public partial class ShapeItemViewModel : ItemViewModel
     private double _strokeThickness;
 
     [ObservableProperty]
+    private double _startX;
+
+    [ObservableProperty]
+    private double _startY;
+
+    [ObservableProperty]
+    private double _endX;
+
+    [ObservableProperty]
+    private double _endY;
+
+    [ObservableProperty]
     private double _controlPoint1X;
 
     [ObservableProperty]
@@ -48,6 +60,10 @@ public partial class ShapeItemViewModel : ItemViewModel
         _fill = model.Fill;
         _stroke = model.Stroke;
         _strokeThickness = model.StrokeThickness;
+        _startX = model.StartX;
+        _startY = model.StartY;
+        _endX = model.EndX;
+        _endY = model.EndY;
         _controlPoint1X = model.ControlPoint1X;
         _controlPoint1Y = model.ControlPoint1Y;
         _controlPoint2X = model.ControlPoint2X;
@@ -76,6 +92,30 @@ public partial class ShapeItemViewModel : ItemViewModel
     partial void OnStrokeChanged(string value) => ShapeModel.Stroke = value;
     partial void OnStrokeThicknessChanged(double value) => ShapeModel.StrokeThickness = value;
 
+    partial void OnStartXChanged(double value)
+    {
+        ShapeModel.StartX = value;
+        OnPropertyChanged(string.Empty);
+    }
+
+    partial void OnStartYChanged(double value)
+    {
+        ShapeModel.StartY = value;
+        OnPropertyChanged(string.Empty);
+    }
+
+    partial void OnEndXChanged(double value)
+    {
+        ShapeModel.EndX = value;
+        OnPropertyChanged(string.Empty);
+    }
+
+    partial void OnEndYChanged(double value)
+    {
+        ShapeModel.EndY = value;
+        OnPropertyChanged(string.Empty);
+    }
+
     partial void OnControlPoint1XChanged(double value)
     {
         ShapeModel.ControlPoint1X = value;
@@ -103,7 +143,7 @@ public partial class ShapeItemViewModel : ItemViewModel
     protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs e)
     {
         base.OnPropertyChanged(e);
-        if (e.PropertyName is nameof(Width) or nameof(Height))
+        if (e.PropertyName is nameof(Width) or nameof(Height) or nameof(StartX) or nameof(StartY) or nameof(EndX) or nameof(EndY))
         {
             OnPropertyChanged(string.Empty);
         }

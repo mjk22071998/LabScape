@@ -176,7 +176,9 @@ public class TransformItemCommand : IUndoableCommand
 public class ModifyBezierControlPointsCommand : IUndoableCommand
 {
     private readonly ShapeItemViewModel _item;
+    private readonly double _oldStartX, _oldStartY, _oldEndX, _oldEndY;
     private readonly double _oldCp1X, _oldCp1Y, _oldCp2X, _oldCp2Y;
+    private readonly double _newStartX, _newStartY, _newEndX, _newEndY;
     private readonly double _newCp1X, _newCp1Y, _newCp2X, _newCp2Y;
 
     public string Description => $"Modify Bezier Curve on {_item.Name}";
@@ -185,12 +187,34 @@ public class ModifyBezierControlPointsCommand : IUndoableCommand
         ShapeItemViewModel item,
         double oldCp1X, double oldCp1Y, double oldCp2X, double oldCp2Y,
         double newCp1X, double newCp1Y, double newCp2X, double newCp2Y)
+        : this(item,
+               item.StartX, item.StartY, item.EndX, item.EndY,
+               oldCp1X, oldCp1Y, oldCp2X, oldCp2Y,
+               item.StartX, item.StartY, item.EndX, item.EndY,
+               newCp1X, newCp1Y, newCp2X, newCp2Y)
+    {
+    }
+
+    public ModifyBezierControlPointsCommand(
+        ShapeItemViewModel item,
+        double oldStartX, double oldStartY, double oldEndX, double oldEndY,
+        double oldCp1X, double oldCp1Y, double oldCp2X, double oldCp2Y,
+        double newStartX, double newStartY, double newEndX, double newEndY,
+        double newCp1X, double newCp1Y, double newCp2X, double newCp2Y)
     {
         _item = item;
+        _oldStartX = oldStartX;
+        _oldStartY = oldStartY;
+        _oldEndX = oldEndX;
+        _oldEndY = oldEndY;
         _oldCp1X = oldCp1X;
         _oldCp1Y = oldCp1Y;
         _oldCp2X = oldCp2X;
         _oldCp2Y = oldCp2Y;
+        _newStartX = newStartX;
+        _newStartY = newStartY;
+        _newEndX = newEndX;
+        _newEndY = newEndY;
         _newCp1X = newCp1X;
         _newCp1Y = newCp1Y;
         _newCp2X = newCp2X;
@@ -199,6 +223,10 @@ public class ModifyBezierControlPointsCommand : IUndoableCommand
 
     public void Execute()
     {
+        _item.StartX = _newStartX;
+        _item.StartY = _newStartY;
+        _item.EndX = _newEndX;
+        _item.EndY = _newEndY;
         _item.ControlPoint1X = _newCp1X;
         _item.ControlPoint1Y = _newCp1Y;
         _item.ControlPoint2X = _newCp2X;
@@ -207,6 +235,10 @@ public class ModifyBezierControlPointsCommand : IUndoableCommand
 
     public void Unexecute()
     {
+        _item.StartX = _oldStartX;
+        _item.StartY = _oldStartY;
+        _item.EndX = _oldEndX;
+        _item.EndY = _oldEndY;
         _item.ControlPoint1X = _oldCp1X;
         _item.ControlPoint1Y = _oldCp1Y;
         _item.ControlPoint2X = _oldCp2X;
