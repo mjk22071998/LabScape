@@ -1,4 +1,4 @@
-# Software Requirements Specification (SRS)
+﻿# Software Requirements Specification (SRS)
 ## Reverse-Engineered Architecture & Functional Specification of Software Ideas Modeler
 **Document Version:** 1.1.0  
 **Target Architecture:** Desktop Vector Diagramming & Modeling Engine (.NET / WPF)  
@@ -93,7 +93,7 @@ flowchart TD
 
 ### 2.4 Deployment & Packaging Constraints
 * **CON-DEP-01: Single-File Setup Executable**: The installer shall be distributed as a single standalone setup executable (`Setup.exe`) or Windows Installer package (`.msi`).
-* **CON-DEP-02: Standard Modular File Extraction**: When executed with local administrator privileges, the setup installer shall extract into a standard Windows application folder (`%ProgramFiles%\EnterpriseLayoutDesigner`) containing the primary executable (`LayoutDesigner.exe`), native runtime DLLs, dependency assemblies, and asset directories (avoiding single-file temp extraction overhead and ensuring fast startup times).
+* **CON-DEP-02: Standard Modular File Extraction**: When executed with local administrator privileges, the setup installer shall extract into a standard Windows application folder (`%ProgramFiles%\EnterpriseLabScape`) containing the primary executable (`LabScape.exe`), native runtime DLLs, dependency assemblies, and asset directories (avoiding single-file temp extraction overhead and ensuring fast startup times).
 * **CON-DEP-03: Self-Contained Offline Runtime**: The installer shall bundle the complete .NET runtime and WPF libraries (`--self-contained true`), requiring zero pre-installed runtimes and zero network access during installation or execution.
 * **CON-DEP-04: Administrator Privilege Enforcement**: The installer shall explicitly request local administrator elevation (`PrivilegesRequired=admin` / UAC prompt) to write to `%ProgramFiles%` and register local `.layout` file associations.
 
@@ -289,7 +289,7 @@ erDiagram
 
 #### FR-DB-03: Credential Security (DPAPI)
 * **FR-DB-03.1**: Database passwords and connection strings shall **never** be saved in plaintext format.
-* **FR-DB-03.2**: Credentials shall be encrypted using **Windows Data Protection API (DPAPI)** with `DataProtectionScope.LocalMachine` or `CurrentUser`, stored in `%ProgramData%\EnterpriseLayoutDesigner\db_settings.dat`.
+* **FR-DB-03.2**: Credentials shall be encrypted using **Windows Data Protection API (DPAPI)** with `DataProtectionScope.LocalMachine` or `CurrentUser`, stored in `%ProgramData%\EnterpriseLabScape\db_settings.dat`.
 
 #### FR-DB-04: Real-time Connection Monitoring & Status Bar
 * **FR-DB-04.1**: The application's bottom status bar shall display a live connection health indicator:
@@ -460,9 +460,9 @@ The application shall follow the Microsoft Office / Visio 3-Tier Window Pattern:
 
 ---
 
-## 6. Traceability Matrix: SIM Architecture to Layout Designer
+## 6. Traceability Matrix: SIM Architecture to LabScape
 
-| Software Ideas Modeler Core Feature | Implementation in Your Layout Designer | Technical Stack Mechanism (.NET/WPF) |
+| Software Ideas Modeler Core Feature | Implementation in Your LabScape | Technical Stack Mechanism (.NET/WPF) |
 | :--- | :--- | :--- |
 | **Model vs. Diagram Separation** | Separates physical workstation asset records (PostgreSQL) from canvas icons. | `ModelEntity` (Data Model) $\longleftrightarrow$ `DiagramNodeViewModel` (MVVM). |
 | **Adorner & Transform Handles** | 8-point resize box, rotation thumb, bezier tangents. | Subclass of WPF `System.Windows.Documents.Adorner`. |

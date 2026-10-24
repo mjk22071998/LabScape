@@ -1,0 +1,250 @@
+﻿<UserControl x:Class="LabScape.App.Views.CanvasView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:controls="clr-namespace:LabScape.App.Controls"
+             xmlns:items="clr-namespace:LabScape.ViewModels.Items;assembly=LabScape.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="900"
+             Focusable="True"
+             ClipToBounds="True">
+
+    <Grid Background="#E5E7EB">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="24"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="24"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Top-Left Corner Block -->
+        <Border Grid.Row="0" Grid.Column="0" Background="#F3F4F6" BorderBrush="#D1D5DB" BorderThickness="0,0,1,1">
+            <TextBlock Text="px" FontSize="9" Foreground="#9CA3AF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Border>
+
+        <!-- Top Horizontal Ruler -->
+        <controls:RulerControl x:Name="HorizontalRuler"
+                               Grid.Row="0" Grid.Column="1"
+                               Orientation="Horizontal"
+                               ZoomLevel="{Binding ZoomLevel}"
+                               Offset="{Binding PanX}"
+                               CursorPosition="{Binding CursorX}"
+                               Visibility="{Binding ShowRulers, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+        <!-- Left Vertical Ruler -->
+        <controls:RulerControl x:Name="VerticalRuler"
+                               Grid.Row="1" Grid.Column="0"
+                               Orientation="Vertical"
+                               ZoomLevel="{Binding ZoomLevel}"
+                               Offset="{Binding PanY}"
+                               CursorPosition="{Binding CursorY}"
+                               Visibility="{Binding ShowRulers, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+        <!-- Viewport Container -->
+        <Border Grid.Row="1" Grid.Column="1" 
+                Background="#374151" 
+                ClipToBounds="True"
+                Focusable="True"
+                AllowDrop="True"
+                MouseDown="Viewport_MouseDown"
+                MouseMove="Viewport_MouseMove"
+                MouseUp="Viewport_MouseUp"
+                MouseWheel="Viewport_MouseWheel"
+                Drop="Viewport_Drop"
+                DragOver="Viewport_DragOver">
+
+            <Canvas x:Name="CanvasSurface"
+                    Width="{Binding CanvasWidth}"
+                    Height="{Binding CanvasHeight}"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top">
+
+                <Canvas.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform x:Name="CanvasScale" ScaleX="{Binding ZoomLevel}" ScaleY="{Binding ZoomLevel}"/>
+                        <TranslateTransform x:Name="CanvasTranslate" X="{Binding PanX}" Y="{Binding PanY}"/>
+                    </TransformGroup>
+                </Canvas.RenderTransform>
+
+                <!-- Dynamic Grid Pattern -->
+                <Canvas.Background>
+                    <DrawingBrush x:Name="GridBrush" TileMode="Tile" Viewport="0,0,20,20" ViewportUnits="Absolute">
+                        <DrawingBrush.Drawing>
+                            <DrawingGroup>
+                                <GeometryDrawing Brush="White">
+                                    <GeometryDrawing.Geometry>
+                                        <RectangleGeometry Rect="0,0,20,20"/>
+                                    </GeometryDrawing.Geometry>
+                                </GeometryDrawing>
+                                <GeometryDrawing Brush="#E5E7EB">
+                                    <GeometryDrawing.Pen>
+                                        <Pen Brush="#E5E7EB" Thickness="0.75"/>
+                                    </GeometryDrawing.Pen>
+                                    <GeometryDrawing.Geometry>
+                                        <GeometryGroup>
+                                            <LineGeometry StartPoint="0,20" EndPoint="20,20"/>
+                                            <LineGeometry StartPoint="20,0" EndPoint="20,20"/>
+                                        </GeometryGroup>
+                                    </GeometryDrawing.Geometry>
+                                </GeometryDrawing>
+                            </DrawingGroup>
+                        </DrawingBrush.Drawing>
+                    </DrawingBrush>
+                </Canvas.Background>
+
+                <!-- Interactive Items Container -->
+                <ItemsControl x:Name="ItemsHost" ItemsSource="{Binding Items}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                            <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                            <Setter Property="Panel.ZIndex" Value="{Binding Z}"/>
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                    <ItemsControl.Resources>
+                        <!-- Device DataTemplate -->
+                        <DataTemplate DataType="{x:Type items:DeviceItemViewModel}">
+                            <Grid Width="{Binding Width}" Height="{Binding Height}"
+                                  Cursor="SizeAll"
+                                  MouseDown="Item_MouseDown"
+                                  Background="Transparent">
+
+                                <Grid.RenderTransform>
+                                    <RotateTransform Angle="{Binding Rotation}" CenterX="{Binding Width, Converter={StaticResource HalfValueConverter}}" CenterY="{Binding Height, Converter={StaticResource HalfValueConverter}}"/>
+                                </Grid.RenderTransform>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Device Stencil Drawing -->
+                                <Image Grid.Row="0" Source="{Binding DeviceType, Converter={StaticResource DeviceTypeToImageConverter}}" Stretch="Uniform" Margin="4"/>
+
+                                <!-- Validation Badge (Top-Right) -->
+                                <Border Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="2"
+                                        CornerRadius="8" Padding="3,1"
+                                        Visibility="{Binding ValidationStatus, Converter={StaticResource ValidationBadgeVisibilityConverter}}">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ValidationStatus}" Value="Unassigned">
+                                                    <Setter Property="Background" Value="#FEF3C7"/>
+                                                    <Setter Property="BorderBrush" Value="#F59E0B"/>
+                                                    <Setter Property="BorderThickness" Value="1"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding ValidationStatus}" Value="DuplicateIp">
+                                                    <Setter Property="Background" Value="#FEE2E2"/>
+                                                    <Setter Property="BorderBrush" Value="#EF4444"/>
+                                                    <Setter Property="BorderThickness" Value="1.5"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock FontSize="10" FontWeight="Bold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ValidationStatus}" Value="Unassigned">
+                                                        <Setter Property="Text" Value="⚠️"/>
+                                                        <Setter Property="ToolTip" Value="Warning: No IP Address assigned!"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding ValidationStatus}" Value="DuplicateIp">
+                                                        <Setter Property="Text" Value="⛔"/>
+                                                        <Setter Property="ToolTip" Value="Conflict: Duplicate IP Address assigned!"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+
+                                <!-- Label Below Device (ONLY DEVICES SHOW LABELS) -->
+                                <StackPanel Grid.Row="1" HorizontalAlignment="Center" Margin="0,2,0,0">
+                                    <TextBlock Text="{Binding Name}" FontSize="10" FontWeight="SemiBold" Foreground="#1F2937" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding IpAddress}" FontSize="9" Foreground="#6B7280" HorizontalAlignment="Center"
+                                               Visibility="{Binding IpAddress, Converter={StaticResource StringNotEmptyToVisibilityConverter}}"/>
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+
+                        <!-- Furniture DataTemplate -->
+                        <DataTemplate DataType="{x:Type items:FurnitureItemViewModel}">
+                            <Grid Width="{Binding Width}" Height="{Binding Height}"
+                                  Cursor="SizeAll"
+                                  MouseDown="Item_MouseDown"
+                                  Background="Transparent">
+
+                                <Grid.RenderTransform>
+                                    <RotateTransform Angle="{Binding Rotation}" CenterX="{Binding Width, Converter={StaticResource HalfValueConverter}}" CenterY="{Binding Height, Converter={StaticResource HalfValueConverter}}"/>
+                                </Grid.RenderTransform>
+
+                                <Image Source="{Binding FurnitureType, Converter={StaticResource FurnitureTypeToImageConverter}}" Stretch="Fill"/>
+                            </Grid>
+                        </DataTemplate>
+
+                        <!-- Shape DataTemplate -->
+                        <DataTemplate DataType="{x:Type items:ShapeItemViewModel}">
+                            <Grid Width="{Binding Width}" Height="{Binding Height}"
+                                  Cursor="SizeAll"
+                                  MouseDown="Item_MouseDown"
+                                  Background="Transparent">
+
+                                <Grid.RenderTransform>
+                                    <RotateTransform Angle="{Binding Rotation}" CenterX="{Binding Width, Converter={StaticResource HalfValueConverter}}" CenterY="{Binding Height, Converter={StaticResource HalfValueConverter}}"/>
+                                </Grid.RenderTransform>
+
+                                <Path Data="{Binding Converter={StaticResource ShapeToGeometryConverter}}"
+                                      Fill="{Binding Fill, Converter={StaticResource HexToBrushConverter}}"
+                                      Stroke="{Binding Stroke, Converter={StaticResource HexToBrushConverter}}"
+                                      StrokeThickness="{Binding StrokeThickness}"
+                                      Stretch="Fill"/>
+                            </Grid>
+                        </DataTemplate>
+
+                        <!-- Group DataTemplate -->
+                        <DataTemplate DataType="{x:Type items:GroupItemViewModel}">
+                            <Grid Width="{Binding Width}" Height="{Binding Height}"
+                                  Cursor="SizeAll"
+                                  MouseDown="Item_MouseDown"
+                                  Background="Transparent">
+
+                                <Grid.RenderTransform>
+                                    <RotateTransform Angle="{Binding Rotation}" CenterX="{Binding Width, Converter={StaticResource HalfValueConverter}}" CenterY="{Binding Height, Converter={StaticResource HalfValueConverter}}"/>
+                                </Grid.RenderTransform>
+
+                                <!-- Subtle bounding box for group -->
+                                <Rectangle Stroke="#9CA3AF" StrokeThickness="1" StrokeDashArray="4 2" IsHitTestVisible="False"/>
+
+                                <!-- Children Items -->
+                                <ItemsControl ItemsSource="{Binding Children}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <Canvas/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemContainerStyle>
+                                        <Style TargetType="ContentPresenter">
+                                            <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                                            <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                                            <Setter Property="Panel.ZIndex" Value="{Binding Z}"/>
+                                        </Style>
+                                    </ItemsControl.ItemContainerStyle>
+                                </ItemsControl>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.Resources>
+                </ItemsControl>
+
+            </Canvas>
+        </Border>
+    </Grid>
+</UserControl>

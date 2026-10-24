@@ -1,4 +1,4 @@
-# Layout Designer JSON Interchange Specification (SCHEMA.md)
+﻿# LabScape JSON Interchange Specification (SCHEMA.md)
 ## Formal Schema Contract & Web Developer Interchange Specification
 **Document Version:** 1.0.0  
 **Target Standard:** JSON Schema Draft 2020-12  
@@ -8,7 +8,7 @@
 
 ## 1. Specification Overview
 
-This document specifies the exact JSON data contract produced by the **Enterprise Layout Designer** and consumed by downstream web applications. 
+This document specifies the exact JSON data contract produced by the **LabScape** and consumed by downstream web applications. 
 
 ### Core Contract Principles:
 1. **Recursive Item Hierarchy**: The layout is a tree structure where a `group` item contains a `children` array that can nest any other items (`device`, `furniture`, `shape`, or sub-`group`).

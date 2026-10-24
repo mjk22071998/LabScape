@@ -1,5 +1,5 @@
-# Software Design Document (SDD)
-## Architecture & Technical Design Specification for Enterprise Layout Designer
+﻿# Software Design Document (SDD)
+## Architecture & Technical Design Specification for LabScape
 **Document Version:** 1.0.0  
 **Target Platform:** Windows 10 / 11 (64-bit)  
 **Framework:** .NET 8.0 / 9.0 (WPF, Self-Contained)  
@@ -371,11 +371,11 @@ public class MoveNodesCommand : IUndoableCommand
 
 ### 4.1 Enterprise Database DDL & Read Model (PostgreSQL)
 
-Per the companion application's schema in `public`, the Layout Designer connects in read/bind mode specifically to the `public.devices` table to extract device identities:
+Per the companion application's schema in `public`, the LabScape connects in read/bind mode specifically to the `public.devices` table to extract device identities:
 
 ```sql
 -- Companion Schema Reference: public.devices
--- The Layout Designer reads from this table:
+-- The LabScape reads from this table:
 SELECT 
     device_id,
     display_name,
@@ -512,10 +512,10 @@ sequenceDiagram
 The solution is organized into modular projects adhering strictly to Clean Architecture principles:
 
 ```text
-EnterpriseLayoutDesigner/
+EnterpriseLabScape/
 │
 ├── src/
-│   ├── LayoutDesigner.App/                   # WPF Executable (Views, App.xaml, Shell)
+│   ├── LabScape.App/                   # WPF Executable (Views, App.xaml, Shell)
 │   │   ├── Views/
 │   │   │   ├── MainWindow.xaml               # Ribbon + Docking Host
 │   │   │   ├── CanvasView.xaml               # Interactive Zoom/Pan Canvas
@@ -529,14 +529,14 @@ EnterpriseLayoutDesigner/
 │   │   │   └── Stencils.xaml                 # Vector Path Resource Dictionary
 │   │   └── App.xaml
 │   │
-│   ├── LayoutDesigner.ViewModels/            # MVVM State & Commands
+│   ├── LabScape.ViewModels/            # MVVM State & Commands
 │   │   ├── MainViewModel.cs
 │   │   ├── CanvasViewModel.cs
 │   │   ├── StencilPaletteViewModel.cs
 │   │   ├── PropertyInspectorViewModel.cs
 │   │   └── DatabaseSettingsViewModel.cs
 │   │
-│   ├── LayoutDesigner.Core/                  # Pure Business Logic & Math
+│   ├── LabScape.Core/                  # Pure Business Logic & Math
 │   │   ├── Models/
 │   │   │   ├── LayoutDocument.cs             # AST Root
 │   │   │   ├── CanvasLayer.cs
@@ -549,7 +549,7 @@ EnterpriseLayoutDesigner/
 │   │       ├── IUndoableCommand.cs
 │   │       └── UndoRedoManager.cs
 │   │
-│   └── LayoutDesigner.Infrastructure/        # IO, Database & Cryptography
+│   └── LabScape.Infrastructure/        # IO, Database & Cryptography
 │       ├── Database/
 │       │   ├── PostgreSqlRepository.cs       # Npgsql Connection Pool
 │       │   └── DpapiCredentialVault.cs       # Windows DPAPI Security
@@ -561,8 +561,8 @@ EnterpriseLayoutDesigner/
 │   └── installer.iss                         # Inno Setup Offline Script
 │
 └── tests/
-    ├── LayoutDesigner.Core.Tests/            # QuadTree, Snapping & AST Unit Tests
-    └── LayoutDesigner.Infrastructure.Tests/  # Serialization & DB Mock Tests
+    ├── LabScape.Core.Tests/            # QuadTree, Snapping & AST Unit Tests
+    └── LabScape.Infrastructure.Tests/  # Serialization & DB Mock Tests
 ```
 
 ---
@@ -573,7 +573,7 @@ EnterpriseLayoutDesigner/
 The compilation process outputs a standard modular Windows application structure (avoiding single-file unpacking latency and antivirus temp heuristics):
 
 ```powershell
-dotnet publish src/LayoutDesigner.App/LayoutDesigner.App.csproj `
+dotnet publish src/LabScape.App/LabScape.App.csproj `
     -c Release `
     -r win-x64 `
     --self-contained true `
@@ -583,8 +583,8 @@ dotnet publish src/LayoutDesigner.App/LayoutDesigner.App.csproj `
 #### Output Directory Structure (`dist/publish/`):
 ```text
 dist/publish/
-├── LayoutDesigner.exe           # Primary Application Launcher
-├── LayoutDesigner.dll           # Application Managed Assembly
+├── LabScape.exe           # Primary Application Launcher
+├── LabScape.dll           # Application Managed Assembly
 ├── Npgsql.dll                   # PostgreSQL Driver
 ├── Fluent.Ribbon.dll            # Ribbon Component Assembly
 ├── Dirkster.AvalonDock.dll      # Docking Framework
@@ -596,8 +596,8 @@ dist/publish/
 
 ### 7.2 Single-File Setup Generation (Inno Setup)
 The Inno Setup compiler (`ISCC.exe`) packages the entire `dist/publish/` folder into a single standalone installer:
-* **Output**: `LayoutDesigner-Setup-v1.0.0.exe` (a single `.exe` file for distribution).
-* **Target Installation**: Extracts files into `%ProgramFiles%\EnterpriseLayoutDesigner\` with full administrative rights.
+* **Output**: `LabScape-Setup-v1.0.0.exe` (a single `.exe` file for distribution).
+* **Target Installation**: Extracts files into `%ProgramFiles%\EnterpriseLabScape\` with full administrative rights.
 * **Launch Performance**: Instant cold-start ($< 0.5\text{s}$) because assemblies reside natively on the file system without temporary runtime extraction.
 
 ---

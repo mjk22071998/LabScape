@@ -1,5 +1,5 @@
-# Engineering Implementation Roadmap
-## Milestone-Driven Execution Plan for Enterprise Layout Designer
+﻿# Engineering Implementation Roadmap
+## Milestone-Driven Execution Plan for LabScape
 **Document Version:** 1.0.0  
 **Target Platform:** Windows 10 / 11 (64-bit)  
 **Architecture:** .NET 8.0 / 9.0 (WPF, Self-Contained, MVVM, Clean Architecture)  
@@ -25,11 +25,11 @@ flowchart LR
 **Objective**: Establish the multi-project Clean Architecture solution, configure enterprise dependencies, and build the interactive Office/Visio window shell.
 
 - [ ] **Task 1.1: Solution & Project Scaffolding**
-  - Create `LayoutDesigner.sln` with 4 projects:
-    - `LayoutDesigner.Core` (Class Library, .NET 8/9, zero UI dependencies)
-    - `LayoutDesigner.Infrastructure` (Class Library, Npgsql, DPAPI, System.Text.Json)
-    - `LayoutDesigner.ViewModels` (Class Library, CommunityToolkit.Mvvm)
-    - `LayoutDesigner.App` (WPF Application, net8.0-windows / net9.0-windows)
+  - Create `LabScape.sln` with 4 projects:
+    - `LabScape.Core` (Class Library, .NET 8/9, zero UI dependencies)
+    - `LabScape.Infrastructure` (Class Library, Npgsql, DPAPI, System.Text.Json)
+    - `LabScape.ViewModels` (Class Library, CommunityToolkit.Mvvm)
+    - `LabScape.App` (WPF Application, net8.0-windows / net9.0-windows)
   - Configure inward project references according to Clean Architecture rules.
 - [ ] **Task 1.2: NuGet Package Integration**
   - Install verified community packages:
@@ -114,7 +114,7 @@ flowchart LR
     - Validates credentials and fetches PostgreSQL version.
     - Verifies `public.devices` table existence.
 - [ ] **Task 3.3: DPAPI Encrypted Storage**
-  - Implement `DpapiCredentialVault.cs` encrypting connection profiles via Windows DPAPI into `%ProgramData%\EnterpriseLayoutDesigner\db_settings.dat`.
+  - Implement `DpapiCredentialVault.cs` encrypting connection profiles via Windows DPAPI into `%ProgramData%\EnterpriseLabScape\db_settings.dat`.
 - [ ] **Task 3.4: Property Inspector Binding**
   - Integrate `Extended.Wpf.Toolkit.PropertyGrid` in `PropertyInspectorView.xaml`.
   - For geometric shapes: inspect/edit $X, Y, W, H$, Rotation, Fill, Stroke.
@@ -158,16 +158,16 @@ flowchart LR
   - Configure `dotnet publish` for `win-x64` (`--self-contained true`).
   - Verify that the output folder in `dist/publish/` contains all runtimes, DLLs, and assets.
 - [ ] **Task 4.5: Inno Setup Single-File Installer (`installer.iss`)**
-  - Create Inno Setup script packing `dist/publish/` into `LayoutDesigner-Setup-v1.0.0.exe`.
+  - Create Inno Setup script packing `dist/publish/` into `LabScape-Setup-v1.0.0.exe`.
   - Enforce `PrivilegesRequired=admin` (UAC prompt).
-  - Install to `%ProgramFiles%\EnterpriseLayoutDesigner`.
+  - Install to `%ProgramFiles%\EnterpriseLabScape`.
   - Register `.layout` file associations, Desktop icon, and Start Menu shortcuts.
   - Verify 100% offline installation on a clean Windows machine with zero network access.
 
 **Milestone 4 Quality Gate (Definition of Done)**:
 * Clicking "Export to Web JSON" produces a clean, compliant JSON file.
 * The sample HTML5 web viewer renders the exact floor plan with matching coordinates and labels.
-* Running `LayoutDesigner-Setup-v1.0.0.exe` installs cleanly with administrator privileges without needing internet access.
+* Running `LabScape-Setup-v1.0.0.exe` installs cleanly with administrator privileges without needing internet access.
 
 ---
 

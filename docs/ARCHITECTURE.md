@@ -1,5 +1,5 @@
-# Software Architecture & Engineering Guidelines
-## Architectural Paradigm, Layering & Design Patterns for Enterprise Layout Designer
+﻿# Software Architecture & Engineering Guidelines
+## Architectural Paradigm, Layering & Design Patterns for LabScape
 **Document Version:** 1.0.0  
 **Target Platform:** Windows 10 / 11 (64-bit)  
 **Framework:** .NET 8.0 / 9.0 (WPF, Self-Contained)  
@@ -79,15 +79,15 @@ The solution is decomposed into four discrete projects with strict inward-pointi
 
 ```mermaid
 flowchart LR
-    App["LayoutDesigner.App\n(Presentation Views & Shell)"] --> VM["LayoutDesigner.ViewModels\n(State & Commands)"]
-    App --> Infra["LayoutDesigner.Infrastructure\n(PostgreSQL, DPAPI, JSON)"]
-    VM --> Core["LayoutDesigner.Core\n(Domain, Math & Interfaces)"]
+    App["LabScape.App\n(Presentation Views & Shell)"] --> VM["LabScape.ViewModels\n(State & Commands)"]
+    App --> Infra["LabScape.Infrastructure\n(PostgreSQL, DPAPI, JSON)"]
+    VM --> Core["LabScape.Core\n(Domain, Math & Interfaces)"]
     Infra --> Core
 ```
 
 ### 3.1 Layer Responsibilities & Strict Boundaries
 
-#### 1. `LayoutDesigner.Core` (The Domain Core)
+#### 1. `LabScape.Core` (The Domain Core)
 * **Rule**: **Zero dependencies on WPF or UI namespaces** (`System.Windows`, `System.Windows.Controls`).
 * **Contents**:
   - Pure domain data structures (`LayoutDocument`, `CanvasLayer`, `DeviceAsset`).
@@ -95,7 +95,7 @@ flowchart LR
   - Abstract contracts (`IDeviceRepository`, `IUndoableCommand`, `ILayoutExporter`, `ICredentialVault`).
 * **Benefit**: Guaranteed fast execution, portable across platforms, completely unit-testable.
 
-#### 2. `LayoutDesigner.Infrastructure` (Data, Security & I/O)
+#### 2. `LabScape.Infrastructure` (Data, Security & I/O)
 * **Rule**: Implements interfaces defined in `Core`. Never depends on `ViewModels` or `App`.
 * **Contents**:
   - `PostgreSqlDeviceRepository`: Direct socket queries to `public.devices` via `Npgsql`.
@@ -103,7 +103,7 @@ flowchart LR
   - `DpapiCredentialVault`: Hardware-encrypted storage of database credentials via Windows DPAPI.
   - `JsonLayoutExporter`: AST-to-JSON serialization engine targeting web consumers.
 
-#### 3. `LayoutDesigner.ViewModels` (Presentation State & Business Logic)
+#### 3. `LabScape.ViewModels` (Presentation State & Business Logic)
 * **Rule**: Uses `CommunityToolkit.Mvvm`. Manages all application state and user interactions.
 * **Contents**:
   - `CanvasViewModel`: Viewport coordinates, zoom factor, selection lists, snapping invocations.
@@ -111,7 +111,7 @@ flowchart LR
   - `CanvasValidationEngine`: Evaluates unassigned IPs and duplicate IP collisions.
   - `UndoRedoManager`: 100-step transaction history stack.
 
-#### 4. `LayoutDesigner.App` (WPF Visual Shell & Custom Controls)
+#### 4. `LabScape.App` (WPF Visual Shell & Custom Controls)
 * **Rule**: Declarative presentation only. Zero domain business logic in code-behind.
 * **Contents**:
   - `MainWindow.xaml`: `Fluent.Ribbon` container and `AvalonDock` layout host.
@@ -254,7 +254,7 @@ stateDiagram-v2
 
 | Characteristic | Architectural Guarantee | Verification Method |
 | :--- | :--- | :--- |
-| **Maintainability** | Zero coupling between geometry math and visual XAML. | `LayoutDesigner.Core` compiles with 0 UI framework dependencies. |
+| **Maintainability** | Zero coupling between geometry math and visual XAML. | `LabScape.Core` compiles with 0 UI framework dependencies. |
 | **Performance** | $60\text{ FPS}$ continuous canvas navigation. | Spatial QuadTree viewport culling + transient adorner transforms. |
 | **Offline Reliability** | Zero runtime internet requirement. | Self-contained modular publication packaged into a single `Setup.exe`. |
 | **Enterprise Security** | Sensitive database credentials protected on disk. | Windows DPAPI machine-scope encryption (`ProtectedData.Protect`). |

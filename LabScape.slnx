@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/LabScape.App/LabScape.App.csproj" />
+    <Project Path="src/LabScape.Core/LabScape.Core.csproj" />
+    <Project Path="src/LabScape.Infrastructure/LabScape.Infrastructure.csproj" />
+    <Project Path="src/LabScape.ViewModels/LabScape.ViewModels.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/LabScape.Tests/LabScape.Tests.csproj" />
+  </Folder>
+</Solution>
