@@ -43,7 +43,6 @@ public class SelectionAdorner : Adorner
     private DragMode _activeDrag = DragMode.None;
     private Point _dragStartPoint;
     private Point _dragStartLocal;
-    private Point _itemCenterScreen;
     private double _initialAngleOffset;
     private double _initialX, _initialY, _initialW, _initialH, _initialRot;
     private double _initialCornerRadius, _initialInnerRadius;
@@ -87,15 +86,18 @@ public class SelectionAdorner : Adorner
     public override GeneralTransform GetDesiredTransform(GeneralTransform transform)
     {
         var group = new GeneralTransformGroup();
+
+        // 1. Rotate in local item space around item center (Width / 2, Height / 2)
+        if (Math.Abs(_item.Rotation) > 0.001)
+        {
+            group.Children.Add(new RotateTransform(_item.Rotation, _item.Width / 2.0, _item.Height / 2.0));
+        }
+
+        // 2. Translate to item canvas coordinates (X, Y)
         var baseTransform = base.GetDesiredTransform(transform);
         if (baseTransform != null)
         {
             group.Children.Add(baseTransform);
-        }
-
-        if (Math.Abs(_item.Rotation) > 0.001)
-        {
-            group.Children.Add(new RotateTransform(_item.Rotation, _item.Width / 2.0, _item.Height / 2.0));
         }
 
         return group;
@@ -168,9 +170,6 @@ public class SelectionAdorner : Adorner
         _dragStartPoint = PointToScreen(p);
         _dragStartLocal = p;
 
-        Point centerLocal = new(_initialW / 2.0, _initialH / 2.0);
-        _itemCenterScreen = PointToScreen(centerLocal);
-
         // Check special handles first
         if (_item is ShapeItemViewModel shape)
         {
@@ -205,9 +204,9 @@ public class SelectionAdorner : Adorner
         if (IsHit(p, new Point(w / 2, -20), HandleSize))
         {
             _activeDrag = DragMode.Rotate;
-            Point clickScreen = PointToScreen(p);
-            double clickDx = clickScreen.X - _itemCenterScreen.X;
-            double clickDy = clickScreen.Y - _itemCenterScreen.Y;
+            Point mouseInAdorned = e.GetPosition(AdornedElement);
+            double clickDx = mouseInAdorned.X - (w / 2.0);
+            double clickDy = mouseInAdorned.Y - (h / 2.0);
             double clickAngleRad = Math.Atan2(clickDy, clickDx);
             double clickAngleDeg = (clickAngleRad * 180.0 / Math.PI) + 90.0;
             if (clickAngleDeg < 0) clickAngleDeg += 360.0;
@@ -371,9 +370,10 @@ public class SelectionAdorner : Adorner
 
             case DragMode.Rotate:
             {
-                // Calculate rotation angle relative to item center on screen
-                double dx = currentScreen.X - _itemCenterScreen.X;
-                double dy = currentScreen.Y - _itemCenterScreen.Y;
+                // Calculate rotation angle relative to item center in unrotated AdornedElement coordinates
+                Point mouseInAdorned = e.GetPosition(AdornedElement);
+                double dx = mouseInAdorned.X - (_initialW / 2.0);
+                double dy = mouseInAdorned.Y - (_initialH / 2.0);
                 double rad = Math.Atan2(dy, dx);
                 double deg = (rad * 180.0 / Math.PI) + 90.0;
                 if (deg < 0) deg += 360.0;
