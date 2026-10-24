@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 35" width="40" height="35">
+  <!-- Official Draw.io Stencil: Sink 2 -->
+  <rect x="0" y="0" width="40" height="35" rx="5.715" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+  <rect x="4" y="10" width="32" height="21" rx="7.145" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+  <ellipse cx="20" cy="19" rx="2.5" ry="2.5" fill="#000000" stroke="#374151" stroke-width="1.5"/>
+  <rect x="undefined" y="undefined" width="undefined" height="undefined" fill="#000000" stroke="#374151" stroke-width="1.5"/>
+  <rect x="18" y="3" width="4" height="16" rx="25" fill="#000000" stroke="#374151" stroke-width="1.5"/>
+  <rect x="18" y="3" width="4" height="11" rx="25" fill="#000000" stroke="#374151" stroke-width="1.5"/>
+</svg>

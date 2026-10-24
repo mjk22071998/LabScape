@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 80" width="90" height="80">
+  <!-- Official Draw.io Stencil: Sofa -->
+  <rect x="10" y="10" width="70" height="10" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+  <rect x="0" y="0" width="15" height="80" rx="10" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+  <rect x="15" y="0" width="60" height="15" rx="10" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+  <rect x="15" y="15" width="60" height="65" rx="2.5" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+  <rect x="75" y="0" width="15" height="80" rx="10" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+</svg>

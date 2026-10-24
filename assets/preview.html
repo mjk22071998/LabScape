@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Layout Designer Stencils Preview</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 40px;
+      margin: 0;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    h2 {
+      font-size: 18px;
+      color: #38bdf8;
+      margin-top: 36px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 8px;
+    }
+    p {
+      color: #94a3b8;
+      margin-bottom: 24px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: #3b82f6;
+    }
+    .preview-box {
+      width: 180px;
+      height: 140px;
+      background: #ffffff;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .desc {
+      font-size: 12px;
+      color: #94a3b8;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .tag {
+      font-size: 11px;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Layout Designer Stencil Catalog</h1>
+  <p>Standardized top-down (orthographic CAD) vectors for WPF Canvas and HTML5 Web Viewer.</p>
+
+  <h2>1. Primary Stencils (Updated with Tilted Laptop, Opposing 8-Seater Table & Desk)</h2>
+  <div class="grid">
+    <!-- Desktop PC -->
+    <div class="card">
+      <div class="preview-box">
+        <img src="stencils/desktop_pc.svg" width="90" height="90" alt="Desktop PC">
+      </div>
+      <div class="title">Desktop PC</div>
+      <div class="desc">Monitor, keyboard, mouse & tower</div>
+      <span class="tag">IT Hardware</span>
+    </div>
+
+    <!-- Laptop with Tilted Back Screen -->
+    <div class="card">
+      <div class="preview-box">
+        <img src="stencils/laptop.svg" width="90" height="90" alt="Laptop Tilted Screen">
+      </div>
+      <div class="title">Laptop (Tilted Screen)</div>
+      <div class="desc">Display angled backward with bevel</div>
+      <span class="tag">IT Hardware</span>
+    </div>
+
+    <!-- Server Rack -->
+    <div class="card">
+      <div class="preview-box">
+        <img src="stencils/server_rack.svg" width="90" height="90" alt="Server Rack">
+      </div>
+      <div class="title">Server Rack (19")</div>
+      <div class="desc">Cabinet with rails & unit slots</div>
+      <span class="tag">Infrastructure</span>
+    </div>
+
+    <!-- Standard Office Desk -->
+    <div class="card">
+      <div class="preview-box" style="width: 220px;">
+        <img src="stencils/desk.svg" width="160" height="90" alt="Office Desk">
+      </div>
+      <div class="title">Standard Office Desk</div>
+      <div class="desc">Desktop, drawer pedestal & grommet</div>
+      <span class="tag">Furniture</span>
+    </div>
+
+    <!-- Office Swivel Chair -->
+    <div class="card">
+      <div class="preview-box">
+        <img src="stencils/office_chair.svg" width="90" height="90" alt="Office Swivel Chair">
+      </div>
+      <div class="title">Office Swivel Chair</div>
+      <div class="desc">5-star castor base with armrests</div>
+      <span class="tag">Furniture</span>
+    </div>
+
+    <!-- Conference Table 8-Seater (Opposing Rows, No Adjacent/End Chairs) -->
+    <div class="card">
+      <div class="preview-box" style="width: 220px;">
+        <img src="stencils/conference_table_8.svg" width="200" height="90" alt="Conference Table 8-Seater">
+      </div>
+      <div class="title">Conference Table (8-Seater)</div>
+      <div class="desc">4 top + 4 bottom (no adjacent end chairs)</div>
+      <span class="tag">Furniture</span>
+    </div>
+
+    <!-- 3-Seater Sofa -->
+    <div class="card">
+      <div class="preview-box" style="width: 220px;">
+        <img src="stencils/sofa_3_seater.svg" width="160" height="80" alt="3-Seater Sofa">
+      </div>
+      <div class="title">Sofa (3-Seater)</div>
+      <div class="desc">Deep backrest with 3 cushions</div>
+      <span class="tag">Furniture</span>
+    </div>
+  </div>
+
+  <h2>2. Official Draw.io Stencil Library (Downloaded & Extracted)</h2>
+  <p>Over 100 vector shapes downloaded directly from the official diagrams.net repository, available in <code>assets/stencils/drawio/</code>:</p>
+  <div class="grid">
+    <div class="card">
+      <div class="preview-box">
+        <img src="stencils/drawio/workstation.svg" width="80" height="80" alt="Drawio Workstation">
+      </div>
+      <div class="title">Draw.io Workstation</div>
+      <span class="tag">Draw.io Native</span>
+    </div>
+    <div class="card">
+      <div class="preview-box">
+        <img src="stencils/drawio/desk_corner.svg" width="80" height="80" alt="Drawio Desk Corner">
+      </div>
+      <div class="title">Draw.io Corner Desk</div>
+      <span class="tag">Draw.io Native</span>
+    </div>
+    <div class="card">
+      <div class="preview-box">
+        <img src="stencils/drawio/office_chair.svg" width="80" height="80" alt="Drawio Office Chair">
+      </div>
+      <div class="title">Draw.io Office Chair</div>
+      <span class="tag">Draw.io Native</span>
+    </div>
+    <div class="card">
+      <div class="preview-box">
+        <img src="stencils/drawio/table.svg" width="80" height="80" alt="Drawio Table">
+      </div>
+      <div class="title">Draw.io Table</div>
+      <span class="tag">Draw.io Native</span>
+    </div>
+  </div>
+</body>
+</html>

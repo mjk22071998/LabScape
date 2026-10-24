@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 634.5" width="180" height="634.5">
+  <!-- Official Draw.io Stencil: 40U Rack 19 Standard -->
+  <rect x="0" y="0" width="180" height="634.5" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+  <rect x="0" y="0" width="180" height="20.99" fill="frameColor" stroke="#000000" stroke-width="1.5"/>
+  <rect x="0" y="613.51" width="180" height="20.99" fill="frameColor" stroke="#000000" stroke-width="1.5"/>
+  <rect x="0" y="20.99" width="9" height="592.51" fill="frameColor" stroke="#000000" stroke-width="1.5"/>
+  <rect x="171" y="20.99" width="9" height="592.51" fill="frameColor" stroke="#000000" stroke-width="1.5"/>
+  <ellipse cx="5.67" cy="10.66" rx="3" ry="3" fill="frameColor" stroke="#000000" stroke-width="1.5"/>
+  <ellipse cx="173.67" cy="10.66" rx="3" ry="3" fill="frameColor" stroke="#000000" stroke-width="1.5"/>
+  <ellipse cx="173.67" cy="624.17" rx="3" ry="3" fill="frameColor" stroke="#000000" stroke-width="1.5"/>
+  <ellipse cx="5.67" cy="624.17" rx="3" ry="3" fill="frameColor" stroke="#000000" stroke-width="1.5"/>
+</svg>

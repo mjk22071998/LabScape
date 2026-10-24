@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
+  <!-- Official Draw.io Stencil: Water Cooler -->
+  <rect x="0" y="0" width="40" height="40" rx="3.75" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+  <ellipse cx="20" cy="20" rx="18" ry="18" fill="#eeeeee" stroke="#374151" stroke-width="1.5"/>
+  <ellipse cx="20" cy="20" rx="3" ry="3" fill="#eeeeee" stroke="#374151" stroke-width="1.5"/>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 65" width="60" height="65">
+  <!-- Official Draw.io Stencil: Washing Machine -->
+  <rect x="0.5" y="0.5" width="59" height="59" rx="0.144" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+  <path d="M 15 15 L 20 40 L 40 40 L 45 15" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+  <path d="M 17.5 27.5 C 21.23 24.23 24.62 24.29 30 27.5 C 35.66 30.88 38.7 30.79 42.5 27.5" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+  <path d="M 45 60 C 45 61.38 44.44 62.62 43.53 63.53 C 42.62 64.44 41.38 65 40 65 L 20 65 C 17.25 65 15 62.75 15 60 L 45 60 Z" fill="strokeColor" stroke="#374151" stroke-width="1.5"/>
+</svg>

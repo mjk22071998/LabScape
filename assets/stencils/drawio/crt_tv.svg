@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 40" width="60" height="40">
+  <!-- Official Draw.io Stencil: CRT TV -->
+  <path d="M 0 40 L 60 40 L 60 35 L 50.6 5 A 8 8 0 0 0 45 0 L 15 0 A 8 8 0 0 0 8.8 5 L 0 35 Z" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+  <path d="M 24 5.6 L 24 23 M 27 5.6 L 27 23 M 30 5.6 L 30 23 M 36 5.6 L 36 23 M 33 5.6 L 33 23 M 60 35 A 10 10 0 0 0 50 25 L 10 25 A 10 10 0 0 0 0 35 Z" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+</svg>

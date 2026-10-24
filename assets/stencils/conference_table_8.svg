@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 100" width="220" height="100">
+  <!-- Conference Table 8-Seater (4 Top, 4 Bottom - No Adjacent/End Chairs) -->
+  
+  <!-- 8 Chairs (Opposing Rows: 4 Top, 4 Bottom) -->
+  <g fill="#D1D5DB" stroke="#4B5563" stroke-width="1.5">
+    <!-- Top Row (4 Chairs) -->
+    <!-- Chair 1 -->
+    <path d="M 40 14 A 9 9 0 0 1 56 14 L 56 18 A 9 9 0 0 1 40 18 Z"/>
+    <path d="M 38 12 Q 48 7 58 12" fill="none" stroke="#374151" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Chair 2 -->
+    <path d="M 80 14 A 9 9 0 0 1 96 14 L 96 18 A 9 9 0 0 1 80 18 Z"/>
+    <path d="M 78 12 Q 88 7 98 12" fill="none" stroke="#374151" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Chair 3 -->
+    <path d="M 120 14 A 9 9 0 0 1 136 14 L 136 18 A 9 9 0 0 1 120 18 Z"/>
+    <path d="M 118 12 Q 128 7 138 12" fill="none" stroke="#374151" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Chair 4 -->
+    <path d="M 160 14 A 9 9 0 0 1 176 14 L 176 18 A 9 9 0 0 1 160 18 Z"/>
+    <path d="M 158 12 Q 168 7 178 12" fill="none" stroke="#374151" stroke-width="2.5" stroke-linecap="round"/>
+
+    <!-- Bottom Row (4 Chairs) -->
+    <!-- Chair 5 -->
+    <path d="M 40 82 A 9 9 0 0 0 56 82 L 56 86 A 9 9 0 0 0 40 86 Z"/>
+    <path d="M 38 88 Q 48 93 58 88" fill="none" stroke="#374151" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Chair 6 -->
+    <path d="M 80 82 A 9 9 0 0 0 96 82 L 96 86 A 9 9 0 0 0 80 86 Z"/>
+    <path d="M 78 88 Q 88 93 98 88" fill="none" stroke="#374151" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Chair 7 -->
+    <path d="M 120 82 A 9 9 0 0 0 136 82 L 136 86 A 9 9 0 0 0 120 86 Z"/>
+    <path d="M 118 88 Q 128 93 138 88" fill="none" stroke="#374151" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Chair 8 -->
+    <path d="M 160 82 A 9 9 0 0 0 176 82 L 176 86 A 9 9 0 0 0 160 86 Z"/>
+    <path d="M 158 88 Q 168 93 178 88" fill="none" stroke="#374151" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- Table Surface (Clean Boardroom Table without End Chairs) -->
+  <rect x="24" y="22" width="172" height="56" rx="14" fill="#F3F4F6" stroke="#374151" stroke-width="2.5"/>
+  
+  <!-- Center AV / Connectivity Module -->
+  <rect x="90" y="44" width="40" height="12" rx="3" fill="#E5E7EB" stroke="#6B7280" stroke-width="1.5"/>
+  <circle cx="100" cy="50" r="2" fill="#3B82F6"/>
+  <circle cx="110" cy="50" r="2" fill="#10B981"/>
+  <circle cx="120" cy="50" r="2" fill="#374151"/>
+</svg>

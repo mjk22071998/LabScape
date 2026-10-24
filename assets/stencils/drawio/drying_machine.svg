@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 65" width="60" height="65">
+  <!-- Official Draw.io Stencil: Drying Machine -->
+  <rect x="0.5" y="0.5" width="59" height="59" rx="0.144" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+  <rect x="15" y="12.5" width="30" height="30" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+  <path d="M 20 27.5 L 40 27.5" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+  <path d="M 45 60 C 45 61.38 44.44 62.62 43.53 63.53 C 42.62 64.44 41.38 65 40 65 L 20 65 C 17.25 65 15 62.75 15 60 L 45 60 Z" fill="strokeColor" stroke="#374151" stroke-width="1.5"/>
+</svg>

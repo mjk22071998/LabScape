@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 50" width="90" height="50">
+  <!-- Official Draw.io Stencil: Table -->
+  <rect x="0" y="0" width="90" height="50" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+  <rect x="0" y="0" width="10" height="7" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+  <rect x="0" y="43" width="10" height="7" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+  <rect x="80" y="0" width="10" height="7" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+  <rect x="80" y="43" width="10" height="7" fill="#E5E7EB" stroke="#374151" stroke-width="1.5"/>
+</svg>
