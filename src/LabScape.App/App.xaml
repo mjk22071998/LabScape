@@ -1,4 +1,4 @@
-﻿<Application x:Class="LabScape.App.App"
+<Application x:Class="LabScape.App.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:converters="clr-namespace:LabScape.App.Converters"
@@ -19,6 +19,7 @@
             <converters:FurnitureTypeToImageConverter x:Key="FurnitureTypeToImageConverter"/>
             <converters:ShapeToGeometryConverter x:Key="ShapeToGeometryConverter"/>
             <converters:ResourceKeyToImageConverter x:Key="ResourceKeyToImageConverter"/>
+            <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
