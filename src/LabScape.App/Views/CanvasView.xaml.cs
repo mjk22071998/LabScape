@@ -1,7 +1,8 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Shapes;
 using LabScape.App.Adorners;
 using LabScape.ViewModels;
 using LabScape.ViewModels.Items;
@@ -19,8 +20,14 @@ public partial class CanvasView : UserControl
     private Point _itemDragStart;
     private readonly Dictionary<ItemViewModel, Point> _initialItemPositions = new();
 
+    // Marquee / Rubberband selection state
+    private bool _isSelectingMarquee;
+    private Point _marqueeStart;
+
     private SelectionAdorner? _currentAdorner;
     private FrameworkElement? _adornedElement;
+
+    private const double SnapTolerance = 6.0;
 
     public CanvasView()
     {
@@ -42,6 +49,7 @@ public partial class CanvasView : UserControl
     {
         Focus();
 
+        // 1. Middle-drag or Space + Left-drag: Viewport Panning
         if (e.MiddleButton == MouseButtonState.Pressed ||
             (Keyboard.IsKeyDown(Key.Space) && e.LeftButton == MouseButtonState.Pressed))
         {
@@ -58,10 +66,26 @@ public partial class CanvasView : UserControl
             return;
         }
 
-        if (e.LeftButton == MouseButtonState.Pressed && e.OriginalSource == sender)
+        // 2. Left-click on empty canvas surface: Clear selection or start Marquee Rubberband selection
+        if (e.LeftButton == MouseButtonState.Pressed && (e.OriginalSource == sender || e.OriginalSource == CanvasSurface))
         {
-            // Clicked empty canvas space
-            ViewModel?.ClearSelection();
+            bool isCtrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
+            if (!isCtrl)
+            {
+                ViewModel?.ClearSelection();
+            }
+
+            _isSelectingMarquee = true;
+            _marqueeStart = e.GetPosition(CanvasSurface);
+
+            Canvas.SetLeft(RubberbandRect, _marqueeStart.X);
+            Canvas.SetTop(RubberbandRect, _marqueeStart.Y);
+            RubberbandRect.Width = 0;
+            RubberbandRect.Height = 0;
+            RubberbandRect.Visibility = Visibility.Visible;
+
+            Mouse.Capture((IInputElement)sender);
+            e.Handled = true;
         }
     }
 
@@ -74,6 +98,7 @@ public partial class CanvasView : UserControl
             ViewModel.CursorY = Math.Round(canvasPos.Y);
         }
 
+        // 1. Pan Viewport
         if (_isPanning && ViewModel != null)
         {
             Point current = e.GetPosition(this);
@@ -82,26 +107,142 @@ public partial class CanvasView : UserControl
             return;
         }
 
-        if (_isDraggingItem && ViewModel != null)
+        // 2. Marquee Selection
+        if (_isSelectingMarquee)
         {
-            double deltaX = (canvasPos.X - _itemDragStart.X);
-            double deltaY = (canvasPos.Y - _itemDragStart.Y);
+            double x = Math.Min(_marqueeStart.X, canvasPos.X);
+            double y = Math.Min(_marqueeStart.Y, canvasPos.Y);
+            double w = Math.Abs(canvasPos.X - _marqueeStart.X);
+            double h = Math.Abs(canvasPos.Y - _marqueeStart.Y);
+
+            Canvas.SetLeft(RubberbandRect, x);
+            Canvas.SetTop(RubberbandRect, y);
+            RubberbandRect.Width = w;
+            RubberbandRect.Height = h;
+            return;
+        }
+
+        // 3. Dragging Items with Smart Magnetic Alignment Guides
+        if (_isDraggingItem && ViewModel != null && _initialItemPositions.Count > 0)
+        {
+            double deltaX = canvasPos.X - _itemDragStart.X;
+            double deltaY = canvasPos.Y - _itemDragStart.Y;
+
+            // Pick the primary dragged item for alignment snapping
+            var primary = _initialItemPositions.Keys.First();
+            var primaryStart = _initialItemPositions[primary];
+
+            double targetPrimaryX = primaryStart.X + deltaX;
+            double targetPrimaryY = primaryStart.Y + deltaY;
+
+            // Standard Snap to Grid
+            if (ViewModel.SnapToGrid)
+            {
+                targetPrimaryX = Math.Round(targetPrimaryX / ViewModel.GridSize) * ViewModel.GridSize;
+                targetPrimaryY = Math.Round(targetPrimaryY / ViewModel.GridSize) * ViewModel.GridSize;
+            }
+
+            // Magnetic Alignment Snapping against other canvas items
+            var otherItems = ViewModel.Items.Where(i => !_initialItemPositions.ContainsKey(i)).ToList();
+            bool snapXFound = false;
+            bool snapYFound = false;
+
+            double pLeft = targetPrimaryX;
+            double pCenter = targetPrimaryX + primary.Width / 2.0;
+            double pRight = targetPrimaryX + primary.Width;
+
+            double pTop = targetPrimaryY;
+            double pMiddle = targetPrimaryY + primary.Height / 2.0;
+            double pBottom = targetPrimaryY + primary.Height;
+
+            foreach (var other in otherItems)
+            {
+                double oLeft = other.X;
+                double oCenter = other.X + other.Width / 2.0;
+                double oRight = other.X + other.Width;
+
+                // X-axis alignment snaps
+                if (!snapXFound)
+                {
+                    if (Math.Abs(pLeft - oLeft) <= SnapTolerance)
+                    {
+                        targetPrimaryX = oLeft;
+                        ShowVerticalGuide(oLeft, Math.Min(targetPrimaryY, other.Y), Math.Max(pBottom, other.Y + other.Height));
+                        snapXFound = true;
+                    }
+                    else if (Math.Abs(pCenter - oCenter) <= SnapTolerance)
+                    {
+                        targetPrimaryX = oCenter - primary.Width / 2.0;
+                        ShowVerticalGuide(oCenter, Math.Min(targetPrimaryY, other.Y), Math.Max(pBottom, other.Y + other.Height));
+                        snapXFound = true;
+                    }
+                    else if (Math.Abs(pRight - oRight) <= SnapTolerance)
+                    {
+                        targetPrimaryX = oRight - primary.Width;
+                        ShowVerticalGuide(oRight, Math.Min(targetPrimaryY, other.Y), Math.Max(pBottom, other.Y + other.Height));
+                        snapXFound = true;
+                    }
+                }
+
+                // Y-axis alignment snaps
+                double oTop = other.Y;
+                double oMiddle = other.Y + other.Height / 2.0;
+                double oBottom = other.Y + other.Height;
+
+                if (!snapYFound)
+                {
+                    if (Math.Abs(pTop - oTop) <= SnapTolerance)
+                    {
+                        targetPrimaryY = oTop;
+                        ShowHorizontalGuide(oTop, Math.Min(targetPrimaryX, other.X), Math.Max(pRight, other.X + other.Width));
+                        snapYFound = true;
+                    }
+                    else if (Math.Abs(pMiddle - oMiddle) <= SnapTolerance)
+                    {
+                        targetPrimaryY = oMiddle - primary.Height / 2.0;
+                        ShowHorizontalGuide(oMiddle, Math.Min(targetPrimaryX, other.X), Math.Max(pRight, other.X + other.Width));
+                        snapYFound = true;
+                    }
+                    else if (Math.Abs(pBottom - oBottom) <= SnapTolerance)
+                    {
+                        targetPrimaryY = oBottom - primary.Height;
+                        ShowHorizontalGuide(oBottom, Math.Min(targetPrimaryX, other.X), Math.Max(pRight, other.X + other.Width));
+                        snapYFound = true;
+                    }
+                }
+            }
+
+            if (!snapXFound) SnapGuideVertical.Visibility = Visibility.Collapsed;
+            if (!snapYFound) SnapGuideHorizontal.Visibility = Visibility.Collapsed;
+
+            // Apply calculated offset to all selected items
+            double finalDeltaX = targetPrimaryX - primaryStart.X;
+            double finalDeltaY = targetPrimaryY - primaryStart.Y;
 
             foreach (var (item, startPos) in _initialItemPositions)
             {
-                double targetX = startPos.X + deltaX;
-                double targetY = startPos.Y + deltaY;
-
-                if (ViewModel.SnapToGrid)
-                {
-                    targetX = Math.Round(targetX / ViewModel.GridSize) * ViewModel.GridSize;
-                    targetY = Math.Round(targetY / ViewModel.GridSize) * ViewModel.GridSize;
-                }
-
-                item.X = Math.Max(0, targetX);
-                item.Y = Math.Max(0, targetY);
+                item.X = Math.Max(0, startPos.X + finalDeltaX);
+                item.Y = Math.Max(0, startPos.Y + finalDeltaY);
             }
         }
+    }
+
+    private void ShowVerticalGuide(double x, double y1, double y2)
+    {
+        SnapGuideVertical.X1 = x;
+        SnapGuideVertical.Y1 = Math.Max(0, y1 - 20);
+        SnapGuideVertical.X2 = x;
+        SnapGuideVertical.Y2 = y2 + 20;
+        SnapGuideVertical.Visibility = Visibility.Visible;
+    }
+
+    private void ShowHorizontalGuide(double y, double x1, double x2)
+    {
+        SnapGuideHorizontal.X1 = Math.Max(0, x1 - 20);
+        SnapGuideHorizontal.Y1 = y;
+        SnapGuideHorizontal.X2 = x2 + 20;
+        SnapGuideHorizontal.Y2 = y;
+        SnapGuideHorizontal.Visibility = Visibility.Visible;
     }
 
     private void Viewport_MouseUp(object sender, MouseButtonEventArgs e)
@@ -113,10 +254,43 @@ public partial class CanvasView : UserControl
             Cursor = Cursors.Arrow;
         }
 
-        if (_isDraggingItem)
+        if (_isSelectingMarquee && ViewModel != null)
+        {
+            _isSelectingMarquee = false;
+            Mouse.Capture(null);
+            RubberbandRect.Visibility = Visibility.Collapsed;
+
+            double mx = Canvas.GetLeft(RubberbandRect);
+            double my = Canvas.GetTop(RubberbandRect);
+            double mw = RubberbandRect.Width;
+            double mh = RubberbandRect.Height;
+
+            if (mw > 4 && mh > 4)
+            {
+                Rect marquee = new(mx, my, mw, mh);
+                var matched = ViewModel.Items.Where(itm =>
+                {
+                    Rect itemRect = new(itm.X, itm.Y, itm.Width, itm.Height);
+                    return marquee.IntersectsWith(itemRect);
+                }).ToList();
+
+                if (matched.Count > 0)
+                {
+                    ViewModel.SetSelection(matched);
+                }
+            }
+        }
+
+        if (_isDraggingItem && ViewModel != null)
         {
             _isDraggingItem = false;
             Mouse.Capture(null);
+            SnapGuideVertical.Visibility = Visibility.Collapsed;
+            SnapGuideHorizontal.Visibility = Visibility.Collapsed;
+
+            // Commit atomic undoable Move Command
+            var moves = _initialItemPositions.Select(kv => (kv.Key, kv.Value.X, kv.Value.Y, kv.Key.X, kv.Key.Y)).ToList();
+            ViewModel.CommitItemMoves(moves);
             _initialItemPositions.Clear();
         }
     }
@@ -134,8 +308,7 @@ public partial class CanvasView : UserControl
 
         if (Math.Abs(newZoom - oldZoom) > 0.001)
         {
-            // Zoom centering at cursor:
-            // mouseScreen = mouseCanvas * newZoom + pan
+            // Zoom centering invariant: mouseScreen = mouseCanvas * newZoom + pan
             ViewModel.PanX = mouseScreen.X - mouseCanvas.X * newZoom;
             ViewModel.PanY = mouseScreen.Y - mouseCanvas.Y * newZoom;
             ViewModel.ZoomLevel = newZoom;
@@ -166,7 +339,7 @@ public partial class CanvasView : UserControl
             }
         }
 
-        // Start Dragging
+        // Start Dragging items
         _isDraggingItem = true;
         _itemDragStart = e.GetPosition(CanvasSurface);
         _initialItemPositions.Clear();
@@ -186,7 +359,7 @@ public partial class CanvasView : UserControl
         if (ViewModel == null || ViewModel.SelectedItems.Count != 1) return;
         var selectedItem = ViewModel.SelectedItems[0];
 
-        // Find visual element
+        // Find visual element container
         var presenter = ItemsHost.ItemContainerGenerator.ContainerFromItem(selectedItem) as FrameworkElement;
         if (presenter == null) return;
 
@@ -194,7 +367,7 @@ public partial class CanvasView : UserControl
         if (layer != null)
         {
             _adornedElement = presenter;
-            _currentAdorner = new SelectionAdorner(presenter, selectedItem, () =>
+            _currentAdorner = new SelectionAdorner(presenter, selectedItem, ViewModel.UndoRedoService, () =>
             {
                 if (selectedItem is GroupItemViewModel grp) grp.RecalculateBounds();
             });
@@ -218,19 +391,55 @@ public partial class CanvasView : UserControl
         if (e.Data.GetDataPresent(typeof(StencilItem)))
         {
             e.Effects = DragDropEffects.Copy;
+
+            if (e.Data.GetData(typeof(StencilItem)) is StencilItem stencil)
+            {
+                Point p = e.GetPosition(CanvasSurface);
+                double gx = Math.Max(0, p.X - stencil.DefaultWidth / 2.0);
+                double gy = Math.Max(0, p.Y - stencil.DefaultHeight / 2.0);
+
+                if (ViewModel?.SnapToGrid == true)
+                {
+                    gx = Math.Round(gx / ViewModel.GridSize) * ViewModel.GridSize;
+                    gy = Math.Round(gy / ViewModel.GridSize) * ViewModel.GridSize;
+                }
+
+                Canvas.SetLeft(DragGhost, gx);
+                Canvas.SetTop(DragGhost, gy);
+                DragGhost.Width = stencil.DefaultWidth;
+                DragGhost.Height = stencil.DefaultHeight;
+                DragGhost.Visibility = Visibility.Visible;
+            }
+
             e.Handled = true;
         }
     }
 
+    private void Viewport_DragLeave(object sender, DragEventArgs e)
+    {
+        DragGhost.Visibility = Visibility.Collapsed;
+    }
+
     private void Viewport_Drop(object sender, DragEventArgs e)
     {
+        DragGhost.Visibility = Visibility.Collapsed;
+
         if (ViewModel == null) return;
         if (e.Data.GetData(typeof(StencilItem)) is StencilItem stencil)
         {
             Point p = e.GetPosition(CanvasSurface);
             var newItem = stencil.CreateItem();
-            newItem.X = Math.Max(0, p.X - newItem.Width / 2.0);
-            newItem.Y = Math.Max(0, p.Y - newItem.Height / 2.0);
+            double dropX = Math.Max(0, p.X - newItem.Width / 2.0);
+            double dropY = Math.Max(0, p.Y - newItem.Height / 2.0);
+
+            if (ViewModel.SnapToGrid)
+            {
+                dropX = Math.Round(dropX / ViewModel.GridSize) * ViewModel.GridSize;
+                dropY = Math.Round(dropY / ViewModel.GridSize) * ViewModel.GridSize;
+            }
+
+            newItem.X = dropX;
+            newItem.Y = dropY;
             ViewModel.AddItem(newItem);
             e.Handled = true;
         }

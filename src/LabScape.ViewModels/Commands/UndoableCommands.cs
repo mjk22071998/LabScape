@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using LabScape.Core.Interfaces;
 using LabScape.ViewModels.Items;
 
@@ -93,5 +93,51 @@ public class MoveItemsCommand : IUndoableCommand
             m.Item.X = m.OldX;
             m.Item.Y = m.OldY;
         }
+    }
+}
+
+public class TransformItemCommand : IUndoableCommand
+{
+    private readonly ItemViewModel _item;
+    private readonly double _oldX, _oldY, _oldW, _oldH, _oldRot;
+    private readonly double _newX, _newY, _newW, _newH, _newRot;
+
+    public string Description => $"Transform {_item.Name}";
+
+    public TransformItemCommand(
+        ItemViewModel item,
+        double oldX, double oldY, double oldW, double oldH, double oldRot,
+        double newX, double newY, double newW, double newH, double newRot)
+    {
+        _item = item;
+        _oldX = oldX;
+        _oldY = oldY;
+        _oldW = oldW;
+        _oldH = oldH;
+        _oldRot = oldRot;
+
+        _newX = newX;
+        _newY = newY;
+        _newW = newW;
+        _newH = newH;
+        _newRot = newRot;
+    }
+
+    public void Execute()
+    {
+        _item.X = _newX;
+        _item.Y = _newY;
+        _item.Width = _newW;
+        _item.Height = _newH;
+        _item.Rotation = _newRot;
+    }
+
+    public void Unexecute()
+    {
+        _item.X = _oldX;
+        _item.Y = _oldY;
+        _item.Width = _oldW;
+        _item.Height = _oldH;
+        _item.Rotation = _oldRot;
     }
 }

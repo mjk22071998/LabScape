@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -73,6 +73,8 @@ public class DeviceTypeToImageConverter : IValueConverter
         {
             "laptop" => "Stencil_Laptop",
             "server_rack" => "Stencil_ServerRack",
+            "switch" => "Stencil_NetworkSwitch",
+            "printer" => "Stencil_Printer",
             _ => "Stencil_DesktopPC"
         };
 
@@ -95,6 +97,8 @@ public class FurnitureTypeToImageConverter : IValueConverter
             "office_chair" => "Stencil_OfficeChair",
             "conference_table_8" => "Stencil_ConferenceTable8",
             "sofa_3_seater" => "Stencil_Sofa3Seater",
+            "bookcase" => "Stencil_Bookcase",
+            "plant" => "Stencil_Plant",
             _ => "Stencil_Desk"
         };
 

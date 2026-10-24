@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LabScape.Core.Enums;
@@ -48,10 +48,22 @@ public partial class CanvasViewModel : ObservableObject
     [ObservableProperty]
     private double _cursorY = 0;
 
+    public IUndoRedoService UndoRedoService => _undoRedoService;
+
     public CanvasViewModel(IUndoRedoService undoRedoService)
     {
         _undoRedoService = undoRedoService;
         Items.CollectionChanged += (s, e) => RecalculateValidation();
+    }
+
+    public void CommitItemMoves(List<(ItemViewModel Item, double OldX, double OldY, double NewX, double NewY)> moves)
+    {
+        if (moves.Count == 0) return;
+        var significantMoves = moves.Where(m => Math.Abs(m.OldX - m.NewX) > 0.1 || Math.Abs(m.OldY - m.NewY) > 0.1).ToList();
+        if (significantMoves.Count > 0)
+        {
+            _undoRedoService.ExecuteCommand(new MoveItemsCommand(significantMoves));
+        }
     }
 
     public void AddItem(ItemViewModel item)

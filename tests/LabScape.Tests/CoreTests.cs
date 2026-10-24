@@ -1,4 +1,4 @@
-﻿using LabScape.Core.Enums;
+using LabScape.Core.Enums;
 using LabScape.Core.Models;
 using LabScape.Infrastructure.Services;
 using LabScape.ViewModels;
@@ -244,5 +244,75 @@ public class CoreTests
         canvas.SelectItem(itemA);
         canvas.BringToFront();
         Assert.True(itemA.Z > itemB.Z);
+    }
+
+    [Fact]
+    public void TransformItemCommand_UndoRedo_RestoresAllDimensionsAndRotation()
+    {
+        var undoService = new UndoRedoService();
+        var item = new ShapeItemViewModel(new ShapeItem
+        {
+            Name = "Rect1",
+            X = 20,
+            Y = 30,
+            Width = 100,
+            Height = 80,
+            Rotation = 0
+        });
+
+        // Create transform command: resizing and rotating
+        var cmd = new LabScape.ViewModels.Commands.TransformItemCommand(
+            item,
+            oldX: 20, oldY: 30, oldW: 100, oldH: 80, oldRot: 0,
+            newX: 50, newY: 60, newW: 200, newH: 150, newRot: 45.0);
+
+        undoService.ExecuteCommand(cmd);
+        Assert.Equal(50, item.X);
+        Assert.Equal(60, item.Y);
+        Assert.Equal(200, item.Width);
+        Assert.Equal(150, item.Height);
+        Assert.Equal(45.0, item.Rotation);
+
+        // Undo
+        undoService.Undo();
+        Assert.Equal(20, item.X);
+        Assert.Equal(30, item.Y);
+        Assert.Equal(100, item.Width);
+        Assert.Equal(80, item.Height);
+        Assert.Equal(0, item.Rotation);
+
+        // Redo
+        undoService.Redo();
+        Assert.Equal(50, item.X);
+        Assert.Equal(60, item.Y);
+        Assert.Equal(200, item.Width);
+        Assert.Equal(150, item.Height);
+        Assert.Equal(45.0, item.Rotation);
+    }
+
+    [Fact]
+    public void StencilPalette_AllCatalogItemsInstantiateCorrectTypes()
+    {
+        var allStencils = LabScape.ViewModels.Stencils.StencilItem.GetAllStencils();
+        Assert.True(allStencils.Count >= 18, "Catalog must contain at least 18 stencils");
+
+        foreach (var stencil in allStencils)
+        {
+            var item = stencil.CreateItem();
+            Assert.NotNull(item);
+            Assert.NotEmpty(item.Name);
+            Assert.True(item.Width > 0);
+            Assert.True(item.Height > 0);
+
+            if (stencil.Category == "Devices")
+            {
+                Assert.True(item.ShowCanvasLabel, $"Device '{stencil.Title}' must show canvas label");
+                Assert.IsType<DeviceItemViewModel>(item);
+            }
+            else
+            {
+                Assert.False(item.ShowCanvasLabel, $"Non-device '{stencil.Title}' must NOT show canvas label");
+            }
+        }
     }
 }

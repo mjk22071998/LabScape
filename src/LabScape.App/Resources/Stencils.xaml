@@ -126,6 +126,59 @@
         </GeometryDrawing>
     </DrawingGroup>
 
+    <!-- Network Switch (100x50) -->
+    <DrawingGroup x:Key="Stencil_NetworkSwitch">
+        <GeometryDrawing Brush="#1F2937">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#111827" Thickness="2"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="5,10,90,30" RadiusX="3" RadiusY="3"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#374151">
+            <GeometryDrawing.Geometry>
+                <GeometryGroup>
+                    <RectangleGeometry Rect="12,18,10,6" RadiusX="1" RadiusY="1"/>
+                    <RectangleGeometry Rect="26,18,10,6" RadiusX="1" RadiusY="1"/>
+                    <RectangleGeometry Rect="40,18,10,6" RadiusX="1" RadiusY="1"/>
+                    <RectangleGeometry Rect="54,18,10,6" RadiusX="1" RadiusY="1"/>
+                    <RectangleGeometry Rect="68,18,10,6" RadiusX="1" RadiusY="1"/>
+                    <EllipseGeometry Center="84,21" RadiusX="2" RadiusY="2"/>
+                    <EllipseGeometry Center="89,21" RadiusX="2" RadiusY="2"/>
+                </GeometryGroup>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
+
+    <!-- Network Printer / Copier (80x80) -->
+    <DrawingGroup x:Key="Stencil_Printer">
+        <GeometryDrawing Brush="#E5E7EB">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#374151" Thickness="2"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="15,20,50,45" RadiusX="4" RadiusY="4"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#FFFFFF">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#9CA3AF" Thickness="1.5"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="25,10,30,15" RadiusX="2" RadiusY="2"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#374151">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#1F2937" Thickness="1"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="22,48,36,10" RadiusX="1" RadiusY="1"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
+
     <!-- ========================================== -->
     <!-- 2. FURNITURE STENCILS                      -->
     <!-- ========================================== -->
@@ -219,6 +272,60 @@
             </GeometryDrawing.Pen>
             <GeometryDrawing.Geometry>
                 <RectangleGeometry Rect="14,14,132,18" RadiusX="5" RadiusY="5"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
+
+    <!-- Office Bookcase (120x40) -->
+    <DrawingGroup x:Key="Stencil_Bookcase">
+        <GeometryDrawing Brush="#F3F4F6">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#374151" Thickness="2"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="5,5,110,30" RadiusX="2" RadiusY="2"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#9CA3AF">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#4B5563" Thickness="1"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <GeometryGroup>
+                    <RectangleGeometry Rect="10,8,12,24" RadiusX="1" RadiusY="1"/>
+                    <RectangleGeometry Rect="24,8,14,24" RadiusX="1" RadiusY="1"/>
+                    <RectangleGeometry Rect="40,8,10,24" RadiusX="1" RadiusY="1"/>
+                    <RectangleGeometry Rect="52,8,15,24" RadiusX="1" RadiusY="1"/>
+                    <RectangleGeometry Rect="69,8,11,24" RadiusX="1" RadiusY="1"/>
+                    <RectangleGeometry Rect="82,8,16,24" RadiusX="1" RadiusY="1"/>
+                    <RectangleGeometry Rect="100,8,10,24" RadiusX="1" RadiusY="1"/>
+                </GeometryGroup>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
+
+    <!-- Lab & Office Floor Plant (60x60) -->
+    <DrawingGroup x:Key="Stencil_Plant">
+        <GeometryDrawing Brush="#F3F4F6">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#374151" Thickness="2"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <EllipseGeometry Center="30,30" RadiusX="20" RadiusY="20"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#10B981">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#047857" Thickness="1.5"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <GeometryGroup>
+                    <EllipseGeometry Center="30,16" RadiusX="7" RadiusY="14"/>
+                    <EllipseGeometry Center="30,44" RadiusX="7" RadiusY="14"/>
+                    <EllipseGeometry Center="16,30" RadiusX="14" RadiusY="7"/>
+                    <EllipseGeometry Center="44,30" RadiusX="14" RadiusY="7"/>
+                    <EllipseGeometry Center="30,30" RadiusX="8" RadiusY="8"/>
+                </GeometryGroup>
             </GeometryDrawing.Geometry>
         </GeometryDrawing>
     </DrawingGroup>

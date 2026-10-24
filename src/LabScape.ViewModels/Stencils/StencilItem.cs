@@ -1,4 +1,4 @@
-﻿using LabScape.Core.Enums;
+using LabScape.Core.Enums;
 using LabScape.Core.Models;
 using LabScape.ViewModels.Items;
 
@@ -66,6 +66,38 @@ public class StencilItem
                     ValidationStatus = ValidationStatus.Unassigned
                 })
             },
+            new StencilItem
+            {
+                Category = "Devices",
+                Title = "Network Switch",
+                IconResourceKey = "Stencil_NetworkSwitch",
+                DefaultWidth = 90,
+                DefaultHeight = 45,
+                CreateItem = () => new DeviceItemViewModel(new DeviceItem
+                {
+                    Name = "Switch-01",
+                    DeviceType = "switch",
+                    Width = 90,
+                    Height = 45,
+                    ValidationStatus = ValidationStatus.Unassigned
+                })
+            },
+            new StencilItem
+            {
+                Category = "Devices",
+                Title = "Printer / Copier",
+                IconResourceKey = "Stencil_Printer",
+                DefaultWidth = 70,
+                DefaultHeight = 70,
+                CreateItem = () => new DeviceItemViewModel(new DeviceItem
+                {
+                    Name = "Printer-01",
+                    DeviceType = "printer",
+                    Width = 70,
+                    Height = 70,
+                    ValidationStatus = ValidationStatus.Unassigned
+                })
+            },
 
             // === 2. Furniture ===
             new StencilItem
@@ -126,6 +158,36 @@ public class StencilItem
                     FurnitureType = "sofa_3_seater",
                     Width = 160,
                     Height = 80
+                })
+            },
+            new StencilItem
+            {
+                Category = "Furniture",
+                Title = "Office Bookcase",
+                IconResourceKey = "Stencil_Bookcase",
+                DefaultWidth = 120,
+                DefaultHeight = 40,
+                CreateItem = () => new FurnitureItemViewModel(new FurnitureItem
+                {
+                    Name = "Bookcase",
+                    FurnitureType = "bookcase",
+                    Width = 120,
+                    Height = 40
+                })
+            },
+            new StencilItem
+            {
+                Category = "Furniture",
+                Title = "Floor Plant",
+                IconResourceKey = "Stencil_Plant",
+                DefaultWidth = 60,
+                DefaultHeight = 60,
+                CreateItem = () => new FurnitureItemViewModel(new FurnitureItem
+                {
+                    Name = "Plant",
+                    FurnitureType = "plant",
+                    Width = 60,
+                    Height = 60
                 })
             },
 
