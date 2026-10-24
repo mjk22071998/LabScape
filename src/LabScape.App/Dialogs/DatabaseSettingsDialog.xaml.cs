@@ -28,6 +28,7 @@ public partial class DatabaseSettingsDialog : Window
 
     private void UpdateFormState()
     {
+        if (ChkUseMock == null || TxtHost == null || TxtPort == null || TxtDatabase == null || TxtUsername == null || TxtPassword == null) return;
         bool useMock = ChkUseMock.IsChecked == true;
         TxtHost.IsEnabled = !useMock;
         TxtPort.IsEnabled = !useMock;

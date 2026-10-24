@@ -42,6 +42,9 @@ public class SelectionAdorner : Adorner
 
     private DragMode _activeDrag = DragMode.None;
     private Point _dragStartPoint;
+    private Point _dragStartLocal;
+    private Point _itemCenterScreen;
+    private double _initialAngleOffset;
     private double _initialX, _initialY, _initialW, _initialH, _initialRot;
     private double _initialCornerRadius, _initialInnerRadius;
 
@@ -62,6 +65,40 @@ public class SelectionAdorner : Adorner
         _undoRedoService = undoRedoService;
         _onModified = onModified;
         IsHitTestVisible = true;
+
+        _item.PropertyChanged += OnItemPropertyChanged;
+        Unloaded += (s, e) => _item.PropertyChanged -= OnItemPropertyChanged;
+    }
+
+    private void OnItemPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(ItemViewModel.Rotation) or nameof(ItemViewModel.Width) or nameof(ItemViewModel.Height) or nameof(ItemViewModel.X) or nameof(ItemViewModel.Y))
+        {
+            InvalidateAdorner();
+        }
+    }
+
+    public void InvalidateAdorner()
+    {
+        InvalidateVisual();
+        AdornerLayer.GetAdornerLayer(AdornedElement)?.Update(AdornedElement);
+    }
+
+    public override GeneralTransform GetDesiredTransform(GeneralTransform transform)
+    {
+        var group = new GeneralTransformGroup();
+        var baseTransform = base.GetDesiredTransform(transform);
+        if (baseTransform != null)
+        {
+            group.Children.Add(baseTransform);
+        }
+
+        if (Math.Abs(_item.Rotation) > 0.001)
+        {
+            group.Children.Add(new RotateTransform(_item.Rotation, _item.Width / 2.0, _item.Height / 2.0));
+        }
+
+        return group;
     }
 
     protected override void OnRender(DrawingContext dc)
@@ -129,6 +166,10 @@ public class SelectionAdorner : Adorner
         _initialH = _item.Height;
         _initialRot = _item.Rotation;
         _dragStartPoint = PointToScreen(p);
+        _dragStartLocal = p;
+
+        Point centerLocal = new(_initialW / 2.0, _initialH / 2.0);
+        _itemCenterScreen = PointToScreen(centerLocal);
 
         // Check special handles first
         if (_item is ShapeItemViewModel shape)
@@ -164,6 +205,14 @@ public class SelectionAdorner : Adorner
         if (IsHit(p, new Point(w / 2, -20), HandleSize))
         {
             _activeDrag = DragMode.Rotate;
+            Point clickScreen = PointToScreen(p);
+            double clickDx = clickScreen.X - _itemCenterScreen.X;
+            double clickDy = clickScreen.Y - _itemCenterScreen.Y;
+            double clickAngleRad = Math.Atan2(clickDy, clickDx);
+            double clickAngleDeg = (clickAngleRad * 180.0 / Math.PI) + 90.0;
+            if (clickAngleDeg < 0) clickAngleDeg += 360.0;
+
+            _initialAngleOffset = _initialRot - clickAngleDeg;
             CaptureMouse();
             e.Handled = true;
             return;
@@ -198,8 +247,8 @@ public class SelectionAdorner : Adorner
         }
 
         Point currentScreen = PointToScreen(currentLocal);
-        double deltaX = currentScreen.X - _dragStartPoint.X;
-        double deltaY = currentScreen.Y - _dragStartPoint.Y;
+        double deltaX = currentLocal.X - _dragStartLocal.X;
+        double deltaY = currentLocal.Y - _dragStartLocal.Y;
 
         bool shiftHeld = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
         bool altHeld = Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt);
@@ -322,19 +371,26 @@ public class SelectionAdorner : Adorner
 
             case DragMode.Rotate:
             {
-                // Calculate rotation angle relative to item center
-                Point center = new(_initialW / 2.0, _initialH / 2.0);
-                double rad = Math.Atan2(currentLocal.Y - center.Y, currentLocal.X - center.X);
+                // Calculate rotation angle relative to item center on screen
+                double dx = currentScreen.X - _itemCenterScreen.X;
+                double dy = currentScreen.Y - _itemCenterScreen.Y;
+                double rad = Math.Atan2(dy, dx);
                 double deg = (rad * 180.0 / Math.PI) + 90.0;
                 if (deg < 0) deg += 360.0;
+
+                double targetRot = deg + _initialAngleOffset;
+                while (targetRot < 0) targetRot += 360.0;
+                while (targetRot >= 360.0) targetRot -= 360.0;
 
                 // Shift key snaps to 15-degree steps
                 if (shiftHeld)
                 {
-                    deg = Math.Round(deg / 15.0) * 15.0;
+                    targetRot = Math.Round(targetRot / 15.0) * 15.0;
+                    if (targetRot >= 360.0) targetRot = 0.0;
                 }
 
-                _item.Rotation = Math.Round(deg, 1);
+                _item.Rotation = Math.Round(targetRot, 1);
+                InvalidateAdorner();
                 break;
             }
 
@@ -355,7 +411,7 @@ public class SelectionAdorner : Adorner
                 break;
         }
 
-        InvalidateVisual();
+        InvalidateAdorner();
         _onModified?.Invoke();
     }
 
