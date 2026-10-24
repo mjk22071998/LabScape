@@ -669,4 +669,55 @@ public class CoreTests
         undo.Undo();
         Assert.Single(canvas.Items);
     }
+
+    [Fact]
+    public void ThemeResources_LightThemeAndDarkThemeFiles_ExistAndContainConsistentKeys()
+    {
+        string baseDir = AppContext.BaseDirectory;
+        // Search up until we find src/LabScape.App
+        string? projectRoot = null;
+        var dir = new DirectoryInfo(baseDir);
+        while (dir != null)
+        {
+            if (Directory.Exists(Path.Combine(dir.FullName, "src", "LabScape.App")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(projectRoot);
+        string lightThemePath = Path.Combine(projectRoot, "src", "LabScape.App", "Resources", "Themes", "LightTheme.xaml");
+        string darkThemePath = Path.Combine(projectRoot, "src", "LabScape.App", "Resources", "Themes", "DarkTheme.xaml");
+
+        Assert.True(File.Exists(lightThemePath), "LightTheme.xaml must exist");
+        Assert.True(File.Exists(darkThemePath), "DarkTheme.xaml must exist");
+
+        string lightContent = File.ReadAllText(lightThemePath);
+        string darkContent = File.ReadAllText(darkThemePath);
+
+        string[] requiredKeys = new[]
+        {
+            "AppBackgroundBrush",
+            "AppSurfaceBrush",
+            "AppTextPrimaryBrush",
+            "AppTextSecondaryBrush",
+            "PanelBackgroundBrush",
+            "CardBackgroundBrush",
+            "TabBarBackgroundBrush",
+            "TabActiveBackgroundBrush",
+            "StatusBarBackgroundBrush",
+            "CanvasWorkspaceBackgroundBrush",
+            "CanvasPaperBackgroundBrush",
+            "CanvasGridLineBrush",
+            "CanvasRulerBackgroundBrush"
+        };
+
+        foreach (var key in requiredKeys)
+        {
+            Assert.Contains($"x:Key=\"{key}\"", lightContent);
+            Assert.Contains($"x:Key=\"{key}\"", darkContent);
+        }
+    }
 }

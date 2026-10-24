@@ -30,6 +30,16 @@ public partial class MainWindow : RibbonWindow
             undoRedoFactory: () => new UndoRedoService());
 
         DataContext = ViewModel;
+
+        Loaded += (s, e) =>
+        {
+            UpdateThemeToggleState();
+            Services.ThemeService.ThemeChanged += OnThemeChanged;
+        };
+        Unloaded += (s, e) =>
+        {
+            Services.ThemeService.ThemeChanged -= OnThemeChanged;
+        };
     }
 
     // ========================================================
@@ -43,6 +53,14 @@ public partial class MainWindow : RibbonWindow
             e.OriginalSource is Fluent.TextBox ||
             e.OriginalSource is Fluent.ComboBox)
         {
+            return;
+        }
+
+        // Theme Shortcut: F8
+        if (e.Key == Key.F8)
+        {
+            Services.ThemeService.ToggleTheme();
+            e.Handled = true;
             return;
         }
 
@@ -509,5 +527,31 @@ public partial class MainWindow : RibbonWindow
             "Inventory Synced",
             MessageBoxButton.OK,
             MessageBoxImage.Information);
+    }
+
+    private void OnThemeChanged(bool isDark)
+    {
+        UpdateThemeToggleState();
+    }
+
+    private void UpdateThemeToggleState()
+    {
+        bool isDark = Services.ThemeService.IsDarkTheme;
+        if (BtnDarkTheme != null)
+        {
+            BtnDarkTheme.IsChecked = isDark;
+            BtnDarkTheme.Header = isDark ? "Dark Theme" : "Light Theme";
+            var iconResource = isDark ? "IconThemeDark" : "IconThemeLight";
+            if (TryFindResource(iconResource) is System.Windows.Media.ImageSource img)
+            {
+                BtnDarkTheme.Icon = img;
+                BtnDarkTheme.LargeIcon = img;
+            }
+        }
+    }
+
+    private void ThemeToggle_Click(object sender, RoutedEventArgs e)
+    {
+        Services.ThemeService.ToggleTheme();
     }
 }

@@ -14,7 +14,7 @@ public partial class App : Application
 
         try
         {
-            ThemeManager.Current.ChangeTheme(this, "Light.Cobalt");
+            Services.ThemeService.Initialize();
         }
         catch
         {

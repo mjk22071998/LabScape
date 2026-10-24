@@ -8,7 +8,7 @@
         Height="460" Width="480"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
-        Background="#F9FAFB">
+        Background="{DynamicResource DialogBackgroundBrush}">
 
     <Grid Margin="16">
         <Grid.RowDefinitions>
@@ -18,24 +18,24 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#EEF2FF" BorderBrush="#C7D2FE" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,14">
+        <Border Grid.Row="0" Background="{DynamicResource SectionHeaderBackgroundBrush}" BorderBrush="{DynamicResource SectionHeaderBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,14">
             <StackPanel>
-                <TextBlock Text="PostgreSQL Inventory Configuration" FontWeight="Bold" FontSize="14" Foreground="#3730A3"/>
+                <TextBlock Text="PostgreSQL Inventory Configuration" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource SectionHeaderForegroundBrush}"/>
                 <TextBlock Text="Connect to the enterprise inventory database (read-only queries on public.devices) or toggle offline simulation."
-                           TextWrapping="Wrap" FontSize="11" Foreground="#4B5563" Margin="0,4,0,0"/>
+                           TextWrapping="Wrap" FontSize="11" Foreground="{DynamicResource SectionHeaderSubForegroundBrush}" Margin="0,4,0,0"/>
             </StackPanel>
         </Border>
 
         <!-- Form Fields -->
         <StackPanel Grid.Row="1">
             <!-- Mock / Offline Toggle -->
-            <Border Background="White" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,10">
+            <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,10">
                 <CheckBox x:Name="ChkUseMock" Content="Use Offline Simulated Lab Workstations (No PostgreSQL required)"
-                          IsChecked="True" FontWeight="SemiBold" Foreground="#1F2937"
+                          IsChecked="True" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}"
                           Checked="ChkUseMock_Checked" Unchecked="ChkUseMock_Unchecked"/>
             </Border>
 
-            <GroupBox Header="Server Connection Details" FontWeight="SemiBold" Foreground="#374151">
+            <GroupBox Header="Server Connection Details" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
                 <Grid Margin="8" TextElement.FontWeight="Normal">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -49,19 +49,19 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Host / IP:" VerticalAlignment="Center" Margin="0,4"/>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Host / IP:" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,4"/>
                     <TextBox x:Name="TxtHost" Grid.Row="0" Grid.Column="1" Text="127.0.0.1" Padding="4" Margin="0,4"/>
 
-                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Port:" VerticalAlignment="Center" Margin="0,4"/>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Port:" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,4"/>
                     <TextBox x:Name="TxtPort" Grid.Row="1" Grid.Column="1" Text="5432" Padding="4" Margin="0,4"/>
 
-                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Database:" VerticalAlignment="Center" Margin="0,4"/>
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Database:" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,4"/>
                     <TextBox x:Name="TxtDatabase" Grid.Row="2" Grid.Column="1" Text="inventory_db" Padding="4" Margin="0,4"/>
 
-                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Username:" VerticalAlignment="Center" Margin="0,4"/>
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Username:" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,4"/>
                     <TextBox x:Name="TxtUsername" Grid.Row="3" Grid.Column="1" Text="postgres" Padding="4" Margin="0,4"/>
 
-                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Password:" VerticalAlignment="Center" Margin="0,4"/>
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Password:" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center" Margin="0,4"/>
                     <PasswordBox x:Name="TxtPassword" Grid.Row="4" Grid.Column="1" Padding="4" Margin="0,4"/>
                 </Grid>
             </GroupBox>

@@ -480,4 +480,26 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
+    <!-- 43. Light Theme (Sun) -->
+    <DrawingImage x:Key="IconThemeLight">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Geometry="M 12 8 A 4 4 0 1 0 12 16 A 4 4 0 0 0 12 8 Z M 12 2 V 4 M 12 20 V 22 M 4.93 4.93 L 6.34 6.34 M 17.66 17.66 L 19.07 19.07 M 2 12 H 4 M 20 12 H 22 M 4.93 19.07 L 6.34 17.66 M 17.66 6.34 L 19.07 4.93">
+                    <GeometryDrawing.Pen><Pen Brush="#D97706" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <!-- 44. Dark Theme (Moon) -->
+    <DrawingImage x:Key="IconThemeDark">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Geometry="M 21 12.79 A 9 9 0 1 1 11.21 3 A 7 7 0 0 0 21 12.79 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
 </ResourceDictionary>

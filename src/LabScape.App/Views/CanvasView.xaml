@@ -176,7 +176,7 @@
         </ContextMenu>
     </UserControl.Resources>
 
-    <Grid Background="#E5E7EB">
+    <Grid Background="{DynamicResource CanvasWorkspaceBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="24"/>
             <RowDefinition Height="*"/>
@@ -187,8 +187,8 @@
         </Grid.ColumnDefinitions>
 
         <!-- Top-Left Corner Block -->
-        <Border Grid.Row="0" Grid.Column="0" Background="#F3F4F6" BorderBrush="#D1D5DB" BorderThickness="0,0,1,1">
-            <TextBlock Text="px" FontSize="9" Foreground="#9CA3AF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource CanvasRulerBackgroundBrush}" BorderBrush="{DynamicResource CanvasRulerBorderBrush}" BorderThickness="0,0,1,1">
+            <TextBlock Text="px" FontSize="9" Foreground="{DynamicResource CanvasRulerForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Border>
 
         <!-- Top Horizontal Ruler -->
@@ -211,7 +211,7 @@
 
         <!-- Viewport Container -->
         <Border Grid.Row="1" Grid.Column="1" 
-                Background="#374151" 
+                Background="{DynamicResource CanvasWorkspaceBackgroundBrush}" 
                 ClipToBounds="True"
                 Focusable="True"
                 AllowDrop="True"
@@ -241,14 +241,14 @@
                     <DrawingBrush x:Name="GridBrush" TileMode="Tile" Viewport="0,0,20,20" ViewportUnits="Absolute">
                         <DrawingBrush.Drawing>
                             <DrawingGroup>
-                                <GeometryDrawing Brush="White">
+                                <GeometryDrawing Brush="{DynamicResource CanvasPaperBackgroundBrush}">
                                     <GeometryDrawing.Geometry>
                                         <RectangleGeometry Rect="0,0,20,20"/>
                                     </GeometryDrawing.Geometry>
                                 </GeometryDrawing>
-                                <GeometryDrawing Brush="#E5E7EB">
+                                <GeometryDrawing Brush="{DynamicResource CanvasGridLineBrush}">
                                     <GeometryDrawing.Pen>
-                                        <Pen Brush="#E5E7EB" Thickness="0.75"/>
+                                        <Pen Brush="{DynamicResource CanvasGridLineBrush}" Thickness="0.75"/>
                                     </GeometryDrawing.Pen>
                                     <GeometryDrawing.Geometry>
                                         <GeometryGroup>

@@ -1,0 +1,65 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- App / Window Surfaces -->
+    <SolidColorBrush x:Key="AppBackgroundBrush" Color="#0F172A"/>
+    <SolidColorBrush x:Key="AppSurfaceBrush" Color="#1E293B"/>
+    <SolidColorBrush x:Key="AppSurfaceAltBrush" Color="#334155"/>
+    <SolidColorBrush x:Key="AppBorderBrush" Color="#475569"/>
+    <SolidColorBrush x:Key="AppBorderSubtleBrush" Color="#334155"/>
+    <SolidColorBrush x:Key="AppTextPrimaryBrush" Color="#F8FAFC"/>
+    <SolidColorBrush x:Key="AppTextSecondaryBrush" Color="#CBD5E1"/>
+    <SolidColorBrush x:Key="AppTextMutedBrush" Color="#94A3B8"/>
+
+    <!-- Panels (Palette & Inspector) -->
+    <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#182234"/>
+    <SolidColorBrush x:Key="PanelHeaderBackgroundBrush" Color="#1E293B"/>
+    <SolidColorBrush x:Key="PanelHeaderForegroundBrush" Color="#F1F5F9"/>
+    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#1E293B"/>
+    <SolidColorBrush x:Key="CardHoverBackgroundBrush" Color="#283548"/>
+    <SolidColorBrush x:Key="CardBorderBrush" Color="#334155"/>
+    <SolidColorBrush x:Key="CardBorderHoverBrush" Color="#3B82F6"/>
+
+    <!-- Input Controls -->
+    <SolidColorBrush x:Key="InputBackgroundBrush" Color="#0B132B"/>
+    <SolidColorBrush x:Key="InputForegroundBrush" Color="#F8FAFC"/>
+    <SolidColorBrush x:Key="InputBorderBrush" Color="#475569"/>
+
+    <!-- Section Banners -->
+    <SolidColorBrush x:Key="SectionHeaderBackgroundBrush" Color="#1E1B4B"/>
+    <SolidColorBrush x:Key="SectionHeaderBorderBrush" Color="#4338CA"/>
+    <SolidColorBrush x:Key="SectionHeaderForegroundBrush" Color="#A5B4FC"/>
+    <SolidColorBrush x:Key="SectionHeaderSubForegroundBrush" Color="#C7D2FE"/>
+
+    <!-- Browser Tab Strip -->
+    <SolidColorBrush x:Key="TabBarBackgroundBrush" Color="#090E17"/>
+    <SolidColorBrush x:Key="TabActiveBackgroundBrush" Color="#1E293B"/>
+    <SolidColorBrush x:Key="TabInactiveBackgroundBrush" Color="#111827"/>
+    <SolidColorBrush x:Key="TabHoverBackgroundBrush" Color="#1F2937"/>
+    <SolidColorBrush x:Key="TabActiveBorderBrush" Color="#38BDF8"/>
+    <SolidColorBrush x:Key="TabInactiveBorderBrush" Color="#1F2937"/>
+    <SolidColorBrush x:Key="TabTextActiveBrush" Color="#F8FAFC"/>
+    <SolidColorBrush x:Key="TabTextInactiveBrush" Color="#94A3B8"/>
+    <SolidColorBrush x:Key="TabCloseHoverBackgroundBrush" Color="#451A1A"/>
+    <SolidColorBrush x:Key="TabAddButtonBackgroundBrush" Color="#1E293B"/>
+
+    <!-- Status Bar -->
+    <SolidColorBrush x:Key="StatusBarBackgroundBrush" Color="#0B1120"/>
+    <SolidColorBrush x:Key="StatusBarForegroundBrush" Color="#94A3B8"/>
+    <SolidColorBrush x:Key="StatusBarBorderBrush" Color="#1E293B"/>
+
+    <!-- Canvas Surface & Rulers -->
+    <SolidColorBrush x:Key="CanvasWorkspaceBackgroundBrush" Color="#0B1120"/>
+    <SolidColorBrush x:Key="CanvasPaperBackgroundBrush" Color="#1E293B"/>
+    <SolidColorBrush x:Key="CanvasGridLineBrush" Color="#2B3950"/>
+    <SolidColorBrush x:Key="CanvasRulerBackgroundBrush" Color="#111827"/>
+    <SolidColorBrush x:Key="CanvasRulerForegroundBrush" Color="#94A3B8"/>
+    <SolidColorBrush x:Key="CanvasRulerBorderBrush" Color="#1E293B"/>
+    <SolidColorBrush x:Key="CanvasRulerCursorBrush" Color="#F87171"/>
+
+    <!-- Dialogs -->
+    <SolidColorBrush x:Key="DialogBackgroundBrush" Color="#0F172A"/>
+    <SolidColorBrush x:Key="DialogSurfaceBrush" Color="#1E293B"/>
+    <SolidColorBrush x:Key="DialogBorderBrush" Color="#334155"/>
+
+</ResourceDictionary>

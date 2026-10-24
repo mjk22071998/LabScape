@@ -82,6 +82,8 @@
                                        Icon="{StaticResource IconCloseTab}" LargeIcon="{StaticResource IconCloseTab}"/>
                         <fluent:Button Header="Export to Web JSON..." Click="ExportJson_Click"
                                        Icon="{StaticResource IconExport}" LargeIcon="{StaticResource IconExport}"/>
+                        <fluent:Button Header="Toggle Light / Dark Theme (F8)" Click="ThemeToggle_Click"
+                                       Icon="{StaticResource IconThemeDark}" LargeIcon="{StaticResource IconThemeDark}"/>
                         <fluent:Button Header="Exit" Click="Exit_Click"
                                        Icon="{StaticResource IconExit}" LargeIcon="{StaticResource IconExit}"/>
                     </fluent:BackstageTabControl>
@@ -93,6 +95,7 @@
                 <fluent:QuickAccessMenuItem Target="{Binding ElementName=BtnSave}"/>
                 <fluent:QuickAccessMenuItem Target="{Binding ElementName=BtnUndo}"/>
                 <fluent:QuickAccessMenuItem Target="{Binding ElementName=BtnRedo}"/>
+                <fluent:QuickAccessMenuItem Target="{Binding ElementName=BtnDarkTheme}"/>
             </fluent:Ribbon.QuickAccessItems>
 
             <!-- 1. Home Tab -->
@@ -184,6 +187,14 @@
                     <fluent:CheckBox Header="Show Rulers" IsChecked="{Binding Canvas.ShowRulers}"
                                      Icon="{StaticResource IconShowRulers}"/>
                 </fluent:RibbonGroupBox>
+
+                <!-- Theme / Appearance -->
+                <fluent:RibbonGroupBox Header="Appearance">
+                    <fluent:ToggleButton x:Name="BtnDarkTheme" Header="Dark Theme"
+                                         Click="ThemeToggle_Click"
+                                         ToolTip="Toggle Light / Dark Theme (F8)"
+                                         Icon="{StaticResource IconThemeDark}" LargeIcon="{StaticResource IconThemeDark}"/>
+                </fluent:RibbonGroupBox>
             </fluent:RibbonTabItem>
 
             <!-- 2. Database Tab -->
@@ -232,14 +243,14 @@
                     <!-- Center: Browser-Style Tabbed Document Workspace -->
                     <dock:LayoutDocumentPane>
                         <dock:LayoutDocument Title="Lab Workspace" CanClose="False">
-                            <Grid Background="#1E293B">
+                            <Grid Background="{DynamicResource CanvasWorkspaceBackgroundBrush}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="34"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
 
                                 <!-- Browser Tab Bar Strip -->
-                                <Grid Grid.Row="0" Background="#0F172A">
+                                <Grid Grid.Row="0" Background="{DynamicResource TabBarBackgroundBrush}">
                                     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Focusable="False">
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
                                             <ItemsControl ItemsSource="{Binding Tabs}">
@@ -259,17 +270,17 @@
                                                                 MouseDown="TabItem_MouseDown">
                                                             <Border.Style>
                                                                 <Style TargetType="Border">
-                                                                    <Setter Property="Background" Value="#1E293B"/>
+                                                                    <Setter Property="Background" Value="{DynamicResource TabInactiveBackgroundBrush}"/>
                                                                     <Setter Property="BorderThickness" Value="1,1,1,0"/>
-                                                                    <Setter Property="BorderBrush" Value="#334155"/>
+                                                                    <Setter Property="BorderBrush" Value="{DynamicResource TabInactiveBorderBrush}"/>
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                                                            <Setter Property="Background" Value="#374151"/>
-                                                                            <Setter Property="BorderBrush" Value="#3B82F6"/>
+                                                                            <Setter Property="Background" Value="{DynamicResource TabActiveBackgroundBrush}"/>
+                                                                            <Setter Property="BorderBrush" Value="{DynamicResource TabActiveBorderBrush}"/>
                                                                             <Setter Property="BorderThickness" Value="1,2,1,0"/>
                                                                         </DataTrigger>
                                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                                            <Setter Property="Background" Value="#334155"/>
+                                                                            <Setter Property="Background" Value="{DynamicResource TabHoverBackgroundBrush}"/>
                                                                         </Trigger>
                                                                     </Style.Triggers>
                                                                 </Style>
@@ -282,10 +293,10 @@
                                                                 <TextBlock FontSize="12" VerticalAlignment="Center">
                                                                     <TextBlock.Style>
                                                                         <Style TargetType="TextBlock">
-                                                                            <Setter Property="Foreground" Value="#94A3B8"/>
+                                                                            <Setter Property="Foreground" Value="{DynamicResource TabTextInactiveBrush}"/>
                                                                             <Style.Triggers>
                                                                                 <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                                                                    <Setter Property="Foreground" Value="#F8FAFC"/>
+                                                                                    <Setter Property="Foreground" Value="{DynamicResource TabTextActiveBrush}"/>
                                                                                     <Setter Property="FontWeight" Value="SemiBold"/>
                                                                                 </DataTrigger>
                                                                             </Style.Triggers>
@@ -310,7 +321,7 @@
                                                                 <Button Margin="8,0,0,0" Width="16" Height="16"
                                                                         Content="✕" FontSize="9" FontWeight="Bold"
                                                                         Background="Transparent" BorderThickness="0"
-                                                                        Foreground="#94A3B8"
+                                                                        Foreground="{DynamicResource TabTextInactiveBrush}"
                                                                         Cursor="Hand"
                                                                         Click="TabClose_Click"
                                                                         ToolTip="Close tab (Ctrl+W)">
@@ -328,7 +339,7 @@
                                                                             <Style.Triggers>
                                                                                 <Trigger Property="IsMouseOver" Value="True">
                                                                                     <Setter Property="Foreground" Value="#EF4444"/>
-                                                                                    <Setter Property="Background" Value="#451A1A"/>
+                                                                                    <Setter Property="Background" Value="{DynamicResource TabCloseHoverBackgroundBrush}"/>
                                                                                 </Trigger>
                                                                             </Style.Triggers>
                                                                         </Style>
@@ -343,8 +354,8 @@
                                             <!-- Add New Tab Button (+) -->
                                             <Button Width="26" Height="26" Margin="4,0,4,2"
                                                     Content="+" FontSize="16" FontWeight="Bold"
-                                                    Background="#1E293B" Foreground="#94A3B8"
-                                                    BorderBrush="#334155" BorderThickness="1"
+                                                    Background="{DynamicResource TabAddButtonBackgroundBrush}" Foreground="{DynamicResource TabTextInactiveBrush}"
+                                                    BorderBrush="{DynamicResource TabInactiveBorderBrush}" BorderThickness="1"
                                                     Cursor="Hand"
                                                     VerticalAlignment="Bottom"
                                                     Command="{Binding NewTabCommand}"
@@ -365,9 +376,9 @@
                                                         </Setter>
                                                         <Style.Triggers>
                                                             <Trigger Property="IsMouseOver" Value="True">
-                                                                <Setter Property="Foreground" Value="#F8FAFC"/>
-                                                                <Setter Property="Background" Value="#334155"/>
-                                                                <Setter Property="BorderBrush" Value="#60A5FA"/>
+                                                                <Setter Property="Foreground" Value="{DynamicResource TabTextActiveBrush}"/>
+                                                                <Setter Property="Background" Value="{DynamicResource TabHoverBackgroundBrush}"/>
+                                                                <Setter Property="BorderBrush" Value="{DynamicResource TabActiveBorderBrush}"/>
                                                             </Trigger>
                                                         </Style.Triggers>
                                                     </Style>
@@ -397,7 +408,7 @@
         <!-- ==================================================== -->
         <!-- 3. STATUS BAR                                        -->
         <!-- ==================================================== -->
-        <StatusBar Grid.Row="2" Background="#F3F4F6" BorderBrush="#D1D5DB" BorderThickness="0,1,0,0">
+        <StatusBar Grid.Row="2" Background="{DynamicResource StatusBarBackgroundBrush}" BorderBrush="{DynamicResource StatusBarBorderBrush}" BorderThickness="0,1,0,0">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Grid>
@@ -427,13 +438,13 @@
                             </Style>
                         </Ellipse.Style>
                     </Ellipse>
-                    <TextBlock Text="{Binding DatabaseStatusText}" FontSize="11" Foreground="#4B5563"/>
+                    <TextBlock Text="{Binding DatabaseStatusText}" FontSize="11" Foreground="{DynamicResource StatusBarForegroundBrush}"/>
                 </StackPanel>
             </StatusBarItem>
 
             <!-- 2. Active Tab & Document Info -->
             <StatusBarItem Grid.Column="1">
-                <TextBlock Text="{Binding ActiveTab.Title, StringFormat='Active Tab: {0}'}" FontSize="11" Foreground="#4B5563" Margin="12,0"/>
+                <TextBlock Text="{Binding ActiveTab.Title, StringFormat='Active Tab: {0}'}" FontSize="11" Foreground="{DynamicResource StatusBarForegroundBrush}" Margin="12,0"/>
             </StatusBarItem>
 
             <!-- 3. Validation Warnings Counter (Unassigned PCs) -->

@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Media;
 
@@ -52,18 +52,65 @@ public class RulerControl : FrameworkElement
         set => SetValue(CursorPositionProperty, value);
     }
 
-    private static readonly Brush BackgroundBrush = new SolidColorBrush(Color.FromRgb(248, 249, 250));
-    private static readonly Pen BorderPen = new(new SolidColorBrush(Color.FromRgb(222, 226, 230)), 1);
-    private static readonly Pen TickPen = new(new SolidColorBrush(Color.FromRgb(173, 181, 189)), 1);
-    private static readonly Pen CursorPen = new(new SolidColorBrush(Color.FromRgb(220, 53, 69)), 1.5);
+    private static readonly Brush DefaultBackgroundBrush = new SolidColorBrush(Color.FromRgb(248, 249, 250));
+    private static readonly Pen DefaultBorderPen = new(new SolidColorBrush(Color.FromRgb(222, 226, 230)), 1);
+    private static readonly Pen DefaultTickPen = new(new SolidColorBrush(Color.FromRgb(173, 181, 189)), 1);
+    private static readonly Pen DefaultCursorPen = new(new SolidColorBrush(Color.FromRgb(220, 53, 69)), 1.5);
     private static readonly Typeface TextTypeface = new("Segoe UI");
 
-    static RulerControl()
+    public RulerControl()
     {
-        BackgroundBrush.Freeze();
-        BorderPen.Freeze();
-        TickPen.Freeze();
-        CursorPen.Freeze();
+        Loaded += (s, e) =>
+        {
+            Services.ThemeService.ThemeChanged += OnThemeChanged;
+        };
+        Unloaded += (s, e) =>
+        {
+            Services.ThemeService.ThemeChanged -= OnThemeChanged;
+        };
+    }
+
+    private void OnThemeChanged(bool isDark)
+    {
+        Dispatcher.InvokeAsync(InvalidateVisual);
+    }
+
+    private Pen GetBorderPen()
+    {
+        if (TryFindResource("CanvasRulerBorderBrush") is Brush b)
+        {
+            var pen = new Pen(b, 1);
+            pen.Freeze();
+            return pen;
+        }
+        return DefaultBorderPen;
+    }
+
+    private Pen GetTickPen()
+    {
+        if (TryFindResource("CanvasRulerForegroundBrush") is Brush b)
+        {
+            var pen = new Pen(b, 1);
+            pen.Freeze();
+            return pen;
+        }
+        return DefaultTickPen;
+    }
+
+    private Pen GetCursorPen()
+    {
+        if (TryFindResource("CanvasRulerCursorBrush") is Brush b)
+        {
+            var pen = new Pen(b, 1.5);
+            pen.Freeze();
+            return pen;
+        }
+        return DefaultCursorPen;
+    }
+
+    private Brush GetTextBrush()
+    {
+        return TryFindResource("CanvasRulerForegroundBrush") as Brush ?? Brushes.DimGray;
     }
 
     protected override void OnRender(DrawingContext dc)
@@ -74,17 +121,20 @@ public class RulerControl : FrameworkElement
         double height = ActualHeight;
         if (width <= 0 || height <= 0) return;
 
+        Brush bg = TryFindResource("CanvasRulerBackgroundBrush") as Brush ?? DefaultBackgroundBrush;
+        Pen borderPen = GetBorderPen();
+
         // Draw background & border
-        dc.DrawRectangle(BackgroundBrush, null, new Rect(0, 0, width, height));
+        dc.DrawRectangle(bg, null, new Rect(0, 0, width, height));
 
         if (Orientation == RulerOrientation.Horizontal)
         {
-            dc.DrawLine(BorderPen, new Point(0, height - 1), new Point(width, height - 1));
+            dc.DrawLine(borderPen, new Point(0, height - 1), new Point(width, height - 1));
             DrawHorizontalTicks(dc, width, height);
         }
         else
         {
-            dc.DrawLine(BorderPen, new Point(width - 1, 0), new Point(width - 1, height));
+            dc.DrawLine(borderPen, new Point(width - 1, 0), new Point(width - 1, height));
             DrawVerticalTicks(dc, width, height);
         }
     }
@@ -96,7 +146,9 @@ public class RulerControl : FrameworkElement
         if (step > 200) step /= 2;
 
         double startX = Offset % step;
-        double startValue = Math.Floor(-Offset / ZoomLevel / 100) * 100;
+        Pen tickPen = GetTickPen();
+        Pen cursorPen = GetCursorPen();
+        Brush textBrush = GetTextBrush();
 
         for (double x = startX; x < width; x += step)
         {
@@ -104,7 +156,7 @@ public class RulerControl : FrameworkElement
             if (value < 0) continue;
 
             // Major tick
-            dc.DrawLine(TickPen, new Point(x, height - 10), new Point(x, height));
+            dc.DrawLine(tickPen, new Point(x, height - 10), new Point(x, height));
 
             var formatted = new FormattedText(
                 value.ToString(CultureInfo.InvariantCulture),
@@ -112,7 +164,7 @@ public class RulerControl : FrameworkElement
                 FlowDirection.LeftToRight,
                 TextTypeface,
                 9,
-                Brushes.DimGray,
+                textBrush,
                 VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
             dc.DrawText(formatted, new Point(x + 2, 2));
@@ -124,7 +176,7 @@ public class RulerControl : FrameworkElement
                 double sx = x + i * subStep;
                 if (sx >= width) break;
                 double tickLen = (i == 5) ? 6 : 3;
-                dc.DrawLine(TickPen, new Point(sx, height - tickLen), new Point(sx, height));
+                dc.DrawLine(tickPen, new Point(sx, height - tickLen), new Point(sx, height));
             }
         }
 
@@ -132,7 +184,7 @@ public class RulerControl : FrameworkElement
         double cursorScreen = CursorPosition * ZoomLevel + Offset;
         if (cursorScreen >= 0 && cursorScreen <= width)
         {
-            dc.DrawLine(CursorPen, new Point(cursorScreen, 0), new Point(cursorScreen, height));
+            dc.DrawLine(cursorPen, new Point(cursorScreen, 0), new Point(cursorScreen, height));
         }
     }
 
@@ -143,6 +195,9 @@ public class RulerControl : FrameworkElement
         if (step > 200) step /= 2;
 
         double startY = Offset % step;
+        Pen tickPen = GetTickPen();
+        Pen cursorPen = GetCursorPen();
+        Brush textBrush = GetTextBrush();
 
         for (double y = startY; y < height; y += step)
         {
@@ -150,7 +205,7 @@ public class RulerControl : FrameworkElement
             if (value < 0) continue;
 
             // Major tick
-            dc.DrawLine(TickPen, new Point(width - 10, y), new Point(width, y));
+            dc.DrawLine(tickPen, new Point(width - 10, y), new Point(width, y));
 
             var formatted = new FormattedText(
                 value.ToString(CultureInfo.InvariantCulture),
@@ -158,7 +213,7 @@ public class RulerControl : FrameworkElement
                 FlowDirection.LeftToRight,
                 TextTypeface,
                 8,
-                Brushes.DimGray,
+                textBrush,
                 VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
             // Rotate text for vertical ruler
@@ -173,7 +228,7 @@ public class RulerControl : FrameworkElement
                 double sy = y + i * subStep;
                 if (sy >= height) break;
                 double tickLen = (i == 5) ? 6 : 3;
-                dc.DrawLine(TickPen, new Point(width - tickLen, sy), new Point(width, sy));
+                dc.DrawLine(tickPen, new Point(width - tickLen, sy), new Point(width, sy));
             }
         }
 
@@ -181,7 +236,7 @@ public class RulerControl : FrameworkElement
         double cursorScreen = CursorPosition * ZoomLevel + Offset;
         if (cursorScreen >= 0 && cursorScreen <= height)
         {
-            dc.DrawLine(CursorPen, new Point(0, cursorScreen), new Point(width, cursorScreen));
+            dc.DrawLine(cursorPen, new Point(0, cursorScreen), new Point(width, cursorScreen));
         }
     }
 }
