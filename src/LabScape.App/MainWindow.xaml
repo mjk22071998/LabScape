@@ -11,6 +11,32 @@
                       WindowStartupLocation="CenterScreen"
                       PreviewKeyDown="Window_PreviewKeyDown">
 
+    <fluent:RibbonWindow.Resources>
+        <!-- Browser Tab Context Menu -->
+        <ContextMenu x:Key="TabContextMenu">
+            <MenuItem Header="Close Tab" Command="{Binding PlacementTarget.Tag.CloseTabCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+W">
+                <MenuItem.Icon>
+                    <TextBlock Text="✕" FontSize="11" Foreground="#EF4444" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Close Other Tabs" Command="{Binding PlacementTarget.Tag.CloseOtherTabsCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+            <MenuItem Header="Close All Tabs" Command="{Binding PlacementTarget.Tag.CloseAllTabsCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+            <Separator/>
+            <MenuItem Header="New Tab" Command="{Binding PlacementTarget.Tag.NewTabCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+N">
+                <MenuItem.Icon>
+                    <TextBlock Text="➕" FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </MenuItem.Icon>
+            </MenuItem>
+            <Separator/>
+            <MenuItem Header="Save Floorplan" Click="SaveJson_Click" InputGestureText="Ctrl+S">
+                <MenuItem.Icon>
+                    <TextBlock Text="💾" FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Save As..." Click="SaveAsJson_Click" InputGestureText="Ctrl+Shift+S"/>
+        </ContextMenu>
+    </fluent:RibbonWindow.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -172,6 +198,8 @@
                                                                 CornerRadius="6,6,0,0"
                                                                 Padding="10,5,8,5"
                                                                 Cursor="Hand"
+                                                                ContextMenu="{StaticResource TabContextMenu}"
+                                                                Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=fluent:RibbonWindow}}"
                                                                 MouseDown="TabItem_MouseDown">
                                                             <Border.Style>
                                                                 <Style TargetType="Border">

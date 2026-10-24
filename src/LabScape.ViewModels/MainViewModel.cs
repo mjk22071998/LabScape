@@ -186,6 +186,26 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    public void CloseOtherTabs(LayoutTabViewModel? tab)
+    {
+        tab ??= ActiveTab;
+        if (tab == null) return;
+        var others = Tabs.Where(t => t != tab).ToList();
+        foreach (var other in others)
+        {
+            Tabs.Remove(other);
+        }
+        ActiveTab = tab;
+    }
+
+    [RelayCommand]
+    public void CloseAllTabs()
+    {
+        Tabs.Clear();
+        NewTab();
+    }
+
+    [RelayCommand]
     public void NextTab()
     {
         if (Tabs.Count <= 1 || ActiveTab == null) return;

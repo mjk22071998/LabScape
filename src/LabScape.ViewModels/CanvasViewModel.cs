@@ -349,6 +349,15 @@ public partial class CanvasViewModel : ObservableObject
         PanY = 0;
     }
 
+    [RelayCommand]
+    public void Undo() => _undoRedoService.Undo();
+
+    [RelayCommand]
+    public void Redo() => _undoRedoService.Redo();
+
+    public bool CanUndo => _undoRedoService.CanUndo;
+    public bool CanRedo => _undoRedoService.CanRedo;
+
     public void RecalculateValidation()
     {
         var devices = GetAllDevices(Items).ToList();

@@ -66,7 +66,12 @@ public partial class CanvasView : UserControl
             return;
         }
 
-        // 2. Left-click on empty canvas surface: Clear selection or start Marquee Rubberband selection
+        // 2. Click on empty canvas surface
+        if (e.RightButton == MouseButtonState.Pressed && (e.OriginalSource == sender || e.OriginalSource == CanvasSurface))
+        {
+            ViewModel?.ClearSelection();
+        }
+
         if (e.LeftButton == MouseButtonState.Pressed && (e.OriginalSource == sender || e.OriginalSource == CanvasSurface))
         {
             bool isCtrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
@@ -319,9 +324,19 @@ public partial class CanvasView : UserControl
 
     private void Item_MouseDown(object sender, MouseButtonEventArgs e)
     {
-        if (e.LeftButton != MouseButtonState.Pressed) return;
         if (sender is not FrameworkElement elem || elem.DataContext is not ItemViewModel itemVm) return;
         if (ViewModel == null) return;
+
+        if (e.RightButton == MouseButtonState.Pressed)
+        {
+            if (!itemVm.IsSelected)
+            {
+                ViewModel.SelectItem(itemVm, addToExisting: false);
+            }
+            return;
+        }
+
+        if (e.LeftButton != MouseButtonState.Pressed) return;
 
         bool isCtrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
         if (isCtrl)
