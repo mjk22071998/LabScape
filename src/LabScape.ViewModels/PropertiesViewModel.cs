@@ -4,10 +4,26 @@ using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LabScape.Core.Enums;
+using LabScape.Core.Helpers;
 using LabScape.Core.Models;
+using LabScape.ViewModels.Commands;
 using LabScape.ViewModels.Items;
 
 namespace LabScape.ViewModels;
+
+public class GradientDirectionOption
+{
+    public string Name { get; set; } = string.Empty;
+    public double Angle { get; set; }
+
+    public GradientDirectionOption(string name, double angle)
+    {
+        Name = name;
+        Angle = angle;
+    }
+
+    public override string ToString() => Name;
+}
 
 public partial class PropertiesViewModel : ObservableObject
 {
@@ -112,6 +128,91 @@ public partial class PropertiesViewModel : ObservableObject
     public ObservableCollection<DatabaseDevice> AvailableDatabaseDevices { get; } = new();
     public ObservableCollection<DatabaseDevice> FilteredDatabaseDevices { get; } = new();
 
+    public static readonly string[] PresetColors = new[]
+    {
+        "#FFFFFF", "#F8FAFC", "#E2E8F0", "#94A3B8", "#475569", "#0F172A",
+        "#EF4444", "#F97316", "#F59E0B", "#EAB308", "#10B981", "#06B6D4",
+        "#3B82F6", "#6366F1", "#8B5CF6", "#A855F7", "#EC4899", "#F43F5E",
+        "#FEE2E2", "#FEF3C7", "#DCFCE7", "#E0E7FF", "#EDE9FE", "#FCE7F3"
+    };
+    public string[] AvailablePresetColors => PresetColors;
+
+    public static readonly BrushType[] AvailableFillTypes = new[]
+    {
+        BrushType.Solid,
+        BrushType.LinearGradient,
+        BrushType.RadialGradient,
+        BrushType.None
+    };
+    public BrushType[] AvailableFillTypesList => AvailableFillTypes;
+
+    public static readonly BrushType[] AvailableStrokeTypes = new[]
+    {
+        BrushType.Solid,
+        BrushType.LinearGradient,
+        BrushType.None
+    };
+    public BrushType[] AvailableStrokeTypesList => AvailableStrokeTypes;
+
+    public static readonly List<GradientDirectionOption> DirectionOptions = new()
+    {
+        new("➡️ Left to Right (90°)", 90.0),
+        new("⬇️ Top to Bottom (180°)", 180.0),
+        new("↘️ Diagonal Down (135°)", 135.0),
+        new("↗️ Diagonal Up (45°)", 45.0),
+        new("⬅️ Right to Left (270°)", 270.0),
+        new("⬆️ Bottom to Top (0°)", 0.0)
+    };
+    public List<GradientDirectionOption> AvailableDirectionOptions => DirectionOptions;
+
+    [ObservableProperty]
+    private bool _isFillApplicable = true;
+
+    [ObservableProperty]
+    private BrushType _fillType = BrushType.Solid;
+
+    [ObservableProperty]
+    private string _fillColor1 = "#E0E7FF";
+
+    [ObservableProperty]
+    private string _fillColor2 = "#4338CA";
+
+    [ObservableProperty]
+    private double _fillAngle = 90.0;
+
+    [ObservableProperty]
+    private string _fillBrushString = "#E0E7FF";
+
+    [ObservableProperty]
+    private GradientDirectionOption _selectedFillDirection = DirectionOptions[0];
+
+    public bool IsSolidFill => FillType == BrushType.Solid;
+    public bool IsLinearGradientFill => FillType == BrushType.LinearGradient;
+    public bool IsRadialGradientFill => FillType == BrushType.RadialGradient;
+    public bool IsNoFill => FillType == BrushType.None;
+
+    [ObservableProperty]
+    private BrushType _strokeType = BrushType.Solid;
+
+    [ObservableProperty]
+    private string _strokeColor1 = "#4338CA";
+
+    [ObservableProperty]
+    private string _strokeColor2 = "#06B6D4";
+
+    [ObservableProperty]
+    private double _strokeAngle = 90.0;
+
+    [ObservableProperty]
+    private string _strokeBrushString = "#4338CA";
+
+    [ObservableProperty]
+    private GradientDirectionOption _selectedStrokeDirection = DirectionOptions[0];
+
+    public bool IsSolidStroke => StrokeType == BrushType.Solid;
+    public bool IsLinearGradientStroke => StrokeType == BrushType.LinearGradient;
+    public bool IsNoStroke => StrokeType == BrushType.None;
+
     public PropertiesViewModel(CanvasViewModel? canvasViewModel = null)
     {
         if (canvasViewModel != null)
@@ -158,6 +259,7 @@ public partial class PropertiesViewModel : ObservableObject
             IsGroup = false;
             IsRoundedShape = false;
             IsDonut = false;
+            IsFillApplicable = false;
             DisplayX = "0";
             DisplayY = "0";
             CommonWidth = "0";
@@ -230,6 +332,7 @@ public partial class PropertiesViewModel : ObservableObject
         }
 
         SyncFieldsFromSelection();
+        SyncStyleFromSelection();
     }
 
     private void OnSelectedItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -242,6 +345,11 @@ public partial class PropertiesViewModel : ObservableObject
             nameof(ItemViewModel.Name))
         {
             SyncFieldsFromSelection();
+        }
+
+        if (e.PropertyName is nameof(ShapeItemViewModel.Fill) or nameof(ShapeItemViewModel.Stroke) or nameof(ShapeItemViewModel.StrokeThickness))
+        {
+            SyncStyleFromSelection();
         }
     }
 
@@ -441,6 +549,293 @@ public partial class PropertiesViewModel : ObservableObject
                 dev.Name = dbDevice.DisplayName;
             }
             _canvasViewModel?.RecalculateValidation();
+        }
+    }
+
+    private string _initialFill = "#E0E7FF";
+    private string _initialStroke = "#4338CA";
+
+    private void SyncStyleFromSelection()
+    {
+        if (_canvasViewModel == null) return;
+        var shapeItems = _canvasViewModel.SelectedItems.OfType<ShapeItemViewModel>().ToList();
+        if (shapeItems.Count == 0) return;
+
+        var firstShape = shapeItems[0];
+        bool hasFillable = shapeItems.Any(s => s.ShapeType != ShapeType.Line && s.ShapeType != ShapeType.Bezier);
+        IsFillApplicable = hasFillable;
+
+        _initialFill = firstShape.Fill;
+        _initialStroke = firstShape.Stroke;
+
+        _isInternalPropertyUpdate = true;
+        try
+        {
+            var fillInfo = GradientHelper.AnalyzeBrush(firstShape.Fill, defaultColor1: "#E0E7FF", defaultColor2: "#4338CA");
+            FillType = fillInfo.Type;
+            FillColor1 = fillInfo.Color1;
+            FillColor2 = fillInfo.Color2;
+            FillAngle = fillInfo.Angle;
+            FillBrushString = firstShape.Fill;
+            SelectedFillDirection = DirectionOptions.FirstOrDefault(d => Math.Abs(d.Angle - fillInfo.Angle) < 1) ?? DirectionOptions[0];
+
+            var strokeInfo = GradientHelper.AnalyzeBrush(firstShape.Stroke, defaultColor1: "#4338CA", defaultColor2: "#06B6D4");
+            StrokeType = strokeInfo.Type;
+            StrokeColor1 = strokeInfo.Color1;
+            StrokeColor2 = strokeInfo.Color2;
+            StrokeAngle = strokeInfo.Angle;
+            StrokeBrushString = firstShape.Stroke;
+            SelectedStrokeDirection = DirectionOptions.FirstOrDefault(d => Math.Abs(d.Angle - strokeInfo.Angle) < 1) ?? DirectionOptions[0];
+
+            OnPropertyChanged(nameof(IsSolidFill));
+            OnPropertyChanged(nameof(IsLinearGradientFill));
+            OnPropertyChanged(nameof(IsRadialGradientFill));
+            OnPropertyChanged(nameof(IsNoFill));
+            OnPropertyChanged(nameof(IsSolidStroke));
+            OnPropertyChanged(nameof(IsLinearGradientStroke));
+            OnPropertyChanged(nameof(IsNoStroke));
+        }
+        finally
+        {
+            _isInternalPropertyUpdate = false;
+        }
+    }
+
+    private string BuildFillString()
+    {
+        return FillType switch
+        {
+            BrushType.None => "none",
+            BrushType.Solid => GradientHelper.NormalizeHex(FillColor1, "#E0E7FF"),
+            BrushType.LinearGradient => GradientHelper.CreateLinearGradient(FillColor1, FillColor2, FillAngle),
+            BrushType.RadialGradient => GradientHelper.CreateRadialGradient(FillColor1, FillColor2),
+            _ => GradientHelper.NormalizeHex(FillColor1, "#E0E7FF")
+        };
+    }
+
+    private string BuildStrokeString()
+    {
+        return StrokeType switch
+        {
+            BrushType.None => "none",
+            BrushType.Solid => GradientHelper.NormalizeHex(StrokeColor1, "#4338CA"),
+            BrushType.LinearGradient => GradientHelper.CreateLinearGradient(StrokeColor1, StrokeColor2, StrokeAngle),
+            _ => GradientHelper.NormalizeHex(StrokeColor1, "#4338CA")
+        };
+    }
+
+    private void UpdateLiveFill()
+    {
+        if (_canvasViewModel == null) return;
+        string newFill = BuildFillString();
+        FillBrushString = newFill;
+
+        _isInternalPropertyUpdate = true;
+        try
+        {
+            foreach (var shape in _canvasViewModel.SelectedItems.OfType<ShapeItemViewModel>()
+                .Where(s => s.ShapeType != ShapeType.Line && s.ShapeType != ShapeType.Bezier))
+            {
+                shape.Fill = newFill;
+            }
+        }
+        finally
+        {
+            _isInternalPropertyUpdate = false;
+        }
+    }
+
+    private void UpdateLiveStroke()
+    {
+        if (_canvasViewModel == null) return;
+        string newStroke = BuildStrokeString();
+        StrokeBrushString = newStroke;
+
+        _isInternalPropertyUpdate = true;
+        try
+        {
+            foreach (var shape in _canvasViewModel.SelectedItems.OfType<ShapeItemViewModel>())
+            {
+                shape.Stroke = newStroke;
+            }
+        }
+        finally
+        {
+            _isInternalPropertyUpdate = false;
+        }
+    }
+
+    partial void OnFillTypeChanged(BrushType value)
+    {
+        OnPropertyChanged(nameof(IsSolidFill));
+        OnPropertyChanged(nameof(IsLinearGradientFill));
+        OnPropertyChanged(nameof(IsRadialGradientFill));
+        OnPropertyChanged(nameof(IsNoFill));
+        if (!_isInternalPropertyUpdate) UpdateLiveFill();
+    }
+
+    partial void OnFillColor1Changed(string value)
+    {
+        if (!_isInternalPropertyUpdate) UpdateLiveFill();
+    }
+
+    partial void OnFillColor2Changed(string value)
+    {
+        if (!_isInternalPropertyUpdate) UpdateLiveFill();
+    }
+
+    partial void OnFillAngleChanged(double value)
+    {
+        if (!_isInternalPropertyUpdate) UpdateLiveFill();
+    }
+
+    partial void OnSelectedFillDirectionChanged(GradientDirectionOption value)
+    {
+        if (value != null && Math.Abs(FillAngle - value.Angle) > 0.1)
+        {
+            FillAngle = value.Angle;
+        }
+    }
+
+    partial void OnStrokeTypeChanged(BrushType value)
+    {
+        OnPropertyChanged(nameof(IsSolidStroke));
+        OnPropertyChanged(nameof(IsLinearGradientStroke));
+        OnPropertyChanged(nameof(IsNoStroke));
+        if (!_isInternalPropertyUpdate) UpdateLiveStroke();
+    }
+
+    partial void OnStrokeColor1Changed(string value)
+    {
+        if (!_isInternalPropertyUpdate) UpdateLiveStroke();
+    }
+
+    partial void OnStrokeColor2Changed(string value)
+    {
+        if (!_isInternalPropertyUpdate) UpdateLiveStroke();
+    }
+
+    partial void OnStrokeAngleChanged(double value)
+    {
+        if (!_isInternalPropertyUpdate) UpdateLiveStroke();
+    }
+
+    partial void OnSelectedStrokeDirectionChanged(GradientDirectionOption value)
+    {
+        if (value != null && Math.Abs(StrokeAngle - value.Angle) > 0.1)
+        {
+            StrokeAngle = value.Angle;
+        }
+    }
+
+    [RelayCommand]
+    public void SetFillColor1(string hex)
+    {
+        FillColor1 = hex;
+        UpdateLiveFill();
+        ApplyFillChanges();
+    }
+
+    [RelayCommand]
+    public void SetFillColor2(string hex)
+    {
+        FillColor2 = hex;
+        UpdateLiveFill();
+        ApplyFillChanges();
+    }
+
+    [RelayCommand]
+    public void SwapFillColors()
+    {
+        _isInternalPropertyUpdate = true;
+        try
+        {
+            (FillColor1, FillColor2) = (FillColor2, FillColor1);
+        }
+        finally
+        {
+            _isInternalPropertyUpdate = false;
+        }
+        UpdateLiveFill();
+        ApplyFillChanges();
+    }
+
+    [RelayCommand]
+    public void SetStrokeColor1(string hex)
+    {
+        StrokeColor1 = hex;
+        UpdateLiveStroke();
+        ApplyStrokeChanges();
+    }
+
+    [RelayCommand]
+    public void SetStrokeColor2(string hex)
+    {
+        StrokeColor2 = hex;
+        UpdateLiveStroke();
+        ApplyStrokeChanges();
+    }
+
+    [RelayCommand]
+    public void SwapStrokeColors()
+    {
+        _isInternalPropertyUpdate = true;
+        try
+        {
+            (StrokeColor1, StrokeColor2) = (StrokeColor2, StrokeColor1);
+        }
+        finally
+        {
+            _isInternalPropertyUpdate = false;
+        }
+        UpdateLiveStroke();
+        ApplyStrokeChanges();
+    }
+
+    public void ApplyFillChanges()
+    {
+        if (_canvasViewModel == null) return;
+        string newFill = BuildFillString();
+        FillBrushString = newFill;
+
+        var applicableShapes = _canvasViewModel.SelectedItems.OfType<ShapeItemViewModel>()
+            .Where(s => s.ShapeType != ShapeType.Line && s.ShapeType != ShapeType.Bezier)
+            .ToList();
+
+        if (applicableShapes.Count == 0) return;
+
+        if (newFill != _initialFill)
+        {
+            string old = _initialFill;
+            var changes = applicableShapes
+                .Select(s => (Shape: s, OldFill: (string?)old, NewFill: (string?)newFill, OldStroke: (string?)null, NewStroke: (string?)null, OldThickness: (double?)null, NewThickness: (double?)null))
+                .ToList();
+
+            var cmd = new ModifyShapeStyleCommand(changes, "Change Shape Fill");
+            _canvasViewModel.UndoRedoService.ExecuteCommand(cmd);
+            _initialFill = newFill;
+        }
+    }
+
+    public void ApplyStrokeChanges()
+    {
+        if (_canvasViewModel == null) return;
+        string newStroke = BuildStrokeString();
+        StrokeBrushString = newStroke;
+
+        var applicableShapes = _canvasViewModel.SelectedItems.OfType<ShapeItemViewModel>().ToList();
+        if (applicableShapes.Count == 0) return;
+
+        if (newStroke != _initialStroke)
+        {
+            string old = _initialStroke;
+            var changes = applicableShapes
+                .Select(s => (Shape: s, OldFill: (string?)null, NewFill: (string?)null, OldStroke: (string?)old, NewStroke: (string?)newStroke, OldThickness: (double?)null, NewThickness: (double?)null))
+                .ToList();
+
+            var cmd = new ModifyShapeStyleCommand(changes, "Change Shape Stroke");
+            _canvasViewModel.UndoRedoService.ExecuteCommand(cmd);
+            _initialStroke = newStroke;
         }
     }
 }

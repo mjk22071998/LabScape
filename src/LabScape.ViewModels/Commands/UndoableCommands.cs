@@ -327,3 +327,39 @@ public class ReorderLayerZIndexCommand : IUndoableCommand
         }
     }
 }
+
+public class ModifyShapeStyleCommand : IUndoableCommand
+{
+    private readonly List<(ShapeItemViewModel Shape, string? OldFill, string? NewFill, string? OldStroke, string? NewStroke, double? OldThickness, double? NewThickness)> _changes;
+    private readonly string _description;
+
+    public string Description => _description;
+
+    public ModifyShapeStyleCommand(
+        List<(ShapeItemViewModel Shape, string? OldFill, string? NewFill, string? OldStroke, string? NewStroke, double? OldThickness, double? NewThickness)> changes,
+        string description = "Modify Shape Appearance")
+    {
+        _changes = changes;
+        _description = description;
+    }
+
+    public void Execute()
+    {
+        foreach (var c in _changes)
+        {
+            if (c.NewFill != null) c.Shape.Fill = c.NewFill;
+            if (c.NewStroke != null) c.Shape.Stroke = c.NewStroke;
+            if (c.NewThickness.HasValue) c.Shape.StrokeThickness = c.NewThickness.Value;
+        }
+    }
+
+    public void Unexecute()
+    {
+        foreach (var c in _changes)
+        {
+            if (c.OldFill != null) c.Shape.Fill = c.OldFill;
+            if (c.OldStroke != null) c.Shape.Stroke = c.OldStroke;
+            if (c.OldThickness.HasValue) c.Shape.StrokeThickness = c.OldThickness.Value;
+        }
+    }
+}

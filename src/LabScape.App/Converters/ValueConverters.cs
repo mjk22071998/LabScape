@@ -22,19 +22,11 @@ public class HalfValueConverter : IValueConverter
 
 public class HexToBrushConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is string hex && !string.IsNullOrWhiteSpace(hex))
         {
-            try
-            {
-                var color = (Color)ColorConverter.ConvertFromString(hex);
-                return new SolidColorBrush(color);
-            }
-            catch
-            {
-                // fallback
-            }
+            return BrushHelper.ParseBrush(hex);
         }
         return Brushes.Transparent;
     }

@@ -1186,4 +1186,128 @@ public class CoreTests
         undoService.Undo();
         Assert.True(bezier.Width >= 120, $"Expected Bezier width >= 120 after Undo, got {bezier.Width}");
     }
+
+    [Fact]
+    public void ShapeStyle_GradientsAndSolidColors_ParseAndSerializeAndSupportUndoRedo()
+    {
+        // 1. Verify GradientHelper linear and radial gradient creation
+        string linear = GradientHelper.CreateLinearGradient("#4F46E5", "#06B6D4", 45.0);
+        Assert.Equal("linear-gradient(45deg, #4F46E5, #06B6D4)", linear);
+
+        string radial = GradientHelper.CreateRadialGradient("#6366F1", "#EC4899");
+        Assert.Equal("radial-gradient(circle, #6366F1, #EC4899)", radial);
+
+        // 2. Verify GradientHelper analyze brush
+        var infoSolid = GradientHelper.AnalyzeBrush("#3B82F6");
+        Assert.Equal(BrushType.Solid, infoSolid.Type);
+        Assert.Equal("#3B82F6", infoSolid.Color1);
+
+        var infoLinear = GradientHelper.AnalyzeBrush(linear);
+        Assert.Equal(BrushType.LinearGradient, infoLinear.Type);
+        Assert.Equal("#4F46E5", infoLinear.Color1);
+        Assert.Equal("#06B6D4", infoLinear.Color2);
+        Assert.Equal(45.0, infoLinear.Angle);
+
+        var infoRadial = GradientHelper.AnalyzeBrush(radial);
+        Assert.Equal(BrushType.RadialGradient, infoRadial.Type);
+        Assert.Equal("#6366F1", infoRadial.Color1);
+        Assert.Equal("#EC4899", infoRadial.Color2);
+
+        var infoNone = GradientHelper.AnalyzeBrush("none");
+        Assert.Equal(BrushType.None, infoNone.Type);
+
+        // 3. Test PropertiesViewModel integration and Undo/Redo
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo);
+        var props = new PropertiesViewModel(canvas);
+
+        var rect = new ShapeItemViewModel(new ShapeItem
+        {
+            Name = "MyRect",
+            ShapeType = ShapeType.Rectangle,
+            Fill = "#E0E7FF",
+            Stroke = "#4338CA"
+        });
+        canvas.Items.Add(rect);
+        canvas.SelectItem(rect);
+
+        Assert.True(props.IsShape);
+        Assert.True(props.IsFillApplicable);
+        Assert.True(props.IsSolidFill);
+
+        // Apply Linear Gradient Fill
+        props.FillType = BrushType.LinearGradient;
+        props.FillColor1 = "#EF4444";
+        props.FillColor2 = "#F59E0B";
+        props.FillAngle = 135.0;
+        props.ApplyFillChanges();
+
+        Assert.Contains("linear-gradient(135deg, #EF4444, #F59E0B)", rect.Fill);
+
+        // Apply Linear Gradient Stroke
+        props.StrokeType = BrushType.LinearGradient;
+        props.StrokeColor1 = "#10B981";
+        props.StrokeColor2 = "#06B6D4";
+        props.StrokeAngle = 90.0;
+        props.ApplyStrokeChanges();
+
+        Assert.Contains("linear-gradient(90deg, #10B981, #06B6D4)", rect.Stroke);
+
+        // Undo stroke
+        undo.Undo();
+        Assert.Equal("#4338CA", rect.Stroke);
+
+        // Undo fill
+        undo.Undo();
+        Assert.Equal("#E0E7FF", rect.Fill);
+
+        // Redo fill
+        undo.Redo();
+        Assert.Contains("linear-gradient(135deg, #EF4444, #F59E0B)", rect.Fill);
+
+        // Redo stroke
+        undo.Redo();
+        Assert.Contains("linear-gradient(90deg, #10B981, #06B6D4)", rect.Stroke);
+    }
+
+    [Fact]
+    public void ShapeStyle_LineAndBezier_DoNotApplyFill_OnlyStroke()
+    {
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo);
+        var props = new PropertiesViewModel(canvas);
+
+        var line = new ShapeItemViewModel(new ShapeItem
+        {
+            Name = "MyLine",
+            ShapeType = ShapeType.Line,
+            Stroke = "#1E293B"
+        });
+        canvas.Items.Add(line);
+        canvas.SelectItem(line);
+
+        Assert.True(props.IsShape);
+        Assert.False(props.IsFillApplicable, "Line is an open path and must not have fill applicable");
+
+        var bezier = new ShapeItemViewModel(new ShapeItem
+        {
+            Name = "MyBezier",
+            ShapeType = ShapeType.Bezier,
+            Stroke = "#4338CA"
+        });
+        canvas.Items.Add(bezier);
+        canvas.SelectItem(bezier);
+
+        Assert.True(props.IsShape);
+        Assert.False(props.IsFillApplicable, "Bezier curve is an open path and must not have fill applicable");
+
+        // Verify stroke gradient can still be applied to bezier
+        props.StrokeType = BrushType.LinearGradient;
+        props.StrokeColor1 = "#8B5CF6";
+        props.StrokeColor2 = "#EC4899";
+        props.StrokeAngle = 45.0;
+        props.ApplyStrokeChanges();
+
+        Assert.Equal("linear-gradient(45deg, #8B5CF6, #EC4899)", bezier.Stroke);
+    }
 }
