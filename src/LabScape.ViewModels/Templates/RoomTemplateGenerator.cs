@@ -115,7 +115,7 @@ public static class RoomTemplateGenerator
                 if (options.IncludeChairs)
                 {
                     double chairX = Math.Round(deskX + (DeskW - ChairW) / 2.0, 1);
-                    double chairY = Math.Round(deskY + DeskH + 10.0, 1);
+                    double chairY = Math.Round(deskY + DeskH - 20.0, 1);
                     var chair = CreateChair($"Chair-{pcIndex:D2}", chairX, chairY, 180.0);
                     result.Chairs.Add(chair);
                 }
@@ -151,7 +151,7 @@ public static class RoomTemplateGenerator
 
                 if (options.IncludeChairs)
                 {
-                    double chairVisualRight = x0 + roomWidth - WallOffset - DeskH - 10.0;
+                    double chairVisualRight = x0 + roomWidth - WallOffset - DeskH + 20.0;
                     double chairX = Math.Round(chairVisualRight - ChairW, 1);
                     double chairY = Math.Round(centerY - ChairH / 2.0, 1);
                     var chair = CreateChair($"Chair-{pcIndex:D2}", chairX, chairY, 270.0);
@@ -187,7 +187,7 @@ public static class RoomTemplateGenerator
                 if (options.IncludeChairs)
                 {
                     double chairX = Math.Round(deskX + (DeskW - ChairW) / 2.0, 1);
-                    double chairY = Math.Round(deskY - ChairH - 10.0, 1);
+                    double chairY = Math.Round(deskY - ChairH + 20.0, 1);
                     var chair = CreateChair($"Chair-{pcIndex:D2}", chairX, chairY, 0.0);
                     result.Chairs.Add(chair);
                 }
@@ -223,7 +223,7 @@ public static class RoomTemplateGenerator
 
                 if (options.IncludeChairs)
                 {
-                    double chairVisualLeft = x0 + WallOffset + DeskH + 10.0;
+                    double chairVisualLeft = x0 + WallOffset + DeskH - 20.0;
                     double chairX = Math.Round(chairVisualLeft, 1);
                     double chairY = Math.Round(centerY - ChairH / 2.0, 1);
                     var chair = CreateChair($"Chair-{pcIndex:D2}", chairX, chairY, 90.0);
@@ -234,17 +234,17 @@ public static class RoomTemplateGenerator
             }
         }
 
-        // Order elements cleanly: Walls, Desks, Chairs, PCs
+        // Order elements cleanly: Walls, Chairs, Desks, PCs
         result.AllItems.AddRange(result.Walls);
-        result.AllItems.AddRange(result.Desks);
         result.AllItems.AddRange(result.Chairs);
+        result.AllItems.AddRange(result.Desks);
         result.AllItems.AddRange(result.Pcs);
 
         // Assign incremental Z indices
         int z = 1;
         foreach (var wall in result.Walls) wall.Z = z++;
-        foreach (var desk in result.Desks) desk.Z = z++;
         foreach (var chair in result.Chairs) chair.Z = z++;
+        foreach (var desk in result.Desks) desk.Z = z++;
         foreach (var pc in result.Pcs) pc.Z = z++;
 
         // 6. Optional Grouping

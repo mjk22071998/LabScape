@@ -1466,6 +1466,14 @@ public class CoreTests
         Assert.Equal(3, eastChairs.Count);
         Assert.Equal(3, southChairs.Count);
         Assert.Equal(3, westChairs.Count);
+
+        // 5. Chairs positioned forward under desks and layered below desk tabletop
+        var northDesk = result.Desks.First(d => d.Rotation == 0.0);
+        var northChair = northChairs.First();
+        Assert.Equal(northDesk.Y + RoomTemplateGenerator.DeskH - 20.0, northChair.Y, 1);
+        Assert.True(northChair.Z < northDesk.Z, "Chairs must be layered below desks in Z-order");
+        var northPc = northPcs.First();
+        Assert.True(northDesk.Z < northPc.Z, "Desks must be layered below PCs in Z-order");
     }
 
     [Fact]
