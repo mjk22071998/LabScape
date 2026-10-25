@@ -384,19 +384,40 @@ public partial class CanvasView : UserControl
     {
         if (ViewModel == null) return;
 
-        Point mouseScreen = e.GetPosition((UIElement)sender);
-        Point mouseCanvas = e.GetPosition(CanvasSurface);
+        bool isCtrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
+        bool isShift = (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift;
 
-        double oldZoom = ViewModel.ZoomLevel;
-        double factor = e.Delta > 0 ? 1.15 : (1.0 / 1.15);
-        double newZoom = Math.Clamp(Math.Round(oldZoom * factor * 100) / 100, 0.10, 10.0);
-
-        if (Math.Abs(newZoom - oldZoom) > 0.001)
+        if (isCtrl)
         {
-            // Zoom centering invariant: mouseScreen = mouseCanvas * newZoom + pan
-            ViewModel.PanX = mouseScreen.X - mouseCanvas.X * newZoom;
-            ViewModel.PanY = mouseScreen.Y - mouseCanvas.Y * newZoom;
-            ViewModel.ZoomLevel = newZoom;
+            // 1. Ctrl + Scroll: Zoom in and out centered around mouse cursor
+            Point mouseScreen = e.GetPosition((UIElement)sender);
+            Point mouseCanvas = e.GetPosition(CanvasSurface);
+
+            double oldZoom = ViewModel.ZoomLevel;
+            double factor = e.Delta > 0 ? 1.15 : (1.0 / 1.15);
+            double newZoom = Math.Clamp(Math.Round(oldZoom * factor * 100) / 100, 0.10, 10.0);
+
+            if (Math.Abs(newZoom - oldZoom) > 0.001)
+            {
+                // Zoom centering invariant: mouseScreen = mouseCanvas * newZoom + pan
+                ViewModel.PanX = mouseScreen.X - mouseCanvas.X * newZoom;
+                ViewModel.PanY = mouseScreen.Y - mouseCanvas.Y * newZoom;
+                ViewModel.ZoomLevel = newZoom;
+            }
+        }
+        else if (isShift)
+        {
+            // 2. Shift + Scroll: Scroll horizontally
+            double scrollStep = 48.0;
+            double deltaUnits = (e.Delta / 120.0) * scrollStep;
+            ViewModel.PanX += deltaUnits;
+        }
+        else
+        {
+            // 3. Normal Scroll: Scroll vertically
+            double scrollStep = 48.0;
+            double deltaUnits = (e.Delta / 120.0) * scrollStep;
+            ViewModel.PanY += deltaUnits;
         }
 
         e.Handled = true;

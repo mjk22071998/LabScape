@@ -1079,6 +1079,39 @@ public class CoreTests
     }
 
     [Fact]
+    public void Canvas_MouseWheel_VerticalHorizontalAndCtrlZoom()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(projectRoot);
+        string canvasViewPath = Path.Combine(projectRoot, "src", "LabScape.App", "Views", "CanvasView.xaml.cs");
+        Assert.True(File.Exists(canvasViewPath));
+
+        string code = File.ReadAllText(canvasViewPath);
+
+        // 1. Ctrl + Scroll for Zoom in/out
+        Assert.Contains("ModifierKeys.Control", code);
+        Assert.Contains("ViewModel.ZoomLevel = newZoom;", code);
+
+        // 2. Shift + Scroll for Horizontal Scroll
+        Assert.Contains("ModifierKeys.Shift", code);
+        Assert.Contains("ViewModel.PanX +=", code);
+
+        // 3. Normal Scroll for Vertical Scroll
+        Assert.Contains("ViewModel.PanY +=", code);
+    }
+
+    [Fact]
     public void ShapeGeometry_CornerRadius_AndInnerRadius_UpdateCanvasAndSupportUndoRedo()
     {
         var donut = new ShapeItemViewModel(new ShapeItem
