@@ -523,65 +523,6 @@
                         IsHitTestVisible="False"/>
 
             </Canvas>
-
-            <!-- Floating Real-Time Performance Monitor HUD Overlay -->
-            <Border x:Name="PerformanceOverlay"
-                    HorizontalAlignment="Right" VerticalAlignment="Top"
-                    Margin="0,14,14,0"
-                    Background="#E60F172A"
-                    BorderBrush="#38BDF8"
-                    BorderThickness="1.5"
-                    CornerRadius="8"
-                    Padding="14,10"
-                    Panel.ZIndex="1000"
-                    Visibility="{Binding IsPerformanceOverlayVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="12" ShadowDepth="3" Opacity="0.4" Color="#000000"/>
-                </Border.Effect>
-                <StackPanel Width="270">
-                    <DockPanel Margin="0,0,0,6">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Ellipse x:Name="FpsIndicator" Width="8" Height="8" Fill="#10B981" Margin="0,0,6,0"/>
-                            <TextBlock Text="Performance Monitor" FontWeight="Bold" FontSize="11" Foreground="#F8FAFC"/>
-                        </StackPanel>
-                        <TextBlock x:Name="TxtFpsDisplay" Text="60 FPS" FontWeight="ExtraBold" FontSize="12" Foreground="#38BDF8" HorizontalAlignment="Right"/>
-                    </DockPanel>
-
-                    <Grid Margin="0,0,0,6" TextElement.FontSize="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="90"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Frame Time:" Foreground="#94A3B8" Margin="0,1"/>
-                        <TextBlock x:Name="TxtFrameTime" Grid.Row="0" Grid.Column="1" Text="16.6 ms" Foreground="#F1F5F9" FontWeight="SemiBold" Margin="0,1"/>
-
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Items on Canvas:" Foreground="#94A3B8" Margin="0,1"/>
-                        <TextBlock x:Name="TxtItemCounts" Grid.Row="1" Grid.Column="1" Text="0 items" Foreground="#F1F5F9" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,1"/>
-
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Managed Heap:" Foreground="#94A3B8" Margin="0,1"/>
-                        <TextBlock x:Name="TxtMemoryHeap" Grid.Row="2" Grid.Column="1" Text="0 MB" Foreground="#F1F5F9" FontWeight="SemiBold" Margin="0,1"/>
-
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Working Set:" Foreground="#94A3B8" Margin="0,1"/>
-                        <TextBlock x:Name="TxtWorkingSet" Grid.Row="3" Grid.Column="1" Text="0 MB" Foreground="#F1F5F9" FontWeight="SemiBold" Margin="0,1"/>
-                    </Grid>
-
-                    <UniformGrid Columns="2" Margin="0,2,0,0">
-                        <Button x:Name="BtnSimulate1k" Content="⚡ 1K Simulation" Padding="4,4" Margin="0,0,3,0"
-                                Background="#2563EB" Foreground="White" FontWeight="Bold" FontSize="10"
-                                Click="BtnSimulate1k_Click"/>
-                        <Button x:Name="BtnClearSimulation" Content="🧹 Clear Canvas" Padding="4,4" Margin="3,0,0,0"
-                                Background="#334155" Foreground="#CBD5E1" FontWeight="SemiBold" FontSize="10"
-                                Click="BtnClearSimulation_Click"/>
-                    </UniformGrid>
-                </StackPanel>
-            </Border>
             </Grid>
         </Border>
     </Grid>

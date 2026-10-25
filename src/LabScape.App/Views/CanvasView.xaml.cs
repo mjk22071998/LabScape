@@ -31,14 +31,6 @@ public partial class CanvasView : UserControl
     private readonly List<FrameworkElement> _adornedElements = new();
     private CanvasViewModel? _subscribedVm;
 
-    // Real-time rendering performance metrics & telemetry
-    private readonly Stopwatch _fpsStopwatch = new();
-    private int _frameCount = 0;
-    private double _lastFpsUpdate = 0;
-    private long _lastFrameTicks = 0;
-    private double _smoothedFrameTimeMs = 16.6;
-    private bool _isRenderingHooked = false;
-
     private const double SnapTolerance = 6.0;
 
     public CanvasView()
@@ -57,97 +49,11 @@ public partial class CanvasView : UserControl
     private void CanvasView_Loaded(object sender, RoutedEventArgs e)
     {
         HookViewModel();
-        if (!_isRenderingHooked)
-        {
-            _fpsStopwatch.Restart();
-            CompositionTarget.Rendering += OnCompositionRendering;
-            _isRenderingHooked = true;
-        }
     }
 
     private void CanvasView_Unloaded(object sender, RoutedEventArgs e)
     {
         UnhookViewModel();
-        if (_isRenderingHooked)
-        {
-            CompositionTarget.Rendering -= OnCompositionRendering;
-            _isRenderingHooked = false;
-        }
-    }
-
-    private void OnCompositionRendering(object? sender, EventArgs e)
-    {
-        _frameCount++;
-        long currentTicks = _fpsStopwatch.ElapsedTicks;
-        if (_lastFrameTicks > 0)
-        {
-            double frameDurationMs = (currentTicks - _lastFrameTicks) * 1000.0 / Stopwatch.Frequency;
-            _smoothedFrameTimeMs = 0.9 * _smoothedFrameTimeMs + 0.1 * frameDurationMs;
-        }
-        _lastFrameTicks = currentTicks;
-
-        double elapsedSeconds = _fpsStopwatch.Elapsed.TotalSeconds;
-        if (elapsedSeconds - _lastFpsUpdate >= 0.4)
-        {
-            double fps = _frameCount / (elapsedSeconds - _lastFpsUpdate);
-            _frameCount = 0;
-            _lastFpsUpdate = elapsedSeconds;
-
-            UpdateTelemetryReadout(fps, _smoothedFrameTimeMs);
-        }
-    }
-
-    private void UpdateTelemetryReadout(double fps, double frameTimeMs)
-    {
-        if (TxtFpsDisplay == null || FpsIndicator == null) return;
-
-        TxtFpsDisplay.Text = $"{fps:0} FPS";
-        TxtFrameTime.Text = $"{frameTimeMs:0.1} ms";
-
-        if (fps >= 55)
-            FpsIndicator.Fill = Brushes.LightGreen;
-        else if (fps >= 30)
-            FpsIndicator.Fill = Brushes.Orange;
-        else
-            FpsIndicator.Fill = Brushes.Red;
-
-        if (ViewModel != null)
-        {
-            int total = ViewModel.Items.Count;
-            if (total == 0)
-            {
-                TxtItemCounts.Text = "0 items";
-            }
-            else
-            {
-                int dev = ViewModel.Items.Count(i => i is DeviceItemViewModel);
-                int furn = ViewModel.Items.Count(i => i is FurnitureItemViewModel);
-                int lines = ViewModel.Items.Count(i => i is ShapeItemViewModel s && s.ShapeType == Core.Enums.ShapeType.Line);
-                int beziers = ViewModel.Items.Count(i => i is ShapeItemViewModel s && s.ShapeType == Core.Enums.ShapeType.Bezier);
-                int otherShapes = ViewModel.Items.Count(i => i is ShapeItemViewModel s && s.ShapeType != Core.Enums.ShapeType.Line && s.ShapeType != Core.Enums.ShapeType.Bezier);
-
-                TxtItemCounts.Text = $"{total:N0} ({dev + furn} icons, {otherShapes} shp, {lines} lin, {beziers} bez)";
-            }
-        }
-
-        long heapBytes = GC.GetTotalMemory(false);
-        long wsBytes = Environment.WorkingSet;
-        TxtMemoryHeap.Text = $"{heapBytes / (1024.0 * 1024.0):0.1} MB";
-        TxtWorkingSet.Text = $"{wsBytes / (1024.0 * 1024.0):0.1} MB";
-    }
-
-    private void BtnSimulate1k_Click(object sender, RoutedEventArgs e)
-    {
-        if (ViewModel == null) return;
-        ViewModel.Simulate1kStressTest();
-        UpdateTelemetryReadout(60.0, 16.6);
-    }
-
-    private void BtnClearSimulation_Click(object sender, RoutedEventArgs e)
-    {
-        if (ViewModel == null) return;
-        ViewModel.ClearAll();
-        UpdateTelemetryReadout(60.0, 16.6);
     }
 
     private void HookViewModel()

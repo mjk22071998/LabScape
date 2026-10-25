@@ -51,9 +51,6 @@ public partial class CanvasViewModel : ObservableObject
     private double _cursorY = 0;
 
     [ObservableProperty]
-    private bool _isPerformanceOverlayVisible = true;
-
-    [ObservableProperty]
     private SimulationBenchmarkResult? _lastBenchmarkResult;
 
     public IUndoRedoService UndoRedoService => _undoRedoService;
