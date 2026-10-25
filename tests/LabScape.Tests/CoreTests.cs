@@ -5,6 +5,7 @@ using LabScape.Infrastructure.Services;
 using LabScape.ViewModels;
 using LabScape.ViewModels.Commands;
 using LabScape.ViewModels.Items;
+using LabScape.ViewModels.Templates;
 using Xunit;
 
 namespace LabScape.Tests;
@@ -1401,5 +1402,176 @@ public class CoreTests
         props.ApplyStrokeChanges();
 
         Assert.Equal("linear-gradient(45deg, #8B5CF6, #EC4899)", bezier.Stroke);
+    }
+
+    [Fact]
+    public void RoomTemplateGenerator_4Sides_GeneratesIndividualLinesAndProperRotations()
+    {
+        var options = new RoomTemplateOptions
+        {
+            Sides = 4,
+            PcCount = 12,
+            IncludeDesks = true,
+            IncludeChairs = true,
+            GroupElements = false
+        };
+
+        var result = RoomTemplateGenerator.Generate(options);
+
+        // 1. Boundary MUST consist of separate Line shapes - NEVER a single Rectangle
+        Assert.Equal(4, result.Walls.Count);
+        foreach (var wall in result.Walls)
+        {
+            Assert.Equal(ShapeType.Line, wall.ShapeType);
+        }
+        Assert.Contains(result.Walls, w => w.Name == "North Wall");
+        Assert.Contains(result.Walls, w => w.Name == "East Wall");
+        Assert.Contains(result.Walls, w => w.Name == "South Wall");
+        Assert.Contains(result.Walls, w => w.Name == "West Wall");
+
+        // 2. Hardware and furniture counts
+        Assert.Equal(12, result.Pcs.Count);
+        Assert.Equal(12, result.Desks.Count);
+        Assert.Equal(12, result.Chairs.Count);
+
+        // 3. 12 PCs distributed evenly across 4 walls (3 per wall)
+        var northPcs = result.Pcs.Where(p => p.Rotation == 0.0).ToList();
+        var eastPcs = result.Pcs.Where(p => p.Rotation == 90.0).ToList();
+        var southPcs = result.Pcs.Where(p => p.Rotation == 180.0).ToList();
+        var westPcs = result.Pcs.Where(p => p.Rotation == 270.0).ToList();
+
+        Assert.Equal(3, northPcs.Count);
+        Assert.Equal(3, eastPcs.Count);
+        Assert.Equal(3, southPcs.Count);
+        Assert.Equal(3, westPcs.Count);
+
+        // 4. Chairs facing desks
+        var northChairs = result.Chairs.Where(c => c.Rotation == 180.0).ToList();
+        var eastChairs = result.Chairs.Where(c => c.Rotation == 270.0).ToList();
+        var southChairs = result.Chairs.Where(c => c.Rotation == 0.0).ToList();
+        var westChairs = result.Chairs.Where(c => c.Rotation == 90.0).ToList();
+
+        Assert.Equal(3, northChairs.Count);
+        Assert.Equal(3, eastChairs.Count);
+        Assert.Equal(3, southChairs.Count);
+        Assert.Equal(3, westChairs.Count);
+    }
+
+    [Fact]
+    public void RoomTemplateGenerator_3Sides_U_Shape_LeavesOpenEntrance()
+    {
+        var options = new RoomTemplateOptions
+        {
+            Sides = 3,
+            OpenSide = WallSide.South,
+            PcCount = 9,
+            IncludeDesks = true,
+            IncludeChairs = true
+        };
+
+        var result = RoomTemplateGenerator.Generate(options);
+
+        // 3 Line walls generated, South wall is absent (open entrance doorway)
+        Assert.Equal(3, result.Walls.Count);
+        Assert.All(result.Walls, w => Assert.Equal(ShapeType.Line, w.ShapeType));
+        Assert.Contains(result.Walls, w => w.Name == "North Wall");
+        Assert.Contains(result.Walls, w => w.Name == "East Wall");
+        Assert.Contains(result.Walls, w => w.Name == "West Wall");
+        Assert.DoesNotContain(result.Walls, w => w.Name == "South Wall");
+
+        // 9 PCs distributed 3 North, 3 East, 3 West
+        Assert.Equal(9, result.Pcs.Count);
+        Assert.Equal(3, result.Pcs.Count(p => p.Rotation == 0.0));
+        Assert.Equal(3, result.Pcs.Count(p => p.Rotation == 90.0));
+        Assert.Equal(3, result.Pcs.Count(p => p.Rotation == 270.0));
+        Assert.Equal(0, result.Pcs.Count(p => p.Rotation == 180.0));
+    }
+
+    [Fact]
+    public void RoomTemplateGenerator_2Sides_And_1Side_Configurations()
+    {
+        // 2 sides (L-Corner: North & West)
+        var options2 = new RoomTemplateOptions
+        {
+            Sides = 2,
+            CornerOption = "NorthWest",
+            PcCount = 6,
+            IncludeDesks = true,
+            IncludeChairs = true
+        };
+        var result2 = RoomTemplateGenerator.Generate(options2);
+        Assert.Equal(2, result2.Walls.Count);
+        Assert.All(result2.Walls, w => Assert.Equal(ShapeType.Line, w.ShapeType));
+        Assert.Contains(result2.Walls, w => w.Name == "North Wall");
+        Assert.Contains(result2.Walls, w => w.Name == "West Wall");
+        Assert.Equal(6, result2.Pcs.Count);
+
+        // 1 side (Single wall/bench: North)
+        var options1 = new RoomTemplateOptions
+        {
+            Sides = 1,
+            SingleSide = WallSide.North,
+            PcCount = 4,
+            IncludeDesks = true,
+            IncludeChairs = true
+        };
+        var result1 = RoomTemplateGenerator.Generate(options1);
+        Assert.Single(result1.Walls);
+        Assert.Equal(ShapeType.Line, result1.Walls[0].ShapeType);
+        Assert.Equal("North Wall", result1.Walls[0].Name);
+        Assert.Equal(4, result1.Pcs.Count);
+        Assert.All(result1.Pcs, p => Assert.Equal(0.0, p.Rotation));
+    }
+
+    [Fact]
+    public void CanvasViewModel_AddRoomTemplate_GroupsAndSupportsUndoRedo()
+    {
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo) { SnapToGrid = false };
+
+        var options = new RoomTemplateOptions
+        {
+            Sides = 4,
+            PcCount = 8,
+            IncludeDesks = true,
+            IncludeChairs = true,
+            GroupElements = true,
+            OriginX = 100,
+            OriginY = 100
+        };
+
+        canvas.AddRoomTemplate(options);
+
+        // 1. Single group item on canvas
+        Assert.Single(canvas.Items);
+        var group = Assert.IsType<GroupItemViewModel>(canvas.Items[0]);
+
+        // Children: 4 walls + 8 PCs + 8 desks + 8 chairs = 28 items
+        Assert.Equal(28, group.Children.Count);
+
+        // Verify wall children are lines
+        var walls = group.Children.OfType<ShapeItemViewModel>().ToList();
+        Assert.Equal(4, walls.Count);
+        Assert.All(walls, w => Assert.Equal(ShapeType.Line, w.ShapeType));
+
+        // 2. Moving the group shifts children's absolute coordinates
+        double oldChildX = group.Children[0].X;
+        group.X += 50.0;
+        Assert.Equal(oldChildX + 50.0, group.Children[0].X);
+
+        // 3. Undo removes the room template
+        undo.Undo();
+        Assert.Empty(canvas.Items);
+
+        // 4. Redo restores the room template
+        undo.Redo();
+        Assert.Single(canvas.Items);
+
+        // 5. Ungrouping unpacks individual components
+        canvas.SelectItem(canvas.Items[0]);
+        canvas.UngroupSelected();
+        Assert.Equal(28, canvas.Items.Count);
+        Assert.DoesNotContain(canvas.Items, i => i is GroupItemViewModel);
+        Assert.Equal(4, canvas.Items.OfType<ShapeItemViewModel>().Count(w => w.ShapeType == ShapeType.Line));
     }
 }

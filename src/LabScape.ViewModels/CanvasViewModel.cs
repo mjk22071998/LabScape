@@ -6,6 +6,7 @@ using LabScape.Core.Interfaces;
 using LabScape.ViewModels.Commands;
 using LabScape.ViewModels.Items;
 using LabScape.ViewModels.Services;
+using LabScape.ViewModels.Templates;
 
 namespace LabScape.ViewModels;
 
@@ -81,6 +82,25 @@ public partial class CanvasViewModel : ObservableObject
 
         _undoRedoService.ExecuteCommand(new AddItemCommand(Items, item));
         SetSelection(new[] { item });
+    }
+
+    public void AddRoomTemplate(RoomTemplateOptions options)
+    {
+        var result = RoomTemplateGenerator.Generate(options);
+        if (options.GroupElements && result.Group != null)
+        {
+            AddItem(result.Group);
+        }
+        else
+        {
+            int maxZ = Items.Count > 0 ? Items.Max(i => i.Z) : 0;
+            foreach (var item in result.AllItems)
+            {
+                item.Z = ++maxZ;
+            }
+            _undoRedoService.ExecuteCommand(new AddItemsBatchCommand(Items, result.AllItems));
+            SetSelection(result.AllItems);
+        }
     }
 
     public void SelectItem(ItemViewModel item, bool addToExisting = false)

@@ -150,6 +150,13 @@
                                    Icon="{StaticResource IconUngroup}" LargeIcon="{StaticResource IconUngroup}"/>
                 </fluent:RibbonGroupBox>
 
+                <!-- Templates & Room Generator -->
+                <fluent:RibbonGroupBox Header="Templates">
+                    <fluent:Button Header="Room Template" Click="RoomGenerator_Click"
+                                   ToolTip="Generate automated room layout with line boundary walls, modular desks, and PCs"
+                                   Icon="{StaticResource IconRoomTemplate}" LargeIcon="{StaticResource IconRoomTemplate}"/>
+                </fluent:RibbonGroupBox>
+
                 <!-- Layering & Arrange (Layers) -->
                 <fluent:RibbonGroupBox Header="Layers">
                     <fluent:Button Header="Move to Front" Command="{Binding Canvas.MoveToFrontCommand}" ToolTip="Move to Front (Ctrl+Shift+] / Shift+PageUp)"

@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LabScape.Core.Enums;
 using LabScape.Core.Models;
@@ -62,13 +62,23 @@ public partial class ItemViewModel : ObservableObject
     }
 
     partial void OnNameChanged(string value) => Model.Name = value;
-    partial void OnXChanged(double value) => Model.X = value;
-    partial void OnYChanged(double value) => Model.Y = value;
+    partial void OnXChanged(double oldValue, double newValue)
+    {
+        Model.X = newValue;
+        OnPositionChanged(newValue - oldValue, 0);
+    }
+    partial void OnYChanged(double oldValue, double newValue)
+    {
+        Model.Y = newValue;
+        OnPositionChanged(0, newValue - oldValue);
+    }
     partial void OnZChanged(int value) => Model.Z = value;
     partial void OnWidthChanged(double value) => Model.Width = value;
     partial void OnHeightChanged(double value) => Model.Height = value;
     partial void OnRotationChanged(double value) => Model.Rotation = value;
     partial void OnParentGroupIdChanged(string? value) => Model.ParentGroupId = value;
+
+    protected virtual void OnPositionChanged(double deltaX, double deltaY) { }
 
     public static ItemViewModel FromModel(LayoutItemBase model)
     {

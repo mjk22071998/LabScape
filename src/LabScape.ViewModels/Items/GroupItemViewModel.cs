@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LabScape.Core.Models;
 
@@ -49,6 +49,18 @@ public partial class GroupItemViewModel : ItemViewModel
         RecalculateBounds();
     }
 
+    private bool _isInternalUpdating;
+
+    protected override void OnPositionChanged(double deltaX, double deltaY)
+    {
+        if (_isInternalUpdating) return;
+        foreach (var child in Children)
+        {
+            child.X += deltaX;
+            child.Y += deltaY;
+        }
+    }
+
     public void RecalculateBounds()
     {
         if (Children.Count == 0) return;
@@ -58,9 +70,17 @@ public partial class GroupItemViewModel : ItemViewModel
         double maxX = Children.Max(c => c.X + c.Width);
         double maxY = Children.Max(c => c.Y + c.Height);
 
-        X = minX;
-        Y = minY;
-        Width = Math.Max(10, maxX - minX);
-        Height = Math.Max(10, maxY - minY);
+        _isInternalUpdating = true;
+        try
+        {
+            X = minX;
+            Y = minY;
+            Width = Math.Max(10, maxX - minX);
+            Height = Math.Max(10, maxY - minY);
+        }
+        finally
+        {
+            _isInternalUpdating = false;
+        }
     }
 }

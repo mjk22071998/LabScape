@@ -6,6 +6,7 @@ using LabScape.Core.Interfaces;
 using LabScape.Core.Models;
 using LabScape.ViewModels.Commands;
 using LabScape.ViewModels.Items;
+using LabScape.ViewModels.Templates;
 
 namespace LabScape.ViewModels;
 
@@ -247,6 +248,30 @@ public partial class MainViewModel : ObservableObject
     public void SelectTool(string toolName)
     {
         ActiveTool = toolName;
+    }
+
+    public event Action? RequestRoomTemplateDialog;
+
+    [RelayCommand]
+    public void GenerateRoomTemplate(RoomTemplateOptions? options = null)
+    {
+        if (options != null)
+        {
+            ActiveTab?.Canvas.AddRoomTemplate(options);
+        }
+        else if (RequestRoomTemplateDialog != null)
+        {
+            RequestRoomTemplateDialog.Invoke();
+        }
+        else if (ActiveTab?.Canvas != null)
+        {
+            var fallback = new RoomTemplateOptions
+            {
+                OriginX = Math.Max(60.0, -ActiveTab.Canvas.PanX + 120.0),
+                OriginY = Math.Max(60.0, -ActiveTab.Canvas.PanY + 120.0)
+            };
+            ActiveTab.Canvas.AddRoomTemplate(fallback);
+        }
     }
 
     // ==========================================

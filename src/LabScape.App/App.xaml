@@ -25,6 +25,7 @@
             <converters:ResourceKeyToImageConverter x:Key="ResourceKeyToImageConverter"/>
             <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>
             <converters:DeviceLabelWrapConverter x:Key="DeviceLabelWrapConverter"/>
+            <converters:RelativeOffsetConverter x:Key="RelativeOffsetConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

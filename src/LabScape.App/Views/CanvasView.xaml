@@ -467,8 +467,22 @@
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemContainerStyle>
                                         <Style TargetType="ContentPresenter">
-                                            <Setter Property="Canvas.Left" Value="{Binding X}"/>
-                                            <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                                            <Setter Property="Canvas.Left">
+                                                <Setter.Value>
+                                                    <MultiBinding Converter="{StaticResource RelativeOffsetConverter}">
+                                                        <Binding Path="X"/>
+                                                        <Binding Path="DataContext.X" RelativeSource="{RelativeSource AncestorType=Grid}"/>
+                                                    </MultiBinding>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Setter Property="Canvas.Top">
+                                                <Setter.Value>
+                                                    <MultiBinding Converter="{StaticResource RelativeOffsetConverter}">
+                                                        <Binding Path="Y"/>
+                                                        <Binding Path="DataContext.Y" RelativeSource="{RelativeSource AncestorType=Grid}"/>
+                                                    </MultiBinding>
+                                                </Setter.Value>
+                                            </Setter>
                                             <Setter Property="Panel.ZIndex" Value="{Binding Z}"/>
                                         </Style>
                                     </ItemsControl.ItemContainerStyle>

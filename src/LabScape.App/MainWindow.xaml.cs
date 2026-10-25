@@ -29,6 +29,8 @@ public partial class MainWindow : RibbonWindow
             initialUndo,
             undoRedoFactory: () => new UndoRedoService());
 
+        ViewModel.RequestRoomTemplateDialog += ShowRoomTemplateDialog;
+
         DataContext = ViewModel;
 
         Loaded += (s, e) =>
@@ -570,6 +572,37 @@ public partial class MainWindow : RibbonWindow
     private void Exit_Click(object sender, RoutedEventArgs e)
     {
         Close();
+    }
+
+    private void RoomGenerator_Click(object sender, RoutedEventArgs e)
+    {
+        ShowRoomTemplateDialog();
+    }
+
+    public void ShowRoomTemplateDialog()
+    {
+        if (ViewModel.ActiveTab?.Canvas == null) return;
+        var canvas = ViewModel.ActiveTab.Canvas;
+
+        double originX = Math.Max(60.0, -canvas.PanX + 120.0);
+        double originY = Math.Max(60.0, -canvas.PanY + 120.0);
+        if (canvas.SnapToGrid)
+        {
+            originX = Math.Round(originX / canvas.GridSize) * canvas.GridSize;
+            originY = Math.Round(originY / canvas.GridSize) * canvas.GridSize;
+        }
+
+        var defaultOptions = new ViewModels.Templates.RoomTemplateOptions
+        {
+            OriginX = originX,
+            OriginY = originY
+        };
+
+        var dlg = new Dialogs.RoomTemplateDialog(defaultOptions) { Owner = this };
+        if (dlg.ShowDialog() == true)
+        {
+            canvas.AddRoomTemplate(dlg.Options);
+        }
     }
 
     private async void DatabaseConnect_Click(object sender, RoutedEventArgs e)

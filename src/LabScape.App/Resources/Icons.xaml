@@ -531,4 +531,29 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
+    <!-- 46. Room Template Generator -->
+    <DrawingImage x:Key="IconRoomTemplate">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <!-- Room Perimeter Walls with door opening -->
+                <GeometryDrawing Geometry="M 3 21 V 3 H 21 V 21 H 15">
+                    <GeometryDrawing.Pen><Pen Brush="#2563EB" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 3 21 H 8">
+                    <GeometryDrawing.Pen><Pen Brush="#2563EB" Thickness="2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Door swing arc -->
+                <GeometryDrawing Geometry="M 8 21 A 7 7 0 0 1 15 14">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1" DashStyle="Dash"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Internal modular desks & workstations -->
+                <GeometryDrawing Brush="#E2E8F0" Geometry="M 6 6 H 18 V 10 H 6 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#4F46E5" Geometry="M 8 7 H 11 V 9 H 8 Z"/>
+                <GeometryDrawing Brush="#4F46E5" Geometry="M 13 7 H 16 V 9 H 13 Z"/>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
 </ResourceDictionary>
