@@ -10,6 +10,7 @@ using LabScape.App.Adorners;
 using LabScape.ViewModels;
 using LabScape.ViewModels.Items;
 using LabScape.ViewModels.Stencils;
+using LabScape.ViewModels.Templates;
 
 namespace LabScape.App.Views;
 
@@ -523,6 +524,32 @@ public partial class CanvasView : UserControl
 
     private void Viewport_DragOver(object sender, DragEventArgs e)
     {
+        if (e.Data.GetDataPresent(typeof(RoomTemplateOptions)))
+        {
+            e.Effects = DragDropEffects.Copy;
+            if (e.Data.GetData(typeof(RoomTemplateOptions)) is RoomTemplateOptions options)
+            {
+                var preview = RoomTemplateGenerator.Generate(options);
+                Point p = e.GetPosition(CanvasSurface);
+                double gx = Math.Max(0, p.X - preview.RoomWidth / 2.0);
+                double gy = Math.Max(0, p.Y - preview.RoomHeight / 2.0);
+
+                if (ViewModel?.SnapToGrid == true)
+                {
+                    gx = Math.Round(gx / ViewModel.GridSize) * ViewModel.GridSize;
+                    gy = Math.Round(gy / ViewModel.GridSize) * ViewModel.GridSize;
+                }
+
+                Canvas.SetLeft(DragGhost, gx);
+                Canvas.SetTop(DragGhost, gy);
+                DragGhost.Width = preview.RoomWidth;
+                DragGhost.Height = preview.RoomHeight;
+                DragGhost.Visibility = Visibility.Visible;
+            }
+            e.Handled = true;
+            return;
+        }
+
         if (e.Data.GetDataPresent(typeof(StencilItem)))
         {
             e.Effects = DragDropEffects.Copy;
@@ -560,6 +587,28 @@ public partial class CanvasView : UserControl
         DragGhost.Visibility = Visibility.Collapsed;
 
         if (ViewModel == null) return;
+
+        if (e.Data.GetDataPresent(typeof(RoomTemplateOptions)) &&
+            e.Data.GetData(typeof(RoomTemplateOptions)) is RoomTemplateOptions options)
+        {
+            Point p = e.GetPosition(CanvasSurface);
+            var preview = RoomTemplateGenerator.Generate(options);
+            double dropX = Math.Max(0, p.X - preview.RoomWidth / 2.0);
+            double dropY = Math.Max(0, p.Y - preview.RoomHeight / 2.0);
+
+            if (ViewModel.SnapToGrid)
+            {
+                dropX = Math.Round(dropX / ViewModel.GridSize) * ViewModel.GridSize;
+                dropY = Math.Round(dropY / ViewModel.GridSize) * ViewModel.GridSize;
+            }
+
+            options.OriginX = dropX;
+            options.OriginY = dropY;
+            ViewModel.AddRoomTemplate(options);
+            e.Handled = true;
+            return;
+        }
+
         if (e.Data.GetData(typeof(StencilItem)) is StencilItem stencil)
         {
             Point p = e.GetPosition(CanvasSurface);

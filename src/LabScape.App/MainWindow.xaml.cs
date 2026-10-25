@@ -29,7 +29,7 @@ public partial class MainWindow : RibbonWindow
             initialUndo,
             undoRedoFactory: () => new UndoRedoService());
 
-        ViewModel.RequestRoomTemplateDialog += ShowRoomTemplateDialog;
+        ViewModel.RequestRoomTemplateDialog += ActivateRoomTemplateWindow;
 
         DataContext = ViewModel;
 
@@ -576,7 +576,16 @@ public partial class MainWindow : RibbonWindow
 
     private void RoomGenerator_Click(object sender, RoutedEventArgs e)
     {
-        ShowRoomTemplateDialog();
+        ActivateRoomTemplateWindow();
+    }
+
+    public void ActivateRoomTemplateWindow()
+    {
+        if (RoomTemplateAnchorable != null)
+        {
+            RoomTemplateAnchorable.IsActive = true;
+            RoomTemplateAnchorable.IsSelected = true;
+        }
     }
 
     public void ShowRoomTemplateDialog()

@@ -1,0 +1,201 @@
+<UserControl x:Class="LabScape.App.Views.RoomTemplateView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:templates="clr-namespace:LabScape.ViewModels.Templates;assembly=LabScape.ViewModels"
+             xmlns:enums="clr-namespace:LabScape.Core.Enums;assembly=LabScape.Core"
+             mc:Ignorable="d" 
+             d:DesignHeight="720" d:DesignWidth="280">
+
+    <Grid Background="{DynamicResource PanelBackgroundBrush}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="10,10,10,16">
+
+                <!-- Header Banner -->
+                <Border Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource CardBorderBrush}"
+                        BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,10">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Image Source="{StaticResource IconRoomTemplate}" Width="20" Height="20" Margin="0,0,8,0"/>
+                            <TextBlock Text="Room Templates" FontWeight="Bold" FontSize="13"
+                                       Foreground="{DynamicResource AppTextPrimaryBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="Automated lab &amp; room generator with modular desks and line walls."
+                                   TextWrapping="Wrap" FontSize="10.5"
+                                   Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="28,2,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 1. Wall Boundary & Sides -->
+                <GroupBox Header="1. Room Walls &amp; Shape" FontWeight="SemiBold"
+                          Foreground="{DynamicResource AppTextPrimaryBrush}" Margin="0,0,0,10">
+                    <StackPanel Margin="6,8" TextElement.FontWeight="Normal">
+                        <TextBlock Text="Select boundary configuration:" FontSize="11"
+                                   Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,6"/>
+
+                        <!-- Radio Buttons for Sides -->
+                        <StackPanel Margin="2,0,0,6">
+                            <RadioButton Content="4 Sides (Full Room)"
+                                         IsChecked="{Binding Sides, Converter={StaticResource EqualityToBooleanConverter}, ConverterParameter=4}"
+                                         Margin="0,0,0,5" FontWeight="SemiBold"/>
+                            <RadioButton Content="3 Sides (U-Shape)"
+                                         IsChecked="{Binding Sides, Converter={StaticResource EqualityToBooleanConverter}, ConverterParameter=3}"
+                                         Margin="0,0,0,5" FontWeight="SemiBold"/>
+                            <RadioButton Content="2 Sides (L-Corner)"
+                                         IsChecked="{Binding Sides, Converter={StaticResource EqualityToBooleanConverter}, ConverterParameter=2}"
+                                         Margin="0,0,0,5" FontWeight="SemiBold"/>
+                            <RadioButton Content="1 Side (Bench / Row)"
+                                         IsChecked="{Binding Sides, Converter={StaticResource EqualityToBooleanConverter}, ConverterParameter=1}"
+                                         Margin="0,0,0,5" FontWeight="SemiBold"/>
+                        </StackPanel>
+
+                        <!-- Open Side Selector (For 3 Sides) -->
+                        <StackPanel Visibility="{Binding Is3SidesVisible, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,2,0,6">
+                            <TextBlock Text="Open Entrance Side:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,2"/>
+                            <ComboBox SelectedValue="{Binding OpenSide}" SelectedValuePath="Tag">
+                                <ComboBoxItem Content="South (Bottom Entrance)" Tag="{x:Static enums:WallSide.South}"/>
+                                <ComboBoxItem Content="North (Top Entrance)" Tag="{x:Static enums:WallSide.North}"/>
+                                <ComboBoxItem Content="East (Right Entrance)" Tag="{x:Static enums:WallSide.East}"/>
+                                <ComboBoxItem Content="West (Left Entrance)" Tag="{x:Static enums:WallSide.West}"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <!-- Corner Selector (For 2 Sides) -->
+                        <StackPanel Visibility="{Binding Is2SidesVisible, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,2,0,6">
+                            <TextBlock Text="Corner Orientation:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,2"/>
+                            <ComboBox SelectedValue="{Binding CornerOption}" SelectedValuePath="Tag">
+                                <ComboBoxItem Content="North &amp; West (Top-Left)" Tag="NorthWest"/>
+                                <ComboBoxItem Content="North &amp; East (Top-Right)" Tag="NorthEast"/>
+                                <ComboBoxItem Content="South &amp; West (Bottom-Left)" Tag="SouthWest"/>
+                                <ComboBoxItem Content="South &amp; East (Bottom-Right)" Tag="SouthEast"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <!-- Single Side Selector (For 1 Side) -->
+                        <StackPanel Visibility="{Binding Is1SideVisible, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,2,0,6">
+                            <TextBlock Text="Wall Direction:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,2"/>
+                            <ComboBox SelectedValue="{Binding SingleSide}" SelectedValuePath="Tag">
+                                <ComboBoxItem Content="North (Top Wall)" Tag="{x:Static enums:WallSide.North}"/>
+                                <ComboBoxItem Content="South (Bottom Wall)" Tag="{x:Static enums:WallSide.South}"/>
+                                <ComboBoxItem Content="West (Left Wall)" Tag="{x:Static enums:WallSide.West}"/>
+                                <ComboBoxItem Content="East (Right Wall)" Tag="{x:Static enums:WallSide.East}"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <!-- Autonomy Line Notice -->
+                        <Border Background="#F0FDF4" BorderBrush="#BBF7D0" BorderThickness="1" CornerRadius="4" Padding="6,5" Margin="0,4,0,0">
+                            <TextBlock Text="💡 Boundaries are generated as individual Line segments (never a rigid rectangle) for custom doors &amp; openings."
+                                       TextWrapping="Wrap" FontSize="10" Foreground="#15803D"/>
+                        </Border>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- 2. Workstations & Equipment -->
+                <GroupBox Header="2. Workstations &amp; Equipment" FontWeight="SemiBold"
+                          Foreground="{DynamicResource AppTextPrimaryBrush}" Margin="0,0,0,10">
+                    <StackPanel Margin="6,8" TextElement.FontWeight="Normal">
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="42"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="PCs:" VerticalAlignment="Center" FontSize="11"
+                                       Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,6,0"/>
+                            <Slider Grid.Column="1" Minimum="1" Maximum="48"
+                                    Value="{Binding PcCount, Mode=TwoWay}"
+                                    IsSnapToTickEnabled="True" TickFrequency="1"
+                                    VerticalAlignment="Center" Margin="4,0"/>
+                            <TextBox Grid.Column="2" Text="{Binding PcCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     TextAlignment="Center" FontWeight="Bold" Padding="2" FontSize="11"/>
+                        </Grid>
+
+                        <CheckBox Content="Modular Desks (120×70)" IsChecked="{Binding IncludeDesks}"
+                                  Margin="0,0,0,5" FontSize="11"/>
+                        <CheckBox Content="Swivel Chairs (Facing Desks)" IsChecked="{Binding IncludeChairs}"
+                                  Margin="0,0,0,5" FontSize="11"/>
+                        <CheckBox Content="Group Components (Ctrl+G)" IsChecked="{Binding GroupElements}"
+                                  FontWeight="SemiBold" Margin="0,0,0,2" FontSize="11"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- 3. Live Preview & Drag Card -->
+                <GroupBox Header="3. Layout Preview &amp; Drag" FontWeight="SemiBold"
+                          Foreground="{DynamicResource AppTextPrimaryBrush}" Margin="0,0,0,12">
+                    <StackPanel Margin="6,8" TextElement.FontWeight="Normal">
+                        <Border x:Name="DragCard"
+                                Background="{DynamicResource CardBackgroundBrush}"
+                                BorderBrush="{DynamicResource CardBorderBrush}"
+                                BorderThickness="1" CornerRadius="6" Padding="8"
+                                Cursor="Hand"
+                                ToolTip="Click and drag onto canvas, or click 'Generate Room' below"
+                                MouseLeftButtonDown="DragCard_MouseLeftButtonDown"
+                                MouseMove="DragCard_MouseMove">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="BorderBrush" Value="#6366F1"/>
+                                            <Setter Property="Background" Value="#F5F3FF"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,4">
+                                    <TextBlock Text="📐 Room Dimensions:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding SummaryDimensions}" FontWeight="Bold" FontSize="11"
+                                               Foreground="{DynamicResource AppTextPrimaryBrush}" HorizontalAlignment="Right"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,0,0,4">
+                                    <TextBlock Text="🧱 Boundary Walls:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding SummaryWalls}" FontSize="10.5"
+                                               Foreground="{DynamicResource AppTextPrimaryBrush}" HorizontalAlignment="Right"/>
+                                </DockPanel>
+                                <TextBlock Text="🖥️ Workstation Breakdown:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,2,0,2"/>
+                                <TextBlock Text="{Binding SummaryDistribution}" FontWeight="SemiBold" FontSize="10"
+                                           Foreground="#4F46E5" TextWrapping="Wrap" Margin="4,0,0,4"/>
+
+                                <Border Background="#EEF2FF" BorderBrush="#C7D2FE" BorderThickness="1" CornerRadius="4" Padding="4,3" Margin="0,4,0,0">
+                                    <TextBlock Text="🖱️ Drag this card onto the canvas" FontSize="9.5" FontWeight="SemiBold"
+                                               Foreground="#4338CA" HorizontalAlignment="Center"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Actions -->
+                <StackPanel Margin="0,0,0,4">
+                    <Button Content="➕ Generate Room on Canvas"
+                            Command="{Binding GenerateRoomCommand}"
+                            Padding="12,8" FontWeight="Bold" FontSize="11.5"
+                            Background="#4F46E5" Foreground="White"
+                            BorderThickness="0" Margin="0,0,0,6">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                    <Button Content="Reset Defaults"
+                            Command="{Binding ResetDefaultsCommand}"
+                            Padding="8,5" FontSize="10.5"
+                            Background="{DynamicResource CardBackgroundBrush}"
+                            Foreground="{DynamicResource AppTextSecondaryBrush}"
+                            BorderBrush="{DynamicResource CardBorderBrush}"
+                            BorderThickness="1">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

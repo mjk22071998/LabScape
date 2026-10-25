@@ -153,7 +153,7 @@
                 <!-- Templates & Room Generator -->
                 <fluent:RibbonGroupBox Header="Templates">
                     <fluent:Button Header="Room Template" Click="RoomGenerator_Click"
-                                   ToolTip="Generate automated room layout with line boundary walls, modular desks, and PCs"
+                                   ToolTip="Open dockable Room Template Generator tool window (neighbor of Stencils Library)"
                                    Icon="{StaticResource IconRoomTemplate}" LargeIcon="{StaticResource IconRoomTemplate}"/>
                 </fluent:RibbonGroupBox>
 
@@ -241,10 +241,13 @@
             <dock:LayoutRoot>
                 <dock:LayoutPanel Orientation="Horizontal">
 
-                    <!-- Left: Stencils Palette -->
-                    <dock:LayoutAnchorablePane DockWidth="260">
-                        <dock:LayoutAnchorable Title="Stencils Library" CanClose="False" CanHide="False">
+                    <!-- Left: Stencils & Room Templates Dockable Anchorables (Neighbors) -->
+                    <dock:LayoutAnchorablePane DockWidth="280">
+                        <dock:LayoutAnchorable x:Name="StencilsAnchorable" Title="Stencils Library" CanClose="False" CanHide="False">
                             <views:StencilsPaletteView DataContext="{Binding Stencils}"/>
+                        </dock:LayoutAnchorable>
+                        <dock:LayoutAnchorable x:Name="RoomTemplateAnchorable" Title="Room Templates" CanClose="False" CanHide="False">
+                            <views:RoomTemplateView DataContext="{Binding RoomTemplate}"/>
                         </dock:LayoutAnchorable>
                     </dock:LayoutAnchorablePane>
 

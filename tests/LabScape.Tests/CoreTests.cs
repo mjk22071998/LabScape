@@ -1694,4 +1694,67 @@ public class CoreTests
         _output?.WriteLine($" OS Working Set:                {benchmark.WorkingSetMb:F2} MB");
         _output?.WriteLine("=================================================================");
     }
+
+    [Fact]
+    public void RoomTemplateViewModel_StateAndCanvasIntegration_GeneratesWithUndoRedo()
+    {
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo) { SnapToGrid = false };
+
+        var vm = new LabScape.ViewModels.Templates.RoomTemplateViewModel(() => canvas);
+
+        // 1. Initial Defaults
+        Assert.Equal(4, vm.Sides);
+        Assert.Equal(12, vm.PcCount);
+        Assert.True(vm.IncludeDesks);
+        Assert.True(vm.IncludeChairs);
+        Assert.True(vm.GroupElements);
+        Assert.False(vm.Is3SidesVisible);
+        Assert.False(vm.Is2SidesVisible);
+        Assert.False(vm.Is1SideVisible);
+        Assert.Contains("Line segments", vm.SummaryWalls);
+        Assert.Contains("North: 3", vm.SummaryDistribution);
+
+        // 2. Switching Sides triggers visibility flags and updates summary
+        vm.Sides = 3;
+        Assert.True(vm.Is3SidesVisible);
+        Assert.False(vm.Is2SidesVisible);
+        Assert.False(vm.Is1SideVisible);
+
+        vm.Sides = 2;
+        Assert.False(vm.Is3SidesVisible);
+        Assert.True(vm.Is2SidesVisible);
+        Assert.False(vm.Is1SideVisible);
+
+        vm.Sides = 1;
+        Assert.False(vm.Is3SidesVisible);
+        Assert.False(vm.Is2SidesVisible);
+        Assert.True(vm.Is1SideVisible);
+
+        // 3. Reset Defaults
+        vm.ResetDefaults();
+        Assert.Equal(4, vm.Sides);
+        Assert.Equal(12, vm.PcCount);
+        Assert.False(vm.Is1SideVisible);
+
+        // 4. Generate Room Command inserts onto canvas with undo/redo
+        Assert.Empty(canvas.Items);
+        vm.GenerateRoom();
+        Assert.NotEmpty(canvas.Items);
+
+        // A group item was created containing the room elements
+        var group = canvas.Items.OfType<GroupItemViewModel>().FirstOrDefault();
+        Assert.NotNull(group);
+        Assert.NotEmpty(group.Children);
+
+        // Verify Undo removes the room
+        Assert.True(undo.CanUndo);
+        undo.Undo();
+        Assert.Empty(canvas.Items);
+
+        // Verify Redo restores the room
+        Assert.True(undo.CanRedo);
+        undo.Redo();
+        Assert.Single(canvas.Items);
+    }
 }

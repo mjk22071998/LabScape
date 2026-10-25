@@ -28,6 +28,8 @@ if (-not $SkipTests) {
 
 # 2. Publish Application in Release Mode
 Write-Host "`n[2/4] Publishing LabScape.App in Release mode..." -ForegroundColor Yellow
+Get-Process -Name "LabScape.App", "LabScape" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+Start-Sleep -Milliseconds 300
 $PublishDir = Join-Path $ScriptDir "dist\publish"
 if (Test-Path $PublishDir) {
     try {

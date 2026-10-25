@@ -29,6 +29,7 @@ public partial class MainViewModel : ObservableObject
 
     public StencilsViewModel Stencils { get; }
     public PropertiesViewModel Properties { get; }
+    public RoomTemplateViewModel RoomTemplate { get; }
 
     [ObservableProperty]
     private string _currentFilePath = string.Empty;
@@ -71,6 +72,7 @@ public partial class MainViewModel : ObservableObject
         _fallbackCanvas = new CanvasViewModel(_undoRedoService);
         Stencils = new StencilsViewModel();
         Properties = new PropertiesViewModel(_fallbackCanvas);
+        RoomTemplate = new RoomTemplateViewModel(() => ActiveCanvas);
 
         // Initial default tab
         var initialTab = new LayoutTabViewModel("Untitled 1", _undoRedoFactory());

@@ -26,6 +26,7 @@
             <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>
             <converters:DeviceLabelWrapConverter x:Key="DeviceLabelWrapConverter"/>
             <converters:RelativeOffsetConverter x:Key="RelativeOffsetConverter"/>
+            <converters:EqualityToBooleanConverter x:Key="EqualityToBooleanConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
