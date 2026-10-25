@@ -97,7 +97,12 @@ public class SelectionAdorner : Adorner
         ClipToBounds = false;
 
         _item.PropertyChanged += OnItemPropertyChanged;
-        Unloaded += (s, e) => _item.PropertyChanged -= OnItemPropertyChanged;
+        Unloaded += (s, e) => Detach();
+    }
+
+    public void Detach()
+    {
+        _item.PropertyChanged -= OnItemPropertyChanged;
     }
 
     public double GetCurrentZoom()
@@ -172,7 +177,18 @@ public class SelectionAdorner : Adorner
     public void InvalidateAdorner()
     {
         InvalidateVisual();
-        AdornerLayer.GetAdornerLayer(AdornedElement)?.Update(AdornedElement);
+        try
+        {
+            var layer = AdornerLayer.GetAdornerLayer(AdornedElement);
+            if (layer != null && layer.GetAdorners(AdornedElement) != null)
+            {
+                layer.Update(AdornedElement);
+            }
+        }
+        catch
+        {
+            // Suppress WPF AdornerLayer update exceptions when element is no longer in adorner layer
+        }
     }
 
     public override GeneralTransform GetDesiredTransform(GeneralTransform transform)

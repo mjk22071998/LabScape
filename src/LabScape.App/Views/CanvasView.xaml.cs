@@ -693,8 +693,10 @@ public partial class CanvasView : UserControl
     {
         for (int i = 0; i < _currentAdorners.Count && i < _adornedElements.Count; i++)
         {
+            var adorner = _currentAdorners[i];
+            adorner.Detach();
             var layer = AdornerLayer.GetAdornerLayer(_adornedElements[i]);
-            layer?.Remove(_currentAdorners[i]);
+            layer?.Remove(adorner);
         }
         _currentAdorners.Clear();
         _adornedElements.Clear();
