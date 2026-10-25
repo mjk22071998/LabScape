@@ -336,6 +336,24 @@ public class CoreTests
     }
 
     [Fact]
+    public void Stencil_Screen_InstantiatesDeviceWithScreenType_AndHasVectorResource()
+    {
+        var allStencils = LabScape.ViewModels.Stencils.StencilItem.GetAllStencils();
+        var screenStencil = allStencils.FirstOrDefault(s => s.Title == "Screen");
+
+        Assert.NotNull(screenStencil);
+        Assert.Equal("Devices", screenStencil.Category);
+        Assert.Equal("Stencil_Screen", screenStencil.IconResourceKey);
+
+        var item = screenStencil.CreateItem();
+        var deviceItem = Assert.IsType<DeviceItemViewModel>(item);
+        Assert.Equal("screen", deviceItem.DeviceType);
+        Assert.True(deviceItem.ShowCanvasLabel);
+        Assert.Equal(80, deviceItem.Width);
+        Assert.Equal(70, deviceItem.Height);
+    }
+
+    [Fact]
     public async Task MockDeviceRepository_ReturnsSimulatedWorkstationsWithLatency()
     {
         var repo = new LabScape.Infrastructure.Repositories.MockDeviceRepository();

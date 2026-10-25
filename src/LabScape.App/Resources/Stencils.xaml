@@ -95,6 +95,73 @@
         </GeometryDrawing>
     </DrawingGroup>
 
+    <!-- Screen / Monitor (100x100) -->
+    <DrawingGroup x:Key="Stencil_Screen">
+        <!-- Stand Base Plate (Desk Footing) -->
+        <GeometryDrawing Brush="#9CA3AF">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#374151" Thickness="2"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="30,76,40,12" RadiusX="4" RadiusY="4"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+
+        <!-- Stand Neck / Column -->
+        <GeometryDrawing Brush="#4B5563">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#374151" Thickness="1.5"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="45,58,10,20" RadiusX="2" RadiusY="2"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+
+        <!-- Outer Monitor Bezel Chassis -->
+        <GeometryDrawing Brush="#1F2937">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#111827" Thickness="2.5"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="8,12,84,50" RadiusX="5" RadiusY="5"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+
+        <!-- Active Glass Display Area -->
+        <GeometryDrawing Brush="#0F172A">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#334155" Thickness="1"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="12,16,76,40" RadiusX="2" RadiusY="2"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+
+        <!-- Subtle Screen Glare / Reflection Accent -->
+        <GeometryDrawing Brush="#1E293B">
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 13,17 L 35,17 L 20,55 L 13,55 Z"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+
+        <!-- Screen Bottom Chin Line -->
+        <GeometryDrawing Brush="#374151">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#4B5563" Thickness="1"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <LineGeometry StartPoint="8,58" EndPoint="92,58"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+
+        <!-- Power / Status LED -->
+        <GeometryDrawing Brush="#38BDF8">
+            <GeometryDrawing.Geometry>
+                <EllipseGeometry Center="50,60" RadiusX="1.5" RadiusY="1.5"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
+
     <!-- Server Rack (100x100) -->
     <DrawingGroup x:Key="Stencil_ServerRack">
         <GeometryDrawing Brush="#1F2937">

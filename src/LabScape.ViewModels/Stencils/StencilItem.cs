@@ -53,6 +53,22 @@ public class StencilItem
             new StencilItem
             {
                 Category = "Devices",
+                Title = "Screen",
+                IconResourceKey = "Stencil_Screen",
+                DefaultWidth = 80,
+                DefaultHeight = 70,
+                CreateItem = () => new DeviceItemViewModel(new DeviceItem
+                {
+                    Name = "Screen-01",
+                    DeviceType = "screen",
+                    Width = 80,
+                    Height = 70,
+                    ValidationStatus = ValidationStatus.Unassigned
+                })
+            },
+            new StencilItem
+            {
+                Category = "Devices",
                 Title = "Server Rack",
                 IconResourceKey = "Stencil_ServerRack",
                 DefaultWidth = 80,

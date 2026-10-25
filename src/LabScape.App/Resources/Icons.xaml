@@ -502,4 +502,33 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
+    <!-- 45. Screen / Monitor -->
+    <DrawingImage x:Key="IconScreen">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <!-- Display Bezel -->
+                <GeometryDrawing Geometry="M 3 4 H 21 A 1 1 0 0 1 22 5 V 15 A 1 1 0 0 1 21 16 H 3 A 1 1 0 0 1 2 15 V 5 A 1 1 0 0 1 3 4 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#2563EB" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Stand Column & Base -->
+                <GeometryDrawing Geometry="M 12 16 V 20 M 8 20 H 16">
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <DrawingImage x:Key="IconMonitor">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Geometry="M 3 4 H 21 A 1 1 0 0 1 22 5 V 15 A 1 1 0 0 1 21 16 H 3 A 1 1 0 0 1 2 15 V 5 A 1 1 0 0 1 3 4 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#2563EB" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 12 16 V 20 M 8 20 H 16">
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
 </ResourceDictionary>

@@ -440,6 +440,11 @@
         case "printer":
           drawPrinter(w, h);
           break;
+        case "screen":
+        case "monitor":
+        case "display":
+          drawScreen(w, h);
+          break;
         default:
           drawDesktopPC(w, h);
           break;
@@ -568,6 +573,55 @@
       ctx.fillStyle = "#f3f4f6";
       ctx.strokeStyle = "#9ca3af";
       roundRect(ctx, 38, 69, 24, 13, 2, true, true);
+
+      ctx.restore();
+    }
+
+    function drawScreen(w, h) {
+      const sx = w / 100;
+      const sy = h / 100;
+      ctx.save();
+      ctx.scale(sx, sy);
+
+      // Base Stand
+      ctx.fillStyle = "#9ca3af";
+      ctx.strokeStyle = "#374151";
+      ctx.lineWidth = 2;
+      roundRect(ctx, 30, 76, 40, 12, 4, true, true);
+
+      // Stand Neck
+      ctx.fillStyle = "#4b5563";
+      ctx.strokeStyle = "#374151";
+      ctx.lineWidth = 1.5;
+      roundRect(ctx, 45, 58, 10, 20, 2, true, true);
+
+      // Bezel
+      ctx.fillStyle = "#1f2937";
+      ctx.strokeStyle = "#111827";
+      ctx.lineWidth = 2.5;
+      roundRect(ctx, 8, 12, 84, 50, 5, true, true);
+
+      // Screen Glass
+      ctx.fillStyle = "#0f172a";
+      ctx.strokeStyle = "#334155";
+      ctx.lineWidth = 1;
+      roundRect(ctx, 12, 16, 76, 40, 2, true, true);
+
+      // Glare
+      ctx.fillStyle = "#1e293b";
+      ctx.beginPath();
+      ctx.moveTo(13, 17);
+      ctx.lineTo(35, 17);
+      ctx.lineTo(20, 55);
+      ctx.lineTo(13, 55);
+      ctx.closePath();
+      ctx.fill();
+
+      // Power LED
+      ctx.fillStyle = "#38bdf8";
+      ctx.beginPath();
+      ctx.arc(50, 60, 1.5, 0, Math.PI * 2);
+      ctx.fill();
 
       ctx.restore();
     }

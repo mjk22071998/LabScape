@@ -62,12 +62,13 @@ public class DeviceTypeToImageConverter : IValueConverter
 {
     public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        string key = (value as string) switch
+        string key = (value as string)?.ToLowerInvariant() switch
         {
             "laptop" => "Stencil_Laptop",
             "server_rack" => "Stencil_ServerRack",
             "switch" => "Stencil_NetworkSwitch",
             "printer" => "Stencil_Printer",
+            "screen" or "monitor" or "display" => "Stencil_Screen",
             _ => "Stencil_DesktopPC"
         };
 
