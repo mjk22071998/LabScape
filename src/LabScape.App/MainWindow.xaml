@@ -157,6 +157,16 @@
                                    Icon="{StaticResource IconRoomTemplate}" LargeIcon="{StaticResource IconRoomTemplate}"/>
                 </fluent:RibbonGroupBox>
 
+                <!-- Performance Diagnostics & Stress Benchmarks -->
+                <fluent:RibbonGroupBox Header="Performance">
+                    <fluent:Button Header="Simulate 1k Items" Command="{Binding Simulate1kItemsCommand}"
+                                   ToolTip="Simulate 1,000 mixed items (devices, furniture, shapes, lines, beziers) on canvas"
+                                   Icon="{StaticResource IconInspect}" LargeIcon="{StaticResource IconInspect}"/>
+                    <fluent:ToggleButton Header="Monitor HUD" IsChecked="{Binding Canvas.IsPerformanceOverlayVisible}"
+                                         ToolTip="Toggle real-time FPS and performance telemetry overlay"
+                                         Icon="{StaticResource IconInspect}"/>
+                </fluent:RibbonGroupBox>
+
                 <!-- Layering & Arrange (Layers) -->
                 <fluent:RibbonGroupBox Header="Layers">
                     <fluent:Button Header="Move to Front" Command="{Binding Canvas.MoveToFrontCommand}" ToolTip="Move to Front (Ctrl+Shift+] / Shift+PageUp)"

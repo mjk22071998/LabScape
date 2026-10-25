@@ -50,6 +50,12 @@ public partial class CanvasViewModel : ObservableObject
     [ObservableProperty]
     private double _cursorY = 0;
 
+    [ObservableProperty]
+    private bool _isPerformanceOverlayVisible = true;
+
+    [ObservableProperty]
+    private SimulationBenchmarkResult? _lastBenchmarkResult;
+
     public IUndoRedoService UndoRedoService => _undoRedoService;
 
     public CanvasViewModel(IUndoRedoService undoRedoService)
@@ -147,6 +153,27 @@ public partial class CanvasViewModel : ObservableObject
         if (SelectedItems.Count == 0) return;
         _undoRedoService.ExecuteCommand(new RemoveItemCommand(Items, SelectedItems.ToList()));
         ClearSelection();
+    }
+
+    [RelayCommand]
+    public void ClearAll()
+    {
+        if (Items.Count == 0) return;
+        _undoRedoService.ExecuteCommand(new RemoveItemCommand(Items, Items.ToList()));
+        ClearSelection();
+    }
+
+    [RelayCommand]
+    public void Simulate1kStressTest()
+    {
+        LastBenchmarkResult = CanvasStressSimulator.Simulate1kItemsOnCanvas(this);
+    }
+
+    public SimulationBenchmarkResult RunSimulationBenchmark()
+    {
+        var result = CanvasStressSimulator.Simulate1kItemsOnCanvas(this);
+        LastBenchmarkResult = result;
+        return result;
     }
 
     [RelayCommand]

@@ -5,6 +5,7 @@ using LabScape.Infrastructure.Services;
 using LabScape.ViewModels;
 using LabScape.ViewModels.Commands;
 using LabScape.ViewModels.Items;
+using LabScape.ViewModels.Services;
 using LabScape.ViewModels.Templates;
 using Xunit;
 
@@ -12,6 +13,13 @@ namespace LabScape.Tests;
 
 public class CoreTests
 {
+    private readonly Xunit.Abstractions.ITestOutputHelper? _output;
+
+    public CoreTests(Xunit.Abstractions.ITestOutputHelper output)
+    {
+        _output = output;
+    }
+
     [Fact]
     public void LabelVisibilityRule_OnlyDevicesShowCanvasLabel()
     {
@@ -1573,5 +1581,117 @@ public class CoreTests
         Assert.Equal(28, canvas.Items.Count);
         Assert.DoesNotContain(canvas.Items, i => i is GroupItemViewModel);
         Assert.Equal(4, canvas.Items.OfType<ShapeItemViewModel>().Count(w => w.ShapeType == ShapeType.Line));
+    }
+
+    [Fact]
+    public void CanvasStressSimulator_Generates1kMixedItems_WithBalancedDistribution()
+    {
+        var items = CanvasStressSimulator.Generate1kItems();
+
+        // 1. Total count
+        Assert.Equal(1000, items.Count);
+
+        // 2. Mix breakdown
+        int deviceCount = items.Count(i => i is DeviceItemViewModel);
+        int furnitureCount = items.Count(i => i is FurnitureItemViewModel);
+        int shapeCount = items.Count(i => i is ShapeItemViewModel s && s.ShapeType != ShapeType.Line && s.ShapeType != ShapeType.Bezier);
+        int lineCount = items.Count(i => i is ShapeItemViewModel s && s.ShapeType == ShapeType.Line);
+        int bezierCount = items.Count(i => i is ShapeItemViewModel s && s.ShapeType == ShapeType.Bezier);
+
+        Assert.Equal(300, deviceCount);      // 300 Devices
+        Assert.Equal(150, furnitureCount);   // 150 Furniture
+        Assert.Equal(250, shapeCount);       // 250 Geometric Shapes
+        Assert.Equal(150, lineCount);        // 150 Lines
+        Assert.Equal(150, bezierCount);      // 150 Bezier Curves
+
+        // 3. Grid positioning distribution
+        Assert.True(items.Min(i => i.X) >= 60.0);
+        Assert.True(items.Max(i => i.X) > 5000.0);
+        Assert.True(items.Min(i => i.Y) >= 60.0);
+        Assert.True(items.Max(i => i.Y) > 3000.0);
+    }
+
+    [Fact]
+    public void PerformanceBenchmark_1kItems_Simulation_ThroughputAndMemory()
+    {
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo) { SnapToGrid = false };
+
+        var benchmark = canvas.RunSimulationBenchmark();
+
+        // 1. Verify counts and batch insertion
+        Assert.Equal(1000, canvas.Items.Count);
+        Assert.Equal(1000, benchmark.TotalItems);
+        Assert.Equal(300, benchmark.DeviceCount);
+        Assert.Equal(150, benchmark.FurnitureCount);
+        Assert.Equal(250, benchmark.ShapeCount);
+        Assert.Equal(150, benchmark.LineCount);
+        Assert.Equal(150, benchmark.BezierCount);
+
+        // 2. Select All performance
+        var swSelect = System.Diagnostics.Stopwatch.StartNew();
+        canvas.SelectAll();
+        swSelect.Stop();
+        Assert.Equal(1000, canvas.SelectedItems.Count);
+
+        // 3. Batch Movement performance
+        var swNudge = System.Diagnostics.Stopwatch.StartNew();
+        canvas.Nudge(20, 20);
+        swNudge.Stop();
+
+        // 4. Batch Undo and Redo performance
+        var swUndo = System.Diagnostics.Stopwatch.StartNew();
+        undo.Undo(); // undo nudge
+        undo.Undo(); // undo insertion
+        swUndo.Stop();
+        Assert.Empty(canvas.Items);
+
+        var swRedo = System.Diagnostics.Stopwatch.StartNew();
+        undo.Redo(); // redo insertion
+        undo.Redo(); // redo nudge
+        swRedo.Stop();
+        Assert.Equal(1000, canvas.Items.Count);
+
+        // 5. JSON Serialization & Deserialization
+        var jsonRepo = new LayoutJsonRepository();
+        var doc = new LayoutDocument();
+        doc.Items.AddRange(canvas.Items.Select(i => i.Model));
+
+        var swExport = System.Diagnostics.Stopwatch.StartNew();
+        string json = jsonRepo.SerializeToJson(doc);
+        swExport.Stop();
+
+        var swImport = System.Diagnostics.Stopwatch.StartNew();
+        var restoredDoc = jsonRepo.DeserializeFromJson(json);
+        swImport.Stop();
+        Assert.Equal(1000, restoredDoc.Items.Count);
+
+        _output?.WriteLine("=================================================================");
+        _output?.WriteLine("        LABSCAPE 1,000 MIXED ITEMS PERFORMANCE BENCHMARK");
+        _output?.WriteLine("=================================================================");
+        _output?.WriteLine($" Total Simulated Items:         {benchmark.TotalItems:N0}");
+        _output?.WriteLine($"   - IT Device Icons:           {benchmark.DeviceCount:N0} (PCs, Laptops, Screens, Servers, Switches, Printers)");
+        _output?.WriteLine($"   - Office Furniture Icons:    {benchmark.FurnitureCount:N0} (Desks, Chairs, Conference Tables, Sofas)");
+        _output?.WriteLine($"   - Geometric Vector Shapes:   {benchmark.ShapeCount:N0} (Rectangles, Circles, Triangles, Donuts, Semi-Circles)");
+        _output?.WriteLine($"   - Line Elements:             {benchmark.LineCount:N0} (Various angles, lengths, strokes)");
+        _output?.WriteLine($"   - Bezier Curves:             {benchmark.BezierCount:N0} (Waves, S-curves, gradients)");
+        _output?.WriteLine("-----------------------------------------------------------------");
+        _output?.WriteLine($" 1. Generation Time:            {benchmark.GenerationTimeMs:F2} ms");
+        _output?.WriteLine($" 2. Batch Canvas Insertion:     {benchmark.InsertionTimeMs:F2} ms");
+        _output?.WriteLine($" 3. Total Setup Time:           {benchmark.TotalElapsedMs:F2} ms");
+        _output?.WriteLine("-----------------------------------------------------------------");
+        _output?.WriteLine($" 4. Select All (1k Items):      {swSelect.Elapsed.TotalMilliseconds:F2} ms");
+        _output?.WriteLine($" 5. Batch Move/Nudge (1k Items):{swNudge.Elapsed.TotalMilliseconds:F2} ms");
+        _output?.WriteLine($" 6. Batch Undo (1k Items):      {swUndo.Elapsed.TotalMilliseconds:F2} ms");
+        _output?.WriteLine($" 7. Batch Redo (1k Items):      {swRedo.Elapsed.TotalMilliseconds:F2} ms");
+        _output?.WriteLine("-----------------------------------------------------------------");
+        _output?.WriteLine($" 8. JSON Export (1k Items):     {swExport.Elapsed.TotalMilliseconds:F2} ms ({json.Length / 1024.0:F1} KB output)");
+        _output?.WriteLine($" 9. JSON Import (1k Items):     {swImport.Elapsed.TotalMilliseconds:F2} ms");
+        _output?.WriteLine("-----------------------------------------------------------------");
+        _output?.WriteLine($" Managed Heap Before:           {benchmark.MemoryBeforeMb:F2} MB");
+        _output?.WriteLine($" Managed Heap After:            {benchmark.MemoryAfterMb:F2} MB");
+        _output?.WriteLine($" Heap Allocation Delta:         {benchmark.MemoryDeltaMb:F2} MB (~{benchmark.MemoryDeltaMb * 1024.0 / 1000.0:F2} KB per item)");
+        _output?.WriteLine($" OS Working Set:                {benchmark.WorkingSetMb:F2} MB");
+        _output?.WriteLine("=================================================================");
     }
 }

@@ -22,11 +22,21 @@ public class HalfValueConverter : IValueConverter
 
 public class HexToBrushConverter : IValueConverter
 {
+    private static readonly Dictionary<string, Brush?> _cache = new(StringComparer.OrdinalIgnoreCase);
+
     public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is string hex && !string.IsNullOrWhiteSpace(hex))
         {
-            return BrushHelper.ParseBrush(hex);
+            if (_cache.TryGetValue(hex, out var cached))
+                return cached;
+
+            var brush = BrushHelper.ParseBrush(hex);
+            if (brush != null && brush.CanFreeze && !brush.IsFrozen)
+                brush.Freeze();
+
+            _cache[hex] = brush;
+            return brush;
         }
         return Brushes.Transparent;
     }
@@ -60,6 +70,8 @@ public class StringNotEmptyToVisibilityConverter : IValueConverter
 
 public class DeviceTypeToImageConverter : IValueConverter
 {
+    private static readonly Dictionary<string, DrawingImage> _cache = new(StringComparer.OrdinalIgnoreCase);
+
     public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         string key = (value as string)?.ToLowerInvariant() switch
@@ -72,9 +84,16 @@ public class DeviceTypeToImageConverter : IValueConverter
             _ => "Stencil_DesktopPC"
         };
 
+        if (_cache.TryGetValue(key, out var cached))
+            return cached;
+
         if (Application.Current?.TryFindResource(key) is DrawingGroup drawing)
         {
-            return new DrawingImage(drawing);
+            var img = new DrawingImage(drawing);
+            if (img.CanFreeze && !img.IsFrozen)
+                img.Freeze();
+            _cache[key] = img;
+            return img;
         }
         return null;
     }
@@ -84,6 +103,8 @@ public class DeviceTypeToImageConverter : IValueConverter
 
 public class FurnitureTypeToImageConverter : IValueConverter
 {
+    private static readonly Dictionary<string, DrawingImage> _cache = new(StringComparer.OrdinalIgnoreCase);
+
     public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         string key = (value as string) switch
@@ -96,9 +117,16 @@ public class FurnitureTypeToImageConverter : IValueConverter
             _ => "Stencil_Desk"
         };
 
+        if (_cache.TryGetValue(key, out var cached))
+            return cached;
+
         if (Application.Current?.TryFindResource(key) is DrawingGroup drawing)
         {
-            return new DrawingImage(drawing);
+            var img = new DrawingImage(drawing);
+            if (img.CanFreeze && !img.IsFrozen)
+                img.Freeze();
+            _cache[key] = img;
+            return img;
         }
         return null;
     }
@@ -112,7 +140,10 @@ public class ShapeToGeometryConverter : IValueConverter, IMultiValueConverter
     {
         if (value is ShapeItemViewModel shape)
         {
-            return ShapeGeometryHelper.CreateGeometry(shape);
+            var geom = ShapeGeometryHelper.CreateGeometry(shape);
+            if (geom != null && geom.CanFreeze && !geom.IsFrozen)
+                geom.Freeze();
+            return geom;
         }
         return null;
     }
@@ -123,7 +154,10 @@ public class ShapeToGeometryConverter : IValueConverter, IMultiValueConverter
     {
         if (values.Length > 0 && values[0] is ShapeItemViewModel shape)
         {
-            return ShapeGeometryHelper.CreateGeometry(shape);
+            var geom = ShapeGeometryHelper.CreateGeometry(shape);
+            if (geom != null && geom.CanFreeze && !geom.IsFrozen)
+                geom.Freeze();
+            return geom;
         }
         return null;
     }

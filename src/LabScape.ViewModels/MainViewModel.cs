@@ -274,6 +274,12 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
+    public void Simulate1kItems()
+    {
+        ActiveTab?.Canvas.Simulate1kStressTest();
+    }
+
     // ==========================================
     // Document Serialization & Interchange
     // ==========================================
