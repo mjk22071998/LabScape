@@ -42,7 +42,7 @@ public class SelectionAdorner : Adorner
     public const double BaseSpecialHandleSize = 10.0;   // 10 screen pixels
     public const double BaseRotStalkHeight = 22.0;      // 22 screen pixels
     public const double BaseOffset = 2.0;               // 2 screen pixels
-    public const double SmallItemThreshold = 55.0;      // In screen pixels: below this, 8 resize handles reduce to 4 corner handles
+    public const double SmallItemThreshold = 28.0;      // In screen pixels: below this, 8 resize handles reduce to 4 corner handles
 
     private readonly Func<double>? _getZoomLevel;
 
@@ -63,6 +63,8 @@ public class SelectionAdorner : Adorner
     private DragMode _activeDrag = DragMode.None;
     private Point _dragStartPoint;
     private Point _dragStartLocal;
+    private Point _dragStartCanvas;
+    private Point _initialCenter;
     private double _initialAngleOffset;
     private double _initialX, _initialY, _initialW, _initialH, _initialRot;
     private double _initialCornerRadius, _initialInnerRadius;
@@ -380,6 +382,8 @@ public class SelectionAdorner : Adorner
         _initialRot = _item.Rotation;
         _dragStartPoint = PointToScreen(p);
         _dragStartLocal = p;
+        _dragStartCanvas = GetCanvasPoint(e);
+        _initialCenter = new Point(_initialX + _initialW / 2.0, _initialY + _initialH / 2.0);
 
         // Line-specific handle hit testing (Exactly 3 handles)
         if (_item is ShapeItemViewModel shapeLine && shapeLine.ShapeType == ShapeType.Line)
@@ -546,26 +550,46 @@ public class SelectionAdorner : Adorner
         }
     }
 
+    private UIElement? FindCanvas()
+    {
+        DependencyObject current = AdornedElement;
+        UIElement? found = null;
+        while (current != null)
+        {
+            if (current is Canvas c)
+            {
+                found = c;
+                if (c.Name == "CanvasSurface")
+                    return c;
+            }
+            current = VisualTreeHelper.GetParent(current);
+        }
+        return found;
+    }
+
+    private Point GetMouseOnCanvas(MouseEventArgs e)
+    {
+        var canvas = FindCanvas();
+        if (canvas != null)
+        {
+            return e.GetPosition(canvas);
+        }
+        return e.GetPosition(AdornedElement);
+    }
+
+    private Point GetCanvasPoint(MouseEventArgs e) => GetMouseOnCanvas(e);
+
     private void SetupRotateDrag(MouseButtonEventArgs e, double w, double h)
     {
-        Point mouseInAdorned = e.GetPosition(AdornedElement);
-        double clickDx = mouseInAdorned.X - (w / 2.0);
-        double clickDy = mouseInAdorned.Y - (h / 2.0);
+        Point mouseCanvas = GetMouseOnCanvas(e);
+        Point center = new(_initialX + _initialW / 2.0, _initialY + _initialH / 2.0);
+        double clickDx = mouseCanvas.X - center.X;
+        double clickDy = mouseCanvas.Y - center.Y;
         double clickAngleRad = Math.Atan2(clickDy, clickDx);
         double clickAngleDeg = (clickAngleRad * 180.0 / Math.PI) + 90.0;
         if (clickAngleDeg < 0) clickAngleDeg += 360.0;
 
         _initialAngleOffset = _initialRot - clickAngleDeg;
-    }
-
-    private Point GetMouseOnCanvas(MouseEventArgs e)
-    {
-        var parent = VisualTreeHelper.GetParent(AdornedElement) as UIElement;
-        while (parent != null && parent is not Canvas && parent is not ItemsControl)
-        {
-            parent = VisualTreeHelper.GetParent(parent) as UIElement;
-        }
-        return parent != null ? e.GetPosition(parent) : e.GetPosition(AdornedElement);
     }
 
     protected override void OnMouseMove(MouseEventArgs e)
@@ -579,19 +603,32 @@ public class SelectionAdorner : Adorner
             return;
         }
 
-        double deltaX = currentLocal.X - _dragStartLocal.X;
-        double deltaY = currentLocal.Y - _dragStartLocal.Y;
+        Point currentCanvas = GetMouseOnCanvas(e);
+        double deltaCanvasX = currentCanvas.X - _dragStartCanvas.X;
+        double deltaCanvasY = currentCanvas.Y - _dragStartCanvas.Y;
+
+        double rad = _initialRot * Math.PI / 180.0;
+        double cos = Math.Cos(rad);
+        double sin = Math.Sin(rad);
+
+        // Project invariant canvas mouse movement into item's unrotated local axes
+        double localDX = deltaCanvasX * cos + deltaCanvasY * sin;
+        double localDY = -deltaCanvasX * sin + deltaCanvasY * cos;
 
         bool shiftHeld = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
         bool altHeld = Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt);
 
         double ratio = _initialH > 0 ? _initialW / _initialH : 1.0;
+        double w = _initialW;
+        double h = _initialH;
+        double shiftLocalX = 0;
+        double shiftLocalY = 0;
 
         switch (_activeDrag)
         {
             case DragMode.LineEnd:
             {
-                Point mouseCanvas = GetMouseOnCanvas(e);
+                Point mouseCanvas = currentCanvas;
                 double vx = mouseCanvas.X - _initialCanvasStart.X;
                 double vy = mouseCanvas.Y - _initialCanvasStart.Y;
                 double len = Math.Max(15.0, Math.Sqrt(vx * vx + vy * vy));
@@ -604,10 +641,10 @@ public class SelectionAdorner : Adorner
                     if (angleDeg >= 360.0) angleDeg = 0.0;
                 }
 
-                double rad = angleDeg * Math.PI / 180.0;
-                double cos = Math.Cos(rad);
-                double sin = Math.Sin(rad);
-                Point newCenter = new(_initialCanvasStart.X + cos * (len / 2.0), _initialCanvasStart.Y + sin * (len / 2.0));
+                double lineRad = angleDeg * Math.PI / 180.0;
+                double lineCos = Math.Cos(lineRad);
+                double lineSin = Math.Sin(lineRad);
+                Point newCenter = new(_initialCanvasStart.X + lineCos * (len / 2.0), _initialCanvasStart.Y + lineSin * (len / 2.0));
 
                 _item.X = Math.Round(newCenter.X - len / 2.0, 1);
                 _item.Y = Math.Round(newCenter.Y - _initialH / 2.0, 1);
@@ -618,7 +655,7 @@ public class SelectionAdorner : Adorner
 
             case DragMode.LineStart:
             {
-                Point mouseCanvas = GetMouseOnCanvas(e);
+                Point mouseCanvas = currentCanvas;
                 double vx = _initialCanvasEnd.X - mouseCanvas.X;
                 double vy = _initialCanvasEnd.Y - mouseCanvas.Y;
                 double len = Math.Max(15.0, Math.Sqrt(vx * vx + vy * vy));
@@ -631,10 +668,10 @@ public class SelectionAdorner : Adorner
                     if (angleDeg >= 360.0) angleDeg = 0.0;
                 }
 
-                double rad = angleDeg * Math.PI / 180.0;
-                double cos = Math.Cos(rad);
-                double sin = Math.Sin(rad);
-                Point newCenter = new(_initialCanvasEnd.X - cos * (len / 2.0), _initialCanvasEnd.Y - sin * (len / 2.0));
+                double lineRad = angleDeg * Math.PI / 180.0;
+                double lineCos = Math.Cos(lineRad);
+                double lineSin = Math.Sin(lineRad);
+                Point newCenter = new(_initialCanvasEnd.X - lineCos * (len / 2.0), _initialCanvasEnd.Y - lineSin * (len / 2.0));
 
                 _item.X = Math.Round(newCenter.X - len / 2.0, 1);
                 _item.Y = Math.Round(newCenter.Y - _initialH / 2.0, 1);
@@ -679,126 +716,221 @@ public class SelectionAdorner : Adorner
                 }
                 break;
 
-            case DragMode.ResizeSE:
-            {
-                double targetW = Math.Max(20, _initialW + deltaX);
-                double targetH = Math.Max(20, _initialH + deltaY);
-                if (shiftHeld) targetH = targetW / ratio;
-
-                if (altHeld)
-                {
-                    double dw = targetW - _initialW;
-                    double dh = targetH - _initialH;
-                    _item.X = _initialX - dw;
-                    _item.Y = _initialY - dh;
-                    _item.Width = Math.Max(20, _initialW + 2 * dw);
-                    _item.Height = Math.Max(20, _initialH + 2 * dh);
-                }
-                else
-                {
-                    _item.Width = targetW;
-                    _item.Height = targetH;
-                }
-                break;
-            }
-
             case DragMode.ResizeE:
             {
-                double targetW = Math.Max(20, _initialW + deltaX);
                 if (altHeld)
                 {
-                    double dw = targetW - _initialW;
-                    _item.X = _initialX - dw;
-                    _item.Width = Math.Max(20, _initialW + 2 * dw);
+                    w = Math.Max(20, _initialW + 2 * localDX);
+                    h = _initialH;
+                    if (shiftHeld) h = Math.Max(20, w / ratio);
+                    shiftLocalX = 0;
+                    shiftLocalY = 0;
                 }
                 else
                 {
-                    _item.Width = targetW;
+                    w = Math.Max(20, _initialW + localDX);
+                    h = _initialH;
+                    if (shiftHeld) h = Math.Max(20, w / ratio);
+                    shiftLocalX = (w - _initialW) / 2.0;
+                    shiftLocalY = shiftHeld ? (h - _initialH) / 2.0 : 0;
                 }
-                if (shiftHeld) _item.Height = _item.Width / ratio;
-                break;
-            }
-
-            case DragMode.ResizeS:
-            {
-                double targetH = Math.Max(20, _initialH + deltaY);
-                if (altHeld)
-                {
-                    double dh = targetH - _initialH;
-                    _item.Y = _initialY - dh;
-                    _item.Height = Math.Max(20, _initialH + 2 * dh);
-                }
-                else
-                {
-                    _item.Height = targetH;
-                }
-                if (shiftHeld) _item.Width = _item.Height * ratio;
-                break;
-            }
-
-            case DragMode.ResizeNW:
-            {
-                double nwW = Math.Max(20, _initialW - deltaX);
-                double nwH = Math.Max(20, _initialH - deltaY);
-                if (shiftHeld) nwH = nwW / ratio;
-
-                _item.X = _initialX + (_initialW - nwW);
-                _item.Y = _initialY + (_initialH - nwH);
-                _item.Width = nwW;
-                _item.Height = nwH;
-                break;
-            }
-
-            case DragMode.ResizeN:
-            {
-                double nH = Math.Max(20, _initialH - deltaY);
-                _item.Y = _initialY + (_initialH - nH);
-                _item.Height = nH;
-                if (shiftHeld) _item.Width = _item.Height * ratio;
-                break;
-            }
-
-            case DragMode.ResizeNE:
-            {
-                double neW = Math.Max(20, _initialW + deltaX);
-                double neH = Math.Max(20, _initialH - deltaY);
-                if (shiftHeld) neH = neW / ratio;
-
-                _item.Y = _initialY + (_initialH - neH);
-                _item.Width = neW;
-                _item.Height = neH;
-                break;
-            }
-
-            case DragMode.ResizeSW:
-            {
-                double swW = Math.Max(20, _initialW - deltaX);
-                double swH = Math.Max(20, _initialH + deltaY);
-                if (shiftHeld) swH = swW / ratio;
-
-                _item.X = _initialX + (_initialW - swW);
-                _item.Width = swW;
-                _item.Height = swH;
                 break;
             }
 
             case DragMode.ResizeW:
             {
-                double wW = Math.Max(20, _initialW - deltaX);
-                _item.X = _initialX + (_initialW - wW);
-                _item.Width = wW;
-                if (shiftHeld) _item.Height = _item.Width / ratio;
+                if (altHeld)
+                {
+                    w = Math.Max(20, _initialW - 2 * localDX);
+                    h = _initialH;
+                    if (shiftHeld) h = Math.Max(20, w / ratio);
+                    shiftLocalX = 0;
+                    shiftLocalY = 0;
+                }
+                else
+                {
+                    w = Math.Max(20, _initialW - localDX);
+                    h = _initialH;
+                    if (shiftHeld) h = Math.Max(20, w / ratio);
+                    shiftLocalX = -(w - _initialW) / 2.0;
+                    shiftLocalY = shiftHeld ? (h - _initialH) / 2.0 : 0;
+                }
+                break;
+            }
+
+            case DragMode.ResizeS:
+            {
+                if (altHeld)
+                {
+                    h = Math.Max(20, _initialH + 2 * localDY);
+                    w = _initialW;
+                    if (shiftHeld) w = Math.Max(20, h * ratio);
+                    shiftLocalX = 0;
+                    shiftLocalY = 0;
+                }
+                else
+                {
+                    h = Math.Max(20, _initialH + localDY);
+                    w = _initialW;
+                    if (shiftHeld) w = Math.Max(20, h * ratio);
+                    shiftLocalX = shiftHeld ? (w - _initialW) / 2.0 : 0;
+                    shiftLocalY = (h - _initialH) / 2.0;
+                }
+                break;
+            }
+
+            case DragMode.ResizeN:
+            {
+                if (altHeld)
+                {
+                    h = Math.Max(20, _initialH - 2 * localDY);
+                    w = _initialW;
+                    if (shiftHeld) w = Math.Max(20, h * ratio);
+                    shiftLocalX = 0;
+                    shiftLocalY = 0;
+                }
+                else
+                {
+                    h = Math.Max(20, _initialH - localDY);
+                    w = _initialW;
+                    if (shiftHeld) w = Math.Max(20, h * ratio);
+                    shiftLocalX = shiftHeld ? (w - _initialW) / 2.0 : 0;
+                    shiftLocalY = -(h - _initialH) / 2.0;
+                }
+                break;
+            }
+
+            case DragMode.ResizeSE:
+            {
+                w = Math.Max(20, _initialW + localDX);
+                h = Math.Max(20, _initialH + localDY);
+                if (shiftHeld)
+                {
+                    double scale = Math.Max(w / _initialW, h / _initialH);
+                    w = Math.Max(20, _initialW * scale);
+                    h = Math.Max(20, _initialH * scale);
+                }
+                if (altHeld)
+                {
+                    w = Math.Max(20, _initialW + 2 * localDX);
+                    h = Math.Max(20, _initialH + 2 * localDY);
+                    if (shiftHeld)
+                    {
+                        double scale = Math.Max(w / _initialW, h / _initialH);
+                        w = Math.Max(20, _initialW * scale);
+                        h = Math.Max(20, _initialH * scale);
+                    }
+                    shiftLocalX = 0;
+                    shiftLocalY = 0;
+                }
+                else
+                {
+                    shiftLocalX = (w - _initialW) / 2.0;
+                    shiftLocalY = (h - _initialH) / 2.0;
+                }
+                break;
+            }
+
+            case DragMode.ResizeNW:
+            {
+                w = Math.Max(20, _initialW - localDX);
+                h = Math.Max(20, _initialH - localDY);
+                if (shiftHeld)
+                {
+                    double scale = Math.Max(w / _initialW, h / _initialH);
+                    w = Math.Max(20, _initialW * scale);
+                    h = Math.Max(20, _initialH * scale);
+                }
+                if (altHeld)
+                {
+                    w = Math.Max(20, _initialW - 2 * localDX);
+                    h = Math.Max(20, _initialH - 2 * localDY);
+                    if (shiftHeld)
+                    {
+                        double scale = Math.Max(w / _initialW, h / _initialH);
+                        w = Math.Max(20, _initialW * scale);
+                        h = Math.Max(20, _initialH * scale);
+                    }
+                    shiftLocalX = 0;
+                    shiftLocalY = 0;
+                }
+                else
+                {
+                    shiftLocalX = -(w - _initialW) / 2.0;
+                    shiftLocalY = -(h - _initialH) / 2.0;
+                }
+                break;
+            }
+
+            case DragMode.ResizeNE:
+            {
+                w = Math.Max(20, _initialW + localDX);
+                h = Math.Max(20, _initialH - localDY);
+                if (shiftHeld)
+                {
+                    double scale = Math.Max(w / _initialW, h / _initialH);
+                    w = Math.Max(20, _initialW * scale);
+                    h = Math.Max(20, _initialH * scale);
+                }
+                if (altHeld)
+                {
+                    w = Math.Max(20, _initialW + 2 * localDX);
+                    h = Math.Max(20, _initialH - 2 * localDY);
+                    if (shiftHeld)
+                    {
+                        double scale = Math.Max(w / _initialW, h / _initialH);
+                        w = Math.Max(20, _initialW * scale);
+                        h = Math.Max(20, _initialH * scale);
+                    }
+                    shiftLocalX = 0;
+                    shiftLocalY = 0;
+                }
+                else
+                {
+                    shiftLocalX = (w - _initialW) / 2.0;
+                    shiftLocalY = -(h - _initialH) / 2.0;
+                }
+                break;
+            }
+
+            case DragMode.ResizeSW:
+            {
+                w = Math.Max(20, _initialW - localDX);
+                h = Math.Max(20, _initialH + localDY);
+                if (shiftHeld)
+                {
+                    double scale = Math.Max(w / _initialW, h / _initialH);
+                    w = Math.Max(20, _initialW * scale);
+                    h = Math.Max(20, _initialH * scale);
+                }
+                if (altHeld)
+                {
+                    w = Math.Max(20, _initialW - 2 * localDX);
+                    h = Math.Max(20, _initialH + 2 * localDY);
+                    if (shiftHeld)
+                    {
+                        double scale = Math.Max(w / _initialW, h / _initialH);
+                        w = Math.Max(20, _initialW * scale);
+                        h = Math.Max(20, _initialH * scale);
+                    }
+                    shiftLocalX = 0;
+                    shiftLocalY = 0;
+                }
+                else
+                {
+                    shiftLocalX = -(w - _initialW) / 2.0;
+                    shiftLocalY = (h - _initialH) / 2.0;
+                }
                 break;
             }
 
             case DragMode.Rotate:
             {
-                // Calculate rotation angle relative to item center in unrotated AdornedElement coordinates
-                Point mouseInAdorned = e.GetPosition(AdornedElement);
-                double dx = mouseInAdorned.X - (_initialW / 2.0);
-                double dy = mouseInAdorned.Y - (_initialH / 2.0);
-                double rad = Math.Atan2(dy, dx);
-                double deg = (rad * 180.0 / Math.PI) + 90.0;
+                Point center = _initialCenter;
+                double dx = currentCanvas.X - center.X;
+                double dy = currentCanvas.Y - center.Y;
+                double radM = Math.Atan2(dy, dx);
+                double deg = (radM * 180.0 / Math.PI) + 90.0;
                 if (deg < 0) deg += 360.0;
 
                 double targetRot = deg + _initialAngleOffset;
@@ -820,8 +952,9 @@ public class SelectionAdorner : Adorner
             case DragMode.CornerRadius:
                 if (_item is ShapeItemViewModel shapeCr)
                 {
+                    double localX = (currentCanvas.X - _initialCenter.X) * cos + (currentCanvas.Y - _initialCenter.Y) * sin + _initialW / 2.0;
                     double maxCr = Math.Min(_item.Width, _item.Height) / 2.0;
-                    double newCr = Math.Clamp(currentLocal.X, 0, maxCr);
+                    double newCr = Math.Clamp(localX, 0, maxCr);
                     shapeCr.CornerRadius = Math.Round(newCr);
                 }
                 break;
@@ -829,13 +962,27 @@ public class SelectionAdorner : Adorner
             case DragMode.DonutInnerRadius:
                 if (_item is ShapeItemViewModel shapeDonut)
                 {
-                    double dist = Math.Abs(currentLocal.X - (_item.Width / 2.0));
+                    double localX = (currentCanvas.X - _initialCenter.X) * cos + (currentCanvas.Y - _initialCenter.Y) * sin + _initialW / 2.0;
+                    double dist = Math.Abs(localX - (_item.Width / 2.0));
                     double maxRx = _item.Width / 2.0;
                     double donutRatio = maxRx > 0 ? dist / maxRx : 0.5;
                     double newInner = Math.Clamp(donutRatio * 50.0, 5, 45);
                     shapeDonut.InnerRadius = Math.Round(newInner);
                 }
                 break;
+        }
+
+        if (_activeDrag is DragMode.ResizeNW or DragMode.ResizeN or DragMode.ResizeNE or DragMode.ResizeE
+            or DragMode.ResizeSE or DragMode.ResizeS or DragMode.ResizeSW or DragMode.ResizeW)
+        {
+            double worldShiftX = shiftLocalX * cos - shiftLocalY * sin;
+            double worldShiftY = shiftLocalX * sin + shiftLocalY * cos;
+
+            Point newCenter = new(_initialCenter.X + worldShiftX, _initialCenter.Y + worldShiftY);
+            _item.X = Math.Round(newCenter.X - w / 2.0, 1);
+            _item.Y = Math.Round(newCenter.Y - h / 2.0, 1);
+            _item.Width = Math.Round(w, 1);
+            _item.Height = Math.Round(h, 1);
         }
 
         InvalidateAdorner();

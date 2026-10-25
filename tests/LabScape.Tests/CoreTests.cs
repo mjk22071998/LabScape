@@ -2255,4 +2255,37 @@ public class CoreTests
         propVm.SetItemTextBackground("#FEF3C7");
         Assert.Equal("#FEF3C7", vm.Background);
     }
+
+    [Fact]
+    public void SelectionAdorner_ThresholdAndFlickerFreeResize_InvariantCanvasCoordinates()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(projectRoot);
+        string adornerPath = Path.Combine(projectRoot, "src", "LabScape.App", "Adorners", "SelectionAdorner.cs");
+        Assert.True(File.Exists(adornerPath));
+
+        string code = File.ReadAllText(adornerPath);
+
+        // 1. Threshold for 4-point reduction calibrated to 28px (so 80x50 Semicircle & 140x40 Text retain 8 handles)
+        Assert.Contains("public const double SmallItemThreshold = 28.0;", code);
+
+        // 2. Invariant canvas coordinates to eliminate resize flickering
+        Assert.Contains("FindCanvas()", code);
+        Assert.Contains("GetCanvasPoint(e)", code);
+        Assert.Contains("double localDX = deltaCanvasX * cos + deltaCanvasY * sin;", code);
+        Assert.Contains("double localDY = -deltaCanvasX * sin + deltaCanvasY * cos;", code);
+        Assert.Contains("double worldShiftX = shiftLocalX * cos - shiftLocalY * sin;", code);
+        Assert.Contains("double worldShiftY = shiftLocalX * sin + shiftLocalY * cos;", code);
+    }
 }
