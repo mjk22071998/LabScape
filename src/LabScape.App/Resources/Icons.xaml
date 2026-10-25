@@ -544,7 +544,7 @@
                 </GeometryDrawing>
                 <!-- Door swing arc -->
                 <GeometryDrawing Geometry="M 8 21 A 7 7 0 0 1 15 14">
-                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1" DashStyle="Dash"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1" DashStyle="{x:Static DashStyles.Dash}"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
                 <!-- Internal modular desks & workstations -->
                 <GeometryDrawing Brush="#E2E8F0" Geometry="M 6 6 H 18 V 10 H 6 Z">
