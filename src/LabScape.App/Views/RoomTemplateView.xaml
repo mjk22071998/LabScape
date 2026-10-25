@@ -43,7 +43,7 @@
                             <RadioButton Content="3 Sides (U-Shape)"
                                          IsChecked="{Binding Sides, Converter={StaticResource EqualityToBooleanConverter}, ConverterParameter=3}"
                                          Margin="0,0,0,5" FontWeight="SemiBold"/>
-                            <RadioButton Content="2 Sides (L-Corner)"
+                            <RadioButton Content="2 Sides (Corner / Opposite)"
                                          IsChecked="{Binding Sides, Converter={StaticResource EqualityToBooleanConverter}, ConverterParameter=2}"
                                          Margin="0,0,0,5" FontWeight="SemiBold"/>
                             <RadioButton Content="1 Side (Bench / Row)"
@@ -62,14 +62,16 @@
                             </ComboBox>
                         </StackPanel>
 
-                        <!-- Corner Selector (For 2 Sides) -->
+                        <!-- 2-Side Selector (For 2 Sides: Corner or Opposite) -->
                         <StackPanel Visibility="{Binding Is2SidesVisible, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,2,0,6">
-                            <TextBlock Text="Corner Orientation:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,2"/>
+                            <TextBlock Text="2-Side Layout &amp; Orientation:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,2"/>
                             <ComboBox SelectedValue="{Binding CornerOption}" SelectedValuePath="Tag">
-                                <ComboBoxItem Content="North &amp; West (Top-Left)" Tag="NorthWest"/>
-                                <ComboBoxItem Content="North &amp; East (Top-Right)" Tag="NorthEast"/>
-                                <ComboBoxItem Content="South &amp; West (Bottom-Left)" Tag="SouthWest"/>
-                                <ComboBoxItem Content="South &amp; East (Bottom-Right)" Tag="SouthEast"/>
+                                <ComboBoxItem Content="North &amp; South (Opposite Facing Rows)" Tag="NorthSouth"/>
+                                <ComboBoxItem Content="West &amp; East (Opposite Facing Columns)" Tag="EastWest"/>
+                                <ComboBoxItem Content="North &amp; West (L-Corner Top-Left)" Tag="NorthWest"/>
+                                <ComboBoxItem Content="North &amp; East (L-Corner Top-Right)" Tag="NorthEast"/>
+                                <ComboBoxItem Content="South &amp; West (L-Corner Bottom-Left)" Tag="SouthWest"/>
+                                <ComboBoxItem Content="South &amp; East (L-Corner Bottom-Right)" Tag="SouthEast"/>
                             </ComboBox>
                         </StackPanel>
 

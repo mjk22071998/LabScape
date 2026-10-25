@@ -1514,6 +1514,44 @@ public class CoreTests
         Assert.Contains(result2.Walls, w => w.Name == "West Wall");
         Assert.Equal(6, result2.Pcs.Count);
 
+        // 2 sides (Opposite parallel walls: North & South facing rows)
+        var optionsOppositeNS = new RoomTemplateOptions
+        {
+            Sides = 2,
+            CornerOption = "NorthSouth",
+            PcCount = 8,
+            IncludeDesks = true,
+            IncludeChairs = true
+        };
+        var resultOppositeNS = RoomTemplateGenerator.Generate(optionsOppositeNS);
+        Assert.Equal(2, resultOppositeNS.Walls.Count);
+        Assert.Contains(resultOppositeNS.Walls, w => w.Name == "North Wall");
+        Assert.Contains(resultOppositeNS.Walls, w => w.Name == "South Wall");
+        Assert.DoesNotContain(resultOppositeNS.Walls, w => w.Name == "East Wall");
+        Assert.DoesNotContain(resultOppositeNS.Walls, w => w.Name == "West Wall");
+        Assert.Equal(8, resultOppositeNS.Pcs.Count);
+        Assert.Equal(4, resultOppositeNS.Pcs.Count(p => p.Rotation == 0.0));   // North wall PCs face South (0 deg)
+        Assert.Equal(4, resultOppositeNS.Pcs.Count(p => p.Rotation == 180.0)); // South wall PCs face North (180 deg)
+
+        // 2 sides (Opposite parallel walls: West & East facing columns)
+        var optionsOppositeWE = new RoomTemplateOptions
+        {
+            Sides = 2,
+            CornerOption = "EastWest",
+            PcCount = 6,
+            IncludeDesks = true,
+            IncludeChairs = true
+        };
+        var resultOppositeWE = RoomTemplateGenerator.Generate(optionsOppositeWE);
+        Assert.Equal(2, resultOppositeWE.Walls.Count);
+        Assert.Contains(resultOppositeWE.Walls, w => w.Name == "West Wall");
+        Assert.Contains(resultOppositeWE.Walls, w => w.Name == "East Wall");
+        Assert.DoesNotContain(resultOppositeWE.Walls, w => w.Name == "North Wall");
+        Assert.DoesNotContain(resultOppositeWE.Walls, w => w.Name == "South Wall");
+        Assert.Equal(6, resultOppositeWE.Pcs.Count);
+        Assert.Equal(3, resultOppositeWE.Pcs.Count(p => p.Rotation == 90.0));  // West wall PCs face East (90 deg)
+        Assert.Equal(3, resultOppositeWE.Pcs.Count(p => p.Rotation == 270.0)); // East wall PCs face West (270 deg)
+
         // 1 side (Single wall/bench: North)
         var options1 = new RoomTemplateOptions
         {

@@ -40,7 +40,7 @@
                     <WrapPanel Orientation="Horizontal" Margin="0,0,0,8">
                         <RadioButton x:Name="Rb4Sides" Content="4 Sides (Full Room)" IsChecked="True" Checked="OptionChanged" Margin="0,0,16,6" FontWeight="SemiBold"/>
                         <RadioButton x:Name="Rb3Sides" Content="3 Sides (U-Shape)" Checked="OptionChanged" Margin="0,0,16,6" FontWeight="SemiBold"/>
-                        <RadioButton x:Name="Rb2Sides" Content="2 Sides (L-Corner)" Checked="OptionChanged" Margin="0,0,16,6" FontWeight="SemiBold"/>
+                        <RadioButton x:Name="Rb2Sides" Content="2 Sides (Corner / Opposite)" Checked="OptionChanged" Margin="0,0,16,6" FontWeight="SemiBold"/>
                         <RadioButton x:Name="Rb1Side" Content="1 Side (Bench / Row)" Checked="OptionChanged" Margin="0,0,16,6" FontWeight="SemiBold"/>
                     </WrapPanel>
 
@@ -59,18 +59,20 @@
                         </ComboBox>
                     </Grid>
 
-                    <!-- Corner Selector (For 2 Sides) -->
+                    <!-- 2-Side Selector (For 2 Sides: Corner or Opposite) -->
                     <Grid x:Name="Panel2Sides" Visibility="Collapsed" Margin="0,4,0,6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="140"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="Corner Orientation:" VerticalAlignment="Center" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
+                        <TextBlock Text="2-Side Layout:" VerticalAlignment="Center" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
                         <ComboBox x:Name="CmbCorner" Grid.Column="1" SelectionChanged="OptionChanged">
-                            <ComboBoxItem Content="North &amp; West (Top-Left)" IsSelected="True" Tag="NorthWest"/>
-                            <ComboBoxItem Content="North &amp; East (Top-Right)" Tag="NorthEast"/>
-                            <ComboBoxItem Content="South &amp; West (Bottom-Left)" Tag="SouthWest"/>
-                            <ComboBoxItem Content="South &amp; East (Bottom-Right)" Tag="SouthEast"/>
+                            <ComboBoxItem Content="North &amp; South (Opposite Facing Rows)" Tag="NorthSouth"/>
+                            <ComboBoxItem Content="West &amp; East (Opposite Facing Columns)" Tag="EastWest"/>
+                            <ComboBoxItem Content="North &amp; West (L-Corner Top-Left)" IsSelected="True" Tag="NorthWest"/>
+                            <ComboBoxItem Content="North &amp; East (L-Corner Top-Right)" Tag="NorthEast"/>
+                            <ComboBoxItem Content="South &amp; West (L-Corner Bottom-Left)" Tag="SouthWest"/>
+                            <ComboBoxItem Content="South &amp; East (L-Corner Bottom-Right)" Tag="SouthEast"/>
                         </ComboBox>
                     </Grid>
 

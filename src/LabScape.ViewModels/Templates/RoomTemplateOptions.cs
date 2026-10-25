@@ -30,6 +30,8 @@ public class RoomTemplateOptions
                 "NorthEast" => new List<WallSide> { WallSide.North, WallSide.East },
                 "SouthWest" => new List<WallSide> { WallSide.South, WallSide.West },
                 "SouthEast" => new List<WallSide> { WallSide.South, WallSide.East },
+                "NorthSouth" or "SouthNorth" => new List<WallSide> { WallSide.North, WallSide.South },
+                "EastWest" or "WestEast" => new List<WallSide> { WallSide.West, WallSide.East },
                 _ => new List<WallSide> { WallSide.North, WallSide.West }
             },
             3 => OpenSide switch
