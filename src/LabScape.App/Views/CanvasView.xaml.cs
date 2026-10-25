@@ -427,16 +427,96 @@ public partial class CanvasView : UserControl
         e.Handled = true;
     }
 
+    private ItemViewModel FindRootItem(ItemViewModel item)
+    {
+        if (ViewModel == null || ViewModel.Items.Contains(item))
+        {
+            return item;
+        }
+
+        foreach (var topItem in ViewModel.Items)
+        {
+            if (topItem is GroupItemViewModel group && ContainsItemRecursive(group, item))
+            {
+                return group;
+            }
+        }
+
+        return item;
+    }
+
+    private static bool ContainsItemRecursive(GroupItemViewModel group, ItemViewModel target)
+    {
+        foreach (var child in group.Children)
+        {
+            if (child == target || child.Id == target.Id) return true;
+            if (child is GroupItemViewModel childGroup && ContainsItemRecursive(childGroup, target))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private FrameworkElement? FindContainerForItem(ItemViewModel item)
+    {
+        if (ItemsHost == null) return null;
+
+        // 1. Direct container from top-level ItemsHost
+        if (ItemsHost.ItemContainerGenerator.ContainerFromItem(item) is FrameworkElement topPresenter)
+        {
+            return topPresenter;
+        }
+
+        // 2. If item is a child inside a group
+        if (ViewModel != null)
+        {
+            foreach (var topItem in ViewModel.Items.OfType<GroupItemViewModel>())
+            {
+                if (topItem == item) continue;
+                if (ContainsItemRecursive(topItem, item))
+                {
+                    if (ItemsHost.ItemContainerGenerator.ContainerFromItem(topItem) is DependencyObject groupContainer)
+                    {
+                        var childItemsControl = FindVisualChild<ItemsControl>(groupContainer);
+                        if (childItemsControl?.ItemContainerGenerator.ContainerFromItem(item) is FrameworkElement childPresenter)
+                        {
+                            return childPresenter;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+    {
+        int count = VisualTreeHelper.GetChildrenCount(parent);
+        for (int i = 0; i < count; i++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, i);
+            if (child is T typedChild) return typedChild;
+            var desc = FindVisualChild<T>(child);
+            if (desc != null) return desc;
+        }
+        return null;
+    }
+
     private void Item_MouseDown(object sender, MouseButtonEventArgs e)
     {
         if (sender is not FrameworkElement elem || elem.DataContext is not ItemViewModel itemVm) return;
         if (ViewModel == null) return;
 
+        ItemViewModel targetItem = FindRootItem(itemVm);
+
         if (e.RightButton == MouseButtonState.Pressed)
         {
-            if (!itemVm.IsSelected)
+            if (!targetItem.IsSelected)
             {
-                ViewModel.SelectItem(itemVm, addToExisting: false);
+                ViewModel.SelectItem(targetItem, addToExisting: false);
                 UpdateAdorner();
             }
             return;
@@ -447,16 +527,16 @@ public partial class CanvasView : UserControl
         bool isCtrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
         if (isCtrl)
         {
-            if (itemVm.IsSelected)
-                ViewModel.DeselectItem(itemVm);
+            if (targetItem.IsSelected)
+                ViewModel.DeselectItem(targetItem);
             else
-                ViewModel.SelectItem(itemVm, addToExisting: true);
+                ViewModel.SelectItem(targetItem, addToExisting: true);
         }
         else
         {
-            if (!itemVm.IsSelected)
+            if (!targetItem.IsSelected)
             {
-                ViewModel.SelectItem(itemVm, addToExisting: false);
+                ViewModel.SelectItem(targetItem, addToExisting: false);
             }
         }
 
@@ -475,8 +555,21 @@ public partial class CanvasView : UserControl
         e.Handled = true;
     }
 
+    private int _adornerRetryCount = 0;
+    private const int MaxAdornerRetries = 2;
+
     private void UpdateAdorner()
     {
+        UpdateAdornerInternal(isRetry: false);
+    }
+
+    private void UpdateAdornerInternal(bool isRetry)
+    {
+        if (!isRetry)
+        {
+            _adornerRetryCount = 0;
+        }
+
         RemoveAllAdorners();
 
         if (ViewModel == null || ViewModel.SelectedItems.Count == 0) return;
@@ -485,7 +578,7 @@ public partial class CanvasView : UserControl
 
         foreach (var selectedItem in ViewModel.SelectedItems)
         {
-            var presenter = ItemsHost.ItemContainerGenerator.ContainerFromItem(selectedItem) as FrameworkElement;
+            var presenter = FindContainerForItem(selectedItem);
             if (presenter == null)
             {
                 hasMissingContainers = true;
@@ -505,9 +598,10 @@ public partial class CanvasView : UserControl
             }
         }
 
-        if (hasMissingContainers && ViewModel.SelectedItems.Count > 0)
+        if (hasMissingContainers && ViewModel.SelectedItems.Count > 0 && _adornerRetryCount < MaxAdornerRetries)
         {
-            Dispatcher.InvokeAsync(UpdateAdorner, System.Windows.Threading.DispatcherPriority.Loaded);
+            _adornerRetryCount++;
+            Dispatcher.InvokeAsync(() => UpdateAdornerInternal(isRetry: true), System.Windows.Threading.DispatcherPriority.Loaded);
         }
     }
 

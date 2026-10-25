@@ -1795,4 +1795,113 @@ public class CoreTests
         undo.Redo();
         Assert.Single(canvas.Items);
     }
+
+    [Fact]
+    public void GroupItemViewModel_VisualBounds_CalculatesTightRotatedBounds()
+    {
+        // Line shape representing East wall: length 400, height 20, rotated 90 degrees around (700, 300)
+        var eastWall = RoomTemplateGenerator.CreateWallLine("East Wall", 700, 100, 700, 500, 4.0, "#000000");
+        Assert.Equal(90.0, eastWall.Rotation);
+
+        var (minX, minY, maxX, maxY) = GroupItemViewModel.GetVisualBounds(eastWall);
+
+        // Visually: Center is (700, 300).
+        // Rotated 90 deg: width extent is 20/2 = 10, height extent is 400/2 = 200.
+        // Therefore: minX = 690, maxX = 710, minY = 100, maxY = 500.
+        Assert.Equal(690.0, minX, 1);
+        Assert.Equal(710.0, maxX, 1);
+        Assert.Equal(100.0, minY, 1);
+        Assert.Equal(500.0, maxY, 1);
+    }
+
+    [Fact]
+    public void GroupItemViewModel_MoveGroup_MovesAllChildrenAndUndoes()
+    {
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo);
+
+        var groupModel = new GroupItem { Name = "Test Room Group" };
+        var group = new GroupItemViewModel(groupModel);
+
+        var item1 = new DeviceItemViewModel(new DeviceItem { Name = "PC-01", X = 100, Y = 100, Width = 50, Height = 50 });
+        var item2 = new DeviceItemViewModel(new DeviceItem { Name = "PC-02", X = 200, Y = 100, Width = 50, Height = 50 });
+
+        group.AddChild(item1);
+        group.AddChild(item2);
+
+        canvas.AddItem(group);
+        Assert.Equal(100.0, group.X);
+        Assert.Equal(100.0, group.Y);
+        Assert.Equal(150.0, group.Width); // 250 - 100
+        Assert.Equal(50.0, group.Height);
+
+        // Move group by delta (+50, +30)
+        double initialGroupX = group.X;
+        double initialGroupY = group.Y;
+        group.X += 50.0;
+        group.Y += 30.0;
+
+        // Children should have moved synchronously
+        Assert.Equal(150.0, item1.X);
+        Assert.Equal(130.0, item1.Y);
+        Assert.Equal(250.0, item2.X);
+        Assert.Equal(130.0, item2.Y);
+
+        // Commit move command
+        canvas.CommitItemMoves(new List<(ItemViewModel, double, double, double, double)>
+        {
+            (group, initialGroupX, initialGroupY, group.X, group.Y)
+        });
+
+        // Undo move
+        Assert.True(undo.CanUndo);
+        undo.Undo();
+
+        Assert.Equal(100.0, group.X);
+        Assert.Equal(100.0, group.Y);
+        Assert.Equal(100.0, item1.X);
+        Assert.Equal(100.0, item1.Y);
+        Assert.Equal(200.0, item2.X);
+        Assert.Equal(100.0, item2.Y);
+
+        // Redo move
+        Assert.True(undo.CanRedo);
+        undo.Redo();
+
+        Assert.Equal(150.0, group.X);
+        Assert.Equal(130.0, group.Y);
+        Assert.Equal(150.0, item1.X);
+        Assert.Equal(130.0, item1.Y);
+        Assert.Equal(250.0, item2.X);
+        Assert.Equal(130.0, item2.Y);
+    }
+
+    [Fact]
+    public void RoomTemplateGenerator_GroupElementsTrue_ProducesTightGroupBounds()
+    {
+        var options = new RoomTemplateOptions
+        {
+            Sides = 4,
+            PcCount = 8,
+            OriginX = 100.0,
+            OriginY = 100.0,
+            GroupElements = true
+        };
+
+        var result = RoomTemplateGenerator.Generate(options);
+        Assert.NotNull(result.Group);
+        Assert.NotEmpty(result.Group.Children);
+
+        // Group bounds should closely match room origin and dimensions
+        Assert.True(result.Group.X >= 80.0 && result.Group.X <= 120.0, $"Group X {result.Group.X} should be close to 100");
+        Assert.True(result.Group.Y >= 80.0 && result.Group.Y <= 120.0, $"Group Y {result.Group.Y} should be close to 100");
+        Assert.True(result.Group.Width <= result.RoomWidth + 30.0, $"Group Width {result.Group.Width} should not balloon");
+        Assert.True(result.Group.Height <= result.RoomHeight + 30.0, $"Group Height {result.Group.Height} should not balloon");
+
+        // Every child must have ParentGroupId set to group Id
+        foreach (var child in result.Group.Children)
+        {
+            Assert.Equal(result.Group.Id, child.ParentGroupId);
+        }
+    }
 }
