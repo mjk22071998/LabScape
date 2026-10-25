@@ -1,3 +1,6 @@
+using System.Collections.Specialized;
+using System.Diagnostics;
+using LabScape.Core.Collections;
 using LabScape.Core.Enums;
 using LabScape.Core.Helpers;
 using LabScape.Core.Models;
@@ -1955,5 +1958,129 @@ public class CoreTests
             Assert.Equal(orig.X, wall.X, 1);
             Assert.Equal(orig.Y, wall.Y, 1);
         }
+    }
+
+    [Fact]
+    public void ObservableRangeCollection_BatchOperations_RaiseSingleResetEvent()
+    {
+        var col = new ObservableRangeCollection<int>();
+        int eventCount = 0;
+        NotifyCollectionChangedAction? lastAction = null;
+        col.CollectionChanged += (s, e) =>
+        {
+            eventCount++;
+            lastAction = e.Action;
+        };
+
+        // 1. AddRange
+        col.AddRange(new[] { 1, 2, 3, 4, 5 });
+        Assert.Equal(1, eventCount);
+        Assert.Equal(NotifyCollectionChangedAction.Reset, lastAction);
+        Assert.Equal(5, col.Count);
+
+        // 2. ReplaceAll
+        eventCount = 0;
+        col.ReplaceAll(new[] { 10, 20 });
+        Assert.Equal(1, eventCount);
+        Assert.Equal(NotifyCollectionChangedAction.Reset, lastAction);
+        Assert.Equal(2, col.Count);
+        Assert.Equal(10, col[0]);
+        Assert.Equal(20, col[1]);
+
+        // 3. BatchUpdate
+        eventCount = 0;
+        col.BatchUpdate(() =>
+        {
+            col.Add(30);
+            col.Add(40);
+            col.Remove(10);
+        });
+        Assert.Equal(1, eventCount);
+        Assert.Equal(NotifyCollectionChangedAction.Reset, lastAction);
+        Assert.Equal(3, col.Count);
+        Assert.Contains(20, col);
+        Assert.Contains(30, col);
+        Assert.Contains(40, col);
+        Assert.DoesNotContain(10, col);
+    }
+
+    [Fact]
+    public void UngroupSelected_PerformanceAndBatchSelection_Instantaneous()
+    {
+        var undoRedo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undoRedo);
+        var options = new RoomTemplateOptions
+        {
+            Sides = 4,
+            PcCount = 16,
+            GroupElements = true
+        };
+
+        canvas.AddRoomTemplate(options);
+        var group = canvas.Items.OfType<GroupItemViewModel>().Single();
+        int expectedChildCount = group.Children.Count;
+        Assert.True(expectedChildCount >= 52, $"Expected at least 52 items in 16-PC room, found {expectedChildCount}");
+
+        // Track how many collection changed notifications fire during ungroup
+        int itemsChangedCount = 0;
+        int selectionChangedCount = 0;
+        canvas.Items.CollectionChanged += (s, e) => itemsChangedCount++;
+        canvas.SelectedItems.CollectionChanged += (s, e) => selectionChangedCount++;
+
+        canvas.SetSelection(new[] { group });
+        selectionChangedCount = 0; // reset counter after initial group selection
+
+        var sw = Stopwatch.StartNew();
+        canvas.UngroupSelected();
+        sw.Stop();
+
+        // Execution must complete in under 50ms (typically < 5ms in memory)
+        Assert.True(sw.ElapsedMilliseconds < 50, $"Ungrouping took {sw.ElapsedMilliseconds}ms, exceeding 50ms threshold");
+
+        // The group must be gone from Items, and replaced by the unpacked children
+        Assert.Empty(canvas.Items.OfType<GroupItemViewModel>());
+        Assert.Equal(expectedChildCount, canvas.Items.Count);
+
+        // Selection should be set to all unpacked items
+        Assert.Equal(expectedChildCount, canvas.SelectedItems.Count);
+
+        // With batch updates, Items should fire exactly 1 Reset notification, and SelectedItems should fire exactly 1 Reset notification!
+        Assert.Equal(1, itemsChangedCount);
+        Assert.Equal(1, selectionChangedCount);
+    }
+
+    [Fact]
+    public void UngroupSelected_UndoRedo_MaintainsIntegrity()
+    {
+        var undoRedo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undoRedo);
+        var options = new RoomTemplateOptions
+        {
+            Sides = 4,
+            PcCount = 8,
+            GroupElements = true
+        };
+
+        canvas.AddRoomTemplate(options);
+        var group = canvas.Items.OfType<GroupItemViewModel>().Single();
+        int childCount = group.Children.Count;
+
+        canvas.SetSelection(new[] { group });
+        canvas.UngroupSelected();
+
+        Assert.Equal(childCount, canvas.Items.Count);
+        Assert.Empty(canvas.Items.OfType<GroupItemViewModel>());
+
+        // Undo
+        undoRedo.Undo();
+        Assert.Single(canvas.Items.OfType<GroupItemViewModel>());
+        Assert.Single(canvas.Items);
+        var restoredGroup = canvas.Items.OfType<GroupItemViewModel>().Single();
+        Assert.Equal(childCount, restoredGroup.Children.Count);
+
+        // Redo
+        undoRedo.Redo();
+        Assert.Empty(canvas.Items.OfType<GroupItemViewModel>());
+        Assert.Equal(childCount, canvas.Items.Count);
     }
 }

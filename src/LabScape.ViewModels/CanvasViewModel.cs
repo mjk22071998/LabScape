@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LabScape.Core.Collections;
 using LabScape.Core.Enums;
 using LabScape.Core.Interfaces;
 using LabScape.ViewModels.Commands;
@@ -14,8 +15,8 @@ public partial class CanvasViewModel : ObservableObject
 {
     private readonly IUndoRedoService _undoRedoService;
 
-    public ObservableCollection<ItemViewModel> Items { get; } = new();
-    public ObservableCollection<ItemViewModel> SelectedItems { get; } = new();
+    public ObservableRangeCollection<ItemViewModel> Items { get; } = new();
+    public ObservableRangeCollection<ItemViewModel> SelectedItems { get; } = new();
 
     [ObservableProperty]
     private double _zoomLevel = 1.0;
@@ -127,7 +128,8 @@ public partial class CanvasViewModel : ObservableObject
 
     public void ClearSelection()
     {
-        foreach (var item in SelectedItems.ToList())
+        if (SelectedItems.Count == 0) return;
+        foreach (var item in SelectedItems)
         {
             item.IsSelected = false;
         }
@@ -136,12 +138,26 @@ public partial class CanvasViewModel : ObservableObject
 
     public void SetSelection(IEnumerable<ItemViewModel> items)
     {
-        ClearSelection();
-        foreach (var itm in items)
+        var targetList = items.ToList();
+
+        // 1. Unselect items that are no longer selected
+        var targetSet = new HashSet<ItemViewModel>(targetList);
+        foreach (var item in SelectedItems)
+        {
+            if (!targetSet.Contains(item))
+            {
+                item.IsSelected = false;
+            }
+        }
+
+        // 2. Select items
+        foreach (var itm in targetList)
         {
             itm.IsSelected = true;
-            SelectedItems.Add(itm);
         }
+
+        // 3. Batch replace with a single Reset notification
+        SelectedItems.ReplaceAll(targetList);
     }
 
     [RelayCommand]

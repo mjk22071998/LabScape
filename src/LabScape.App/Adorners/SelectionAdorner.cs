@@ -46,6 +46,8 @@ public class SelectionAdorner : Adorner
 
     private readonly Func<double>? _getZoomLevel;
 
+    public bool ShowHandles { get; set; } = true;
+
     private enum DragMode
     {
         None,
@@ -236,6 +238,8 @@ public class SelectionAdorner : Adorner
             // Selection guide line
             dc.DrawLine(BoxPen, pStart, pEnd);
 
+            if (!ShowHandles) return;
+
             // Rotation stalk
             dc.DrawLine(BoxPen, pMid, pRot);
 
@@ -260,6 +264,12 @@ public class SelectionAdorner : Adorner
             double topY = Math.Min(Math.Min(pStart.Y, pEnd.Y), Math.Min(cp1.Y, cp2.Y));
             Point pRot = new(midX, topY - rotOffset);
 
+            if (!ShowHandles)
+            {
+                dc.DrawLine(BoxPen, pStart, pEnd);
+                return;
+            }
+
             // Dotted lines connecting control points to their respective originating anchor points
             dc.DrawLine(DottedTangentPen, pStart, cp1);
             dc.DrawLine(DottedTangentPen, pEnd, cp2);
@@ -282,6 +292,8 @@ public class SelectionAdorner : Adorner
 
         // 3. Standard Bounding Box for other shapes & items
         dc.DrawRectangle(null, BoxPen, new Rect(-offset, -offset, w + offset * 2, h + offset * 2));
+
+        if (!ShowHandles) return;
 
         // 4 corner handles (always present: NW, NE, SE, SW)
         DrawHandle(dc, new Point(-offset, -offset), hs);         // NW
@@ -337,6 +349,7 @@ public class SelectionAdorner : Adorner
     protected override void OnMouseDown(MouseButtonEventArgs e)
     {
         base.OnMouseDown(e);
+        if (!ShowHandles) return;
         if (e.LeftButton != MouseButtonState.Pressed) return;
 
         Point p = e.GetPosition(this);

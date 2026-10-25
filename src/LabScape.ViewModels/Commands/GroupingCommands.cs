@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
+using LabScape.Core.Collections;
 using LabScape.Core.Interfaces;
 using LabScape.Core.Models;
 using LabScape.ViewModels.Items;
@@ -34,22 +35,48 @@ public class GroupItemsCommand : IUndoableCommand
 
     public void Execute()
     {
-        foreach (var item in _itemsToGroup)
+        void PerformExecute()
         {
-            _collection.Remove(item);
+            foreach (var item in _itemsToGroup)
+            {
+                _collection.Remove(item);
+            }
+            _collection.Add(_groupVm);
         }
-        _collection.Add(_groupVm);
+
+        if (_collection is ObservableRangeCollection<ItemViewModel> rangeCol)
+        {
+            rangeCol.BatchUpdate(PerformExecute);
+        }
+        else
+        {
+            PerformExecute();
+        }
+
         _setSelection(new[] { _groupVm });
     }
 
     public void Unexecute()
     {
-        _collection.Remove(_groupVm);
-        foreach (var item in _itemsToGroup)
+        void PerformUnexecute()
         {
-            item.ParentGroupId = null;
-            _collection.Add(item);
+            _collection.Remove(_groupVm);
+            foreach (var item in _itemsToGroup)
+            {
+                item.ParentGroupId = null;
+                _collection.Add(item);
+            }
         }
+
+        if (_collection is ObservableRangeCollection<ItemViewModel> rangeCol)
+        {
+            rangeCol.BatchUpdate(PerformUnexecute);
+        }
+        else
+        {
+            PerformUnexecute();
+        }
+
         _setSelection(_itemsToGroup);
     }
 }
@@ -81,36 +108,70 @@ public class UngroupItemsCommand : IUndoableCommand
     public void Execute()
     {
         var unpacked = new List<ItemViewModel>();
-        foreach (var group in _groupsToUngroup)
+
+        void PerformExecute()
         {
-            _collection.Remove(group);
-            foreach (var child in _groupChildren[group])
+            var existingItems = new HashSet<ItemViewModel>(_collection);
+            foreach (var group in _groupsToUngroup)
             {
-                child.ParentGroupId = null;
-                if (!_collection.Contains(child))
+                _collection.Remove(group);
+                existingItems.Remove(group);
+
+                foreach (var child in _groupChildren[group])
                 {
-                    _collection.Add(child);
+                    child.ParentGroupId = null;
+                    if (!existingItems.Contains(child))
+                    {
+                        _collection.Add(child);
+                        existingItems.Add(child);
+                    }
+                    unpacked.Add(child);
                 }
-                unpacked.Add(child);
             }
         }
+
+        if (_collection is ObservableRangeCollection<ItemViewModel> rangeCol)
+        {
+            rangeCol.BatchUpdate(PerformExecute);
+        }
+        else
+        {
+            PerformExecute();
+        }
+
         _setSelection(unpacked);
     }
 
     public void Unexecute()
     {
-        foreach (var group in _groupsToUngroup)
+        void PerformUnexecute()
         {
-            foreach (var child in _groupChildren[group])
+            var existingItems = new HashSet<ItemViewModel>(_collection);
+            foreach (var group in _groupsToUngroup)
             {
-                child.ParentGroupId = group.Id;
-                _collection.Remove(child);
-            }
-            if (!_collection.Contains(group))
-            {
-                _collection.Add(group);
+                foreach (var child in _groupChildren[group])
+                {
+                    child.ParentGroupId = group.Id;
+                    _collection.Remove(child);
+                    existingItems.Remove(child);
+                }
+                if (!existingItems.Contains(group))
+                {
+                    _collection.Add(group);
+                    existingItems.Add(group);
+                }
             }
         }
+
+        if (_collection is ObservableRangeCollection<ItemViewModel> rangeCol)
+        {
+            rangeCol.BatchUpdate(PerformUnexecute);
+        }
+        else
+        {
+            PerformUnexecute();
+        }
+
         _setSelection(_groupsToUngroup);
     }
 }

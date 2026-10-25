@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using LabScape.Core.Collections;
 using LabScape.Core.Interfaces;
 using LabScape.ViewModels.Items;
 
@@ -44,18 +45,46 @@ public class AddItemsBatchCommand : IUndoableCommand
 
     public void Execute()
     {
-        foreach (var item in _items)
+        void PerformExecute()
         {
-            if (!_collection.Contains(item))
-                _collection.Add(item);
+            var existing = new HashSet<ItemViewModel>(_collection);
+            foreach (var item in _items)
+            {
+                if (!existing.Contains(item))
+                {
+                    _collection.Add(item);
+                    existing.Add(item);
+                }
+            }
+        }
+
+        if (_collection is ObservableRangeCollection<ItemViewModel> rangeCol)
+        {
+            rangeCol.BatchUpdate(PerformExecute);
+        }
+        else
+        {
+            PerformExecute();
         }
     }
 
     public void Unexecute()
     {
-        foreach (var item in _items)
+        void PerformUnexecute()
         {
-            _collection.Remove(item);
+            foreach (var item in _items)
+            {
+                _collection.Remove(item);
+            }
+        }
+
+        if (_collection is ObservableRangeCollection<ItemViewModel> rangeCol)
+        {
+            rangeCol.BatchUpdate(PerformUnexecute);
+        }
+        else
+        {
+            PerformUnexecute();
         }
     }
 }
@@ -76,23 +105,47 @@ public class RemoveItemCommand : IUndoableCommand
 
     public void Execute()
     {
-        _indices.Clear();
-        foreach (var item in _items)
+        void PerformExecute()
         {
-            _indices.Add(_collection.IndexOf(item));
-            _collection.Remove(item);
+            _indices.Clear();
+            foreach (var item in _items)
+            {
+                _indices.Add(_collection.IndexOf(item));
+                _collection.Remove(item);
+            }
+        }
+
+        if (_collection is ObservableRangeCollection<ItemViewModel> rangeCol)
+        {
+            rangeCol.BatchUpdate(PerformExecute);
+        }
+        else
+        {
+            PerformExecute();
         }
     }
 
     public void Unexecute()
     {
-        for (int i = 0; i < _items.Count; i++)
+        void PerformUnexecute()
         {
-            int idx = _indices[i];
-            if (idx >= 0 && idx <= _collection.Count)
-                _collection.Insert(idx, _items[i]);
-            else
-                _collection.Add(_items[i]);
+            for (int i = 0; i < _items.Count; i++)
+            {
+                int idx = _indices[i];
+                if (idx >= 0 && idx <= _collection.Count)
+                    _collection.Insert(idx, _items[i]);
+                else
+                    _collection.Add(_items[i]);
+            }
+        }
+
+        if (_collection is ObservableRangeCollection<ItemViewModel> rangeCol)
+        {
+            rangeCol.BatchUpdate(PerformUnexecute);
+        }
+        else
+        {
+            PerformUnexecute();
         }
     }
 }

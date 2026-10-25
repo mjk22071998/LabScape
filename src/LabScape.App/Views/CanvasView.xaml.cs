@@ -544,8 +544,8 @@ public partial class CanvasView : UserControl
             return topPresenter;
         }
 
-        // 2. If item is a child inside a group
-        if (ViewModel != null)
+        // 2. If item is an inner child inside a group
+        if (item.ParentGroupId != null && ViewModel != null)
         {
             foreach (var topItem in ViewModel.Items.OfType<GroupItemViewModel>())
             {
@@ -639,25 +639,55 @@ public partial class CanvasView : UserControl
         e.Handled = true;
     }
 
-    private int _adornerRetryCount = 0;
-    private const int MaxAdornerRetries = 2;
+    private bool _adornerUpdatePending = false;
 
     private void UpdateAdorner()
     {
-        UpdateAdornerInternal(isRetry: false);
-    }
-
-    private void UpdateAdornerInternal(bool isRetry)
-    {
-        if (!isRetry)
+        if (ViewModel == null || ViewModel.SelectedItems.Count == 0)
         {
-            _adornerRetryCount = 0;
+            RemoveAllAdorners();
+            return;
         }
 
+        // Fast-path: if containers are already generated and ready, update immediately
+        if (AreContainersReadyForSelection())
+        {
+            UpdateAdornerInternal();
+            return;
+        }
+
+        // Defer until layout pass completes container generation
+        if (_adornerUpdatePending) return;
+        _adornerUpdatePending = true;
+
+        Dispatcher.InvokeAsync(() =>
+        {
+            _adornerUpdatePending = false;
+            UpdateAdornerInternal();
+        }, System.Windows.Threading.DispatcherPriority.Loaded);
+    }
+
+    private bool AreContainersReadyForSelection()
+    {
+        if (ViewModel == null || ViewModel.SelectedItems.Count == 0 || ItemsHost == null) return true;
+        if (ItemsHost.ItemContainerGenerator.Status != System.Windows.Controls.Primitives.GeneratorStatus.ContainersGenerated)
+            return false;
+
+        foreach (var item in ViewModel.SelectedItems)
+        {
+            if (FindContainerForItem(item) == null)
+                return false;
+        }
+        return true;
+    }
+
+    private void UpdateAdornerInternal()
+    {
         RemoveAllAdorners();
 
         if (ViewModel == null || ViewModel.SelectedItems.Count == 0) return;
 
+        bool isSingle = ViewModel.SelectedItems.Count == 1;
         bool hasMissingContainers = false;
 
         foreach (var selectedItem in ViewModel.SelectedItems)
@@ -675,17 +705,24 @@ public partial class CanvasView : UserControl
                 var adorner = new SelectionAdorner(presenter, selectedItem, ViewModel.UndoRedoService, () =>
                 {
                     if (selectedItem is GroupItemViewModel grp) grp.RecalculateBounds();
-                }, () => ViewModel?.ZoomLevel ?? 1.0);
+                }, () => ViewModel?.ZoomLevel ?? 1.0)
+                {
+                    ShowHandles = isSingle
+                };
                 layer.Add(adorner);
                 _currentAdorners.Add(adorner);
                 _adornedElements.Add(presenter);
             }
         }
 
-        if (hasMissingContainers && ViewModel.SelectedItems.Count > 0 && _adornerRetryCount < MaxAdornerRetries)
+        if (hasMissingContainers && ViewModel.SelectedItems.Count > 0 && !_adornerUpdatePending)
         {
-            _adornerRetryCount++;
-            Dispatcher.InvokeAsync(() => UpdateAdornerInternal(isRetry: true), System.Windows.Threading.DispatcherPriority.Loaded);
+            _adornerUpdatePending = true;
+            Dispatcher.InvokeAsync(() =>
+            {
+                _adornerUpdatePending = false;
+                UpdateAdornerInternal();
+            }, System.Windows.Threading.DispatcherPriority.Loaded);
         }
     }
 
