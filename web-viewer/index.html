@@ -412,6 +412,9 @@
         case "shape":
           renderShape(item);
           break;
+        case "text":
+          renderText(item);
+          break;
       }
     }
 
@@ -1010,6 +1013,74 @@
       ctx.closePath();
       if (fill) ctx.fill();
       if (stroke) ctx.stroke();
+    }
+
+    // ========================================================
+    // 4. TEXT BOX & ANNOTATIONS
+    // ========================================================
+    function renderText(item) {
+      const w = item.width || 140;
+      const h = item.height || 40;
+      const text = item.text || item.Text || "";
+      const fontSize = item.fontSize || item.font_size || 14;
+      const fontFamily = item.fontFamily || item.font_family || "Segoe UI, sans-serif";
+      const fontWeight = (item.fontWeight || item.font_weight || "Normal").toLowerCase() === "bold" ? "bold" : "normal";
+      const fontStyle = (item.fontStyle || item.font_style || "Normal").toLowerCase() === "italic" ? "italic" : "normal";
+      const align = (item.textAlignment || item.text_alignment || "Left").toLowerCase();
+      const textColor = item.textColor || item.text_color || "#1E293B";
+      const bg = item.background || item.Background || "transparent";
+      const borderColor = item.borderColor || item.border_color || "transparent";
+      const borderWidth = item.borderThickness || item.border_thickness || 0;
+
+      // Draw background and border if configured
+      if (bg && bg !== "transparent" && bg !== "#00000000") {
+        ctx.fillStyle = bg;
+        roundRect(ctx, 0, 0, w, h, 3, true, false);
+      }
+      if (borderWidth > 0 && borderColor && borderColor !== "transparent" && borderColor !== "#00000000") {
+        ctx.strokeStyle = borderColor;
+        ctx.lineWidth = borderWidth;
+        roundRect(ctx, 0, 0, w, h, 3, false, true);
+      }
+
+      // Draw wrapped multiline text
+      ctx.save();
+      ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`;
+      ctx.fillStyle = textColor;
+      ctx.textBaseline = "middle";
+
+      let textX = 6;
+      if (align === "center") {
+        ctx.textAlign = "center";
+        textX = w / 2;
+      } else if (align === "right") {
+        ctx.textAlign = "right";
+        textX = w - 6;
+      } else {
+        ctx.textAlign = "left";
+        textX = 6;
+      }
+
+      const maxLineWidth = Math.max(20, w - 12);
+      const rawLines = text.split(/\r?\n/);
+      const wrappedLines = [];
+      for (const rawLine of rawLines) {
+        if (!rawLine) {
+          wrappedLines.push("");
+        } else {
+          wrappedLines.push(...wrapCanvasText(ctx, rawLine, maxLineWidth));
+        }
+      }
+
+      const lineHeight = fontSize * 1.3;
+      const totalTextHeight = wrappedLines.length * lineHeight;
+      let startY = (h - totalTextHeight) / 2 + lineHeight / 2;
+      if (startY < lineHeight / 2) startY = lineHeight / 2;
+
+      for (let i = 0; i < wrappedLines.length; i++) {
+        ctx.fillText(wrappedLines[i], textX, startY + i * lineHeight);
+      }
+      ctx.restore();
     }
 
     // --- Helper to wrap device names when exceeding boundary width ---

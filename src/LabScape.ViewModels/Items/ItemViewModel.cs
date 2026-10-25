@@ -88,6 +88,7 @@ public partial class ItemViewModel : ObservableObject
             FurnitureItem furn => new FurnitureItemViewModel(furn),
             ShapeItem shp => new ShapeItemViewModel(shp),
             GroupItem grp => new GroupItemViewModel(grp),
+            TextItem txt => new TextItemViewModel(txt),
             _ => new ItemViewModel(model)
         };
     }

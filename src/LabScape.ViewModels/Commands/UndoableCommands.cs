@@ -30,6 +30,25 @@ public class AddItemCommand : IUndoableCommand
     }
 }
 
+public class ChangeTextContentCommand : IUndoableCommand
+{
+    private readonly TextItemViewModel _item;
+    private readonly string _oldText;
+    private readonly string _newText;
+
+    public string Description => "Edit Text";
+
+    public ChangeTextContentCommand(TextItemViewModel item, string oldText, string newText)
+    {
+        _item = item;
+        _oldText = oldText;
+        _newText = newText;
+    }
+
+    public void Execute() => _item.Text = _newText;
+    public void Unexecute() => _item.Text = _oldText;
+}
+
 public class AddItemsBatchCommand : IUndoableCommand
 {
     private readonly ObservableCollection<ItemViewModel> _collection;

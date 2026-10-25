@@ -122,6 +122,53 @@ public partial class PropertiesViewModel : ObservableObject
     private bool _isDonut;
 
     [ObservableProperty]
+    private bool _isText;
+
+    [ObservableProperty]
+    private string _itemText = string.Empty;
+
+    [ObservableProperty]
+    private double _itemFontSize = 16.0;
+
+    [ObservableProperty]
+    private string _itemFontFamily = "Segoe UI";
+
+    [ObservableProperty]
+    private bool _isBold;
+
+    [ObservableProperty]
+    private bool _isItalic;
+
+    [ObservableProperty]
+    private string _itemTextAlignment = "Left";
+
+    [ObservableProperty]
+    private string _itemTextColor = "#111827";
+
+    [ObservableProperty]
+    private string _itemTextBackground = "Transparent";
+
+    [ObservableProperty]
+    private string _itemBorderColor = "Transparent";
+
+    [ObservableProperty]
+    private double _itemBorderThickness = 0.0;
+
+    public static readonly string[] AvailableFontFamilies = new[]
+    {
+        "Segoe UI", "Arial", "Calibri", "Comic Sans MS", "Consolas",
+        "Courier New", "Georgia", "Impact", "Lucida Console", "Tahoma",
+        "Times New Roman", "Trebuchet MS", "Verdana"
+    };
+    public string[] FontFamiliesList => AvailableFontFamilies;
+
+    public static readonly double[] AvailableFontSizes = new double[]
+    {
+        8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 72
+    };
+    public double[] FontSizesList => AvailableFontSizes;
+
+    [ObservableProperty]
     private string _ipSearchQuery = string.Empty;
 
     // Available inventory devices for searchable IP configuration
@@ -260,6 +307,8 @@ public partial class PropertiesViewModel : ObservableObject
             IsRoundedShape = false;
             IsDonut = false;
             IsFillApplicable = false;
+            IsText = false;
+            ItemText = string.Empty;
             DisplayX = "0";
             DisplayY = "0";
             CommonWidth = "0";
@@ -291,6 +340,29 @@ public partial class PropertiesViewModel : ObservableObject
             IsFurniture = SelectedItem is FurnitureItemViewModel;
             IsShape = SelectedItem is ShapeItemViewModel;
             IsGroup = SelectedItem is GroupItemViewModel;
+            IsText = SelectedItem is TextItemViewModel;
+
+            if (SelectedItem is TextItemViewModel textVm)
+            {
+                _isInternalPropertyUpdate = true;
+                try
+                {
+                    ItemText = textVm.Text;
+                    ItemFontSize = textVm.FontSize;
+                    ItemFontFamily = textVm.FontFamily;
+                    IsBold = string.Equals(textVm.FontWeight, "Bold", StringComparison.OrdinalIgnoreCase);
+                    IsItalic = string.Equals(textVm.FontStyle, "Italic", StringComparison.OrdinalIgnoreCase);
+                    ItemTextAlignment = textVm.TextAlignment;
+                    ItemTextColor = textVm.TextColor;
+                    ItemTextBackground = textVm.Background;
+                    ItemBorderColor = textVm.BorderColor;
+                    ItemBorderThickness = textVm.BorderThickness;
+                }
+                finally
+                {
+                    _isInternalPropertyUpdate = false;
+                }
+            }
 
             if (SelectedItem is ShapeItemViewModel shapeVm)
             {
@@ -318,6 +390,7 @@ public partial class PropertiesViewModel : ObservableObject
             IsSingleDevice = false;
             IsFurniture = false;
             IsGroup = false;
+            IsText = false;
             IsShape = _canvasViewModel.SelectedItems.Any(i => i is ShapeItemViewModel);
             IsRoundedShape = _canvasViewModel.SelectedItems.All(i => i is ShapeItemViewModel s && (s.ShapeType == ShapeType.RoundedRectangle || s.ShapeType == ShapeType.RoundedCornerTriangle));
             IsDonut = _canvasViewModel.SelectedItems.All(i => i is ShapeItemViewModel s && s.ShapeType == ShapeType.Donut);
@@ -351,7 +424,127 @@ public partial class PropertiesViewModel : ObservableObject
         {
             SyncStyleFromSelection();
         }
+
+        if (e.PropertyName is nameof(TextItemViewModel.Text) or nameof(TextItemViewModel.FontSize) or
+            nameof(TextItemViewModel.FontFamily) or nameof(TextItemViewModel.FontWeight) or
+            nameof(TextItemViewModel.FontStyle) or nameof(TextItemViewModel.TextAlignment) or
+            nameof(TextItemViewModel.TextColor) or nameof(TextItemViewModel.Background))
+        {
+            SyncTextFromSelection();
+        }
     }
+
+    private void SyncTextFromSelection()
+    {
+        if (SelectedItem is not TextItemViewModel textVm) return;
+        _isInternalPropertyUpdate = true;
+        try
+        {
+            ItemText = textVm.Text;
+            ItemFontSize = textVm.FontSize;
+            ItemFontFamily = textVm.FontFamily;
+            IsBold = string.Equals(textVm.FontWeight, "Bold", StringComparison.OrdinalIgnoreCase);
+            IsItalic = string.Equals(textVm.FontStyle, "Italic", StringComparison.OrdinalIgnoreCase);
+            ItemTextAlignment = textVm.TextAlignment;
+            ItemTextColor = textVm.TextColor;
+            ItemTextBackground = textVm.Background;
+            ItemBorderColor = textVm.BorderColor;
+            ItemBorderThickness = textVm.BorderThickness;
+        }
+        finally
+        {
+            _isInternalPropertyUpdate = false;
+        }
+    }
+
+    partial void OnItemTextChanged(string value)
+    {
+        if (_isInternalPropertyUpdate || SelectedItem is not TextItemViewModel textVm) return;
+        if (textVm.Text != value)
+        {
+            string old = textVm.Text;
+            textVm.Text = value;
+            _canvasViewModel?.UndoRedoService.ExecuteCommand(new ChangeTextContentCommand(textVm, old, value));
+        }
+    }
+
+    partial void OnItemFontSizeChanged(double value)
+    {
+        if (_isInternalPropertyUpdate || SelectedItem is not TextItemViewModel textVm) return;
+        textVm.FontSize = value;
+    }
+
+    partial void OnItemFontFamilyChanged(string value)
+    {
+        if (_isInternalPropertyUpdate || SelectedItem is not TextItemViewModel textVm) return;
+        textVm.FontFamily = value;
+    }
+
+    partial void OnIsBoldChanged(bool value)
+    {
+        if (_isInternalPropertyUpdate || SelectedItem is not TextItemViewModel textVm) return;
+        textVm.FontWeight = value ? "Bold" : "Normal";
+    }
+
+    partial void OnIsItalicChanged(bool value)
+    {
+        if (_isInternalPropertyUpdate || SelectedItem is not TextItemViewModel textVm) return;
+        textVm.FontStyle = value ? "Italic" : "Normal";
+    }
+
+    partial void OnItemTextAlignmentChanged(string value)
+    {
+        if (_isInternalPropertyUpdate || SelectedItem is not TextItemViewModel textVm) return;
+        textVm.TextAlignment = value;
+    }
+
+    partial void OnItemTextColorChanged(string value)
+    {
+        if (_isInternalPropertyUpdate || SelectedItem is not TextItemViewModel textVm) return;
+        textVm.TextColor = value;
+    }
+
+    partial void OnItemTextBackgroundChanged(string value)
+    {
+        if (_isInternalPropertyUpdate || SelectedItem is not TextItemViewModel textVm) return;
+        textVm.Background = value;
+    }
+
+    partial void OnItemBorderColorChanged(string value)
+    {
+        if (_isInternalPropertyUpdate || SelectedItem is not TextItemViewModel textVm) return;
+        textVm.BorderColor = value;
+    }
+
+    partial void OnItemBorderThicknessChanged(double value)
+    {
+        if (_isInternalPropertyUpdate || SelectedItem is not TextItemViewModel textVm) return;
+        textVm.BorderThickness = value;
+    }
+
+    [RelayCommand]
+    public void SetItemTextColor(string color) => ItemTextColor = color;
+
+    [RelayCommand]
+    public void SetItemTextBackground(string color) => ItemTextBackground = color;
+
+    [RelayCommand]
+    public void SetItemBorderColor(string color) => ItemBorderColor = color;
+
+    [RelayCommand]
+    public void SetAlignLeft() => ItemTextAlignment = "Left";
+
+    [RelayCommand]
+    public void SetAlignCenter() => ItemTextAlignment = "Center";
+
+    [RelayCommand]
+    public void SetAlignRight() => ItemTextAlignment = "Right";
+
+    [RelayCommand]
+    public void ToggleBold() => IsBold = !IsBold;
+
+    [RelayCommand]
+    public void ToggleItalic() => IsItalic = !IsItalic;
 
     private void SyncFieldsFromSelection()
     {

@@ -8,7 +8,9 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using LabScape.App.Adorners;
 using LabScape.Core.Enums;
+using LabScape.Core.Models;
 using LabScape.ViewModels;
+using LabScape.ViewModels.Commands;
 using LabScape.ViewModels.Items;
 using LabScape.ViewModels.Stencils;
 using LabScape.ViewModels.Templates;
@@ -136,6 +138,31 @@ public partial class CanvasView : UserControl
         bool isCanvasClick = e.OriginalSource == sender || 
                              e.OriginalSource == CanvasSurface || 
                              (e.OriginalSource as FrameworkElement)?.DataContext is not ItemViewModel;
+
+        // Double-click on empty canvas creates a text item at clicked point
+        if (e.ClickCount == 2 && isCanvasClick && e.LeftButton == MouseButtonState.Pressed && ViewModel != null)
+        {
+            Point p = e.GetPosition(CanvasSurface);
+            if (ViewModel.SnapToGrid)
+            {
+                p.X = Math.Round(p.X / ViewModel.GridSize) * ViewModel.GridSize;
+                p.Y = Math.Round(p.Y / ViewModel.GridSize) * ViewModel.GridSize;
+            }
+            var textItem = new TextItem
+            {
+                Name = "Text",
+                Text = "Double-click to edit text",
+                X = p.X,
+                Y = p.Y,
+                Width = 140,
+                Height = 40
+            };
+            var vm = new TextItemViewModel(textItem);
+            ViewModel.AddItem(vm);
+            vm.BeginEdit();
+            e.Handled = true;
+            return;
+        }
 
         if (e.RightButton == MouseButtonState.Pressed && isCanvasClick)
         {
@@ -600,6 +627,18 @@ public partial class CanvasView : UserControl
 
         if (e.LeftButton != MouseButtonState.Pressed) return;
 
+        // Double-click on a text item enters inline editing mode
+        if (e.ClickCount == 2 && targetItem is TextItemViewModel textItem)
+        {
+            if (!targetItem.IsSelected)
+            {
+                ViewModel.SelectItem(targetItem, addToExisting: false);
+            }
+            textItem.BeginEdit();
+            e.Handled = true;
+            return;
+        }
+
         _pendingSingleSelection = null;
         bool isCtrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
         if (isCtrl)
@@ -846,6 +885,77 @@ public partial class CanvasView : UserControl
         }
     }
 
+    private string? _editingInitialText;
+
+    private void InPlaceTextBox_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (sender is TextBox tb && tb.Visibility == Visibility.Visible)
+        {
+            if (tb.DataContext is TextItemViewModel textItem)
+            {
+                _editingInitialText = textItem.Text;
+            }
+            Dispatcher.InvokeAsync(() =>
+            {
+                tb.Focus();
+                tb.SelectAll();
+            }, System.Windows.Threading.DispatcherPriority.Input);
+        }
+    }
+
+    private void InPlaceTextBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (sender is not TextBox tb || tb.DataContext is not TextItemViewModel textItem) return;
+
+        if (e.Key == Key.Escape)
+        {
+            if (_editingInitialText != null)
+            {
+                textItem.Text = _editingInitialText;
+            }
+            textItem.EndEdit();
+            e.Handled = true;
+        }
+        else if (e.Key == Key.Enter)
+        {
+            bool isShift = (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift;
+            bool isCtrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
+
+            if (isShift)
+            {
+                int caret = tb.CaretIndex;
+                tb.Text = tb.Text.Insert(caret, Environment.NewLine);
+                tb.CaretIndex = caret + Environment.NewLine.Length;
+                e.Handled = true;
+            }
+            else
+            {
+                CommitTextEdit(textItem);
+                e.Handled = true;
+            }
+        }
+    }
+
+    private void InPlaceTextBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        if (sender is TextBox tb && tb.DataContext is TextItemViewModel textItem)
+        {
+            CommitTextEdit(textItem);
+        }
+    }
+
+    private void CommitTextEdit(TextItemViewModel textItem)
+    {
+        if (!textItem.IsEditing) return;
+
+        if (_editingInitialText != null && _editingInitialText != textItem.Text && ViewModel != null)
+        {
+            ViewModel.UndoRedoService.ExecuteCommand(new ChangeTextContentCommand(textItem, _editingInitialText, textItem.Text));
+        }
+        _editingInitialText = null;
+        textItem.EndEdit();
+    }
+
     protected override void OnKeyDown(KeyEventArgs e)
     {
         base.OnKeyDown(e);
@@ -853,6 +963,7 @@ public partial class CanvasView : UserControl
 
         bool isCtrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
         bool isShift = (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift;
+        bool isAlt = (Keyboard.Modifiers & ModifierKeys.Alt) == ModifierKeys.Alt;
 
         if (isCtrl && isShift && e.Key == Key.G)
         {
@@ -867,6 +978,11 @@ public partial class CanvasView : UserControl
         else if (e.Key == Key.Delete)
         {
             ViewModel.DeleteSelected();
+            e.Handled = true;
+        }
+        else if (!isCtrl && !isShift && !isAlt && e.Key == Key.T && FocusManager.GetFocusedElement(this) is not TextBox)
+        {
+            ViewModel.AddTextItem();
             e.Handled = true;
         }
     }

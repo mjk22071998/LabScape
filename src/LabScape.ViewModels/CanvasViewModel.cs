@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using LabScape.Core.Collections;
 using LabScape.Core.Enums;
 using LabScape.Core.Interfaces;
+using LabScape.Core.Models;
 using LabScape.ViewModels.Commands;
 using LabScape.ViewModels.Items;
 using LabScape.ViewModels.Services;
@@ -86,6 +87,32 @@ public partial class CanvasViewModel : ObservableObject
 
         _undoRedoService.ExecuteCommand(new AddItemCommand(Items, item));
         SetSelection(new[] { item });
+    }
+
+    [RelayCommand]
+    public void AddTextItem()
+    {
+        double spawnX = 200;
+        double spawnY = 200;
+
+        if (PanX != 0 || PanY != 0)
+        {
+            spawnX = Math.Max(40, -PanX + 250);
+            spawnY = Math.Max(40, -PanY + 200);
+        }
+
+        var textItem = new TextItem
+        {
+            Name = "Text",
+            Text = "Double-click to edit text",
+            X = spawnX,
+            Y = spawnY,
+            Width = 140,
+            Height = 40
+        };
+
+        var vm = new TextItemViewModel(textItem);
+        AddItem(vm);
     }
 
     public void AddRoomTemplate(RoomTemplateOptions options)

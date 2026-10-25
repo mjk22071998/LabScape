@@ -1,9 +1,10 @@
-﻿namespace LabScape.Core.Enums;
+namespace LabScape.Core.Enums;
 
 public enum ItemType
 {
     Device,
     Furniture,
     Shape,
-    Group
+    Group,
+    Text
 }

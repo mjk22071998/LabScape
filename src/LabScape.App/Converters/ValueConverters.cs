@@ -254,5 +254,47 @@ public class EqualityToBooleanConverter : IValueConverter
     }
 }
 
+public class TextAlignmentConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return (value as string)?.ToLowerInvariant() switch
+        {
+            "center" => TextAlignment.Center,
+            "right" => TextAlignment.Right,
+            "justify" => TextAlignment.Justify,
+            _ => TextAlignment.Left
+        };
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is TextAlignment align)
+        {
+            return align switch
+            {
+                TextAlignment.Center => "Center",
+                TextAlignment.Right => "Right",
+                TextAlignment.Justify => "Justify",
+                _ => "Left"
+            };
+        }
+        return "Left";
+    }
+}
+
+public class InverseBooleanToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return value is true ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return value is not Visibility.Visible;
+    }
+}
+
 
 

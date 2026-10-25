@@ -132,6 +132,8 @@
                 <fluent:RibbonGroupBox Header="Navigation &amp; Tools">
                     <fluent:ToggleButton Header="Select" IsChecked="True"
                                          Icon="{StaticResource IconSelect}" LargeIcon="{StaticResource IconSelect}"/>
+                    <fluent:Button Header="Text" Command="{Binding Canvas.AddTextItemCommand}" ToolTip="Insert Text Box (T)"
+                                   Icon="{StaticResource IconText}" LargeIcon="{StaticResource IconText}"/>
                     <fluent:Button Header="Zoom 100%" Command="{Binding Canvas.ResetZoomCommand}" ToolTip="Reset Zoom (Ctrl+0)"
                                    Icon="{StaticResource IconResetZoom}" LargeIcon="{StaticResource IconResetZoom}"/>
                     <fluent:Button Header="Zoom In" Command="{Binding Canvas.ZoomInCommand}" ToolTip="Zoom In (Ctrl++)"

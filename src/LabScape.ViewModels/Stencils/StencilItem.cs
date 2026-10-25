@@ -355,6 +355,21 @@ public class StencilItem
                     EndY = 15,
                     StrokeThickness = 2.0
                 })
+            },
+            new StencilItem
+            {
+                Category = "Shapes",
+                Title = "Text Box",
+                IconResourceKey = "Shape_Text",
+                DefaultWidth = 140,
+                DefaultHeight = 40,
+                CreateItem = () => new TextItemViewModel(new TextItem
+                {
+                    Name = "Text",
+                    Text = "Double-click to edit text",
+                    Width = 140,
+                    Height = 40
+                })
             }
         };
     }

@@ -170,7 +170,7 @@ public class SelectionAdorner : Adorner
             or nameof(ShapeItemViewModel.StartX) or nameof(ShapeItemViewModel.StartY)
             or nameof(ShapeItemViewModel.EndX) or nameof(ShapeItemViewModel.EndY)
             or nameof(ShapeItemViewModel.CornerRadius) or nameof(ShapeItemViewModel.InnerRadius)
-            or nameof(ShapeItemViewModel.ShapeType))
+            or nameof(ShapeItemViewModel.ShapeType) or nameof(TextItemViewModel.IsEditing))
         {
             InvalidateAdorner();
         }
@@ -216,6 +216,12 @@ public class SelectionAdorner : Adorner
     protected override void OnRender(DrawingContext dc)
     {
         base.OnRender(dc);
+
+        if (_item is TextItemViewModel textItem && textItem.IsEditing)
+        {
+            // Hide adorner handles while user is in active inline text editing mode
+            return;
+        }
 
         double w = _item.Width;
         double h = _item.Height;
@@ -350,6 +356,7 @@ public class SelectionAdorner : Adorner
     {
         base.OnMouseDown(e);
         if (!ShowHandles) return;
+        if (_item is TextItemViewModel textItem && textItem.IsEditing) return;
         if (e.LeftButton != MouseButtonState.Pressed) return;
 
         Point p = e.GetPosition(this);

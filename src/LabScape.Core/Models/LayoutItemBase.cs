@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 using LabScape.Core.Enums;
 
 namespace LabScape.Core.Models;
@@ -8,6 +8,7 @@ namespace LabScape.Core.Models;
 [JsonDerivedType(typeof(FurnitureItem), typeDiscriminator: "furniture")]
 [JsonDerivedType(typeof(ShapeItem), typeDiscriminator: "shape")]
 [JsonDerivedType(typeof(GroupItem), typeDiscriminator: "group")]
+[JsonDerivedType(typeof(TextItem), typeDiscriminator: "text")]
 public abstract class LayoutItemBase
 {
     [JsonPropertyName("id")]

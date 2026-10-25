@@ -2091,4 +2091,168 @@ public class CoreTests
         Assert.Empty(canvas.Items.OfType<GroupItemViewModel>());
         Assert.Equal(childCount, canvas.Items.Count);
     }
+
+    [Fact]
+    public void TextItem_CreationAndSerialization_PreservesAllProperties()
+    {
+        var repo = new LayoutJsonRepository();
+        var doc = new LayoutDocument
+        {
+            Metadata = new DocumentMetadata { Title = "Text Test" }
+        };
+
+        var textItem = new TextItem
+        {
+            Name = "Header Label",
+            Text = "Server Room Phase 1\nHigh Security Area",
+            FontSize = 18.0,
+            FontFamily = "Segoe UI",
+            FontWeight = "Bold",
+            FontStyle = "Italic",
+            TextAlignment = "Center",
+            TextColor = "#EF4444",
+            Background = "#FEF3C7",
+            BorderColor = "#F59E0B",
+            BorderThickness = 2.0,
+            X = 120,
+            Y = 80,
+            Width = 240,
+            Height = 60,
+            Z = 10
+        };
+
+        doc.Items.Add(textItem);
+
+        string json = repo.SerializeToJson(doc);
+        Assert.Contains("\"type\": \"text\"", json);
+        Assert.Contains("\"text\": \"Server Room Phase 1\\nHigh Security Area\"", json);
+        Assert.Contains("\"font_size\": 18", json);
+        Assert.Contains("\"font_family\": \"Segoe UI\"", json);
+        Assert.Contains("\"font_weight\": \"Bold\"", json);
+        Assert.Contains("\"font_style\": \"Italic\"", json);
+        Assert.Contains("\"text_alignment\": \"Center\"", json);
+        Assert.Contains("\"text_color\": \"#EF4444\"", json);
+        Assert.Contains("\"background\": \"#FEF3C7\"", json);
+        Assert.Contains("\"border_color\": \"#F59E0B\"", json);
+        Assert.Contains("\"border_thickness\": 2", json);
+
+        var restored = repo.DeserializeFromJson(json);
+        Assert.Single(restored.Items);
+        var restoredText = Assert.IsType<TextItem>(restored.Items[0]);
+
+        Assert.Equal("Header Label", restoredText.Name);
+        Assert.Equal("Server Room Phase 1\nHigh Security Area", restoredText.Text);
+        Assert.Equal(18.0, restoredText.FontSize);
+        Assert.Equal("Segoe UI", restoredText.FontFamily);
+        Assert.Equal("Bold", restoredText.FontWeight);
+        Assert.Equal("Italic", restoredText.FontStyle);
+        Assert.Equal("Center", restoredText.TextAlignment);
+        Assert.Equal("#EF4444", restoredText.TextColor);
+        Assert.Equal("#FEF3C7", restoredText.Background);
+        Assert.Equal("#F59E0B", restoredText.BorderColor);
+        Assert.Equal(2.0, restoredText.BorderThickness);
+        Assert.Equal(120, restoredText.X);
+        Assert.Equal(80, restoredText.Y);
+        Assert.Equal(240, restoredText.Width);
+        Assert.Equal(60, restoredText.Height);
+        Assert.Equal(10, restoredText.Z);
+    }
+
+    [Fact]
+    public void TextItemViewModel_EditAndUndoRedo_MaintainsIntegrity()
+    {
+        var undoRedo = new UndoRedoService();
+        var model = new TextItem { Text = "Initial Title" };
+        var vm = new TextItemViewModel(model);
+
+        Assert.False(vm.IsEditing);
+        vm.BeginEdit();
+        Assert.True(vm.IsEditing);
+        vm.EndEdit();
+        Assert.False(vm.IsEditing);
+
+        // Test ChangeTextContentCommand
+        undoRedo.ExecuteCommand(new ChangeTextContentCommand(vm, "Initial Title", "Updated Title"));
+        Assert.Equal("Updated Title", vm.Text);
+        Assert.Equal("Updated Title", model.Text);
+
+        undoRedo.Undo();
+        Assert.Equal("Initial Title", vm.Text);
+        Assert.Equal("Initial Title", model.Text);
+
+        undoRedo.Redo();
+        Assert.Equal("Updated Title", vm.Text);
+        Assert.Equal("Updated Title", model.Text);
+    }
+
+    [Fact]
+    public void CanvasViewModel_AddTextItem_SpawnsAndSelects()
+    {
+        var undoRedo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undoRedo);
+
+        canvas.AddTextItem();
+        Assert.Single(canvas.Items);
+        var item = Assert.IsType<TextItemViewModel>(canvas.Items[0]);
+        Assert.Single(canvas.SelectedItems);
+        Assert.Same(item, canvas.SelectedItems[0]);
+
+        undoRedo.Undo();
+        Assert.Empty(canvas.Items);
+
+        undoRedo.Redo();
+        Assert.Single(canvas.Items);
+    }
+
+    [Fact]
+    public void PropertiesViewModel_TextItem_SyncsProperties()
+    {
+        var undoRedo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undoRedo);
+        var propVm = new PropertiesViewModel(canvas);
+
+        var model = new TextItem
+        {
+            Text = "Design Note",
+            FontSize = 14,
+            FontFamily = "Segoe UI",
+            FontWeight = "Normal",
+            FontStyle = "Normal",
+            TextAlignment = "Left",
+            TextColor = "#1E293B",
+            Background = "Transparent"
+        };
+        var vm = new TextItemViewModel(model);
+        canvas.AddItem(vm);
+        canvas.SetSelection(new[] { vm });
+
+        Assert.True(propVm.IsText);
+        Assert.Equal("Design Note", propVm.ItemText);
+        Assert.Equal(14.0, propVm.ItemFontSize);
+        Assert.False(propVm.IsBold);
+        Assert.False(propVm.IsItalic);
+        Assert.Equal("Left", propVm.ItemTextAlignment);
+
+        // Toggle Bold
+        propVm.ToggleBold();
+        Assert.True(propVm.IsBold);
+        Assert.Equal("Bold", vm.FontWeight);
+
+        // Toggle Italic
+        propVm.ToggleItalic();
+        Assert.True(propVm.IsItalic);
+        Assert.Equal("Italic", vm.FontStyle);
+
+        // Change Alignment
+        propVm.SetAlignCenter();
+        Assert.Equal("Center", propVm.ItemTextAlignment);
+        Assert.Equal("Center", vm.TextAlignment);
+
+        // Change Text Color and Background
+        propVm.SetItemTextColor("#3B82F6");
+        Assert.Equal("#3B82F6", vm.TextColor);
+
+        propVm.SetItemTextBackground("#FEF3C7");
+        Assert.Equal("#FEF3C7", vm.Background);
+    }
 }

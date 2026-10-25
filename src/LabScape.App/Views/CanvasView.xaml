@@ -445,6 +445,61 @@
                             </Grid>
                         </DataTemplate>
 
+                        <!-- Text Item DataTemplate -->
+                        <DataTemplate DataType="{x:Type items:TextItemViewModel}">
+                            <Grid Width="{Binding Width}" Height="{Binding Height}"
+                                  Cursor="SizeAll"
+                                  MouseDown="Item_MouseDown"
+                                  Background="Transparent">
+
+                                <Grid.RenderTransform>
+                                    <RotateTransform Angle="{Binding Rotation}" CenterX="{Binding Width, Converter={StaticResource HalfValueConverter}}" CenterY="{Binding Height, Converter={StaticResource HalfValueConverter}}"/>
+                                </Grid.RenderTransform>
+
+                                <Border Background="{Binding Background, Converter={StaticResource HexToBrushConverter}}"
+                                        BorderBrush="{Binding BorderColor, Converter={StaticResource HexToBrushConverter}}"
+                                        BorderThickness="{Binding BorderThickness}"
+                                        CornerRadius="3"
+                                        Padding="4">
+                                    <Grid>
+                                        <!-- Display TextBlock (when NOT editing) -->
+                                        <TextBlock Text="{Binding Text}"
+                                                   FontSize="{Binding FontSize}"
+                                                   FontFamily="{Binding FontFamily}"
+                                                   FontWeight="{Binding FontWeight}"
+                                                   FontStyle="{Binding FontStyle}"
+                                                   TextAlignment="{Binding TextAlignment, Converter={StaticResource TextAlignmentConverter}}"
+                                                   Foreground="{Binding TextColor, Converter={StaticResource HexToBrushConverter}}"
+                                                   TextWrapping="Wrap"
+                                                   VerticalAlignment="Center"
+                                                   Visibility="{Binding IsEditing, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+
+                                        <!-- In-Place Editable TextBox (when editing) -->
+                                        <TextBox x:Name="InPlaceTextBox"
+                                                 Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"
+                                                 FontSize="{Binding FontSize}"
+                                                 FontFamily="{Binding FontFamily}"
+                                                 FontWeight="{Binding FontWeight}"
+                                                 FontStyle="{Binding FontStyle}"
+                                                 TextAlignment="{Binding TextAlignment, Converter={StaticResource TextAlignmentConverter}}"
+                                                 Foreground="{Binding TextColor, Converter={StaticResource HexToBrushConverter}}"
+                                                 Background="White"
+                                                 BorderBrush="#3B82F6"
+                                                 BorderThickness="1.5"
+                                                 Padding="2"
+                                                 AcceptsReturn="True"
+                                                 TextWrapping="Wrap"
+                                                 VerticalAlignment="Stretch"
+                                                 HorizontalAlignment="Stretch"
+                                                 Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                 IsVisibleChanged="InPlaceTextBox_IsVisibleChanged"
+                                                 KeyDown="InPlaceTextBox_KeyDown"
+                                                 LostFocus="InPlaceTextBox_LostFocus"/>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+
                         <!-- Group DataTemplate -->
                         <DataTemplate DataType="{x:Type items:GroupItemViewModel}">
                             <Grid Width="{Binding Width}" Height="{Binding Height}"

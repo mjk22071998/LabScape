@@ -27,6 +27,8 @@
             <converters:DeviceLabelWrapConverter x:Key="DeviceLabelWrapConverter"/>
             <converters:RelativeOffsetConverter x:Key="RelativeOffsetConverter"/>
             <converters:EqualityToBooleanConverter x:Key="EqualityToBooleanConverter"/>
+            <converters:TextAlignmentConverter x:Key="TextAlignmentConverter"/>
+            <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

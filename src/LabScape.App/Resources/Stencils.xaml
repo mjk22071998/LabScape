@@ -516,4 +516,25 @@
         </GeometryDrawing>
     </DrawingGroup>
 
+    <!-- Text Annotation / Label -->
+    <DrawingGroup x:Key="Shape_Text">
+        <GeometryDrawing Brush="#EEF2FF">
+            <GeometryDrawing.Pen>
+                <Pen Brush="#4F46E5" Thickness="1.5" DashStyle="{x:Static DashStyles.Dash}"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="8,18,84,44" RadiusX="3" RadiusY="3"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#4338CA">
+            <GeometryDrawing.Geometry>
+                <GeometryGroup>
+                    <RectangleGeometry Rect="28,26,44,4" RadiusX="1" RadiusY="1"/>
+                    <RectangleGeometry Rect="47,30,6,22" RadiusX="1" RadiusY="1"/>
+                    <RectangleGeometry Rect="42,50,16,3" RadiusX="1" RadiusY="1"/>
+                </GeometryGroup>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
+
 </ResourceDictionary>
