@@ -59,6 +59,7 @@ public partial class CanvasView : UserControl
         if (_subscribedVm != null)
         {
             _subscribedVm.SelectedItems.CollectionChanged -= OnSelectedItemsChanged;
+            _subscribedVm.PropertyChanged -= OnViewModelPropertyChanged;
             _subscribedVm = null;
         }
 
@@ -66,6 +67,7 @@ public partial class CanvasView : UserControl
         {
             _subscribedVm = vm;
             _subscribedVm.SelectedItems.CollectionChanged += OnSelectedItemsChanged;
+            _subscribedVm.PropertyChanged += OnViewModelPropertyChanged;
             UpdateAdorner();
         }
         else
@@ -79,9 +81,21 @@ public partial class CanvasView : UserControl
         if (_subscribedVm != null)
         {
             _subscribedVm.SelectedItems.CollectionChanged -= OnSelectedItemsChanged;
+            _subscribedVm.PropertyChanged -= OnViewModelPropertyChanged;
             _subscribedVm = null;
         }
         RemoveAllAdorners();
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(CanvasViewModel.ZoomLevel))
+        {
+            foreach (var adorner in _currentAdorners)
+            {
+                adorner.InvalidateAdorner();
+            }
+        }
     }
 
     private void OnSelectedItemsChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -459,7 +473,7 @@ public partial class CanvasView : UserControl
                 var adorner = new SelectionAdorner(presenter, selectedItem, ViewModel.UndoRedoService, () =>
                 {
                     if (selectedItem is GroupItemViewModel grp) grp.RecalculateBounds();
-                });
+                }, () => ViewModel?.ZoomLevel ?? 1.0);
                 layer.Add(adorner);
                 _currentAdorners.Add(adorner);
                 _adornedElements.Add(presenter);

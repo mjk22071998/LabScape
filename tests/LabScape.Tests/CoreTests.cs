@@ -1038,6 +1038,47 @@ public class CoreTests
     }
 
     [Fact]
+    public void SelectionAdorner_CodeAnalysis_VerifiesZoomIndependentHandleSizing_AndSmallItemReduction()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(projectRoot);
+        string adornerPath = Path.Combine(projectRoot, "src", "LabScape.App", "Adorners", "SelectionAdorner.cs");
+        Assert.True(File.Exists(adornerPath));
+
+        string code = File.ReadAllText(adornerPath);
+
+        // 1. Zoom-independent handle sizing implementation
+        Assert.Contains("CalculateHandleSize", code);
+        Assert.Contains("CalculateSpecialHandleSize", code);
+        Assert.Contains("BaseHandleSize / Math.Max(0.05, zoom)", code);
+        Assert.Contains("BaseSpecialHandleSize / Math.Max(0.05, zoom)", code);
+
+        // 2. Small item handle reduction (8 resize handles down to 4 corner handles)
+        Assert.Contains("SmallItemThreshold", code);
+        Assert.Contains("ShouldUse4CornerHandles", code);
+        Assert.Contains("if (!use4Handles)", code);
+
+        // 3. CanvasView must listen to ZoomLevel changes to invalidate adorners
+        string canvasViewPath = Path.Combine(projectRoot, "src", "LabScape.App", "Views", "CanvasView.xaml.cs");
+        Assert.True(File.Exists(canvasViewPath));
+        string canvasViewCode = File.ReadAllText(canvasViewPath);
+        Assert.Contains("OnViewModelPropertyChanged", canvasViewCode);
+        Assert.Contains("nameof(CanvasViewModel.ZoomLevel)", canvasViewCode);
+        Assert.Contains("adorner.InvalidateAdorner()", canvasViewCode);
+    }
+
+    [Fact]
     public void ShapeGeometry_CornerRadius_AndInnerRadius_UpdateCanvasAndSupportUndoRedo()
     {
         var donut = new ShapeItemViewModel(new ShapeItem
