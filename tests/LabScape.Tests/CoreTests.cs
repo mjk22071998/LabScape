@@ -1904,4 +1904,56 @@ public class CoreTests
             Assert.Equal(result.Group.Id, child.ParentGroupId);
         }
     }
+
+    [Fact]
+    public void UngroupRoomTemplate_SelectingLines_DoesNotDisplaceCoordinates()
+    {
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo) { SnapToGrid = true, GridSize = 20.0 };
+
+        var options = new RoomTemplateOptions
+        {
+            Sides = 4,
+            PcCount = 8,
+            OriginX = 100.0,
+            OriginY = 100.0,
+            GroupElements = true
+        };
+
+        canvas.AddRoomTemplate(options);
+        var group = canvas.Items.OfType<GroupItemViewModel>().Single();
+
+        // Find initial coordinates of all wall lines before ungrouping
+        var initialWalls = group.Children.OfType<ShapeItemViewModel>().Where(s => s.ShapeType == ShapeType.Line).ToList();
+        Assert.Equal(4, initialWalls.Count);
+        var originalCoords = initialWalls.ToDictionary(w => w.Name, w => (w.X, w.Y, w.Width, w.Height, w.Rotation));
+
+        // Ungroup the room
+        canvas.SetSelection(new[] { group });
+        canvas.UngroupSelected();
+
+        // All walls should now be direct top-level canvas items
+        var unpackedWalls = canvas.Items.OfType<ShapeItemViewModel>().Where(s => s.ShapeType == ShapeType.Line).ToList();
+        Assert.Equal(4, unpackedWalls.Count);
+
+        // Verify that ungrouping preserved exact coordinates
+        foreach (var wall in unpackedWalls)
+        {
+            var orig = originalCoords[wall.Name];
+            Assert.Equal(orig.X, wall.X, 1);
+            Assert.Equal(orig.Y, wall.Y, 1);
+            Assert.Equal(orig.Width, wall.Width, 1);
+            Assert.Equal(orig.Height, wall.Height, 1);
+            Assert.Equal(orig.Rotation, wall.Rotation, 1);
+        }
+
+        // Now select each wall individually and verify its coordinates never drift or get clamped
+        foreach (var wall in unpackedWalls)
+        {
+            canvas.SelectItem(wall, addToExisting: false);
+            var orig = originalCoords[wall.Name];
+            Assert.Equal(orig.X, wall.X, 1);
+            Assert.Equal(orig.Y, wall.Y, 1);
+        }
+    }
 }

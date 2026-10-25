@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using LabScape.App.Adorners;
+using LabScape.Core.Enums;
 using LabScape.ViewModels;
 using LabScape.ViewModels.Items;
 using LabScape.ViewModels.Stencils;
@@ -21,6 +22,8 @@ public partial class CanvasView : UserControl
     private double _initialPanX, _initialPanY;
 
     private bool _isDraggingItem;
+    private bool _isPotentialDrag;
+    private ItemViewModel? _pendingSingleSelection;
     private Point _itemDragStart;
     private readonly Dictionary<ItemViewModel, Point> _initialItemPositions = new();
 
@@ -197,6 +200,17 @@ public partial class CanvasView : UserControl
         }
 
         // 3. Dragging Items with Smart Magnetic Alignment Guides
+        if (_isPotentialDrag && !_isDraggingItem)
+        {
+            Point curPos = e.GetPosition(CanvasSurface);
+            if (Math.Abs(curPos.X - _itemDragStart.X) >= SystemParameters.MinimumHorizontalDragDistance ||
+                Math.Abs(curPos.Y - _itemDragStart.Y) >= SystemParameters.MinimumVerticalDragDistance)
+            {
+                _isDraggingItem = true;
+                _pendingSingleSelection = null; // User actively dragged, keep all selected items
+            }
+        }
+
         if (_isDraggingItem && ViewModel != null && _initialItemPositions.Count > 0)
         {
             double deltaX = canvasPos.X - _itemDragStart.X;
@@ -206,14 +220,32 @@ public partial class CanvasView : UserControl
             var primary = _initialItemPositions.Keys.First();
             var primaryStart = _initialItemPositions[primary];
 
-            double targetPrimaryX = primaryStart.X + deltaX;
-            double targetPrimaryY = primaryStart.Y + deltaY;
+            double targetPrimaryX;
+            double targetPrimaryY;
 
-            // Standard Snap to Grid
             if (ViewModel.SnapToGrid)
             {
-                targetPrimaryX = Math.Round(targetPrimaryX / ViewModel.GridSize) * ViewModel.GridSize;
-                targetPrimaryY = Math.Round(targetPrimaryY / ViewModel.GridSize) * ViewModel.GridSize;
+                // For lines, the center is aligned to grid, while X/Y has an offset of Width/2 or Height/2.
+                // Snapping the center preserves accurate grid alignment for both horizontal and rotated lines:
+                if (primary is ShapeItemViewModel { ShapeType: ShapeType.Line })
+                {
+                    double primaryCenterX = primaryStart.X + primary.Width / 2.0 + deltaX;
+                    double primaryCenterY = primaryStart.Y + primary.Height / 2.0 + deltaY;
+                    double snappedCenterX = Math.Round(primaryCenterX / ViewModel.GridSize) * ViewModel.GridSize;
+                    double snappedCenterY = Math.Round(primaryCenterY / ViewModel.GridSize) * ViewModel.GridSize;
+                    targetPrimaryX = snappedCenterX - primary.Width / 2.0;
+                    targetPrimaryY = snappedCenterY - primary.Height / 2.0;
+                }
+                else
+                {
+                    targetPrimaryX = Math.Round((primaryStart.X + deltaX) / ViewModel.GridSize) * ViewModel.GridSize;
+                    targetPrimaryY = Math.Round((primaryStart.Y + deltaY) / ViewModel.GridSize) * ViewModel.GridSize;
+                }
+            }
+            else
+            {
+                targetPrimaryX = primaryStart.X + deltaX;
+                targetPrimaryY = primaryStart.Y + deltaY;
             }
 
             // Magnetic Alignment Snapping against other canvas items (zero-allocation fast scan)
@@ -296,8 +328,34 @@ public partial class CanvasView : UserControl
 
             foreach (var (item, startPos) in _initialItemPositions)
             {
-                item.X = Math.Max(0, startPos.X + finalDeltaX);
-                item.Y = Math.Max(0, startPos.Y + finalDeltaY);
+                double newX = startPos.X + finalDeltaX;
+                double newY = startPos.Y + finalDeltaY;
+
+                // For items with startPos.X >= 0, clamp to >= 0
+                // For rotated items with negative X (e.g. vertical line rotated 90 deg where X = centerX - len/2):
+                // Ensure visual center X >= 0:
+                if (startPos.X >= 0)
+                {
+                    newX = Math.Max(0, newX);
+                }
+                else
+                {
+                    double minAllowedX = -item.Width / 2.0;
+                    newX = Math.Max(minAllowedX, newX);
+                }
+
+                if (startPos.Y >= 0)
+                {
+                    newY = Math.Max(0, newY);
+                }
+                else
+                {
+                    double minAllowedY = -item.Height / 2.0;
+                    newY = Math.Max(minAllowedY, newY);
+                }
+
+                item.X = newX;
+                item.Y = newY;
             }
         }
     }
@@ -370,16 +428,34 @@ public partial class CanvasView : UserControl
             UpdateAdorner();
         }
 
-        if (_isDraggingItem && ViewModel != null)
+        if (_isPotentialDrag)
         {
-            _isDraggingItem = false;
+            _isPotentialDrag = false;
             Mouse.Capture(null);
-            SnapGuideVertical.Visibility = Visibility.Collapsed;
-            SnapGuideHorizontal.Visibility = Visibility.Collapsed;
 
-            // Commit atomic undoable Move Command
-            var moves = _initialItemPositions.Select(kv => (kv.Key, kv.Value.X, kv.Value.Y, kv.Key.X, kv.Key.Y)).ToList();
-            ViewModel.CommitItemMoves(moves);
+            if (_isDraggingItem && ViewModel != null)
+            {
+                _isDraggingItem = false;
+                SnapGuideVertical.Visibility = Visibility.Collapsed;
+                SnapGuideHorizontal.Visibility = Visibility.Collapsed;
+
+                // Commit atomic undoable Move Command only if positions actually changed
+                var moves = _initialItemPositions
+                    .Where(kv => Math.Abs(kv.Value.X - kv.Key.X) > 0.01 || Math.Abs(kv.Value.Y - kv.Key.Y) > 0.01)
+                    .Select(kv => (kv.Key, kv.Value.X, kv.Value.Y, kv.Key.X, kv.Key.Y))
+                    .ToList();
+                if (moves.Count > 0)
+                {
+                    ViewModel.CommitItemMoves(moves);
+                }
+            }
+            else if (_pendingSingleSelection != null && ViewModel != null)
+            {
+                ViewModel.SelectItem(_pendingSingleSelection, addToExisting: false);
+                UpdateAdorner();
+            }
+
+            _pendingSingleSelection = null;
             _initialItemPositions.Clear();
         }
     }
@@ -524,6 +600,7 @@ public partial class CanvasView : UserControl
 
         if (e.LeftButton != MouseButtonState.Pressed) return;
 
+        _pendingSingleSelection = null;
         bool isCtrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
         if (isCtrl)
         {
@@ -538,12 +615,19 @@ public partial class CanvasView : UserControl
             {
                 ViewModel.SelectItem(targetItem, addToExisting: false);
             }
+            else if (ViewModel.SelectedItems.Count > 1)
+            {
+                // Already part of a multi-selection: if user releases mouse without dragging,
+                // reduce selection to this single item.
+                _pendingSingleSelection = targetItem;
+            }
         }
 
         UpdateAdorner();
 
-        // Start Dragging items
-        _isDraggingItem = true;
+        // Prepare for potential drag (do NOT set _isDraggingItem = true yet to avoid displacement on simple click)
+        _isPotentialDrag = true;
+        _isDraggingItem = false;
         _itemDragStart = e.GetPosition(CanvasSurface);
         _initialItemPositions.Clear();
         foreach (var sel in ViewModel.SelectedItems)
