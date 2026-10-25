@@ -153,8 +153,21 @@
                 <!-- Templates & Room Generator -->
                 <fluent:RibbonGroupBox Header="Templates">
                     <fluent:Button Header="Room Template" Click="RoomGenerator_Click"
-                                   ToolTip="Open dockable Room Template Generator tool window (neighbor of Stencils Library)"
+                                   ToolTip="Open and dock Room Templates window (neighbor of Stencils Library)"
                                    Icon="{StaticResource IconRoomTemplate}" LargeIcon="{StaticResource IconRoomTemplate}"/>
+                </fluent:RibbonGroupBox>
+
+                <!-- Tool Windows & Panels Management -->
+                <fluent:RibbonGroupBox Header="Panels &amp; Windows">
+                    <fluent:Button Header="Stencils" Click="OpenStencils_Click"
+                                   ToolTip="Open and dock Stencils Library window"
+                                   Icon="{StaticResource IconLayers}" LargeIcon="{StaticResource IconLayers}"/>
+                    <fluent:Button Header="Properties" Click="OpenProperties_Click"
+                                   ToolTip="Open and dock Properties &amp; Inspector window (F4)"
+                                   Icon="{StaticResource IconInspect}" LargeIcon="{StaticResource IconInspect}"/>
+                    <fluent:Button Header="Reset Layout" Click="ResetLayout_Click"
+                                   ToolTip="Reopen and dock all tool windows to default positions"
+                                   Icon="{StaticResource IconResetZoom}" LargeIcon="{StaticResource IconResetZoom}"/>
                 </fluent:RibbonGroupBox>
 
 
@@ -243,10 +256,14 @@
 
                     <!-- Left: Stencils & Room Templates Dockable Anchorables (Neighbors) -->
                     <dock:LayoutAnchorablePane DockWidth="280">
-                        <dock:LayoutAnchorable x:Name="StencilsAnchorable" Title="Stencils Library" CanClose="False" CanHide="False">
+                        <dock:LayoutAnchorable x:Name="StencilsAnchorable" Title="Stencils Library"
+                                               CanClose="False" CanHide="False"
+                                               AutoHideWidth="280" AutoHideMinWidth="220">
                             <views:StencilsPaletteView DataContext="{Binding Stencils}"/>
                         </dock:LayoutAnchorable>
-                        <dock:LayoutAnchorable x:Name="RoomTemplateAnchorable" Title="Room Templates" CanClose="False" CanHide="False">
+                        <dock:LayoutAnchorable x:Name="RoomTemplateAnchorable" Title="Room Templates"
+                                               CanClose="False" CanHide="False"
+                                               AutoHideWidth="280" AutoHideMinWidth="220">
                             <views:RoomTemplateView DataContext="{Binding RoomTemplate}"/>
                         </dock:LayoutAnchorable>
                     </dock:LayoutAnchorablePane>
@@ -407,7 +424,9 @@
 
                     <!-- Right: Properties Inspector -->
                     <dock:LayoutAnchorablePane DockWidth="280">
-                        <dock:LayoutAnchorable Title="Properties &amp; Inspector" CanClose="False" CanHide="False">
+                        <dock:LayoutAnchorable x:Name="PropertiesAnchorable" Title="Properties &amp; Inspector"
+                                               CanClose="False" CanHide="False"
+                                               AutoHideWidth="280" AutoHideMinWidth="220">
                             <views:PropertiesInspectorView DataContext="{Binding Properties}"/>
                         </dock:LayoutAnchorable>
                     </dock:LayoutAnchorablePane>

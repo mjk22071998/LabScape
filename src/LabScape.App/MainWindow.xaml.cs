@@ -145,6 +145,14 @@ public partial class MainWindow : RibbonWindow
             return;
         }
 
+        // Properties Inspector Shortcut: F4
+        if (e.Key == Key.F4)
+        {
+            OpenProperties_Click(this, new RoutedEventArgs());
+            e.Handled = true;
+            return;
+        }
+
         var isCtrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
         var isShift = (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift;
         var isAlt = (Keyboard.Modifiers & ModifierKeys.Alt) == ModifierKeys.Alt;
@@ -579,12 +587,52 @@ public partial class MainWindow : RibbonWindow
         ActivateRoomTemplateWindow();
     }
 
+    public void OpenAndDockAnchorable(AvalonDock.Layout.LayoutAnchorable? anchorable)
+    {
+        if (anchorable == null) return;
+
+        // 1. If auto-hidden in the edge strip, toggle back to permanently docked
+        if (anchorable.IsAutoHidden)
+        {
+            anchorable.ToggleAutoHide();
+        }
+
+        // 2. If closed or hidden, make it visible and show it
+        if (anchorable.IsHidden)
+        {
+            anchorable.Show();
+        }
+
+        anchorable.IsVisible = true;
+        anchorable.IsActive = true;
+        anchorable.IsSelected = true;
+    }
+
     public void ActivateRoomTemplateWindow()
     {
-        if (RoomTemplateAnchorable != null)
+        OpenAndDockAnchorable(RoomTemplateAnchorable);
+    }
+
+    private void OpenStencils_Click(object sender, RoutedEventArgs e)
+    {
+        OpenAndDockAnchorable(StencilsAnchorable);
+    }
+
+    private void OpenProperties_Click(object sender, RoutedEventArgs e)
+    {
+        OpenAndDockAnchorable(PropertiesAnchorable);
+    }
+
+    private void ResetLayout_Click(object sender, RoutedEventArgs e)
+    {
+        OpenAndDockAnchorable(StencilsAnchorable);
+        OpenAndDockAnchorable(RoomTemplateAnchorable);
+        OpenAndDockAnchorable(PropertiesAnchorable);
+
+        if (StencilsAnchorable != null)
         {
-            RoomTemplateAnchorable.IsActive = true;
-            RoomTemplateAnchorable.IsSelected = true;
+            StencilsAnchorable.IsSelected = true;
+            StencilsAnchorable.IsActive = true;
         }
     }
 
