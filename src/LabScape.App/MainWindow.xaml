@@ -261,12 +261,12 @@
                         <dock:LayoutAnchorable x:Name="StencilsAnchorable" Title="Stencils Library"
                                                CanClose="False" CanHide="False"
                                                AutoHideWidth="280" AutoHideMinWidth="220">
-                            <views:StencilsPaletteView DataContext="{Binding Stencils}"/>
+                            <views:StencilsPaletteView x:Name="StencilsPaletteViewControl" DataContext="{Binding Stencils}"/>
                         </dock:LayoutAnchorable>
                         <dock:LayoutAnchorable x:Name="RoomTemplateAnchorable" Title="Room Templates"
                                                CanClose="False" CanHide="False"
                                                AutoHideWidth="280" AutoHideMinWidth="220">
-                            <views:RoomTemplateView DataContext="{Binding RoomTemplate}"/>
+                            <views:RoomTemplateView x:Name="RoomTemplateViewControl" DataContext="{Binding RoomTemplate}"/>
                         </dock:LayoutAnchorable>
                     </dock:LayoutAnchorablePane>
 
@@ -429,7 +429,7 @@
                         <dock:LayoutAnchorable x:Name="PropertiesAnchorable" Title="Properties &amp; Inspector"
                                                CanClose="False" CanHide="False"
                                                AutoHideWidth="280" AutoHideMinWidth="220">
-                            <views:PropertiesInspectorView DataContext="{Binding Properties}"/>
+                            <views:PropertiesInspectorView x:Name="PropertiesInspectorViewControl" DataContext="{Binding Properties}"/>
                         </dock:LayoutAnchorable>
                     </dock:LayoutAnchorablePane>
 

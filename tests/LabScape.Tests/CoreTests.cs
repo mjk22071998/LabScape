@@ -1754,6 +1754,8 @@ public class CoreTests
 
         // 1. Initial Defaults
         Assert.Equal(4, vm.Sides);
+        Assert.True(vm.CanGenerateRoom, "Generate Room must always be enabled");
+        Assert.True(vm.GenerateRoomCommand.CanExecute(null), "GenerateRoomCommand must be executable");
         Assert.Equal(12, vm.PcCount);
         Assert.True(vm.IncludeDesks);
         Assert.True(vm.IncludeChairs);
@@ -1805,6 +1807,44 @@ public class CoreTests
         Assert.True(undo.CanRedo);
         undo.Redo();
         Assert.Single(canvas.Items);
+    }
+
+    [Fact]
+    public void RoomTemplateViewModel_SidesValidation_GuaranteesAllFourSidesDefault()
+    {
+        var canvas = new CanvasViewModel(new UndoRedoService());
+        var vm = new LabScape.ViewModels.Templates.RoomTemplateViewModel(() => canvas);
+
+        // 1. Initial configuration has 4 sides enabled and ready
+        Assert.Equal(4, vm.Sides);
+        Assert.True(vm.CanGenerateRoom);
+        Assert.True(vm.GenerateRoomCommand.CanExecute(null));
+
+        var opts = vm.BuildOptions();
+        Assert.Equal(4, opts.Sides);
+
+        var activeWalls = opts.GetActiveWalls();
+        Assert.Equal(4, activeWalls.Count);
+        Assert.Contains(WallSide.North, activeWalls);
+        Assert.Contains(WallSide.East, activeWalls);
+        Assert.Contains(WallSide.South, activeWalls);
+        Assert.Contains(WallSide.West, activeWalls);
+
+        var result = RoomTemplateGenerator.Generate(opts);
+        Assert.Equal(4, result.Walls.Count);
+        Assert.Contains(result.Walls, w => w.Name == "North Wall");
+        Assert.Contains(result.Walls, w => w.Name == "East Wall");
+        Assert.Contains(result.Walls, w => w.Name == "South Wall");
+        Assert.Contains(result.Walls, w => w.Name == "West Wall");
+
+        // 2. BuildOptions sanitizes out-of-range values safely back to 4 sides
+        vm.Sides = 0;
+        var sanitizedOpts0 = vm.BuildOptions();
+        Assert.Equal(4, sanitizedOpts0.Sides);
+
+        vm.Sides = 99;
+        var sanitizedOpts99 = vm.BuildOptions();
+        Assert.Equal(4, sanitizedOpts99.Sides);
     }
 
     [Fact]

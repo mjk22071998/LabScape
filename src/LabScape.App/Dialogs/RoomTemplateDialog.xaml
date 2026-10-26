@@ -38,10 +38,10 @@
                     <TextBlock Text="Select number of boundary walls (max 4):" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,8"/>
                     
                     <WrapPanel Orientation="Horizontal" Margin="0,0,0,8">
-                        <RadioButton x:Name="Rb4Sides" Content="4 Sides (Full Room)" IsChecked="True" Checked="OptionChanged" Margin="0,0,16,6" FontWeight="SemiBold"/>
-                        <RadioButton x:Name="Rb3Sides" Content="3 Sides (U-Shape)" Checked="OptionChanged" Margin="0,0,16,6" FontWeight="SemiBold"/>
-                        <RadioButton x:Name="Rb2Sides" Content="2 Sides (Corner / Opposite)" Checked="OptionChanged" Margin="0,0,16,6" FontWeight="SemiBold"/>
-                        <RadioButton x:Name="Rb1Side" Content="1 Side (Bench / Row)" Checked="OptionChanged" Margin="0,0,16,6" FontWeight="SemiBold"/>
+                        <RadioButton x:Name="Rb4Sides" GroupName="RoomSidesDialogGroup" Content="4 Sides (Full Room)" IsChecked="True" Checked="OptionChanged" Margin="0,0,16,6" FontWeight="SemiBold"/>
+                        <RadioButton x:Name="Rb3Sides" GroupName="RoomSidesDialogGroup" Content="3 Sides (U-Shape)" Checked="OptionChanged" Margin="0,0,16,6" FontWeight="SemiBold"/>
+                        <RadioButton x:Name="Rb2Sides" GroupName="RoomSidesDialogGroup" Content="2 Sides (Corner / Opposite)" Checked="OptionChanged" Margin="0,0,16,6" FontWeight="SemiBold"/>
+                        <RadioButton x:Name="Rb1Side" GroupName="RoomSidesDialogGroup" Content="1 Side (Bench / Row)" Checked="OptionChanged" Margin="0,0,16,6" FontWeight="SemiBold"/>
                     </WrapPanel>
 
                     <!-- Open Side Selector (For 3 Sides) -->

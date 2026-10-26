@@ -38,15 +38,19 @@
                         <!-- Radio Buttons for Sides -->
                         <StackPanel Margin="2,0,0,6">
                             <RadioButton Content="4 Sides (Full Room)"
+                                         GroupName="RoomSidesGroup"
                                          IsChecked="{Binding Sides, Converter={StaticResource EqualityToBooleanConverter}, ConverterParameter=4}"
                                          Margin="0,0,0,5" FontWeight="SemiBold"/>
                             <RadioButton Content="3 Sides (U-Shape)"
+                                         GroupName="RoomSidesGroup"
                                          IsChecked="{Binding Sides, Converter={StaticResource EqualityToBooleanConverter}, ConverterParameter=3}"
                                          Margin="0,0,0,5" FontWeight="SemiBold"/>
                             <RadioButton Content="2 Sides (Corner / Opposite)"
+                                         GroupName="RoomSidesGroup"
                                          IsChecked="{Binding Sides, Converter={StaticResource EqualityToBooleanConverter}, ConverterParameter=2}"
                                          Margin="0,0,0,5" FontWeight="SemiBold"/>
                             <RadioButton Content="1 Side (Bench / Row)"
+                                         GroupName="RoomSidesGroup"
                                          IsChecked="{Binding Sides, Converter={StaticResource EqualityToBooleanConverter}, ConverterParameter=1}"
                                          Margin="0,0,0,5" FontWeight="SemiBold"/>
                         </StackPanel>
@@ -171,29 +175,70 @@
 
                 <!-- Actions -->
                 <StackPanel Margin="0,0,0,4">
-                    <Button Content="➕ Generate Room on Canvas"
+                    <Button x:Name="BtnGenerateRoom"
+                            Content="➕ Generate Room on Canvas"
                             Command="{Binding GenerateRoomCommand}"
+                            Click="BtnGenerateRoom_Click"
                             Padding="12,8" FontWeight="Bold" FontSize="11.5"
-                            Background="#4F46E5" Foreground="White"
-                            BorderThickness="0" Margin="0,0,0,6">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="5"/>
+                            Foreground="White" Cursor="Hand"
+                            Margin="0,0,0,6">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="#4F46E5"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="btnBorder" Background="{TemplateBinding Background}" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="btnBorder" Property="Background" Value="#4338CA"/>
+                                                </Trigger>
+                                                <Trigger Property="IsPressed" Value="True">
+                                                    <Setter TargetName="btnBorder" Property="Background" Value="#3730A3"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
                             </Style>
-                        </Button.Resources>
+                        </Button.Style>
                     </Button>
-                    <Button Content="Reset Defaults"
+                    <Button x:Name="BtnResetDefaults"
+                            Content="Reset Defaults"
                             Command="{Binding ResetDefaultsCommand}"
+                            Click="BtnResetDefaults_Click"
                             Padding="8,5" FontSize="10.5"
-                            Background="{DynamicResource CardBackgroundBrush}"
                             Foreground="{DynamicResource AppTextSecondaryBrush}"
-                            BorderBrush="{DynamicResource CardBorderBrush}"
-                            BorderThickness="1">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="4"/>
+                            Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="rstBorder" Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                                    CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="rstBorder" Property="Background" Value="{DynamicResource CardHoverBackgroundBrush}"/>
+                                                </Trigger>
+                                                <Trigger Property="IsPressed" Value="True">
+                                                    <Setter TargetName="rstBorder" Property="Background" Value="{DynamicResource ButtonPressedBackgroundBrush}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
                             </Style>
-                        </Button.Resources>
+                        </Button.Style>
                     </Button>
                 </StackPanel>
 

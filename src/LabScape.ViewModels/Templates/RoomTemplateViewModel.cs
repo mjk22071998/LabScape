@@ -95,13 +95,16 @@ public partial class RoomTemplateViewModel : ObservableObject
 
     public RoomTemplateOptions BuildOptions(double? originX = null, double? originY = null)
     {
+        int sides = Sides;
+        if (sides < 1 || sides > 4) sides = 4;
+
         return new RoomTemplateOptions
         {
-            Sides = Sides,
+            Sides = sides,
             OpenSide = OpenSide,
             CornerOption = CornerOption,
             SingleSide = SingleSide,
-            PcCount = PcCount,
+            PcCount = Math.Max(1, PcCount),
             IncludeDesks = IncludeDesks,
             IncludeChairs = IncludeChairs,
             GroupElements = GroupElements,
@@ -111,7 +114,9 @@ public partial class RoomTemplateViewModel : ObservableObject
         };
     }
 
-    [RelayCommand]
+    public bool CanGenerateRoom => true;
+
+    [RelayCommand(CanExecute = nameof(CanGenerateRoom))]
     public void GenerateRoom()
     {
         var canvas = _getActiveCanvas();

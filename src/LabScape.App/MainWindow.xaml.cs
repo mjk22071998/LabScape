@@ -33,8 +33,22 @@ public partial class MainWindow : RibbonWindow
 
         DataContext = ViewModel;
 
+        if (RoomTemplateViewControl != null)
+            RoomTemplateViewControl.DataContext = ViewModel.RoomTemplate;
+        if (StencilsPaletteViewControl != null)
+            StencilsPaletteViewControl.DataContext = ViewModel.Stencils;
+        if (PropertiesInspectorViewControl != null)
+            PropertiesInspectorViewControl.DataContext = ViewModel.Properties;
+
         Loaded += (s, e) =>
         {
+            if (RoomTemplateViewControl != null && RoomTemplateViewControl.DataContext == null)
+                RoomTemplateViewControl.DataContext = ViewModel.RoomTemplate;
+            if (StencilsPaletteViewControl != null && StencilsPaletteViewControl.DataContext == null)
+                StencilsPaletteViewControl.DataContext = ViewModel.Stencils;
+            if (PropertiesInspectorViewControl != null && PropertiesInspectorViewControl.DataContext == null)
+                PropertiesInspectorViewControl.DataContext = ViewModel.Properties;
+
             UpdateThemeToggleState();
             Services.ThemeService.ThemeChanged += OnThemeChanged;
 
@@ -611,6 +625,10 @@ public partial class MainWindow : RibbonWindow
     public void ActivateRoomTemplateWindow()
     {
         OpenAndDockAnchorable(RoomTemplateAnchorable);
+        if (RoomTemplateViewControl != null)
+        {
+            RoomTemplateViewControl.DataContext = ViewModel.RoomTemplate;
+        }
     }
 
     private void OpenStencils_Click(object sender, RoutedEventArgs e)
