@@ -437,6 +437,30 @@ public partial class CanvasViewModel : ObservableObject
     }
 
     [RelayCommand]
+    public void FitToContent()
+    {
+        if (Items.Count == 0)
+        {
+            ResetZoom();
+            return;
+        }
+
+        double minX = Items.Min(i => i.X);
+        double minY = Items.Min(i => i.Y);
+        double maxX = Items.Max(i => i.X + i.Width);
+        double maxY = Items.Max(i => i.Y + i.Height);
+
+        double contentW = Math.Max(200, maxX - minX);
+        double contentH = Math.Max(200, maxY - minY);
+
+        double targetZoom = Math.Min(2.0, Math.Max(0.25, Math.Min(900.0 / (contentW + 80), 650.0 / (contentH + 80))));
+        ZoomLevel = Math.Round(targetZoom * 100) / 100;
+
+        PanX = Math.Round(40 - minX * ZoomLevel);
+        PanY = Math.Round(40 - minY * ZoomLevel);
+    }
+
+    [RelayCommand]
     public void Undo() => _undoRedoService.Undo();
 
     [RelayCommand]

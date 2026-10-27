@@ -292,8 +292,8 @@
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
                                                         <Border Margin="2,0,2,0"
-                                                                CornerRadius="6,6,0,0"
-                                                                Padding="10,5,8,5"
+                                                                CornerRadius="7,7,0,0"
+                                                                Padding="12,6,10,6"
                                                                 Cursor="Hand"
                                                                 ContextMenu="{StaticResource TabContextMenu}"
                                                                 Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=fluent:RibbonWindow}}"
@@ -307,7 +307,7 @@
                                                                         <DataTrigger Binding="{Binding IsActive}" Value="True">
                                                                             <Setter Property="Background" Value="{DynamicResource TabActiveBackgroundBrush}"/>
                                                                             <Setter Property="BorderBrush" Value="{DynamicResource TabActiveBorderBrush}"/>
-                                                                            <Setter Property="BorderThickness" Value="1,2,1,0"/>
+                                                                            <Setter Property="BorderThickness" Value="1,2.5,1,0"/>
                                                                         </DataTrigger>
                                                                         <Trigger Property="IsMouseOver" Value="True">
                                                                             <Setter Property="Background" Value="{DynamicResource TabHoverBackgroundBrush}"/>
@@ -348,7 +348,7 @@
                                                                 </TextBlock>
 
                                                                 <!-- Close Tab Button -->
-                                                                <Button Margin="8,0,0,0" Width="16" Height="16"
+                                                                <Button Margin="8,0,0,0" Width="18" Height="18"
                                                                         Content="✕" FontSize="9" FontWeight="Bold"
                                                                         Background="Transparent" BorderThickness="0"
                                                                         Foreground="{DynamicResource TabTextInactiveBrush}"
@@ -360,7 +360,7 @@
                                                                             <Setter Property="Template">
                                                                                 <Setter.Value>
                                                                                     <ControlTemplate TargetType="Button">
-                                                                                        <Border Background="{TemplateBinding Background}" CornerRadius="3">
+                                                                                        <Border Background="{TemplateBinding Background}" CornerRadius="9">
                                                                                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                                                         </Border>
                                                                                     </ControlTemplate>
@@ -382,7 +382,7 @@
                                             </ItemsControl>
 
                                             <!-- Add New Tab Button (+) -->
-                                            <Button Width="26" Height="26" Margin="4,0,4,2"
+                                            <Button Width="28" Height="28" Margin="4,0,4,2"
                                                     Content="+" FontSize="16" FontWeight="Bold"
                                                     Background="{DynamicResource TabAddButtonBackgroundBrush}" Foreground="{DynamicResource TabTextInactiveBrush}"
                                                     BorderBrush="{DynamicResource TabInactiveBorderBrush}" BorderThickness="1"
@@ -398,7 +398,7 @@
                                                                     <Border Background="{TemplateBinding Background}"
                                                                             BorderBrush="{TemplateBinding BorderBrush}"
                                                                             BorderThickness="{TemplateBinding BorderThickness}"
-                                                                            CornerRadius="4">
+                                                                            CornerRadius="6">
                                                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                                     </Border>
                                                                 </ControlTemplate>
@@ -457,32 +457,37 @@
 
             <!-- 1. Database Connection Status -->
             <StatusBarItem Grid.Column="0" MouseLeftButtonUp="DatabaseConnect_Click" Cursor="Hand" ToolTip="Click to configure PostgreSQL connection">
-                <StackPanel Orientation="Horizontal" Margin="4,0">
-                    <Ellipse Width="8" Height="8" Margin="0,0,6,0">
-                        <Ellipse.Style>
-                            <Style TargetType="Ellipse">
-                                <Setter Property="Fill" Value="#9CA3AF"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsDatabaseConnected}" Value="True">
-                                        <Setter Property="Fill" Value="#10B981"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Ellipse.Style>
-                    </Ellipse>
-                    <TextBlock Text="{Binding DatabaseStatusText}" FontSize="11" Foreground="{DynamicResource StatusBarForegroundBrush}"/>
-                </StackPanel>
+                <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="11" Padding="8,2" Margin="6,0,4,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Ellipse Width="8" Height="8" Margin="0,0,6,0">
+                            <Ellipse.Style>
+                                <Style TargetType="Ellipse">
+                                    <Setter Property="Fill" Value="#9CA3AF"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsDatabaseConnected}" Value="True">
+                                            <Setter Property="Fill" Value="#10B981"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Ellipse.Style>
+                        </Ellipse>
+                        <TextBlock Text="{Binding DatabaseStatusText}" FontSize="11" FontWeight="Medium" Foreground="{DynamicResource StatusBarForegroundBrush}"/>
+                    </StackPanel>
+                </Border>
             </StatusBarItem>
 
             <!-- 2. Active Tab & Document Info -->
             <StatusBarItem Grid.Column="1">
-                <TextBlock Text="{Binding ActiveTab.Title, StringFormat='Active Tab: {0}'}" FontSize="11" Foreground="{DynamicResource StatusBarForegroundBrush}" Margin="12,0"/>
+                <StackPanel Orientation="Horizontal" Margin="8,0" VerticalAlignment="Center">
+                    <TextBlock Text="📄" FontSize="11" Margin="0,0,5,0"/>
+                    <TextBlock Text="{Binding ActiveTab.Title, StringFormat='Active: {0}'}" FontSize="11" Foreground="{DynamicResource StatusBarForegroundBrush}"/>
+                </StackPanel>
             </StatusBarItem>
 
             <!-- 3. Validation Warnings Counter (Unassigned PCs) -->
             <StatusBarItem Grid.Column="2" Visibility="{Binding ValidationWarningCount, Converter={StaticResource IntToVisibilityConverter}}">
-                <Border Background="#FEF3C7" BorderBrush="#F59E0B" BorderThickness="1" CornerRadius="4" Padding="6,1" Margin="4,0">
-                    <StackPanel Orientation="Horizontal">
+                <Border Background="#FEF3C7" BorderBrush="#F59E0B" BorderThickness="1" CornerRadius="11" Padding="8,2" Margin="4,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Text="⚠️ " FontSize="10"/>
                         <TextBlock Text="{Binding ValidationWarningCount, StringFormat='{}{0} Unassigned PC(s)'}" FontSize="11" FontWeight="SemiBold" Foreground="#92400E"/>
                     </StackPanel>
@@ -491,21 +496,23 @@
 
             <!-- 4. Validation Errors Counter (Duplicate IP Conflicts) -->
             <StatusBarItem Grid.Column="3" Visibility="{Binding ValidationErrorCount, Converter={StaticResource IntToVisibilityConverter}}">
-                <Border Background="#FEE2E2" BorderBrush="#EF4444" BorderThickness="1" CornerRadius="4" Padding="6,1" Margin="4,0">
-                    <StackPanel Orientation="Horizontal">
+                <Border Background="#FEE2E2" BorderBrush="#EF4444" BorderThickness="1" CornerRadius="11" Padding="8,2" Margin="4,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Text="⛔ " FontSize="10"/>
-                        <TextBlock Text="{Binding ValidationErrorCount, StringFormat='❌ {0} IP Conflict(s)'}" FontSize="11" FontWeight="Bold" Foreground="#B91C1C"/>
+                        <TextBlock Text="{Binding ValidationErrorCount, StringFormat='{}{0} IP Conflict(s)'}" FontSize="11" FontWeight="Bold" Foreground="#B91C1C"/>
                     </StackPanel>
                 </Border>
             </StatusBarItem>
 
             <!-- 5. Zoom & Coordinates -->
             <StatusBarItem Grid.Column="4">
-                <StackPanel Orientation="Horizontal" Margin="8,0">
-                    <TextBlock Text="{Binding Canvas.ZoomLevel, StringFormat='Zoom: {0:P0}'}" FontSize="11" Foreground="#4B5563" Margin="0,0,12,0"/>
-                    <TextBlock Text="{Binding Canvas.CursorX, StringFormat='X: {0:F0}px'}" FontSize="11" Foreground="#6B7280" Margin="0,0,6,0"/>
-                    <TextBlock Text="{Binding Canvas.CursorY, StringFormat='Y: {0:F0}px'}" FontSize="11" Foreground="#6B7280"/>
-                </StackPanel>
+                <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="11" Padding="8,2" Margin="4,0,8,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Canvas.ZoomLevel, StringFormat='🔍 {0:P0}'}" FontSize="11" FontWeight="Medium" Foreground="{DynamicResource StatusBarForegroundBrush}" Margin="0,0,10,0"/>
+                        <TextBlock Text="{Binding Canvas.CursorX, StringFormat='X: {0:F0}'}" FontSize="11" Foreground="{DynamicResource AppTextMutedBrush}" Margin="0,0,6,0"/>
+                        <TextBlock Text="{Binding Canvas.CursorY, StringFormat='Y: {0:F0}'}" FontSize="11" Foreground="{DynamicResource AppTextMutedBrush}"/>
+                    </StackPanel>
+                </Border>
             </StatusBarItem>
         </StatusBar>
     </Grid>

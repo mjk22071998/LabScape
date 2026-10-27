@@ -1,5 +1,6 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LabScape.ViewModels.Stencils;
 
 namespace LabScape.ViewModels;
@@ -13,6 +14,12 @@ public partial class StencilsViewModel : ObservableObject
 
     [ObservableProperty]
     private StencilItem? _selectedStencil;
+
+    [RelayCommand]
+    public void ClearSearch()
+    {
+        SearchFilter = string.Empty;
+    }
 
     public ObservableCollection<StencilItem> FilteredDevices { get; } = new();
     public ObservableCollection<StencilItem> FilteredFurniture { get; } = new();
