@@ -2,12 +2,13 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ========================================================================= -->
-    <!-- LABSCAPE PRECISION CAD VECTOR DRAWINGIMAGE ICON DICTIONARY                 -->
-    <!-- Scalable 24x24 vector assets with balanced 1.6px strokes & duotone depth    -->
+    <!-- LABSCAPE MICROSOFT OFFICE & VISIO MULTI-SHADED VECTOR ICON SUITE           -->
+    <!-- Authentic dimensional 24x24 vector assets with rich multi-tone gradients,   -->
+    <!-- specular surface highlights, and layered depth for Fluent Ribbon & CAD     -->
     <!-- ========================================================================= -->
 
-    <!-- Primary Stroke Color Brushes -->
-    <SolidColorBrush x:Key="IconStrokeBrand" Color="#0284C7"/>
+    <!-- Backward-Compatible Stroke and Accent Brushes -->
+    <SolidColorBrush x:Key="IconStrokeBrand" Color="#0078D4"/>
     <SolidColorBrush x:Key="IconStrokeSlate" Color="#475569"/>
     <SolidColorBrush x:Key="IconStrokeRed" Color="#E11D48"/>
     <SolidColorBrush x:Key="IconStrokeGreen" Color="#059669"/>
@@ -15,48 +16,91 @@
     <SolidColorBrush x:Key="IconStrokeAmber" Color="#D97706"/>
     <SolidColorBrush x:Key="IconStrokePurple" Color="#6366F1"/>
     <SolidColorBrush x:Key="IconStrokeIndigo" Color="#4F46E5"/>
-    <SolidColorBrush x:Key="IconStrokeCyan" Color="#0284C7"/>
+    <SolidColorBrush x:Key="IconStrokeCyan" Color="#00B7C3"/>
     <SolidColorBrush x:Key="IconStrokeSky" Color="#0284C7"/>
 
-    <!-- Subtle Fill Accents for Depth (Duotone) -->
-    <SolidColorBrush x:Key="IconFillBrandSubtle" Color="#180284C7"/>
+    <SolidColorBrush x:Key="IconFillBrandSubtle" Color="#180078D4"/>
     <SolidColorBrush x:Key="IconFillSlateSubtle" Color="#12475569"/>
     <SolidColorBrush x:Key="IconFillAmberSubtle" Color="#18D97706"/>
     <SolidColorBrush x:Key="IconFillGreenSubtle" Color="#18059669"/>
     <SolidColorBrush x:Key="IconFillRedSubtle" Color="#18E11D48"/>
 
-    <!-- 1. New Tab / New Floorplan -->
+    <!-- 1. New Tab / New Floorplan (MS Office New Document with Green Badge) -->
     <DrawingImage x:Key="IconNewTab">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Sheet Outline with Fold -->
-                <GeometryDrawing Geometry="M 14 2 H 6 A 2 2 0 0 0 4 4 V 20 A 2 2 0 0 0 6 22 H 18 A 2 2 0 0 0 20 20 V 8 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#080284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Sheet Drop Shadow -->
+                <GeometryDrawing Geometry="M 5 3 H 14.5 L 19.5 8 V 22.5 H 5 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#20000000"/></GeometryDrawing.Brush>
                 </GeometryDrawing>
-                <!-- Fold Flap -->
-                <GeometryDrawing Geometry="M 14 2 V 8 H 20">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Sheet Body (Crisp Paper Gradient) -->
+                <GeometryDrawing Geometry="M 4 2 H 14 L 19 7 V 21 A 1 1 0 0 1 18 22 H 5 A 1 1 0 0 1 4 21 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0.8,1">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#F8FAFC" Offset="0.6"/>
+                            <GradientStop Color="#E2E8F0" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Precision Plus Badge -->
-                <GeometryDrawing Geometry="M 12 17 V 11 M 9 14 H 15">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.7" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                <!-- Fold Corner Flap with Shading -->
+                <GeometryDrawing Geometry="M 14 2 V 7 H 19 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#E2E8F0" Offset="0"/>
+                            <GradientStop Color="#CBD5E1" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Document Header Band (Visio Blue) -->
+                <GeometryDrawing Geometry="M 7 6 H 12 V 7.5 H 7 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#0078D4"/></GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <!-- Content Rows -->
+                <GeometryDrawing Geometry="M 7 10 H 16 M 7 13 H 14 M 7 16 H 11">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Green Plus Badge (Circle) -->
+                <GeometryDrawing Geometry="M 22 17 A 5 5 0 1 1 12 17 A 5 5 0 0 1 22 17 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#10B981" Offset="0"/>
+                            <GradientStop Color="#059669" Offset="0.6"/>
+                            <GradientStop Color="#047857" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#FFFFFF" Thickness="1.2"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- White Plus Cross in Badge -->
+                <GeometryDrawing Geometry="M 17 14.5 V 19.5 M 14.5 17 H 19.5">
+                    <GeometryDrawing.Pen><Pen Brush="#FFFFFF" Thickness="1.6" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 2. Close Tab -->
+    <!-- 2. Close Tab (Office Crimson Badge with Specular Arc) -->
     <DrawingImage x:Key="IconCloseTab">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Circle boundary -->
-                <GeometryDrawing Geometry="M 12 2 A 10 10 0 1 0 12 22 A 10 10 0 0 0 12 2 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#0AE11D48"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 21 12 A 9 9 0 1 1 3 12 A 9 9 0 0 1 21 12 Z">
+                    <GeometryDrawing.Brush>
+                        <RadialGradientBrush Center="0.4,0.35" GradientOrigin="0.4,0.35" RadiusX="0.6" RadiusY="0.6">
+                            <GradientStop Color="#F87171" Offset="0"/>
+                            <GradientStop Color="#EF4444" Offset="0.5"/>
+                            <GradientStop Color="#DC2626" Offset="0.85"/>
+                            <GradientStop Color="#991B1B" Offset="1"/>
+                        </RadialGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#7F1D1D" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 15 9 L 9 15 M 9 9 L 15 15">
-                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 6 8 A 7.5 7.5 0 0 1 18 8">
+                    <GeometryDrawing.Pen><Pen Brush="#60FFFFFF" Thickness="1" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 8.5 8.5 L 15.5 15.5 M 15.5 8.5 L 8.5 15.5">
+                    <GeometryDrawing.Pen><Pen Brush="#FFFFFF" Thickness="2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -66,11 +110,25 @@
     <DrawingImage x:Key="IconCloseOthers">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 3 6 H 15 V 18 H 3 Z M 8 3 H 20 V 15">
-                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 6 3 H 17 V 14 H 6 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#E2E8F0"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 7 10 L 11 14 M 11 10 L 7 14">
-                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 3 6 H 14 V 17 H 3 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#F8FAFC"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#64748B" Thickness="1"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 22 16 A 5.5 5.5 0 1 1 11 16 A 5.5 5.5 0 0 1 22 16 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#F87171" Offset="0"/>
+                            <GradientStop Color="#DC2626" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#FFFFFF" Thickness="1.2"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 14 13.5 L 19 18.5 M 19 13.5 L 14 18.5">
+                    <GeometryDrawing.Pen><Pen Brush="#FFFFFF" Thickness="1.6" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -80,191 +138,496 @@
     <DrawingImage x:Key="IconCloseAll">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 2 7 H 14 V 19 H 2 Z M 6 4 H 18 V 16 M 10 1 H 22 V 13">
-                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 8 2 H 18 V 11 H 8 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#CBD5E1"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 6 11 L 10 15 M 10 11 L 6 15">
-                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 5 5 H 15 V 14 H 5 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#E2E8F0"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#64748B" Thickness="0.8"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 2 8 H 12 V 17 H 2 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#F8FAFC"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 22 16 A 5.5 5.5 0 1 1 11 16 A 5.5 5.5 0 0 1 22 16 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#F87171" Offset="0"/>
+                            <GradientStop Color="#DC2626" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#FFFFFF" Thickness="1.2"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 14 13.5 L 19 18.5 M 19 13.5 L 14 18.5">
+                    <GeometryDrawing.Pen><Pen Brush="#FFFFFF" Thickness="1.6" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 5. Save (Floppy Diskette) -->
+    <!-- 5. Save (Authentic MS Office 365 Cobalt Floppy Disk with Aluminum Slider) -->
     <DrawingImage x:Key="IconSave">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Diskette Body -->
-                <GeometryDrawing Geometry="M 19 21 H 5 A 2 2 0 0 1 3 19 V 5 A 2 2 0 0 1 5 3 H 16 L 21 8 V 19 A 2 2 0 0 1 19 21 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#0A0284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Drop Shadow -->
+                <GeometryDrawing Geometry="M 4 3 H 17 L 21 7 V 22 H 4 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#25000000"/></GeometryDrawing.Brush>
                 </GeometryDrawing>
-                <!-- Bottom Shutter Window -->
-                <GeometryDrawing Geometry="M 17 21 V 13 H 7 V 21">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Diskette Body (Rich Cobalt Blue Gradient) -->
+                <GeometryDrawing Geometry="M 3 2 H 16.5 L 20.5 6 V 21 A 1 1 0 0 1 19.5 22 H 4 A 1 1 0 0 1 3 21 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#0078D4" Offset="0"/>
+                            <GradientStop Color="#005A9E" Offset="0.5"/>
+                            <GradientStop Color="#004578" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#002D50" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Top Notch/Label -->
-                <GeometryDrawing Geometry="M 7 3 V 8 H 15">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Aluminum Slider (Metallic Gradient) -->
+                <GeometryDrawing Geometry="M 6.5 2 H 15 V 9 H 6.5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#E2E8F0" Offset="0"/>
+                            <GradientStop Color="#FFFFFF" Offset="0.3"/>
+                            <GradientStop Color="#CBD5E1" Offset="0.75"/>
+                            <GradientStop Color="#94A3B8" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#64748B" Thickness="0.6"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Slider notch -->
-                <GeometryDrawing Geometry="M 10 15 V 19">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                <!-- Slider Recess Window -->
+                <GeometryDrawing Geometry="M 8.5 3.5 H 10 V 7.5 H 8.5 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#002D50"/></GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <!-- Paper Index Label (White with Blue Header) -->
+                <GeometryDrawing Geometry="M 5.5 12 H 18 V 21 A 0.5 0.5 0 0 1 17.5 21.5 H 6 A 0.5 0.5 0 0 1 5.5 21 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#F1F5F9" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#CBD5E1" Thickness="0.6"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Blue Header Strip -->
+                <GeometryDrawing Geometry="M 5.5 12 H 18 V 14.5 H 5.5 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#0078D4"/></GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <!-- Note Lines -->
+                <GeometryDrawing Geometry="M 7.5 17 H 16 M 7.5 19.5 H 13">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Red Write-Protect Notch -->
+                <GeometryDrawing Geometry="M 17 2 H 19 V 4 H 17 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#EF4444"/></GeometryDrawing.Brush>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 6. Save As -->
+    <!-- 6. Save As (Floppy Disk with Destination Badge) -->
     <DrawingImage x:Key="IconSaveAs">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 15 2 H 6 A 2 2 0 0 0 4 4 V 18 M 19 21 H 8 A 2 2 0 0 1 6 19 V 7 A 2 2 0 0 1 8 5 H 16 L 20 9 V 19 A 2 2 0 0 1 18 21 Z">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Background Secondary Sheet -->
+                <GeometryDrawing Geometry="M 12 2 H 19 L 22 5 V 13 H 12 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#E2E8F0"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 14 14 V 18 H 10 V 14">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Foreground Diskette Body -->
+                <GeometryDrawing Geometry="M 2 5 H 14.5 L 18 8.5 V 21 A 1 1 0 0 1 17 22 H 3 A 1 1 0 0 1 2 21 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#0078D4" Offset="0"/>
+                            <GradientStop Color="#004578" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#002D50" Thickness="0.8"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Metallic Slider -->
+                <GeometryDrawing Geometry="M 5 5 H 12.5 V 11 H 5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#CBD5E1" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <!-- Label Area -->
+                <GeometryDrawing Geometry="M 4 14 H 16 V 21 H 4 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#FFFFFF"/></GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 4 14 H 16 V 16 H 4 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#0078D4"/></GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <!-- Golden Destination Spark Badge -->
+                <GeometryDrawing Geometry="M 22 17 A 4.5 4.5 0 1 1 13 17 A 4.5 4.5 0 0 1 22 17 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#FBBF24" Offset="0"/>
+                            <GradientStop Color="#D97706" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#FFFFFF" Thickness="1"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Arrow / Plus in Badge -->
+                <GeometryDrawing Geometry="M 17.5 14.5 V 19.5 M 15 17 H 20">
+                    <GeometryDrawing.Pen><Pen Brush="#FFFFFF" Thickness="1.5" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 7. Open JSON -->
+    <!-- 7. Open (Authentic MS Office Manila Folder with Blueprint Sheet) -->
     <DrawingImage x:Key="IconOpen">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Back Folder Folder -->
-                <GeometryDrawing Geometry="M 2 8 V 4 A 2 2 0 0 1 4 2 H 9 L 11 4 H 19 A 2 2 0 0 1 21 6 V 8">
-                    <GeometryDrawing.Pen><Pen Brush="#D97706" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Back Folder Body (Golden Manila) -->
+                <GeometryDrawing Geometry="M 2 5 A 1.5 1.5 0 0 1 3.5 3.5 H 8 L 10.5 6 H 20 A 1.5 1.5 0 0 1 21.5 7.5 V 17 H 2 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#D97706" Offset="0"/>
+                            <GradientStop Color="#B45309" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#92400E" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Front Flap Angled -->
-                <GeometryDrawing Geometry="M 2 17 L 4.5 8 H 20.5 L 22 17 H 2 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#12D97706"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#D97706" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Blueprint Document Sheet Peeking Out -->
+                <GeometryDrawing Geometry="M 5 6 H 18.5 V 16 H 5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#F0F9FF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="0.6"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Blueprint Schematic Lines -->
+                <GeometryDrawing Geometry="M 7 9 H 14 M 7 11.5 H 16.5 M 7 14 H 12">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Front Folder Flap (Angled with Specular Edge) -->
+                <GeometryDrawing Geometry="M 1 19 L 3.5 9.5 H 20.5 L 23 19 A 1 1 0 0 1 22 20 H 2 A 1 1 0 0 1 1 19 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#FBBF24" Offset="0"/>
+                            <GradientStop Color="#F59E0B" Offset="0.5"/>
+                            <GradientStop Color="#D97706" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#B45309" Thickness="0.8"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Front Flap Specular Highlight Line -->
+                <GeometryDrawing Geometry="M 3.8 10 H 20.2">
+                    <GeometryDrawing.Pen><Pen Brush="#FEF08A" Thickness="1.2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 8. Import JSON into Canvas -->
+    <!-- 8. Import JSON into Canvas (Steel Tray with Emerald 3D Down Arrow) -->
     <DrawingImage x:Key="IconImport">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Import Tray -->
-                <GeometryDrawing Geometry="M 4 14 V 19 A 2 2 0 0 0 6 21 H 18 A 2 2 0 0 0 20 19 V 14">
-                    <GeometryDrawing.Pen><Pen Brush="#D97706" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Document Tray -->
+                <GeometryDrawing Geometry="M 3 13 V 19 A 2 2 0 0 0 5 21 H 19 A 2 2 0 0 0 21 19 V 13 H 17 L 15 16 H 9 L 7 13 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#F1F5F9" Offset="0"/>
+                            <GradientStop Color="#CBD5E1" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#64748B" Thickness="1" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Arrow Down -->
-                <GeometryDrawing Geometry="M 12 3 V 15 M 7 10 L 12 15 L 17 10">
-                    <GeometryDrawing.Pen><Pen Brush="#D97706" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Dimensional Emerald Arrow Down -->
+                <GeometryDrawing Geometry="M 10 3 H 14 V 9.5 H 17.5 L 12 15 L 6.5 9.5 H 10 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#34D399" Offset="0"/>
+                            <GradientStop Color="#10B981" Offset="0.5"/>
+                            <GradientStop Color="#047857" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#065F46" Thickness="0.8" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 12 3.5 V 14.2">
+                    <GeometryDrawing.Pen><Pen Brush="#60FFFFFF" Thickness="1"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 9. Export JSON -->
+    <!-- 9. Export JSON (Steel Tray with Royal Blue 3D Up Arrow) -->
     <DrawingImage x:Key="IconExport">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Export Tray -->
-                <GeometryDrawing Geometry="M 4 14 V 19 A 2 2 0 0 0 6 21 H 18 A 2 2 0 0 0 20 19 V 14">
-                    <GeometryDrawing.Pen><Pen Brush="#059669" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Document Tray -->
+                <GeometryDrawing Geometry="M 3 13 V 19 A 2 2 0 0 0 5 21 H 19 A 2 2 0 0 0 21 19 V 13 H 17 L 15 16 H 9 L 7 13 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#F1F5F9" Offset="0"/>
+                            <GradientStop Color="#CBD5E1" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#64748B" Thickness="1" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Arrow Up -->
-                <GeometryDrawing Geometry="M 12 15 V 3 M 7 8 L 12 3 L 17 8">
-                    <GeometryDrawing.Pen><Pen Brush="#059669" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Dimensional Royal Blue Arrow Up -->
+                <GeometryDrawing Geometry="M 12 2 L 17.5 7.5 H 14 V 14 H 10 V 7.5 H 6.5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#38BDF8" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="0.5"/>
+                            <GradientStop Color="#0369A1" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#075985" Thickness="0.8" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 12 2.8 V 13.5">
+                    <GeometryDrawing.Pen><Pen Brush="#60FFFFFF" Thickness="1"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 10. Exit Application -->
+    <!-- 10. Exit Application (Doorway with Warm Light and Exit Arrow) -->
     <DrawingImage x:Key="IconExit">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 9 21 H 5 A 2 2 0 0 1 3 19 V 5 A 2 2 0 0 1 5 3 H 9">
-                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Door Frame -->
+                <GeometryDrawing Geometry="M 3 21 V 3 H 13 V 21">
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.8" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 16 17 L 21 12 L 16 7 M 21 12 H 9">
-                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Interior Warm Glow -->
+                <GeometryDrawing Geometry="M 4 4 H 12 V 20 H 4 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#FEF3C7" Offset="0"/>
+                            <GradientStop Color="#FDE68A" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <!-- Open Door -->
+                <GeometryDrawing Geometry="M 4 4 L 11 7 V 21 L 4 20 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#B45309" Offset="0"/>
+                            <GradientStop Color="#78350F" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#451A03" Thickness="0.8"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Brass Knob -->
+                <GeometryDrawing Geometry="M 9.5 13.5 A 1 1 0 1 1 9.5 14.5 A 1 1 0 0 1 9.5 13.5 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#FBBF24"/></GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <!-- Crimson Exit Arrow -->
+                <GeometryDrawing Geometry="M 11 12 H 21 M 17 8 L 21.5 12 L 17 16">
+                    <GeometryDrawing.Pen><Pen Brush="#EF4444" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 11. Undo -->
+    <!-- 11. Undo (Visio Curved Arrow with Shaded Depth) -->
     <DrawingImage x:Key="IconUndo">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 9 14 L 4 9 L 9 4 M 4 9 H 14.5 A 5.5 5.5 0 0 1 20 14.5 A 5.5 5.5 0 0 1 14.5 20 H 11">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Shadow -->
+                <GeometryDrawing Geometry="M 8.5 14.5 L 3.5 9.5 L 8.5 4.5 M 3.5 9.5 H 14.5 A 5.5 5.5 0 0 1 20 15 A 5.5 5.5 0 0 1 14.5 20.5 H 11">
+                    <GeometryDrawing.Pen><Pen Brush="#25000000" Thickness="2.4" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Curved Arrow -->
+                <GeometryDrawing Geometry="M 8 13.5 L 3 8.5 L 8 3.5 M 3 8.5 H 14 A 5.5 5.5 0 0 1 19.5 14 A 5.5 5.5 0 0 1 14 19.5 H 10.5">
+                    <GeometryDrawing.Pen>
+                        <Pen Thickness="2.4" StartLineCap="Round" EndLineCap="Round" LineJoin="Round">
+                            <Pen.Brush>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#38BDF8" Offset="0"/>
+                                    <GradientStop Color="#0284C7" Offset="0.5"/>
+                                    <GradientStop Color="#0369A1" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Pen.Brush>
+                        </Pen>
+                    </GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 12. Redo -->
+    <!-- 12. Redo (Visio Curved Arrow) -->
     <DrawingImage x:Key="IconRedo">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 15 14 L 20 9 L 15 4 M 20 9 H 9.5 A 5.5 5.5 0 0 0 4 14.5 A 5.5 5.5 0 0 0 9.5 20 H 13">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 15.5 14.5 L 20.5 9.5 L 15.5 4.5 M 20.5 9.5 H 9.5 A 5.5 5.5 0 0 0 4 15 A 5.5 5.5 0 0 0 9.5 20.5 H 13">
+                    <GeometryDrawing.Pen><Pen Brush="#25000000" Thickness="2.4" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 16 13.5 L 21 8.5 L 16 3.5 M 21 8.5 H 10 A 5.5 5.5 0 0 0 4.5 14 A 5.5 5.5 0 0 0 10 19.5 H 13.5">
+                    <GeometryDrawing.Pen>
+                        <Pen Thickness="2.4" StartLineCap="Round" EndLineCap="Round" LineJoin="Round">
+                            <Pen.Brush>
+                                <LinearGradientBrush StartPoint="1,0" EndPoint="0,1">
+                                    <GradientStop Color="#38BDF8" Offset="0"/>
+                                    <GradientStop Color="#0284C7" Offset="0.5"/>
+                                    <GradientStop Color="#0369A1" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Pen.Brush>
+                        </Pen>
+                    </GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 13. Cut -->
+    <!-- 13. Cut (Authentic MS Office Chrome Scissors with Blue Grips) -->
     <DrawingImage x:Key="IconCut">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Finger loops -->
-                <GeometryDrawing Geometry="M 6 9 A 3 3 0 1 0 6 3 A 3 3 0 0 0 6 9 Z M 6 21 A 3 3 0 1 0 6 15 A 3 3 0 0 0 6 21 Z">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Upper Chrome Blade -->
+                <GeometryDrawing Geometry="M 11 11 L 21.5 2.5 L 20 2 L 9.5 9.5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#E2E8F0" Offset="0.5"/>
+                            <GradientStop Color="#94A3B8" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#64748B" Thickness="0.6"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Crossed Blades -->
-                <GeometryDrawing Geometry="M 20 4 L 8.12 15.88 M 14.47 14.48 L 20 20 M 8.12 8.12 L 12 12">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Lower Chrome Blade -->
+                <GeometryDrawing Geometry="M 11 11 L 21.5 19.5 L 20 20 L 9.5 12.5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#CBD5E1" Offset="0.5"/>
+                            <GradientStop Color="#64748B" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="0.6"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Top Handle Loop (Molded Blue Grip) -->
+                <GeometryDrawing Geometry="M 6 8.5 A 3.5 3.5 0 1 1 6 1.5 A 3.5 3.5 0 0 1 6 8.5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#0284C7" Offset="0"/>
+                            <GradientStop Color="#0369A1" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#075985" Thickness="0.8"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 6 6.5 A 1.8 1.8 0 1 0 6 2.9 A 1.8 1.8 0 0 0 6 6.5 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#FFFFFF"/></GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <!-- Bottom Handle Loop -->
+                <GeometryDrawing Geometry="M 6 22.5 A 3.5 3.5 0 1 1 6 15.5 A 3.5 3.5 0 0 1 6 22.5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#0284C7" Offset="0"/>
+                            <GradientStop Color="#0369A1" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#075985" Thickness="0.8"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 6 20.5 A 1.8 1.8 0 1 0 6 16.9 A 1.8 1.8 0 0 0 6 20.5 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#FFFFFF"/></GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <!-- Pivot Hinge Pin -->
+                <GeometryDrawing Geometry="M 11.2 11 A 1.3 1.3 0 1 1 11.2 11.1 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#F59E0B"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#D97706" Thickness="0.6"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 14. Copy -->
+    <!-- 14. Copy (Office Cascaded Documents) -->
     <DrawingImage x:Key="IconCopy">
         <DrawingImage.Drawing>
             <DrawingGroup>
                 <!-- Back Sheet -->
-                <GeometryDrawing Geometry="M 8 2 H 18 A 2 2 0 0 1 20 4 V 14">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 8 2 H 17 L 21 6 V 16 H 8 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#E2E8F0" Offset="0"/>
+                            <GradientStop Color="#CBD5E1" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Front Sheet -->
-                <GeometryDrawing Geometry="M 4 6 H 14 A 2 2 0 0 1 16 8 V 20 A 2 2 0 0 1 14 22 H 4 A 2 2 0 0 1 2 20 V 8 A 2 2 0 0 1 4 6 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#0A475569"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 17 2 V 6 H 21 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#94A3B8"/></GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <!-- Front Sheet Drop Shadow -->
+                <GeometryDrawing Geometry="M 4 7 H 13 L 17 11 V 22 H 4 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#20000000"/></GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <!-- Front Sheet Body -->
+                <GeometryDrawing Geometry="M 3 6 H 12 L 16 10 V 21 A 1 1 0 0 1 15 22 H 4 A 1 1 0 0 1 3 21 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#F1F5F9" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="0.8"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 12 6 V 10 H 16 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#CBD5E1"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="0.8"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 5 9 H 10 V 10.5 H 5 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#0078D4"/></GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 5 13 H 14 M 5 16 H 12 M 5 18.5 H 10">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 15. Paste -->
+    <!-- 15. Paste (Authentic MS Office Mahogany Clipboard) -->
     <DrawingImage x:Key="IconPaste">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Clipboard Frame -->
-                <GeometryDrawing Geometry="M 16 4 H 18 A 2 2 0 0 1 20 6 V 20 A 2 2 0 0 1 18 22 H 6 A 2 2 0 0 1 4 20 V 6 A 2 2 0 0 1 6 4 H 8">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#0A0284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Mahogany Board -->
+                <GeometryDrawing Geometry="M 4 3.5 A 1.5 1.5 0 0 1 5.5 2 H 18.5 A 1.5 1.5 0 0 1 20 3.5 V 21.5 A 1.5 1.5 0 0 1 18.5 23 H 5.5 A 1.5 1.5 0 0 1 4 21.5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#B45309" Offset="0"/>
+                            <GradientStop Color="#92400E" Offset="0.5"/>
+                            <GradientStop Color="#78350F" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#451A03" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Top Clip -->
-                <GeometryDrawing Geometry="M 9 2 H 15 A 1 1 0 0 1 16 3 V 5 A 1 1 0 0 1 15 6 H 9 A 1 1 0 0 1 8 5 V 3 A 1 1 0 0 1 9 2 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Paper Sheet -->
+                <GeometryDrawing Geometry="M 6 5 H 18 V 20 H 6 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#F8FAFC" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#CBD5E1" Thickness="0.6"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Sheet Preview Lines -->
-                <GeometryDrawing Geometry="M 8 12 H 16 M 8 16 H 13">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                <!-- Content Rows -->
+                <GeometryDrawing Geometry="M 8 10 H 16 M 8 13 H 14 M 8 16 H 12">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Chrome Metal Clip -->
+                <GeometryDrawing Geometry="M 8 1 H 16 V 5.5 H 8 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#CBD5E1" Offset="0.6"/>
+                            <GradientStop Color="#94A3B8" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#64748B" Thickness="0.8"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 10.5 1 V 0 H 13.5 V 1">
+                    <GeometryDrawing.Pen><Pen Brush="#64748B" Thickness="1.2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -274,84 +637,201 @@
     <DrawingImage x:Key="IconDuplicate">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 8 2 H 18 A 2 2 0 0 1 20 4 V 14">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 8 2 H 17 L 21 6 V 16 H 8 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#E2E8F0"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 4 6 H 14 A 2 2 0 0 1 16 8 V 20 A 2 2 0 0 1 14 22 H 4 A 2 2 0 0 1 2 20 V 8 A 2 2 0 0 1 4 6 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#0A0284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 3 6 H 12 L 16 10 V 21 A 1 1 0 0 1 15 22 H 4 A 1 1 0 0 1 3 21 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#F1F5F9" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Inner Plus -->
-                <GeometryDrawing Geometry="M 9 11 V 17 M 6 14 H 12">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                <!-- Plus Badge -->
+                <GeometryDrawing Geometry="M 18 18 A 4 4 0 1 1 10 18 A 4 4 0 0 1 18 18 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#38BDF8" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#FFFFFF" Thickness="1"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 14 16 V 20 M 12 18 H 16">
+                    <GeometryDrawing.Pen><Pen Brush="#FFFFFF" Thickness="1.5" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 17. Delete -->
+    <!-- 17. Delete (Fluted Office Trash Can) -->
     <DrawingImage x:Key="IconDelete">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Lid -->
-                <GeometryDrawing Geometry="M 3 6 H 21 M 8 6 V 3 A 1 1 0 0 1 9 2 H 15 A 1 1 0 0 1 16 3 V 6">
-                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Can Body (Crimson Gradient) -->
+                <GeometryDrawing Geometry="M 5 7 L 6.5 21 A 1.5 1.5 0 0 0 8 22.5 H 16 A 1.5 1.5 0 0 0 17.5 21 L 19 7 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#EF4444" Offset="0"/>
+                            <GradientStop Color="#F87171" Offset="0.2"/>
+                            <GradientStop Color="#DC2626" Offset="0.5"/>
+                            <GradientStop Color="#B91C1C" Offset="0.85"/>
+                            <GradientStop Color="#7F1D1D" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#991B1B" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Can Body -->
-                <GeometryDrawing Geometry="M 5 6 L 6.5 20 A 2 2 0 0 0 8.5 22 H 15.5 A 2 2 0 0 0 17.5 20 L 19 6">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#0AE11D48"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Fluting Ribs -->
+                <GeometryDrawing Geometry="M 9 10 V 19 M 12 10 V 19 M 15 10 V 19">
+                    <GeometryDrawing.Pen><Pen Brush="#7F1D1D" Thickness="1.2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Flutes -->
-                <GeometryDrawing Geometry="M 10 11 V 17 M 14 11 V 17">
-                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.5" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                <!-- Silver Rim -->
+                <GeometryDrawing Geometry="M 3.5 6 H 20.5 V 7.5 H 3.5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#CBD5E1" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#64748B" Thickness="0.6"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Lid Handle -->
+                <GeometryDrawing Geometry="M 9.5 4 H 14.5 V 2.5 H 9.5 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#991B1B"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#7F1D1D" Thickness="0.8"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Angled Lid -->
+                <GeometryDrawing Geometry="M 3 5.5 L 21 3.5 L 21 5 L 3 7 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#F87171" Offset="0"/>
+                            <GradientStop Color="#B91C1C" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#7F1D1D" Thickness="0.6"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 18. Select Cursor -->
+    <!-- 18. Select Cursor (Visio White Pointer with Snap Node) -->
     <DrawingImage x:Key="IconSelect">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Precision Pointer with Soft Fill -->
-                <GeometryDrawing Geometry="M 3 3 L 10.07 19.97 L 12.58 12.58 L 19.97 10.07 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#1E0284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Shadow -->
+                <GeometryDrawing Geometry="M 3.5 3.5 L 11 21 L 13.5 13.5 L 21 11 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#30000000"/></GeometryDrawing.Brush>
                 </GeometryDrawing>
-                <!-- Center Target Pip -->
-                <GeometryDrawing Geometry="M 12 12 L 17 17">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                <!-- Solid White Pointer with Black Contour -->
+                <GeometryDrawing Geometry="M 2.5 2 L 10 19.5 L 12.5 12 L 20 9.5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#F1F5F9" Offset="0.8"/>
+                            <GradientStop Color="#CBD5E1" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0F172A" Thickness="1.4" LineJoin="Miter"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Cyan Snap Node Pip -->
+                <GeometryDrawing Geometry="M 19 18 A 3 3 0 1 1 13 18 A 3 3 0 0 1 19 18 Z">
+                    <GeometryDrawing.Brush>
+                        <RadialGradientBrush Center="0.4,0.4" GradientOrigin="0.4,0.4" RadiusX="0.6" RadiusY="0.6">
+                            <GradientStop Color="#67E8F9" Offset="0"/>
+                            <GradientStop Color="#06B6D4" Offset="0.6"/>
+                            <GradientStop Color="#0284C7" Offset="1"/>
+                        </RadialGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#FFFFFF" Thickness="1"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 19. Select All -->
+    <!-- 19. Select All (Visio Marquee with 8 Grips and Shapes) -->
     <DrawingImage x:Key="IconSelectAll">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 3 9 V 5 A 2 2 0 0 1 5 3 H 9 M 15 3 H 19 A 2 2 0 0 1 21 5 V 9 M 21 15 V 19 A 2 2 0 0 1 19 21 H 15 M 9 21 H 5 A 2 2 0 0 1 3 19 V 15">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 3 3 H 21 V 21 H 3 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1" DashStyle="{x:Static DashStyles.Dash}"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 9 9 H 15 V 15 H 9 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Cyan Circle Object -->
+                <GeometryDrawing Geometry="M 11 9 A 3.5 3.5 0 1 1 4 9 A 3.5 3.5 0 0 1 11 9 Z">
+                    <GeometryDrawing.Brush>
+                        <RadialGradientBrush Center="0.35,0.35" RadiusX="0.65" RadiusY="0.65">
+                            <GradientStop Color="#38BDF8" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="1"/>
+                        </RadialGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0369A1" Thickness="0.6"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Amber Rectangle Object -->
+                <GeometryDrawing Geometry="M 12 12 H 19 V 19 H 12 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#FBBF24" Offset="0"/>
+                            <GradientStop Color="#D97706" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#B45309" Thickness="0.6"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- 8 Selection Grips -->
+                <GeometryDrawing Geometry="M 2 2 H 4 V 4 H 2 Z M 11 2 H 13 V 4 H 11 Z M 20 2 H 22 V 4 H 20 Z M 20 11 H 22 V 13 H 20 Z M 20 20 H 22 V 22 H 20 Z M 11 20 H 13 V 22 H 11 Z M 2 20 H 4 V 22 H 2 Z M 2 11 H 4 V 13 H 2 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#FFFFFF"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 20. Zoom In -->
+    <!-- 20. Zoom In (Chrome Bezel Magnifier with Glass Reflection) -->
     <DrawingImage x:Key="IconZoomIn">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 11 19 A 8 8 0 1 0 11 3 A 8 8 0 0 0 11 19 Z M 21 21 L 16.65 16.65">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#080284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 18.5 11 A 7.5 7.5 0 1 1 3.5 11 A 7.5 7.5 0 0 1 18.5 11 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#20000000"/></GeometryDrawing.Brush>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 11 8 V 14 M 8 11 H 14">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                <!-- Glass Lens Surface -->
+                <GeometryDrawing Geometry="M 18 10.5 A 7.5 7.5 0 1 1 3 10.5 A 7.5 7.5 0 0 1 18 10.5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#F0F9FF" Offset="0"/>
+                            <GradientStop Color="#E0F2FE" Offset="0.5"/>
+                            <GradientStop Color="#BAE6FD" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <!-- Glare Flare Arc -->
+                <GeometryDrawing Geometry="M 5.5 8 A 6 6 0 0 1 14 5">
+                    <GeometryDrawing.Pen><Pen Brush="#80FFFFFF" Thickness="1.5" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Chrome Outer Bezel -->
+                <GeometryDrawing Geometry="M 18 10.5 A 7.5 7.5 0 1 1 3 10.5 A 7.5 7.5 0 0 1 18 10.5 Z">
+                    <GeometryDrawing.Pen>
+                        <Pen Thickness="1.8">
+                            <Pen.Brush>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#FFFFFF" Offset="0"/>
+                                    <GradientStop Color="#CBD5E1" Offset="0.5"/>
+                                    <GradientStop Color="#64748B" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Pen.Brush>
+                        </Pen>
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Handle -->
+                <GeometryDrawing Geometry="M 15.5 15.5 L 21 21">
+                    <GeometryDrawing.Pen><Pen Brush="#1E293B" Thickness="3.5" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 15 15 L 16.5 16.5">
+                    <GeometryDrawing.Pen><Pen Brush="#CBD5E1" Thickness="3.5" StartLineCap="Square" EndLineCap="Square"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Plus Cross -->
+                <GeometryDrawing Geometry="M 10.5 7.5 V 13.5 M 7.5 10.5 H 13.5">
+                    <GeometryDrawing.Pen><Pen Brush="#059669" Thickness="2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -361,48 +841,112 @@
     <DrawingImage x:Key="IconZoomOut">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 11 19 A 8 8 0 1 0 11 3 A 8 8 0 0 0 11 19 Z M 21 21 L 16.65 16.65">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#080284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 18.5 11 A 7.5 7.5 0 1 1 3.5 11 A 7.5 7.5 0 0 1 18.5 11 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#20000000"/></GeometryDrawing.Brush>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 8 11 H 14">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 18 10.5 A 7.5 7.5 0 1 1 3 10.5 A 7.5 7.5 0 0 1 18 10.5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#F0F9FF" Offset="0"/>
+                            <GradientStop Color="#E0F2FE" Offset="0.5"/>
+                            <GradientStop Color="#BAE6FD" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 5.5 8 A 6 6 0 0 1 14 5">
+                    <GeometryDrawing.Pen><Pen Brush="#80FFFFFF" Thickness="1.5" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 18 10.5 A 7.5 7.5 0 1 1 3 10.5 A 7.5 7.5 0 0 1 18 10.5 Z">
+                    <GeometryDrawing.Pen>
+                        <Pen Thickness="1.8">
+                            <Pen.Brush>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#FFFFFF" Offset="0"/>
+                                    <GradientStop Color="#CBD5E1" Offset="0.5"/>
+                                    <GradientStop Color="#64748B" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Pen.Brush>
+                        </Pen>
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 15.5 15.5 L 21 21">
+                    <GeometryDrawing.Pen><Pen Brush="#1E293B" Thickness="3.5" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 15 15 L 16.5 16.5">
+                    <GeometryDrawing.Pen><Pen Brush="#CBD5E1" Thickness="3.5" StartLineCap="Square" EndLineCap="Square"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Minus Sign -->
+                <GeometryDrawing Geometry="M 7.5 10.5 H 13.5">
+                    <GeometryDrawing.Pen><Pen Brush="#DC2626" Thickness="2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 22. Reset Zoom (100% / Fit) -->
+    <!-- 22. Reset Zoom (100% / Caliper Frame) -->
     <DrawingImage x:Key="IconResetZoom">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- 4 Corner Brackets -->
-                <GeometryDrawing Geometry="M 3 8 V 3 H 8 M 16 3 H 21 V 8 M 21 16 V 21 H 16 M 8 21 H 3 V 16">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- 4 Corner Caliper Brackets -->
+                <GeometryDrawing Geometry="M 2 8 V 3 H 7 M 17 3 H 22 V 8 M 22 16 V 21 H 17 M 7 21 H 2 V 16">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
                 <!-- Center Target Reticle -->
-                <GeometryDrawing Geometry="M 12 9 V 15 M 9 12 H 15">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 16 12 A 4 4 0 1 1 8 12 A 4 4 0 0 1 16 12 Z">
+                    <GeometryDrawing.Brush>
+                        <RadialGradientBrush Center="0.35,0.35" RadiusX="0.65" RadiusY="0.65">
+                            <GradientStop Color="#E0F2FE" Offset="0"/>
+                            <GradientStop Color="#BAE6FD" Offset="1"/>
+                        </RadialGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 12 7 V 8 M 12 16 V 17 M 7 12 H 8 M 16 12 H 17">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 12 7 V 17 M 7 12 H 17">
+                    <GeometryDrawing.Pen><Pen Brush="#0369A1" Thickness="1.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 23. Group Selected -->
+    <!-- 23. Group Selected (Visio Group Objects) -->
     <DrawingImage x:Key="IconGroup">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Outer Bounding Frame with Corner Nodes -->
-                <GeometryDrawing Geometry="M 3 7 V 3 H 7 M 17 3 H 21 V 7 M 21 17 V 21 H 17 M 7 21 H 3 V 17">
-                    <GeometryDrawing.Pen><Pen Brush="#4F46E5" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 3 3 H 21 V 21 H 3 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#084F46E5"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#4F46E5" Thickness="1" DashStyle="{x:Static DashStyles.Dash}"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Grouped Objects -->
-                <GeometryDrawing Geometry="M 6 8 H 11 V 16 H 6 Z M 13 8 H 18 V 16 H 13 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#124F46E5"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#4F46E5" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Cyan Disk -->
+                <GeometryDrawing Geometry="M 11 9 A 3.5 3.5 0 1 1 4 9 A 3.5 3.5 0 0 1 11 9 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#38BDF8" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0369A1" Thickness="0.8"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Amber Cube -->
+                <GeometryDrawing Geometry="M 12 12 H 19 V 19 H 12 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#FBBF24" Offset="0"/>
+                            <GradientStop Color="#D97706" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#B45309" Thickness="0.8"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Central Link -->
+                <GeometryDrawing Geometry="M 10 14 L 14 10">
+                    <GeometryDrawing.Pen><Pen Brush="#4F46E5" Thickness="2.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 10 14 L 14 10">
+                    <GeometryDrawing.Pen><Pen Brush="#FFFFFF" Thickness="1" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Corner Grips -->
+                <GeometryDrawing Geometry="M 2 2 H 4 V 4 H 2 Z M 20 2 H 22 V 4 H 20 Z M 20 20 H 22 V 22 H 20 Z M 2 20 H 4 V 22 H 2 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#FFFFFF"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#4F46E5" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -412,56 +956,94 @@
     <DrawingImage x:Key="IconUngroup">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Separated Elements -->
-                <GeometryDrawing Geometry="M 4 4 H 8 V 8 H 4 Z M 16 4 H 20 V 8 H 16 Z M 4 16 H 8 V 20 H 4 Z M 16 16 H 20 V 20 H 16 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#0A64748B"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#64748B" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 3 3 H 8 V 8 H 3 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#38BDF8"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Expansion Guides -->
-                <GeometryDrawing Geometry="M 8 6 H 16 M 8 18 H 16 M 6 8 V 16 M 18 8 V 16">
-                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.2" DashStyle="{x:Static DashStyles.Dash}"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 16 3 H 21 V 8 H 16 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#FBBF24"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#D97706" Thickness="0.8"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 3 16 H 8 V 21 H 3 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#34D399"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#059669" Thickness="0.8"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 16 16 H 21 V 21 H 16 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#A78BFA"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#7C3AED" Thickness="0.8"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Outward Divergence Arrows -->
+                <GeometryDrawing Geometry="M 10 10 L 6 6 M 14 10 L 18 6 M 10 14 L 6 18 M 14 14 L 18 18">
+                    <GeometryDrawing.Pen><Pen Brush="#DC2626" Thickness="1.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 25. Layers Stack / Reorder -->
+    <!-- 25. Layers Stack (Visio 3D Isometric Layers) -->
     <DrawingImage x:Key="IconLayers">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Top Active Layer with Blueprint Accent -->
-                <GeometryDrawing Geometry="M 12 2 L 2 7 L 12 12 L 22 7 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#1E0284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Bottom Layer (Slate/Silver) -->
+                <GeometryDrawing Geometry="M 12 15 L 2 19 L 12 23 L 22 19 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#CBD5E1" Offset="0"/>
+                            <GradientStop Color="#94A3B8" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#64748B" Thickness="0.8" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Middle Layer -->
-                <GeometryDrawing Geometry="M 2 12 L 12 17 L 22 12">
-                    <GeometryDrawing.Pen><Pen Brush="#64748B" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Middle Layer (Cyan/Teal) -->
+                <GeometryDrawing Geometry="M 12 8.5 L 2 12.5 L 12 16.5 L 22 12.5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#22D3EE" Offset="0"/>
+                            <GradientStop Color="#0891B2" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0E7490" Thickness="0.8" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Base Layer -->
-                <GeometryDrawing Geometry="M 2 17 L 12 22 L 22 17">
-                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Top Layer (Office Blue) -->
+                <GeometryDrawing Geometry="M 12 2 L 2 6 L 12 10 L 22 6 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#38BDF8" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="0.5"/>
+                            <GradientStop Color="#0369A1" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#075985" Thickness="0.8" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Specular Highlight -->
+                <GeometryDrawing Geometry="M 12 3 L 5 6 L 12 9 L 19 6 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#40FFFFFF" Thickness="1" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 26. Move to Front -->
+    <!-- 26. Move to Front (Layers Stack with Elevated Top Layer & Arrow) -->
     <DrawingImage x:Key="IconMoveToFront">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Base Layer -->
-                <GeometryDrawing Geometry="M 2 18 L 12 23 L 22 18 M 2 13 L 12 18 L 22 13">
-                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Lower Layers -->
+                <GeometryDrawing Geometry="M 12 17 L 3 20.5 L 12 24 L 21 20.5 Z M 12 12 L 3 15.5 L 12 19 L 21 15.5 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.2" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
                 <!-- Elevated Top Layer -->
-                <GeometryDrawing Geometry="M 12 6 L 2 11 L 12 16 L 22 11 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#1E0284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 12 7 L 3 10.5 L 12 14 L 21 10.5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#38BDF8" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0369A1" Thickness="0.8" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Upward Arrow to Summit -->
-                <GeometryDrawing Geometry="M 12 1 L 9 4 M 12 1 L 15 4 M 12 1 V 10">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Upward Summit Arrow -->
+                <GeometryDrawing Geometry="M 12 1 L 9 4 M 12 1 L 15 4 M 12 1 V 9">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -471,18 +1053,20 @@
     <DrawingImage x:Key="IconMoveForward">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Lower Layer -->
-                <GeometryDrawing Geometry="M 2 16 L 12 21 L 22 16">
-                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 12 16 L 3 19.5 L 12 23 L 21 19.5 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.2" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Active Layer -->
-                <GeometryDrawing Geometry="M 12 9 L 2 14 L 12 19 L 22 14 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#1E0284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 12 9 L 3 12.5 L 12 16 L 21 12.5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#38BDF8" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0369A1" Thickness="0.8" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Step Up Arrow -->
                 <GeometryDrawing Geometry="M 12 2 L 9 5 M 12 2 L 15 5 M 12 2 V 8">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -492,17 +1076,20 @@
     <DrawingImage x:Key="IconSendBackward">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Top Layer -->
-                <GeometryDrawing Geometry="M 12 4 L 2 9 L 12 14 L 22 9 Z">
-                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 12 4 L 3 7.5 L 12 11 L 21 7.5 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.2" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Lower Active Layer -->
-                <GeometryDrawing Geometry="M 2 16 L 12 21 L 22 16">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 12 12 L 3 15.5 L 12 19 L 21 15.5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#38BDF8" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0369A1" Thickness="0.8" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Step Down Arrow -->
                 <GeometryDrawing Geometry="M 12 22 L 9 19 M 12 22 L 15 19 M 12 22 V 15">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -512,32 +1099,42 @@
     <DrawingImage x:Key="IconSendToBack">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Upper Layers -->
-                <GeometryDrawing Geometry="M 12 2 L 2 7 L 12 12 L 22 7 Z M 2 12 L 12 17 L 22 12">
-                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 12 2 L 3 5.5 L 12 9 L 21 5.5 Z M 12 7 L 3 10.5 L 12 14 L 21 10.5 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.2" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Plunge Arrow to Base -->
-                <GeometryDrawing Geometry="M 12 23 L 9 20 M 12 23 L 15 20 M 12 23 V 14">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 12 23 L 9 20 M 12 23 L 15 20 M 12 23 V 13">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 30. Align Left -->
+    <!-- 30. Align Left (Visio Guide & Shaded Rectangles) -->
     <DrawingImage x:Key="IconAlignLeft">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 4 2 V 22">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.8" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 3.5 2 V 22">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="2.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 7 6 H 19 V 10 H 7 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Wide Block -->
+                <GeometryDrawing Geometry="M 6 5 H 20 A 1 1 0 0 1 21 6 V 9 A 1 1 0 0 1 20 10 H 6 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#38BDF8" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0369A1" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 7 14 H 15 V 18 H 7 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Short Block -->
+                <GeometryDrawing Geometry="M 6 14 H 15 A 1 1 0 0 1 16 15 V 18 A 1 1 0 0 1 15 19 H 6 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#94A3B8" Offset="0"/>
+                            <GradientStop Color="#475569" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#334155" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -548,15 +1145,25 @@
         <DrawingImage.Drawing>
             <DrawingGroup>
                 <GeometryDrawing Geometry="M 12 2 V 22">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.8" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="2.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 6 6 H 18 V 10 H 6 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 4 5 H 20 A 1 1 0 0 1 21 6 V 9 A 1 1 0 0 1 20 10 H 4 A 1 1 0 0 1 3 9 V 6 A 1 1 0 0 1 4 5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#38BDF8" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0369A1" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 8 14 H 16 V 18 H 8 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 7 14 H 17 A 1 1 0 0 1 18 15 V 18 A 1 1 0 0 1 17 19 H 7 A 1 1 0 0 1 6 18 V 15 A 1 1 0 0 1 7 14 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#94A3B8" Offset="0"/>
+                            <GradientStop Color="#475569" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#334155" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -566,16 +1173,26 @@
     <DrawingImage x:Key="IconAlignRight">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 20 2 V 22">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.8" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 20.5 2 V 22">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="2.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 5 6 H 17 V 10 H 5 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 4 5 H 18 V 10 H 4 A 1 1 0 0 1 3 9 V 6 A 1 1 0 0 1 4 5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#38BDF8" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0369A1" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 9 14 H 17 V 18 H 9 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 9 14 H 18 V 19 H 9 A 1 1 0 0 1 8 18 V 15 A 1 1 0 0 1 9 14 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#94A3B8" Offset="0"/>
+                            <GradientStop Color="#475569" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#334155" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -585,16 +1202,26 @@
     <DrawingImage x:Key="IconAlignTop">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 2 4 H 22">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.8" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 2 3.5 H 22">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="2.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 6 7 V 19 H 10 V 7 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 5 6 H 10 V 20 A 1 1 0 0 1 9 21 H 6 A 1 1 0 0 1 5 20 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#38BDF8" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0369A1" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 14 7 V 15 H 18 V 7 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 14 6 H 19 V 15 A 1 1 0 0 1 18 16 H 15 A 1 1 0 0 1 14 15 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#94A3B8" Offset="0"/>
+                            <GradientStop Color="#475569" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#334155" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -605,15 +1232,25 @@
         <DrawingImage.Drawing>
             <DrawingGroup>
                 <GeometryDrawing Geometry="M 2 12 H 22">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.8" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="2.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 6 6 V 18 H 10 V 6 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 5 4 H 10 V 20 H 5 A 1 1 0 0 1 4 19 V 5 A 1 1 0 0 1 5 4 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#38BDF8" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0369A1" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 14 8 V 16 H 18 V 8 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 14 7 H 19 V 17 H 14 A 1 1 0 0 1 13 16 V 8 A 1 1 0 0 1 14 7 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#94A3B8" Offset="0"/>
+                            <GradientStop Color="#475569" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#334155" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -623,189 +1260,412 @@
     <DrawingImage x:Key="IconAlignBottom">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 2 20 H 22">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.8" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 2 20.5 H 22">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="2.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 6 5 V 17 H 10 V 5 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 5 4 A 1 1 0 0 1 6 3 H 9 A 1 1 0 0 1 10 4 V 18 H 5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#38BDF8" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0369A1" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 14 9 V 17 H 18 V 9 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 14 9 A 1 1 0 0 1 15 8 H 18 A 1 1 0 0 1 19 9 V 18 H 14 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#94A3B8" Offset="0"/>
+                            <GradientStop Color="#475569" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#334155" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 36. Show Grid -->
+    <!-- 36. Show Grid (Visio Blueprint Drafting Grid) -->
     <DrawingImage x:Key="IconShowGrid">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Grid Frame -->
-                <GeometryDrawing Geometry="M 3 3 H 21 V 21 H 3 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#08475569"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Blueprint Backdrop Plate -->
+                <GeometryDrawing Geometry="M 2 2 H 22 V 22 H 2 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#F0F9FF" Offset="0"/>
+                            <GradientStop Color="#E0F2FE" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.2" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Internal Grid Lines -->
-                <GeometryDrawing Geometry="M 3 9 H 21 M 3 15 H 21 M 9 3 V 21 M 15 3 V 21">
+                <!-- Coordinate Sub-lines -->
+                <GeometryDrawing Geometry="M 2 6 H 22 M 2 10 H 22 M 2 14 H 22 M 2 18 H 22 M 6 2 V 22 M 10 2 V 22 M 14 2 V 22 M 18 2 V 22">
+                    <GeometryDrawing.Pen><Pen Brush="#BAE6FD" Thickness="0.8"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Major Axis Rule -->
+                <GeometryDrawing Geometry="M 2 10 H 22 M 10 2 V 22">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.2"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <!-- 37. Snap to Grid (Precision Magnet & Vertex Target) -->
+    <DrawingImage x:Key="IconSnapToGrid">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <!-- Grid Dots -->
+                <GeometryDrawing Geometry="M 17 5 H 17.5 M 21 5 H 21.5 M 17 9 H 17.5 M 21 9 H 21.5">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Red Pole Left -->
+                <GeometryDrawing Geometry="M 3 4 V 12 A 6 6 0 0 0 9 18 V 14 A 2 2 0 0 1 7 12 V 4 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#F87171" Offset="0"/>
+                            <GradientStop Color="#DC2626" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#991B1B" Thickness="0.6"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 3 2 H 7 V 5 H 3 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#CBD5E1" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#64748B" Thickness="0.6"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Blue Pole Right -->
+                <GeometryDrawing Geometry="M 15 4 V 12 A 2 2 0 0 1 13 14 V 18 A 6 6 0 0 0 19 12 V 4 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#0284C7" Offset="0"/>
+                            <GradientStop Color="#0369A1" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#075985" Thickness="0.6"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 15 2 H 19 V 5 H 15 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#CBD5E1" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#64748B" Thickness="0.6"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Snap Spark -->
+                <GeometryDrawing Geometry="M 11 17 V 22 M 8.5 19.5 H 13.5">
+                    <GeometryDrawing.Pen><Pen Brush="#F59E0B" Thickness="1.8" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <!-- 38. Show Rulers (Visio Architect's Golden Anodized Caliper Ruler) -->
+    <DrawingImage x:Key="IconShowRulers">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <!-- L-Ruler Body -->
+                <GeometryDrawing Geometry="M 2 2 V 22 H 22 V 16 H 8 V 2 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#FDE68A" Offset="0"/>
+                            <GradientStop Color="#F59E0B" Offset="0.6"/>
+                            <GradientStop Color="#D97706" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#B45309" Thickness="0.8" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Inner Bevel Highlight -->
+                <GeometryDrawing Geometry="M 3 3 V 21 H 21">
+                    <GeometryDrawing.Pen><Pen Brush="#40FFFFFF" Thickness="1"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Vertical Scale Ticks -->
+                <GeometryDrawing Geometry="M 8 5 H 5.5 M 8 8 H 4 M 8 11 H 5.5 M 8 14 H 4">
+                    <GeometryDrawing.Pen><Pen Brush="#78350F" Thickness="1" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Horizontal Scale Ticks -->
+                <GeometryDrawing Geometry="M 11 16 V 18.5 M 14 16 V 20 M 17 16 V 18.5 M 20 16 V 20">
+                    <GeometryDrawing.Pen><Pen Brush="#78350F" Thickness="1" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <!-- 39. Database (Visio 3-Tier Cylindrical Database Stack) -->
+    <DrawingImage x:Key="IconDatabase">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <!-- Tier 3 Bottom Disk -->
+                <GeometryDrawing Geometry="M 3 14 C 3 17 7 19.5 12 19.5 S 21 17 21 14 V 18 C 21 21 17 23 12 23 S 3 21 3 18 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#059669" Offset="0"/>
+                            <GradientStop Color="#34D399" Offset="0.3"/>
+                            <GradientStop Color="#10B981" Offset="0.6"/>
+                            <GradientStop Color="#047857" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#065F46" Thickness="0.6"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Tier 2 Middle Disk -->
+                <GeometryDrawing Geometry="M 3 8.5 C 3 11.5 7 14 12 14 S 21 11.5 21 8.5 V 12.5 C 21 15.5 17 17.5 12 17.5 S 3 15.5 3 12.5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#059669" Offset="0"/>
+                            <GradientStop Color="#34D399" Offset="0.3"/>
+                            <GradientStop Color="#10B981" Offset="0.6"/>
+                            <GradientStop Color="#047857" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#065F46" Thickness="0.6"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Tier 1 Top Disk -->
+                <GeometryDrawing Geometry="M 3 3 C 3 6 7 8.5 12 8.5 S 21 6 21 3 V 7 C 21 10 17 12 12 12 S 3 10 3 7 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#059669" Offset="0"/>
+                            <GradientStop Color="#34D399" Offset="0.3"/>
+                            <GradientStop Color="#10B981" Offset="0.6"/>
+                            <GradientStop Color="#047857" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#065F46" Thickness="0.6"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Top Oval Cap -->
+                <GeometryDrawing Geometry="M 12 1 C 7 1 3 2.5 3 4.5 S 7 8 12 8 S 21 6.5 21 4.5 S 17 1 12 1 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#6EE7B7" Offset="0"/>
+                            <GradientStop Color="#10B981" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#047857" Thickness="0.6"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <!-- 40. Sync Inventory (Circular Sweeping Arrows) -->
+    <DrawingImage x:Key="IconSync">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <!-- Top Arrow (Green) -->
+                <GeometryDrawing Geometry="M 21 3 V 8 H 16 M 3 12 A 9 9 0 0 1 18.5 5.6 L 21 8">
+                    <GeometryDrawing.Pen>
+                        <Pen Thickness="2.2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round">
+                            <Pen.Brush>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#34D399" Offset="0"/>
+                                    <GradientStop Color="#059669" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Pen.Brush>
+                        </Pen>
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Bottom Arrow (Blue) -->
+                <GeometryDrawing Geometry="M 3 21 V 16 H 8 M 21 12 A 9 9 0 0 1 5.5 18.4 L 3 16">
+                    <GeometryDrawing.Pen>
+                        <Pen Thickness="2.2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round">
+                            <Pen.Brush>
+                                <LinearGradientBrush StartPoint="1,0" EndPoint="0,0">
+                                    <GradientStop Color="#38BDF8" Offset="0"/>
+                                    <GradientStop Color="#0284C7" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Pen.Brush>
+                        </Pen>
+                    </GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <!-- 41. Web Viewer (Browser Layout Window with Blueprint Inside) -->
+    <DrawingImage x:Key="IconWebViewer">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <!-- Window Frame -->
+                <GeometryDrawing Geometry="M 3 4 H 21 A 2 2 0 0 1 23 6 V 19 A 2 2 0 0 1 21 21 H 3 A 2 2 0 0 1 1 19 V 6 A 2 2 0 0 1 3 4 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#F8FAFC" Offset="0"/>
+                            <GradientStop Color="#E2E8F0" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.2" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Titlebar -->
+                <GeometryDrawing Geometry="M 1 4 H 23 V 8.5 H 1 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#334155" Offset="0"/>
+                            <GradientStop Color="#1E293B" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <!-- Traffic Light Window Dots -->
+                <GeometryDrawing Geometry="M 4 6.2 H 4.1">
+                    <GeometryDrawing.Pen><Pen Brush="#EF4444" Thickness="2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 6.5 6.2 H 6.6">
+                    <GeometryDrawing.Pen><Pen Brush="#F59E0B" Thickness="2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 9 6.2 H 9.1">
+                    <GeometryDrawing.Pen><Pen Brush="#10B981" Thickness="2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Inner Layout Elements -->
+                <GeometryDrawing Geometry="M 4 11 H 11 V 18 H 4 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#38BDF8" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0369A1" Thickness="0.6"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 14 12 H 20 M 14 15 H 18 M 14 18 H 19">
                     <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 37. Snap to Grid -->
-    <DrawingImage x:Key="IconSnapToGrid">
-        <DrawingImage.Drawing>
-            <DrawingGroup>
-                <!-- Precision Magnet -->
-                <GeometryDrawing Geometry="M 6 3 V 11 A 6 6 0 0 0 18 11 V 3">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#100284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
-                </GeometryDrawing>
-                <!-- Magnet Poles -->
-                <GeometryDrawing Geometry="M 6 7 H 10 M 14 7 H 18">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
-                </GeometryDrawing>
-                <!-- Snapping Crosshair -->
-                <GeometryDrawing Geometry="M 12 17 V 22 M 9 19.5 H 15">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
-                </GeometryDrawing>
-            </DrawingGroup>
-        </DrawingImage.Drawing>
-    </DrawingImage>
-
-    <!-- 38. Show Rulers (CAD Drafting Scale) -->
-    <DrawingImage x:Key="IconShowRulers">
-        <DrawingImage.Drawing>
-            <DrawingGroup>
-                <!-- L-Ruler Caliper Body -->
-                <GeometryDrawing Geometry="M 2 2 V 22 H 22">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.8" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
-                </GeometryDrawing>
-                <!-- Vertical Scale Ticks -->
-                <GeometryDrawing Geometry="M 2 6 H 6 M 2 10 H 9 M 2 14 H 6 M 2 18 H 9">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
-                </GeometryDrawing>
-                <!-- Horizontal Scale Ticks -->
-                <GeometryDrawing Geometry="M 6 22 V 18 M 10 22 V 15 M 14 22 V 18 M 18 22 V 15">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
-                </GeometryDrawing>
-            </DrawingGroup>
-        </DrawingImage.Drawing>
-    </DrawingImage>
-
-    <!-- 39. Database -->
-    <DrawingImage x:Key="IconDatabase">
-        <DrawingImage.Drawing>
-            <DrawingGroup>
-                <GeometryDrawing Geometry="M 12 2 C 7 2 3 3.34 3 5 V 19 C 3 20.66 7 22 12 22 S 21 20.66 21 19 V 5 C 21 3.34 17 2 12 2 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#0E059669"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#059669" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
-                </GeometryDrawing>
-                <GeometryDrawing Geometry="M 3 12 C 3 13.66 7 15 12 15 S 21 13.66 21 12 M 3 5 C 3 6.66 7 8 12 8 S 21 6.66 21 5">
-                    <GeometryDrawing.Pen><Pen Brush="#059669" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
-                </GeometryDrawing>
-            </DrawingGroup>
-        </DrawingImage.Drawing>
-    </DrawingImage>
-
-    <!-- 40. Sync Inventory -->
-    <DrawingImage x:Key="IconSync">
-        <DrawingImage.Drawing>
-            <DrawingGroup>
-                <GeometryDrawing Geometry="M 21 2 V 8 H 15 M 3 12 A 9 9 0 0 1 18.5 5.64 L 21 8 M 3 22 V 16 H 9 M 21 12 A 9 9 0 0 1 5.5 18.36 L 3 16">
-                    <GeometryDrawing.Pen><Pen Brush="#059669" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
-                </GeometryDrawing>
-            </DrawingGroup>
-        </DrawingImage.Drawing>
-    </DrawingImage>
-
-    <!-- 41. Web Viewer (Browser Layout) -->
-    <DrawingImage x:Key="IconWebViewer">
-        <DrawingImage.Drawing>
-            <DrawingGroup>
-                <!-- Browser Window Frame -->
-                <GeometryDrawing Geometry="M 3 4 H 21 A 2 2 0 0 1 23 6 V 18 A 2 2 0 0 1 21 20 H 3 A 2 2 0 0 1 1 18 V 6 A 2 2 0 0 1 3 4 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#080284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
-                </GeometryDrawing>
-                <!-- Titlebar Divider -->
-                <GeometryDrawing Geometry="M 1 9 H 23">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
-                </GeometryDrawing>
-                <!-- Window Controls Dots -->
-                <GeometryDrawing Geometry="M 4 6.5 H 4.1 M 6.5 6.5 H 6.6 M 9 6.5 H 9.1">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
-                </GeometryDrawing>
-                <!-- Inner 2D Canvas Layout Elements -->
-                <GeometryDrawing Geometry="M 5 12 H 11 V 17 H 5 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#200284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.4" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
-                </GeometryDrawing>
-                <GeometryDrawing Geometry="M 14 13 H 19 M 14 16 H 17">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
-                </GeometryDrawing>
-            </DrawingGroup>
-        </DrawingImage.Drawing>
-    </DrawingImage>
-
-    <!-- 42. Inspect / Properties -->
+    <!-- 42. Inspect / Properties (Slider Rails & Metallic Knobs) -->
     <DrawingImage x:Key="IconInspect">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Parameter Slider Rails -->
+                <!-- Rails -->
                 <GeometryDrawing Geometry="M 5 21 V 3 M 12 21 V 3 M 19 21 V 3">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.6" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.8" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Adjustable Thumb Markers -->
-                <GeometryDrawing Geometry="M 2 14 H 8 M 9 8 H 15 M 16 16 H 22">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                <!-- Slider Thumb 1 (Blue Knob) -->
+                <GeometryDrawing Geometry="M 2.5 13 H 7.5 A 1 1 0 0 1 8.5 14 V 16 A 1 1 0 0 1 7.5 17 H 2.5 A 1 1 0 0 1 1.5 16 V 14 A 1 1 0 0 1 2.5 13 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#38BDF8" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0369A1" Thickness="0.6"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Slider Thumb 2 (Blue Knob) -->
+                <GeometryDrawing Geometry="M 9.5 7 H 14.5 A 1 1 0 0 1 15.5 8 V 10 A 1 1 0 0 1 14.5 11 H 9.5 A 1 1 0 0 1 8.5 10 V 8 A 1 1 0 0 1 9.5 7 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#38BDF8" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0369A1" Thickness="0.6"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Slider Thumb 3 (Blue Knob) -->
+                <GeometryDrawing Geometry="M 16.5 15 H 21.5 A 1 1 0 0 1 22.5 16 V 18 A 1 1 0 0 1 21.5 19 H 16.5 A 1 1 0 0 1 15.5 18 V 16 A 1 1 0 0 1 16.5 15 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#38BDF8" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0369A1" Thickness="0.6"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 43. Light Theme (Sun) -->
+    <!-- 43. Light Theme (Warm Sun Disk & Corona Rays) -->
     <DrawingImage x:Key="IconThemeLight">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 12 8 A 4 4 0 1 0 12 16 A 4 4 0 0 0 12 8 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#1CD97706"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#D97706" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Sun Disk -->
+                <GeometryDrawing Geometry="M 12 7 A 5 5 0 1 0 12 17 A 5 5 0 0 0 12 7 Z">
+                    <GeometryDrawing.Brush>
+                        <RadialGradientBrush Center="0.4,0.35" RadiusX="0.6" RadiusY="0.6">
+                            <GradientStop Color="#FEF08A" Offset="0"/>
+                            <GradientStop Color="#FBBF24" Offset="0.5"/>
+                            <GradientStop Color="#F59E0B" Offset="0.9"/>
+                            <GradientStop Color="#D97706" Offset="1"/>
+                        </RadialGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#B45309" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 12 2 V 4 M 12 20 V 22 M 4.93 4.93 L 6.34 6.34 M 17.66 17.66 L 19.07 19.07 M 2 12 H 4 M 20 12 H 22 M 4.93 19.07 L 6.34 17.66 M 17.66 6.34 L 19.07 4.93">
-                    <GeometryDrawing.Pen><Pen Brush="#D97706" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Corona Rays -->
+                <GeometryDrawing Geometry="M 12 1.5 V 4 M 12 20 V 22.5 M 4.6 4.6 L 6.4 6.4 M 17.6 17.6 L 19.4 19.4 M 1.5 12 H 4 M 20 12 H 22.5 M 4.6 19.4 L 6.4 17.6 M 17.6 6.4 L 19.4 4.6">
+                    <GeometryDrawing.Pen>
+                        <Pen Thickness="1.8" StartLineCap="Round" EndLineCap="Round">
+                            <Pen.Brush>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#FBBF24" Offset="0"/>
+                                    <GradientStop Color="#D97706" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Pen.Brush>
+                        </Pen>
+                    </GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 44. Dark Theme (Crescent Moon) -->
+    <!-- 44. Dark Theme (Silver & Night Blue Crescent Moon with Star) -->
     <DrawingImage x:Key="IconThemeDark">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 21 12.79 A 9 9 0 1 1 11.21 3 A 7 7 0 0 0 21 12.79 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#1E0284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Crescent Moon -->
+                <GeometryDrawing Geometry="M 21 13 A 9 9 0 1 1 11 3 A 7.2 7.2 0 0 0 21 13 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#67E8F9" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="0.5"/>
+                            <GradientStop Color="#1E3A8A" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0F172A" Thickness="0.8"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Gold Star Spark -->
+                <GeometryDrawing Geometry="M 17 4 L 18 6.5 L 20.5 7.5 L 18 8.5 L 17 11 L 16 8.5 L 13.5 7.5 L 16 6.5 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#FBBF24"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#D97706" Thickness="0.4"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 45. Screen / Monitor -->
+    <!-- 45. Screen / Monitor (Modern Workstation Display) -->
     <DrawingImage x:Key="IconScreen">
         <DrawingImage.Drawing>
             <DrawingGroup>
                 <!-- Display Bezel -->
-                <GeometryDrawing Geometry="M 3 4 H 21 A 1 1 0 0 1 22 5 V 15 A 1 1 0 0 1 21 16 H 3 A 1 1 0 0 1 2 15 V 5 A 1 1 0 0 1 3 4 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#100284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 3 3 H 21 A 1.5 1.5 0 0 1 22.5 4.5 V 15.5 A 1.5 1.5 0 0 1 21 17 H 3 A 1.5 1.5 0 0 1 1.5 15.5 V 4.5 A 1.5 1.5 0 0 1 3 3 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#334155" Offset="0"/>
+                            <GradientStop Color="#0F172A" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0F172A" Thickness="1" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Stand Column & Base -->
-                <GeometryDrawing Geometry="M 12 16 V 20 M 8 20 H 16">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Screen Glass -->
+                <GeometryDrawing Geometry="M 3 4.5 H 21 V 15.5 H 3 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#1E3A8A" Offset="0"/>
+                            <GradientStop Color="#0F172A" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <!-- Blueprint Schematic Grid Lines on Display -->
+                <GeometryDrawing Geometry="M 5 8 H 12 M 5 11 H 19 M 14 8 H 19">
+                    <GeometryDrawing.Pen><Pen Brush="#38BDF8" Thickness="1" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Brushed Stand Neck & Pedestal -->
+                <GeometryDrawing Geometry="M 12 17 V 20.5">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="2.5" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 8 21.5 H 16">
+                    <GeometryDrawing.Pen><Pen Brush="#CBD5E1" Thickness="2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -814,55 +1674,100 @@
     <DrawingImage x:Key="IconMonitor">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 3 4 H 21 A 1 1 0 0 1 22 5 V 15 A 1 1 0 0 1 21 16 H 3 A 1 1 0 0 1 2 15 V 5 A 1 1 0 0 1 3 4 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#100284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 3 3 H 21 A 1.5 1.5 0 0 1 22.5 4.5 V 15.5 A 1.5 1.5 0 0 1 21 17 H 3 A 1.5 1.5 0 0 1 1.5 15.5 V 4.5 A 1.5 1.5 0 0 1 3 3 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#334155" Offset="0"/>
+                            <GradientStop Color="#0F172A" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0F172A" Thickness="1" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Geometry="M 12 16 V 20 M 8 20 H 16">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 3 4.5 H 21 V 15.5 H 3 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#1E3A8A" Offset="0"/>
+                            <GradientStop Color="#0F172A" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 5 8 H 12 M 5 11 H 19 M 14 8 H 19">
+                    <GeometryDrawing.Pen><Pen Brush="#38BDF8" Thickness="1" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 12 17 V 20.5">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="2.5" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 8 21.5 H 16">
+                    <GeometryDrawing.Pen><Pen Brush="#CBD5E1" Thickness="2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 46. Room Template Generator -->
+    <!-- 46. Room Template Generator (Visio Floor Plan Blueprint with Door Arc) -->
     <DrawingImage x:Key="IconRoomTemplate">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Room Perimeter Walls with Door Opening -->
+                <!-- Room Blueprint Floor -->
+                <GeometryDrawing Geometry="M 3 3 H 21 V 21 H 3 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#F0F9FF" Offset="0"/>
+                            <GradientStop Color="#E0F2FE" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <!-- Architectural Composite Navy Walls -->
                 <GeometryDrawing Geometry="M 3 21 V 3 H 21 V 21 H 15">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.8" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Pen><Pen Brush="#1E3A8A" Thickness="2.2" StartLineCap="Square" EndLineCap="Square" LineJoin="Miter"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
                 <GeometryDrawing Geometry="M 3 21 H 8">
+                    <GeometryDrawing.Pen><Pen Brush="#1E3A8A" Thickness="2.2" StartLineCap="Square" EndLineCap="Square"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Swinging Door Leaf -->
+                <GeometryDrawing Geometry="M 8 21 L 14 15">
                     <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.8" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Door Leaf & Swing Arc -->
-                <GeometryDrawing Geometry="M 8 21 L 14 15">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
-                </GeometryDrawing>
+                <!-- Door Swing Arc (Cyan Dashed Arc) -->
                 <GeometryDrawing Geometry="M 8 21 A 6 6 0 0 1 14 15">
-                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.2" DashStyle="{x:Static DashStyles.Dash}"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1" DashStyle="{x:Static DashStyles.Dash}"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Internal Modular Bench -->
+                <!-- Modular Bench Inside (Amber Wooden Table) -->
                 <GeometryDrawing Geometry="M 6 6 H 18 V 10 H 6 Z">
-                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.4" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#FBBF24" Offset="0"/>
+                            <GradientStop Color="#D97706" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#B45309" Thickness="0.8"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 47. Text Annotation (Precision CAD Sans-Serif "T") -->
+    <!-- 47. Text Annotation (Visio / Word Text Box with Rich "T" Letterform) -->
     <DrawingImage x:Key="IconText">
         <DrawingImage.Drawing>
             <DrawingGroup>
                 <!-- Drafting Bounding Frame Corners -->
                 <GeometryDrawing Geometry="M 2 5 H 4 V 3 M 20 3 V 5 H 22 M 2 19 H 4 V 21 M 20 21 V 19 H 22">
-                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Elegant Sans-Serif "T" Letterform -->
-                <GeometryDrawing Geometry="M 5 6 H 19 M 12 6 V 18 M 9 18 H 15">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.8" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Insertion Cursor I-Beam -->
+                <GeometryDrawing Geometry="M 4 8 V 16">
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Bold "T" Letterform in Office Blue Gradient -->
+                <GeometryDrawing Geometry="M 6 5 H 20 V 8.5 H 14.5 V 19 H 11.5 V 8.5 H 6 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#38BDF8" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="0.5"/>
+                            <GradientStop Color="#0369A1" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#075985" Thickness="0.8" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>

@@ -302,19 +302,19 @@
                     <dock:LayoutAnchorablePane DockWidth="280">
                         <dock:LayoutAnchorable x:Name="StencilsAnchorable" Title="Stencils Library"
                                                CanClose="False" CanHide="False"
-                                               AutoHideWidth="280" AutoHideMinWidth="220">
+                                               AutoHideWidth="280" AutoHideMinWidth="220" CanDockAsTabbedDocument="False">
                             <views:StencilsPaletteView x:Name="StencilsPaletteViewControl" DataContext="{Binding Stencils}"/>
                         </dock:LayoutAnchorable>
                         <dock:LayoutAnchorable x:Name="RoomTemplateAnchorable" Title="Room Templates"
                                                CanClose="False" CanHide="False"
-                                               AutoHideWidth="280" AutoHideMinWidth="220">
+                                               AutoHideWidth="280" AutoHideMinWidth="220" CanDockAsTabbedDocument="False">
                             <views:RoomTemplateView x:Name="RoomTemplateViewControl" DataContext="{Binding RoomTemplate}"/>
                         </dock:LayoutAnchorable>
                     </dock:LayoutAnchorablePane>
 
                     <!-- Center: Browser-Style Tabbed Document Workspace -->
-                    <dock:LayoutDocumentPane>
-                        <dock:LayoutDocument Title="Lab Workspace" CanClose="False">
+                    <dock:LayoutDocumentPane ShowHeader="False">
+                        <dock:LayoutDocument Title="Lab Workspace" CanClose="False" CanFloat="False">
                             <Grid Background="{DynamicResource CanvasWorkspaceBackgroundBrush}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="34"/>
@@ -470,7 +470,7 @@
                     <dock:LayoutAnchorablePane DockWidth="280">
                         <dock:LayoutAnchorable x:Name="PropertiesAnchorable" Title="Properties &amp; Inspector"
                                                CanClose="False" CanHide="False"
-                                               AutoHideWidth="280" AutoHideMinWidth="220">
+                                               AutoHideWidth="280" AutoHideMinWidth="220" CanDockAsTabbedDocument="False">
                             <views:PropertiesInspectorView x:Name="PropertiesInspectorViewControl" DataContext="{Binding Properties}"/>
                         </dock:LayoutAnchorable>
                     </dock:LayoutAnchorablePane>
