@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:templates="clr-namespace:LabScape.ViewModels.Templates;assembly=LabScape.ViewModels"
+             xmlns:controls="clr-namespace:LabScape.App.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="780" d:DesignWidth="280">
 
@@ -21,7 +22,7 @@
                             <TextBlock Text="Room Templates" FontWeight="Bold" FontSize="13"
                                        Foreground="{DynamicResource AppTextPrimaryBrush}" VerticalAlignment="Center"/>
                         </StackPanel>
-                        <TextBlock Text="Catalog of persistent CAD room templates with modular workstations &amp; walls."
+                        <TextBlock Text="Visual catalog of CAD room templates with modular workstations &amp; walls."
                                    TextWrapping="Wrap" FontSize="10.5"
                                    Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="28,3,0,0"/>
                     </StackPanel>
@@ -59,20 +60,20 @@
                     </Button.Style>
                 </Button>
 
-                <!-- 3. Saved Templates Catalog (Persistent List) -->
+                <!-- 3. Saved Templates Catalog (Visual Render Showcase - No Verbose Descriptions) -->
                 <GroupBox Header="Saved Templates Catalog" FontWeight="SemiBold"
                           Foreground="{DynamicResource AppTextPrimaryBrush}" Margin="0,0,0,12">
                     <StackPanel Margin="2,6" TextElement.FontWeight="Normal">
-                        <TextBlock Text="Select a template, drag onto canvas, or insert directly:"
+                        <TextBlock Text="Select a template, drag onto canvas, or click Insert:"
                                    FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="2,0,0,8"/>
 
-                        <!-- Template Items List -->
+                        <!-- Template Items Visual Cards -->
                         <ItemsControl ItemsSource="{Binding SavedTemplates}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="{x:Type templates:SavedRoomTemplate}">
                                     <Border Background="{DynamicResource CardBackgroundBrush}"
                                             BorderBrush="{DynamicResource CardBorderBrush}"
-                                            BorderThickness="1" CornerRadius="7" Padding="9,8" Margin="0,0,0,8"
+                                            BorderThickness="1" CornerRadius="8" Padding="10,9" Margin="0,0,0,10"
                                             Cursor="Hand"
                                             ToolTip="Click to select, drag onto canvas, or click Insert"
                                             MouseLeftButtonDown="TemplateCard_MouseLeftButtonDown"
@@ -94,8 +95,8 @@
                                                 <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
 
-                                            <!-- Row 0: Title & Badges -->
-                                            <DockPanel Grid.Row="0" Margin="0,0,0,4">
+                                            <!-- Row 0: Title & Delete Button -->
+                                            <DockPanel Grid.Row="0" Margin="0,0,0,6">
                                                 <!-- Delete button for custom templates -->
                                                 <Button DockPanel.Dock="Right" Content="✕"
                                                         ToolTip="Delete saved template"
@@ -106,35 +107,28 @@
                                                         Cursor="Hand" Margin="4,0,0,0"/>
 
                                                 <!-- Template Name -->
-                                                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="11.5"
+                                                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="12"
                                                            Foreground="{DynamicResource AppTextPrimaryBrush}"
                                                            TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
                                             </DockPanel>
 
-                                            <!-- Row 1: Badges & Dimensions -->
-                                            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,2,0,6">
-                                                <!-- PCs Pill -->
-                                                <Border Background="{DynamicResource AccentSubtleBrush}" BorderBrush="{DynamicResource AccentBorderBrush}"
-                                                        BorderThickness="1" CornerRadius="4" Padding="5,1" Margin="0,0,6,0">
-                                                    <TextBlock Text="{Binding SummaryBadge}" FontSize="9.5" FontWeight="SemiBold"
-                                                               Foreground="{DynamicResource AccentPrimaryBrush}"/>
-                                                </Border>
-                                                <!-- Dimensions Pill -->
-                                                <Border Background="{DynamicResource PanelBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}"
-                                                        BorderThickness="1" CornerRadius="4" Padding="5,1">
-                                                    <TextBlock Text="{Binding SummaryDimensions}" FontSize="9.5" FontFamily="Consolas, Segoe UI"
-                                                               Foreground="{DynamicResource AppTextSecondaryBrush}"/>
-                                                </Border>
-                                            </StackPanel>
+                                            <!-- Row 1: THE VISUAL RENDER OF THE TEMPLATE (CAD Blueprint Viewport) -->
+                                            <Border Grid.Row="1"
+                                                    Background="{DynamicResource CanvasBackgroundBrush}"
+                                                    BorderBrush="{DynamicResource CanvasGridBrush}"
+                                                    BorderThickness="1" CornerRadius="6"
+                                                    Height="130" Margin="0,0,0,8" ClipToBounds="True">
+                                                <controls:RoomTemplateThumbnailControl RoomTemplate="{Binding}" Margin="4"/>
+                                            </Border>
 
-                                            <!-- Row 2: Description & Insert Action Button -->
+                                            <!-- Row 2: Badges & Insert Action Button (No verbose description!) -->
                                             <DockPanel Grid.Row="2">
                                                 <Button DockPanel.Dock="Right"
                                                         Content="➕ Insert"
-                                                        ToolTip="Insert into active canvas"
+                                                        ToolTip="Insert template into active canvas"
                                                         Click="BtnInsertTemplate_Click"
                                                         Tag="{Binding}"
-                                                        Padding="8,3" FontSize="10.5" FontWeight="SemiBold"
+                                                        Padding="10,4" FontSize="10.5" FontWeight="Bold"
                                                         Background="{DynamicResource AccentSubtleBrush}"
                                                         Foreground="{DynamicResource AccentPrimaryBrush}"
                                                         BorderBrush="{DynamicResource AccentBorderBrush}"
@@ -157,8 +151,19 @@
                                                     </Button.Style>
                                                 </Button>
 
-                                                <TextBlock Text="{Binding Description}" FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}"
-                                                           TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                <!-- Compact Badges: PCs & Dimensions -->
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <Border Background="{DynamicResource AccentSubtleBrush}" BorderBrush="{DynamicResource AccentBorderBrush}"
+                                                            BorderThickness="1" CornerRadius="4" Padding="5,2" Margin="0,0,6,0">
+                                                        <TextBlock Text="{Binding SummaryBadge}" FontSize="9.5" FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource AccentPrimaryBrush}"/>
+                                                    </Border>
+                                                    <Border Background="{DynamicResource PanelBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}"
+                                                            BorderThickness="1" CornerRadius="4" Padding="5,2">
+                                                        <TextBlock Text="{Binding SummaryDimensions}" FontSize="9.5" FontFamily="Consolas, Segoe UI"
+                                                                   Foreground="{DynamicResource AppTextSecondaryBrush}"/>
+                                                    </Border>
+                                                </StackPanel>
                                             </DockPanel>
                                         </Grid>
                                     </Border>
@@ -191,6 +196,13 @@
                                 </Style>
                             </Border.Style>
                             <StackPanel>
+                                <!-- Visual Blueprint Render of Selected Template -->
+                                <Border Background="{DynamicResource CanvasBackgroundBrush}"
+                                        BorderBrush="{DynamicResource CanvasGridBrush}"
+                                        BorderThickness="1" CornerRadius="6" Height="125" Margin="0,0,0,8" ClipToBounds="True">
+                                    <controls:RoomTemplateThumbnailControl RoomTemplate="{Binding SelectedTemplate}" Margin="4"/>
+                                </Border>
+
                                 <DockPanel Margin="0,0,0,5">
                                     <TextBlock Text="📐 Room Dimensions:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding SummaryDimensions}" FontWeight="Bold" FontSize="11"
