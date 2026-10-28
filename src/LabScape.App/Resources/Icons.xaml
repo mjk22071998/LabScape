@@ -2,28 +2,45 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ========================================================================= -->
-    <!-- LABSCAPE LUCIDE-STYLE SCALABLE VECTOR DRAWINGIMAGE ICON DICTIONARY        -->
-    <!-- Native DrawingImage vector assets compatible with Fluent.Ribbon & WPF UI  -->
+    <!-- LABSCAPE PRECISION CAD VECTOR DRAWINGIMAGE ICON DICTIONARY                 -->
+    <!-- Scalable 24x24 vector assets with balanced 1.6px strokes & duotone depth    -->
     <!-- ========================================================================= -->
 
     <!-- Primary Stroke Color Brushes -->
-    <SolidColorBrush x:Key="IconStrokeBrand" Color="#2563EB"/>
+    <SolidColorBrush x:Key="IconStrokeBrand" Color="#0284C7"/>
     <SolidColorBrush x:Key="IconStrokeSlate" Color="#475569"/>
-    <SolidColorBrush x:Key="IconStrokeRed" Color="#DC2626"/>
-    <SolidColorBrush x:Key="IconStrokeGreen" Color="#16A34A"/>
-    <SolidColorBrush x:Key="IconStrokeEmerald" Color="#059669"/>
+    <SolidColorBrush x:Key="IconStrokeRed" Color="#E11D48"/>
+    <SolidColorBrush x:Key="IconStrokeGreen" Color="#059669"/>
+    <SolidColorBrush x:Key="IconStrokeEmerald" Color="#0D9488"/>
     <SolidColorBrush x:Key="IconStrokeAmber" Color="#D97706"/>
-    <SolidColorBrush x:Key="IconStrokePurple" Color="#7C3AED"/>
+    <SolidColorBrush x:Key="IconStrokePurple" Color="#6366F1"/>
     <SolidColorBrush x:Key="IconStrokeIndigo" Color="#4F46E5"/>
-    <SolidColorBrush x:Key="IconStrokeCyan" Color="#0891B2"/>
+    <SolidColorBrush x:Key="IconStrokeCyan" Color="#0284C7"/>
     <SolidColorBrush x:Key="IconStrokeSky" Color="#0284C7"/>
+
+    <!-- Subtle Fill Accents for Depth (Duotone) -->
+    <SolidColorBrush x:Key="IconFillBrandSubtle" Color="#180284C7"/>
+    <SolidColorBrush x:Key="IconFillSlateSubtle" Color="#12475569"/>
+    <SolidColorBrush x:Key="IconFillAmberSubtle" Color="#18D97706"/>
+    <SolidColorBrush x:Key="IconFillGreenSubtle" Color="#18059669"/>
+    <SolidColorBrush x:Key="IconFillRedSubtle" Color="#18E11D48"/>
 
     <!-- 1. New Tab / New Floorplan -->
     <DrawingImage x:Key="IconNewTab">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 14 2 H 6 A 2 2 0 0 0 4 4 V 20 A 2 2 0 0 0 6 22 H 18 A 2 2 0 0 0 20 20 V 8 Z M 14 2 V 8 H 20 M 12 18 V 12 M 9 15 H 15">
-                    <GeometryDrawing.Pen><Pen Brush="#2563EB" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Sheet Outline with Fold -->
+                <GeometryDrawing Geometry="M 14 2 H 6 A 2 2 0 0 0 4 4 V 20 A 2 2 0 0 0 6 22 H 18 A 2 2 0 0 0 20 20 V 8 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#080284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Fold Flap -->
+                <GeometryDrawing Geometry="M 14 2 V 8 H 20">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Precision Plus Badge -->
+                <GeometryDrawing Geometry="M 12 17 V 11 M 9 14 H 15">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.7" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -33,8 +50,13 @@
     <DrawingImage x:Key="IconCloseTab">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 18 6 L 6 18 M 6 6 L 18 18">
-                    <GeometryDrawing.Pen><Pen Brush="#DC2626" Thickness="2.2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Circle boundary -->
+                <GeometryDrawing Geometry="M 12 2 A 10 10 0 1 0 12 22 A 10 10 0 0 0 12 2 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#0AE11D48"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 15 9 L 9 15 M 9 9 L 15 15">
+                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -44,8 +66,11 @@
     <DrawingImage x:Key="IconCloseOthers">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 3 6 H 15 V 18 H 3 Z M 8 3 H 20 V 15 M 7 10 L 11 14 M 11 10 L 7 14">
-                    <GeometryDrawing.Pen><Pen Brush="#DC2626" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 3 6 H 15 V 18 H 3 Z M 8 3 H 20 V 15">
+                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 7 10 L 11 14 M 11 10 L 7 14">
+                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -55,19 +80,37 @@
     <DrawingImage x:Key="IconCloseAll">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 2 7 H 14 V 19 H 2 Z M 6 4 H 18 V 16 M 10 1 H 22 V 13 M 6 11 L 10 15 M 10 11 L 6 15">
-                    <GeometryDrawing.Pen><Pen Brush="#DC2626" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 2 7 H 14 V 19 H 2 Z M 6 4 H 18 V 16 M 10 1 H 22 V 13">
+                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 6 11 L 10 15 M 10 11 L 6 15">
+                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 5. Save -->
+    <!-- 5. Save (Floppy Diskette) -->
     <DrawingImage x:Key="IconSave">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 19 21 H 5 A 2 2 0 0 1 3 19 V 5 A 2 2 0 0 1 5 3 H 16 L 21 8 V 19 A 2 2 0 0 1 19 21 Z M 17 21 V 13 H 7 V 21 M 7 3 V 8 H 15">
-                    <GeometryDrawing.Pen><Pen Brush="#2563EB" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Diskette Body -->
+                <GeometryDrawing Geometry="M 19 21 H 5 A 2 2 0 0 1 3 19 V 5 A 2 2 0 0 1 5 3 H 16 L 21 8 V 19 A 2 2 0 0 1 19 21 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#0A0284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Bottom Shutter Window -->
+                <GeometryDrawing Geometry="M 17 21 V 13 H 7 V 21">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Top Notch/Label -->
+                <GeometryDrawing Geometry="M 7 3 V 8 H 15">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Slider notch -->
+                <GeometryDrawing Geometry="M 10 15 V 19">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -77,8 +120,11 @@
     <DrawingImage x:Key="IconSaveAs">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 15 2 H 6 A 2 2 0 0 0 4 4 V 18 M 19 21 H 8 A 2 2 0 0 1 6 19 V 7 A 2 2 0 0 1 8 5 H 16 L 20 9 V 19 A 2 2 0 0 1 18 21 Z M 14 14 V 18 H 10 V 14">
-                    <GeometryDrawing.Pen><Pen Brush="#2563EB" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 15 2 H 6 A 2 2 0 0 0 4 4 V 18 M 19 21 H 8 A 2 2 0 0 1 6 19 V 7 A 2 2 0 0 1 8 5 H 16 L 20 9 V 19 A 2 2 0 0 1 18 21 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 14 14 V 18 H 10 V 14">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -88,8 +134,14 @@
     <DrawingImage x:Key="IconOpen">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 2 17 L 4 8 H 20 L 22 17 H 2 Z M 2 8 V 4 A 2 2 0 0 1 4 2 H 9 L 11 4 H 19 A 2 2 0 0 1 21 6 V 8">
-                    <GeometryDrawing.Pen><Pen Brush="#D97706" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Back Folder Folder -->
+                <GeometryDrawing Geometry="M 2 8 V 4 A 2 2 0 0 1 4 2 H 9 L 11 4 H 19 A 2 2 0 0 1 21 6 V 8">
+                    <GeometryDrawing.Pen><Pen Brush="#D97706" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Front Flap Angled -->
+                <GeometryDrawing Geometry="M 2 17 L 4.5 8 H 20.5 L 22 17 H 2 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#12D97706"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#D97706" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -99,8 +151,13 @@
     <DrawingImage x:Key="IconImport">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 4 15 V 19 A 2 2 0 0 0 6 21 H 18 A 2 2 0 0 0 20 19 V 15 M 12 3 V 15 M 7 10 L 12 15 L 17 10">
-                    <GeometryDrawing.Pen><Pen Brush="#D97706" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Import Tray -->
+                <GeometryDrawing Geometry="M 4 14 V 19 A 2 2 0 0 0 6 21 H 18 A 2 2 0 0 0 20 19 V 14">
+                    <GeometryDrawing.Pen><Pen Brush="#D97706" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Arrow Down -->
+                <GeometryDrawing Geometry="M 12 3 V 15 M 7 10 L 12 15 L 17 10">
+                    <GeometryDrawing.Pen><Pen Brush="#D97706" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -110,8 +167,13 @@
     <DrawingImage x:Key="IconExport">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 4 15 V 19 A 2 2 0 0 0 6 21 H 18 A 2 2 0 0 0 20 19 V 15 M 12 15 V 3 M 7 8 L 12 3 L 17 8">
-                    <GeometryDrawing.Pen><Pen Brush="#16A34A" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Export Tray -->
+                <GeometryDrawing Geometry="M 4 14 V 19 A 2 2 0 0 0 6 21 H 18 A 2 2 0 0 0 20 19 V 14">
+                    <GeometryDrawing.Pen><Pen Brush="#059669" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Arrow Up -->
+                <GeometryDrawing Geometry="M 12 15 V 3 M 7 8 L 12 3 L 17 8">
+                    <GeometryDrawing.Pen><Pen Brush="#059669" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -121,8 +183,11 @@
     <DrawingImage x:Key="IconExit">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 9 21 H 5 A 2 2 0 0 1 3 19 V 5 A 2 2 0 0 1 5 3 H 9 M 16 17 L 21 12 L 16 7 M 21 12 H 9">
-                    <GeometryDrawing.Pen><Pen Brush="#DC2626" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 9 21 H 5 A 2 2 0 0 1 3 19 V 5 A 2 2 0 0 1 5 3 H 9">
+                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 16 17 L 21 12 L 16 7 M 21 12 H 9">
+                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -133,7 +198,7 @@
         <DrawingImage.Drawing>
             <DrawingGroup>
                 <GeometryDrawing Geometry="M 9 14 L 4 9 L 9 4 M 4 9 H 14.5 A 5.5 5.5 0 0 1 20 14.5 A 5.5 5.5 0 0 1 14.5 20 H 11">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -144,7 +209,7 @@
         <DrawingImage.Drawing>
             <DrawingGroup>
                 <GeometryDrawing Geometry="M 15 14 L 20 9 L 15 4 M 20 9 H 9.5 A 5.5 5.5 0 0 0 4 14.5 A 5.5 5.5 0 0 0 9.5 20 H 13">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -154,8 +219,13 @@
     <DrawingImage x:Key="IconCut">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 6 9 A 3 3 0 1 0 6 3 A 3 3 0 0 0 6 9 Z M 6 21 A 3 3 0 1 0 6 15 A 3 3 0 0 0 6 21 Z M 20 4 L 8.12 15.88 M 14.47 14.48 L 20 20 M 8.12 8.12 L 12 12">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Finger loops -->
+                <GeometryDrawing Geometry="M 6 9 A 3 3 0 1 0 6 3 A 3 3 0 0 0 6 9 Z M 6 21 A 3 3 0 1 0 6 15 A 3 3 0 0 0 6 21 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Crossed Blades -->
+                <GeometryDrawing Geometry="M 20 4 L 8.12 15.88 M 14.47 14.48 L 20 20 M 8.12 8.12 L 12 12">
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -165,8 +235,14 @@
     <DrawingImage x:Key="IconCopy">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 15 2 H 9 A 2 2 0 0 0 7 4 V 6 H 5 A 2 2 0 0 0 3 8 V 20 A 2 2 0 0 0 5 22 H 15 A 2 2 0 0 0 17 20 V 18 H 19 A 2 2 0 0 0 21 16 V 8 Z M 9 4 H 19 V 14 H 9 Z M 5 8 H 15 V 20 H 5 Z">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Back Sheet -->
+                <GeometryDrawing Geometry="M 8 2 H 18 A 2 2 0 0 1 20 4 V 14">
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Front Sheet -->
+                <GeometryDrawing Geometry="M 4 6 H 14 A 2 2 0 0 1 16 8 V 20 A 2 2 0 0 1 14 22 H 4 A 2 2 0 0 1 2 20 V 8 A 2 2 0 0 1 4 6 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#0A475569"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -176,8 +252,19 @@
     <DrawingImage x:Key="IconPaste">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 16 4 H 18 A 2 2 0 0 1 20 6 V 20 A 2 2 0 0 1 18 22 H 6 A 2 2 0 0 1 4 20 V 6 A 2 2 0 0 1 6 4 H 8 M 9 2 H 15 A 1 1 0 0 1 16 3 V 5 A 1 1 0 0 1 15 6 H 9 A 1 1 0 0 1 8 5 V 3 A 1 1 0 0 1 9 2 Z M 8 12 H 16 M 8 16 H 14">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Clipboard Frame -->
+                <GeometryDrawing Geometry="M 16 4 H 18 A 2 2 0 0 1 20 6 V 20 A 2 2 0 0 1 18 22 H 6 A 2 2 0 0 1 4 20 V 6 A 2 2 0 0 1 6 4 H 8">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#0A0284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Top Clip -->
+                <GeometryDrawing Geometry="M 9 2 H 15 A 1 1 0 0 1 16 3 V 5 A 1 1 0 0 1 15 6 H 9 A 1 1 0 0 1 8 5 V 3 A 1 1 0 0 1 9 2 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Sheet Preview Lines -->
+                <GeometryDrawing Geometry="M 8 12 H 16 M 8 16 H 13">
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -187,8 +274,16 @@
     <DrawingImage x:Key="IconDuplicate">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 9 3 H 19 A 2 2 0 0 1 21 5 V 15 M 5 7 H 15 A 2 2 0 0 1 17 9 V 19 A 2 2 0 0 1 15 21 H 5 A 2 2 0 0 1 3 19 V 9 A 2 2 0 0 1 5 7 Z M 10 11 V 17 M 7 14 H 13">
-                    <GeometryDrawing.Pen><Pen Brush="#D97706" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 8 2 H 18 A 2 2 0 0 1 20 4 V 14">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 4 6 H 14 A 2 2 0 0 1 16 8 V 20 A 2 2 0 0 1 14 22 H 4 A 2 2 0 0 1 2 20 V 8 A 2 2 0 0 1 4 6 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#0A0284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Inner Plus -->
+                <GeometryDrawing Geometry="M 9 11 V 17 M 6 14 H 12">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -198,8 +293,18 @@
     <DrawingImage x:Key="IconDelete">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 3 6 H 21 M 19 6 V 20 A 2 2 0 0 1 17 22 H 7 A 2 2 0 0 1 5 20 V 6 M 8 6 V 3 A 1 1 0 0 1 9 2 H 15 A 1 1 0 0 1 16 3 V 6 M 10 11 V 17 M 14 11 V 17">
-                    <GeometryDrawing.Pen><Pen Brush="#DC2626" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Lid -->
+                <GeometryDrawing Geometry="M 3 6 H 21 M 8 6 V 3 A 1 1 0 0 1 9 2 H 15 A 1 1 0 0 1 16 3 V 6">
+                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Can Body -->
+                <GeometryDrawing Geometry="M 5 6 L 6.5 20 A 2 2 0 0 0 8.5 22 H 15.5 A 2 2 0 0 0 17.5 20 L 19 6">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#0AE11D48"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Flutes -->
+                <GeometryDrawing Geometry="M 10 11 V 17 M 14 11 V 17">
+                    <GeometryDrawing.Pen><Pen Brush="#E11D48" Thickness="1.5" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -209,8 +314,14 @@
     <DrawingImage x:Key="IconSelect">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 3 3 L 10 21 L 13 13 L 21 10 Z">
-                    <GeometryDrawing.Pen><Pen Brush="#2563EB" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Precision Pointer with Soft Fill -->
+                <GeometryDrawing Geometry="M 3 3 L 10.07 19.97 L 12.58 12.58 L 19.97 10.07 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#1E0284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Center Target Pip -->
+                <GeometryDrawing Geometry="M 12 12 L 17 17">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -220,8 +331,12 @@
     <DrawingImage x:Key="IconSelectAll">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 3 9 V 5 A 2 2 0 0 1 5 3 H 9 M 15 3 H 19 A 2 2 0 0 1 21 5 V 9 M 21 15 V 19 A 2 2 0 0 1 19 21 H 15 M 9 21 H 5 A 2 2 0 0 1 3 19 V 15 M 9 9 H 15 V 15 H 9 Z">
-                    <GeometryDrawing.Pen><Pen Brush="#2563EB" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 3 9 V 5 A 2 2 0 0 1 5 3 H 9 M 15 3 H 19 A 2 2 0 0 1 21 5 V 9 M 21 15 V 19 A 2 2 0 0 1 19 21 H 15 M 9 21 H 5 A 2 2 0 0 1 3 19 V 15">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 9 9 H 15 V 15 H 9 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -231,8 +346,12 @@
     <DrawingImage x:Key="IconZoomIn">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 11 19 A 8 8 0 1 0 11 3 A 8 8 0 0 0 11 19 Z M 21 21 L 16.65 16.65 M 11 8 V 14 M 8 11 H 14">
-                    <GeometryDrawing.Pen><Pen Brush="#2563EB" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 11 19 A 8 8 0 1 0 11 3 A 8 8 0 0 0 11 19 Z M 21 21 L 16.65 16.65">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#080284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 11 8 V 14 M 8 11 H 14">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -242,19 +361,31 @@
     <DrawingImage x:Key="IconZoomOut">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 11 19 A 8 8 0 1 0 11 3 A 8 8 0 0 0 11 19 Z M 21 21 L 16.65 16.65 M 8 11 H 14">
-                    <GeometryDrawing.Pen><Pen Brush="#2563EB" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 11 19 A 8 8 0 1 0 11 3 A 8 8 0 0 0 11 19 Z M 21 21 L 16.65 16.65">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#080284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 8 11 H 14">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 22. Reset Zoom (100%) -->
+    <!-- 22. Reset Zoom (100% / Fit) -->
     <DrawingImage x:Key="IconResetZoom">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 3 8 V 3 H 8 M 16 3 H 21 V 8 M 21 16 V 21 H 16 M 8 21 H 3 V 16 M 9 9 H 15 V 15 H 9 Z">
-                    <GeometryDrawing.Pen><Pen Brush="#2563EB" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- 4 Corner Brackets -->
+                <GeometryDrawing Geometry="M 3 8 V 3 H 8 M 16 3 H 21 V 8 M 21 16 V 21 H 16 M 8 21 H 3 V 16">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Center Target Reticle -->
+                <GeometryDrawing Geometry="M 12 9 V 15 M 9 12 H 15">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 12 7 V 8 M 12 16 V 17 M 7 12 H 8 M 16 12 H 17">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -264,8 +395,14 @@
     <DrawingImage x:Key="IconGroup">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 4 7 V 4 H 7 M 17 4 H 20 V 7 M 20 17 V 20 H 17 M 7 20 H 4 V 17 M 8 8 H 16 V 16 H 8 Z">
-                    <GeometryDrawing.Pen><Pen Brush="#4F46E5" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Outer Bounding Frame with Corner Nodes -->
+                <GeometryDrawing Geometry="M 3 7 V 3 H 7 M 17 3 H 21 V 7 M 21 17 V 21 H 17 M 7 21 H 3 V 17">
+                    <GeometryDrawing.Pen><Pen Brush="#4F46E5" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Grouped Objects -->
+                <GeometryDrawing Geometry="M 6 8 H 11 V 16 H 6 Z M 13 8 H 18 V 16 H 13 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#124F46E5"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#4F46E5" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -275,8 +412,14 @@
     <DrawingImage x:Key="IconUngroup">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 5 5 H 9 V 9 H 5 Z M 15 5 H 19 V 9 H 15 Z M 5 15 H 9 V 19 H 5 Z M 15 15 H 19 V 19 H 15 Z M 9 7 H 15 M 9 17 H 15 M 7 9 V 15 M 17 9 V 15">
-                    <GeometryDrawing.Pen><Pen Brush="#4F46E5" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Separated Elements -->
+                <GeometryDrawing Geometry="M 4 4 H 8 V 8 H 4 Z M 16 4 H 20 V 8 H 16 Z M 4 16 H 8 V 20 H 4 Z M 16 16 H 20 V 20 H 16 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#0A64748B"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#64748B" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Expansion Guides -->
+                <GeometryDrawing Geometry="M 8 6 H 16 M 8 18 H 16 M 6 8 V 16 M 18 8 V 16">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.2" DashStyle="{x:Static DashStyles.Dash}"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -286,8 +429,18 @@
     <DrawingImage x:Key="IconLayers">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 12 2 L 2 7 L 12 12 L 22 7 Z M 2 17 L 12 22 L 22 17 M 2 12 L 12 17 L 22 12">
-                    <GeometryDrawing.Pen><Pen Brush="#7C3AED" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Top Active Layer with Blueprint Accent -->
+                <GeometryDrawing Geometry="M 12 2 L 2 7 L 12 12 L 22 7 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#1E0284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Middle Layer -->
+                <GeometryDrawing Geometry="M 2 12 L 12 17 L 22 12">
+                    <GeometryDrawing.Pen><Pen Brush="#64748B" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Base Layer -->
+                <GeometryDrawing Geometry="M 2 17 L 12 22 L 22 17">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -297,8 +450,18 @@
     <DrawingImage x:Key="IconMoveToFront">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 3 9 H 15 V 21 H 3 Z M 9 3 H 21 V 15 H 15 M 15 7 L 18 4 L 21 7">
-                    <GeometryDrawing.Pen><Pen Brush="#7C3AED" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Base Layer -->
+                <GeometryDrawing Geometry="M 2 18 L 12 23 L 22 18 M 2 13 L 12 18 L 22 13">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Elevated Top Layer -->
+                <GeometryDrawing Geometry="M 12 6 L 2 11 L 12 16 L 22 11 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#1E0284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Upward Arrow to Summit -->
+                <GeometryDrawing Geometry="M 12 1 L 9 4 M 12 1 L 15 4 M 12 1 V 10">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -308,8 +471,18 @@
     <DrawingImage x:Key="IconMoveForward">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 4 8 H 16 V 20 H 4 Z M 9 3 H 19 V 13 M 12 7 L 15 4 L 18 7">
-                    <GeometryDrawing.Pen><Pen Brush="#7C3AED" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Lower Layer -->
+                <GeometryDrawing Geometry="M 2 16 L 12 21 L 22 16">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Active Layer -->
+                <GeometryDrawing Geometry="M 12 9 L 2 14 L 12 19 L 22 14 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#1E0284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Step Up Arrow -->
+                <GeometryDrawing Geometry="M 12 2 L 9 5 M 12 2 L 15 5 M 12 2 V 8">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -319,8 +492,17 @@
     <DrawingImage x:Key="IconSendBackward">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 8 4 H 20 V 16 H 8 Z M 4 9 H 14 V 20 M 6 17 L 9 20 L 12 17">
-                    <GeometryDrawing.Pen><Pen Brush="#7C3AED" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Top Layer -->
+                <GeometryDrawing Geometry="M 12 4 L 2 9 L 12 14 L 22 9 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Lower Active Layer -->
+                <GeometryDrawing Geometry="M 2 16 L 12 21 L 22 16">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Step Down Arrow -->
+                <GeometryDrawing Geometry="M 12 22 L 9 19 M 12 22 L 15 19 M 12 22 V 15">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -330,8 +512,13 @@
     <DrawingImage x:Key="IconSendToBack">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 9 3 H 21 V 15 H 9 Z M 3 9 H 15 V 21 H 3 Z M 6 17 L 9 20 L 12 17">
-                    <GeometryDrawing.Pen><Pen Brush="#7C3AED" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Upper Layers -->
+                <GeometryDrawing Geometry="M 12 2 L 2 7 L 12 12 L 22 7 Z M 2 12 L 12 17 L 22 12">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Plunge Arrow to Base -->
+                <GeometryDrawing Geometry="M 12 23 L 9 20 M 12 23 L 15 20 M 12 23 V 14">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -341,8 +528,16 @@
     <DrawingImage x:Key="IconAlignLeft">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 4 2 V 22 M 8 6 H 20 V 10 H 8 Z M 8 14 H 16 V 18 H 8 Z">
-                    <GeometryDrawing.Pen><Pen Brush="#0891B2" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 4 2 V 22">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.8" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 7 6 H 19 V 10 H 7 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 7 14 H 15 V 18 H 7 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -352,8 +547,16 @@
     <DrawingImage x:Key="IconAlignCenter">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 12 2 V 22 M 6 6 H 18 V 10 H 6 Z M 8 14 H 16 V 18 H 8 Z">
-                    <GeometryDrawing.Pen><Pen Brush="#0891B2" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 12 2 V 22">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.8" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 6 6 H 18 V 10 H 6 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 8 14 H 16 V 18 H 8 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -363,8 +566,16 @@
     <DrawingImage x:Key="IconAlignRight">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 20 2 V 22 M 4 6 H 16 V 10 H 4 Z M 8 14 H 16 V 18 H 8 Z">
-                    <GeometryDrawing.Pen><Pen Brush="#0891B2" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 20 2 V 22">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.8" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 5 6 H 17 V 10 H 5 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 9 14 H 17 V 18 H 9 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -374,8 +585,16 @@
     <DrawingImage x:Key="IconAlignTop">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 2 4 H 22 M 6 8 V 20 H 10 V 8 Z M 14 8 V 16 H 18 V 8 Z">
-                    <GeometryDrawing.Pen><Pen Brush="#0891B2" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 2 4 H 22">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.8" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 6 7 V 19 H 10 V 7 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 14 7 V 15 H 18 V 7 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -385,8 +604,16 @@
     <DrawingImage x:Key="IconAlignMiddle">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 2 12 H 22 M 6 6 V 18 H 10 V 6 Z M 14 8 V 16 H 18 V 8 Z">
-                    <GeometryDrawing.Pen><Pen Brush="#0891B2" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 2 12 H 22">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.8" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 6 6 V 18 H 10 V 6 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 14 8 V 16 H 18 V 8 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -396,8 +623,16 @@
     <DrawingImage x:Key="IconAlignBottom">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 2 20 H 22 M 6 4 V 16 H 10 V 4 Z M 14 8 V 16 H 18 V 8 Z">
-                    <GeometryDrawing.Pen><Pen Brush="#0891B2" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 2 20 H 22">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.8" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 6 5 V 17 H 10 V 5 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 14 9 V 17 H 18 V 9 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -407,8 +642,14 @@
     <DrawingImage x:Key="IconShowGrid">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 3 3 H 21 V 21 H 3 Z M 3 9 H 21 M 3 15 H 21 M 9 3 V 21 M 15 3 V 21">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Grid Frame -->
+                <GeometryDrawing Geometry="M 3 3 H 21 V 21 H 3 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#08475569"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Internal Grid Lines -->
+                <GeometryDrawing Geometry="M 3 9 H 21 M 3 15 H 21 M 9 3 V 21 M 15 3 V 21">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -418,19 +659,38 @@
     <DrawingImage x:Key="IconSnapToGrid">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 6 3 V 11 A 6 6 0 0 0 18 11 V 3 M 6 7 H 10 M 14 7 H 18">
-                    <GeometryDrawing.Pen><Pen Brush="#2563EB" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Precision Magnet -->
+                <GeometryDrawing Geometry="M 6 3 V 11 A 6 6 0 0 0 18 11 V 3">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#100284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Magnet Poles -->
+                <GeometryDrawing Geometry="M 6 7 H 10 M 14 7 H 18">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Snapping Crosshair -->
+                <GeometryDrawing Geometry="M 12 17 V 22 M 9 19.5 H 15">
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 38. Show Rulers -->
+    <!-- 38. Show Rulers (CAD Drafting Scale) -->
     <DrawingImage x:Key="IconShowRulers">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 3 5 H 21 V 19 H 3 Z M 7 5 V 9 M 11 5 V 8 M 15 5 V 9 M 19 5 V 8">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- L-Ruler Caliper Body -->
+                <GeometryDrawing Geometry="M 2 2 V 22 H 22">
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.8" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Vertical Scale Ticks -->
+                <GeometryDrawing Geometry="M 2 6 H 6 M 2 10 H 9 M 2 14 H 6 M 2 18 H 9">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Horizontal Scale Ticks -->
+                <GeometryDrawing Geometry="M 6 22 V 18 M 10 22 V 15 M 14 22 V 18 M 18 22 V 15">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -440,8 +700,12 @@
     <DrawingImage x:Key="IconDatabase">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 12 2 C 7 2 3 3.34 3 5 V 19 C 3 20.66 7 22 12 22 S 21 20.66 21 19 V 5 C 21 3.34 17 2 12 2 Z M 3 12 C 3 13.66 7 15 12 15 S 21 13.66 21 12 M 3 5 C 3 6.66 7 8 12 8 S 21 6.66 21 5">
-                    <GeometryDrawing.Pen><Pen Brush="#059669" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 12 2 C 7 2 3 3.34 3 5 V 19 C 3 20.66 7 22 12 22 S 21 20.66 21 19 V 5 C 21 3.34 17 2 12 2 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#0E059669"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#059669" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 3 12 C 3 13.66 7 15 12 15 S 21 13.66 21 12 M 3 5 C 3 6.66 7 8 12 8 S 21 6.66 21 5">
+                    <GeometryDrawing.Pen><Pen Brush="#059669" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -452,18 +716,36 @@
         <DrawingImage.Drawing>
             <DrawingGroup>
                 <GeometryDrawing Geometry="M 21 2 V 8 H 15 M 3 12 A 9 9 0 0 1 18.5 5.64 L 21 8 M 3 22 V 16 H 9 M 21 12 A 9 9 0 0 1 5.5 18.36 L 3 16">
-                    <GeometryDrawing.Pen><Pen Brush="#059669" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Pen><Pen Brush="#059669" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 41. Web Viewer -->
+    <!-- 41. Web Viewer (Browser Layout) -->
     <DrawingImage x:Key="IconWebViewer">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 12 2 A 10 10 0 1 0 12 22 A 10 10 0 0 0 12 2 Z M 2 12 H 22 M 12 2 A 15.3 15.3 0 0 1 16 12 A 15.3 15.3 0 0 1 12 22 A 15.3 15.3 0 0 1 8 12 A 15.3 15.3 0 0 1 12 2 Z">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Browser Window Frame -->
+                <GeometryDrawing Geometry="M 3 4 H 21 A 2 2 0 0 1 23 6 V 18 A 2 2 0 0 1 21 20 H 3 A 2 2 0 0 1 1 18 V 6 A 2 2 0 0 1 3 4 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#080284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Titlebar Divider -->
+                <GeometryDrawing Geometry="M 1 9 H 23">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Window Controls Dots -->
+                <GeometryDrawing Geometry="M 4 6.5 H 4.1 M 6.5 6.5 H 6.6 M 9 6.5 H 9.1">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Inner 2D Canvas Layout Elements -->
+                <GeometryDrawing Geometry="M 5 12 H 11 V 17 H 5 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#200284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.4" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 14 13 H 19 M 14 16 H 17">
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -473,8 +755,13 @@
     <DrawingImage x:Key="IconInspect">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 4 21 V 14 M 4 10 V 3 M 12 21 V 12 M 12 8 V 3 M 20 21 V 16 M 20 12 V 3 M 1 14 H 7 M 9 8 H 15 M 17 16 H 23">
-                    <GeometryDrawing.Pen><Pen Brush="#2563EB" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <!-- Parameter Slider Rails -->
+                <GeometryDrawing Geometry="M 5 21 V 3 M 12 21 V 3 M 19 21 V 3">
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.6" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Adjustable Thumb Markers -->
+                <GeometryDrawing Geometry="M 2 14 H 8 M 9 8 H 15 M 16 16 H 22">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -484,19 +771,24 @@
     <DrawingImage x:Key="IconThemeLight">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Geometry="M 12 8 A 4 4 0 1 0 12 16 A 4 4 0 0 0 12 8 Z M 12 2 V 4 M 12 20 V 22 M 4.93 4.93 L 6.34 6.34 M 17.66 17.66 L 19.07 19.07 M 2 12 H 4 M 20 12 H 22 M 4.93 19.07 L 6.34 17.66 M 17.66 6.34 L 19.07 4.93">
-                    <GeometryDrawing.Pen><Pen Brush="#D97706" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 12 8 A 4 4 0 1 0 12 16 A 4 4 0 0 0 12 8 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#1CD97706"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#D97706" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 12 2 V 4 M 12 20 V 22 M 4.93 4.93 L 6.34 6.34 M 17.66 17.66 L 19.07 19.07 M 2 12 H 4 M 20 12 H 22 M 4.93 19.07 L 6.34 17.66 M 17.66 6.34 L 19.07 4.93">
+                    <GeometryDrawing.Pen><Pen Brush="#D97706" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 44. Dark Theme (Moon) -->
+    <!-- 44. Dark Theme (Crescent Moon) -->
     <DrawingImage x:Key="IconThemeDark">
         <DrawingImage.Drawing>
             <DrawingGroup>
                 <GeometryDrawing Geometry="M 21 12.79 A 9 9 0 1 1 11.21 3 A 7 7 0 0 0 21 12.79 Z">
-                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#1E0284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -508,11 +800,12 @@
             <DrawingGroup>
                 <!-- Display Bezel -->
                 <GeometryDrawing Geometry="M 3 4 H 21 A 1 1 0 0 1 22 5 V 15 A 1 1 0 0 1 21 16 H 3 A 1 1 0 0 1 2 15 V 5 A 1 1 0 0 1 3 4 Z">
-                    <GeometryDrawing.Pen><Pen Brush="#2563EB" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#100284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
                 <!-- Stand Column & Base -->
                 <GeometryDrawing Geometry="M 12 16 V 20 M 8 20 H 16">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -522,10 +815,11 @@
         <DrawingImage.Drawing>
             <DrawingGroup>
                 <GeometryDrawing Geometry="M 3 4 H 21 A 1 1 0 0 1 22 5 V 15 A 1 1 0 0 1 21 16 H 3 A 1 1 0 0 1 2 15 V 5 A 1 1 0 0 1 3 4 Z">
-                    <GeometryDrawing.Pen><Pen Brush="#2563EB" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#100284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
                 <GeometryDrawing Geometry="M 12 16 V 20 M 8 20 H 16">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.6" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
@@ -535,42 +829,40 @@
     <DrawingImage x:Key="IconRoomTemplate">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <!-- Room Perimeter Walls with door opening -->
+                <!-- Room Perimeter Walls with Door Opening -->
                 <GeometryDrawing Geometry="M 3 21 V 3 H 21 V 21 H 15">
-                    <GeometryDrawing.Pen><Pen Brush="#2563EB" Thickness="2" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.8" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
                 <GeometryDrawing Geometry="M 3 21 H 8">
-                    <GeometryDrawing.Pen><Pen Brush="#2563EB" Thickness="2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.8" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Door swing arc -->
-                <GeometryDrawing Geometry="M 8 21 A 7 7 0 0 1 15 14">
-                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1" DashStyle="{x:Static DashStyles.Dash}"/></GeometryDrawing.Pen>
+                <!-- Door Leaf & Swing Arc -->
+                <GeometryDrawing Geometry="M 8 21 L 14 15">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <!-- Internal modular desks & workstations -->
-                <GeometryDrawing Brush="#E2E8F0" Geometry="M 6 6 H 18 V 10 H 6 Z">
-                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.5"/></GeometryDrawing.Pen>
+                <GeometryDrawing Geometry="M 8 21 A 6 6 0 0 1 14 15">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.2" DashStyle="{x:Static DashStyles.Dash}"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
-                <GeometryDrawing Brush="#4F46E5" Geometry="M 8 7 H 11 V 9 H 8 Z"/>
-                <GeometryDrawing Brush="#4F46E5" Geometry="M 13 7 H 16 V 9 H 13 Z"/>
+                <!-- Internal Modular Bench -->
+                <GeometryDrawing Geometry="M 6 6 H 18 V 10 H 6 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#150284C7"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="1.4" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
 
-    <!-- 47. Text Annotation -->
+    <!-- 47. Text Annotation (Precision CAD Sans-Serif "T") -->
     <DrawingImage x:Key="IconText">
         <DrawingImage.Drawing>
             <DrawingGroup>
-                <GeometryDrawing Brush="#2563EB">
-                    <GeometryDrawing.Geometry>
-                        <GeometryGroup>
-                            <!-- Top bar of T -->
-                            <RectangleGeometry Rect="3,4,18,3" RadiusX="0.5" RadiusY="0.5"/>
-                            <!-- Stem of T -->
-                            <RectangleGeometry Rect="10.5,7,3,12" RadiusX="0.5" RadiusY="0.5"/>
-                            <!-- Base serif of T -->
-                            <RectangleGeometry Rect="8,18,8,2" RadiusX="0.5" RadiusY="0.5"/>
-                        </GeometryGroup>
-                    </GeometryDrawing.Geometry>
+                <!-- Drafting Bounding Frame Corners -->
+                <GeometryDrawing Geometry="M 2 5 H 4 V 3 M 20 3 V 5 H 22 M 2 19 H 4 V 21 M 20 21 V 19 H 22">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.2" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Elegant Sans-Serif "T" Letterform -->
+                <GeometryDrawing Geometry="M 5 6 H 19 M 12 6 V 18 M 9 18 H 15">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.8" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
                 </GeometryDrawing>
             </DrawingGroup>
         </DrawingImage.Drawing>
