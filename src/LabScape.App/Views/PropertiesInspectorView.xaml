@@ -147,7 +147,8 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="X" FontWeight="Bold" FontSize="10.5" Foreground="{DynamicResource AppTextMutedBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                     <TextBox Grid.Column="1" Text="{Binding DisplayX, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEditCoordinates}"
-                                             ToolTip="{Binding CoordinatesToolTip}" BorderThickness="0" Background="Transparent" Padding="2" FontSize="11.5"/>
+                                             ToolTip="{Binding CoordinatesToolTip}" BorderThickness="0" Background="Transparent" Padding="2" FontSize="11.5"
+                                             FontFamily="Consolas, Segoe UI Variable Display, Segoe UI" FontWeight="SemiBold"/>
                                 </Grid>
                             </Border>
                             <!-- Y Input with micro-prefix -->
@@ -159,7 +160,8 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="Y" FontWeight="Bold" FontSize="10.5" Foreground="{DynamicResource AppTextMutedBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                     <TextBox Grid.Column="1" Text="{Binding DisplayY, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEditCoordinates}"
-                                             ToolTip="{Binding CoordinatesToolTip}" BorderThickness="0" Background="Transparent" Padding="2" FontSize="11.5"/>
+                                             ToolTip="{Binding CoordinatesToolTip}" BorderThickness="0" Background="Transparent" Padding="2" FontSize="11.5"
+                                             FontFamily="Consolas, Segoe UI Variable Display, Segoe UI" FontWeight="SemiBold"/>
                                 </Grid>
                             </Border>
                         </Grid>
@@ -180,7 +182,8 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="W" FontWeight="Bold" FontSize="10.5" Foreground="{DynamicResource AppTextMutedBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                     <TextBox Grid.Column="1" Text="{Binding CommonWidth, UpdateSourceTrigger=PropertyChanged}"
-                                             BorderThickness="0" Background="Transparent" Padding="2" FontSize="11.5"/>
+                                             BorderThickness="0" Background="Transparent" Padding="2" FontSize="11.5"
+                                             FontFamily="Consolas, Segoe UI Variable Display, Segoe UI" FontWeight="SemiBold"/>
                                 </Grid>
                             </Border>
                             <!-- Height Input -->
@@ -192,7 +195,8 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="H" FontWeight="Bold" FontSize="10.5" Foreground="{DynamicResource AppTextMutedBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                     <TextBox Grid.Column="1" Text="{Binding CommonHeight, UpdateSourceTrigger=PropertyChanged}"
-                                             BorderThickness="0" Background="Transparent" Padding="2" FontSize="11.5"/>
+                                             BorderThickness="0" Background="Transparent" Padding="2" FontSize="11.5"
+                                             FontFamily="Consolas, Segoe UI Variable Display, Segoe UI" FontWeight="SemiBold"/>
                                 </Grid>
                             </Border>
                         </Grid>
@@ -206,7 +210,8 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="∠" FontWeight="Bold" FontSize="11" Foreground="{DynamicResource AppTextMutedBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                 <TextBox Grid.Column="1" Text="{Binding CommonRotation, UpdateSourceTrigger=PropertyChanged}"
-                                         BorderThickness="0" Background="Transparent" Padding="2" FontSize="11.5"/>
+                                         BorderThickness="0" Background="Transparent" Padding="2" FontSize="11.5"
+                                         FontFamily="Consolas, Segoe UI Variable Display, Segoe UI" FontWeight="SemiBold"/>
                             </Grid>
                         </Border>
                     </StackPanel>
@@ -361,7 +366,8 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="Z (Layer):" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Text="{Binding CommonZ, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox Grid.Column="1" Text="{Binding CommonZ, UpdateSourceTrigger=PropertyChanged}"
+                                     FontFamily="Consolas, Segoe UI Variable Display, Segoe UI" FontWeight="SemiBold"/>
                         </Grid>
 
                         <!-- Standard Layer Action Buttons with Vector Icons -->

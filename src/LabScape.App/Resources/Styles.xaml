@@ -51,6 +51,14 @@
         </Setter>
     </Style>
 
+    <!-- Technical Tabular Monospace Coordinates TextBox -->
+    <Style x:Key="NumericCoordinateTextBoxStyle" TargetType="{x:Type TextBox}" BasedOn="{StaticResource {x:Type TextBox}}">
+        <Setter Property="FontFamily" Value="Consolas, Segoe UI Variable Display, Segoe UI"/>
+        <Setter Property="FontSize" Value="11.5"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="4,2"/>
+    </Style>
+
     <!-- ==================================================== -->
     <!-- PASSWORDBOX STYLE                                    -->
     <!-- ==================================================== -->

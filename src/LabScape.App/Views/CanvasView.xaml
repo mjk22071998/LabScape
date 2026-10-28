@@ -551,8 +551,8 @@
 
                 <!-- Marquee Selection Rectangle -->
                 <Rectangle x:Name="RubberbandRect"
-                           Stroke="#3B82F6" StrokeThickness="1.5" StrokeDashArray="3 2"
-                           Fill="#203B82F6"
+                           Stroke="{DynamicResource AccentPrimaryBrush}" StrokeThickness="1.5" StrokeDashArray="3 2"
+                           Fill="{DynamicResource AccentSubtleBrush}" Opacity="0.7"
                            Visibility="Collapsed"
                            Panel.ZIndex="9998"
                            IsHitTestVisible="False"/>
@@ -571,8 +571,8 @@
 
                 <!-- Drag & Drop Ghost Preview -->
                 <Border x:Name="DragGhost"
-                        BorderBrush="#3B82F6" BorderThickness="2"
-                        Background="#253B82F6" CornerRadius="4"
+                        BorderBrush="{DynamicResource AccentPrimaryBrush}" BorderThickness="1.5"
+                        Background="{DynamicResource AccentSubtleBrush}" CornerRadius="4" Opacity="0.75"
                         Visibility="Collapsed"
                         Panel.ZIndex="10000"
                         IsHitTestVisible="False"/>

@@ -133,6 +133,7 @@ public partial class MainWindow : RibbonWindow
         };
         Unloaded += (s, e) =>
         {
+            ViewModel.RequestRoomTemplateDialog -= ActivateRoomTemplateWindow;
             Services.ThemeService.ThemeChanged -= OnThemeChanged;
         };
     }

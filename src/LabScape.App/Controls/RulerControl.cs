@@ -56,7 +56,7 @@ public class RulerControl : FrameworkElement
     private static readonly Pen DefaultBorderPen = new(new SolidColorBrush(Color.FromRgb(222, 226, 230)), 1);
     private static readonly Pen DefaultTickPen = new(new SolidColorBrush(Color.FromRgb(173, 181, 189)), 1);
     private static readonly Pen DefaultCursorPen = new(new SolidColorBrush(Color.FromRgb(220, 53, 69)), 1.5);
-    private static readonly Typeface TextTypeface = new("Segoe UI");
+    private static readonly Typeface TextTypeface = new("Consolas");
 
     public RulerControl()
     {
