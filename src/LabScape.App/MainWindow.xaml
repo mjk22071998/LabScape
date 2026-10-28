@@ -157,18 +157,6 @@
                                    Icon="{StaticResource IconResetZoom}"/>
                 </fluent:RibbonGroupBox>
 
-                <!-- Grouping & Hierarchy -->
-                <fluent:RibbonGroupBox Header="Arrange">
-                    <fluent:Button Header="Group" Command="{Binding Canvas.GroupSelectedCommand}"
-                                   ToolTip="Group selected items (Ctrl+G)"
-                                   Size="Middle"
-                                   Icon="{StaticResource IconGroup}"/>
-                    <fluent:Button Header="Ungroup" Command="{Binding Canvas.UngroupSelectedCommand}"
-                                   ToolTip="Ungroup selected items (Ctrl+Shift+G)"
-                                   Size="Middle"
-                                   Icon="{StaticResource IconUngroup}"/>
-                </fluent:RibbonGroupBox>
-
                 <!-- Templates & Room Generator -->
                 <fluent:RibbonGroupBox Header="Templates">
                     <fluent:Button Header="Room Template" Click="RoomGenerator_Click"
@@ -193,20 +181,38 @@
                                    Icon="{StaticResource IconResetZoom}"/>
                 </fluent:RibbonGroupBox>
 
-                <!-- Layering & Arrange (Layers) -->
-                <fluent:RibbonGroupBox Header="Layers">
-                    <fluent:Button Header="To Front" Command="{Binding Canvas.MoveToFrontCommand}" ToolTip="Move to Front (Ctrl+Shift+] / Shift+PageUp)"
-                                   Size="Small"
-                                   Icon="{StaticResource IconMoveToFront}"/>
-                    <fluent:Button Header="Forward" Command="{Binding Canvas.MoveForwardCommand}" ToolTip="Move Forward (Ctrl+] / PageUp)"
-                                   Size="Small"
-                                   Icon="{StaticResource IconMoveForward}"/>
-                    <fluent:Button Header="Backward" Command="{Binding Canvas.SendBackwardCommand}" ToolTip="Send Backward (Ctrl+[ / PageDown)"
-                                   Size="Small"
-                                   Icon="{StaticResource IconSendBackward}"/>
-                    <fluent:Button Header="To Back" Command="{Binding Canvas.SendToBackCommand}" ToolTip="Send to Back (Ctrl+Shift+[ / Shift+PageDown)"
-                                   Size="Small"
-                                   Icon="{StaticResource IconSendToBack}"/>
+                <!-- Canvas Surface & Grid View -->
+                <fluent:RibbonGroupBox Header="Grid &amp; Guides">
+                    <fluent:CheckBox Header="Show Grid" IsChecked="{Binding Canvas.ShowGrid}"
+                                     Icon="{StaticResource IconShowGrid}"/>
+                    <fluent:CheckBox Header="Snap to Grid" IsChecked="{Binding Canvas.SnapToGrid}"
+                                     Icon="{StaticResource IconSnapToGrid}"/>
+                    <fluent:CheckBox Header="Show Rulers" IsChecked="{Binding Canvas.ShowRulers}"
+                                     Icon="{StaticResource IconShowRulers}"/>
+                </fluent:RibbonGroupBox>
+
+                <!-- Theme / Appearance -->
+                <fluent:RibbonGroupBox Header="Theme">
+                    <fluent:ToggleButton x:Name="BtnDarkTheme" Header="Dark Theme"
+                                         Click="ThemeToggle_Click"
+                                         ToolTip="Toggle Light / Dark Theme (F8)"
+                                         Size="Middle"
+                                         Icon="{StaticResource IconThemeDark}"/>
+                </fluent:RibbonGroupBox>
+            </fluent:RibbonTabItem>
+
+            <!-- 2. Arrange Tab (Grouping, Alignment & Layers) -->
+            <fluent:RibbonTabItem Header="Arrange">
+                <!-- Grouping & Hierarchy -->
+                <fluent:RibbonGroupBox Header="Grouping">
+                    <fluent:Button Header="Group" Command="{Binding Canvas.GroupSelectedCommand}"
+                                   ToolTip="Group selected items (Ctrl+G)"
+                                   Size="Middle"
+                                   Icon="{StaticResource IconGroup}"/>
+                    <fluent:Button Header="Ungroup" Command="{Binding Canvas.UngroupSelectedCommand}"
+                                   ToolTip="Ungroup selected items (Ctrl+Shift+G)"
+                                   Size="Middle"
+                                   Icon="{StaticResource IconUngroup}"/>
                 </fluent:RibbonGroupBox>
 
                 <!-- Align & Distribute -->
@@ -231,23 +237,20 @@
                                    Icon="{StaticResource IconAlignBottom}"/>
                 </fluent:RibbonGroupBox>
 
-                <!-- Canvas Surface & Grid View -->
-                <fluent:RibbonGroupBox Header="Grid &amp; Guides">
-                    <fluent:CheckBox Header="Show Grid" IsChecked="{Binding Canvas.ShowGrid}"
-                                     Icon="{StaticResource IconShowGrid}"/>
-                    <fluent:CheckBox Header="Snap to Grid" IsChecked="{Binding Canvas.SnapToGrid}"
-                                     Icon="{StaticResource IconSnapToGrid}"/>
-                    <fluent:CheckBox Header="Show Rulers" IsChecked="{Binding Canvas.ShowRulers}"
-                                     Icon="{StaticResource IconShowRulers}"/>
-                </fluent:RibbonGroupBox>
-
-                <!-- Theme / Appearance -->
-                <fluent:RibbonGroupBox Header="Theme">
-                    <fluent:ToggleButton x:Name="BtnDarkTheme" Header="Dark Theme"
-                                         Click="ThemeToggle_Click"
-                                         ToolTip="Toggle Light / Dark Theme (F8)"
-                                         Size="Middle"
-                                         Icon="{StaticResource IconThemeDark}"/>
+                <!-- Layering & Arrange (Layers) -->
+                <fluent:RibbonGroupBox Header="Layers">
+                    <fluent:Button Header="To Front" Command="{Binding Canvas.MoveToFrontCommand}" ToolTip="Move to Front (Ctrl+Shift+] / Shift+PageUp)"
+                                   Size="Small"
+                                   Icon="{StaticResource IconMoveToFront}"/>
+                    <fluent:Button Header="Forward" Command="{Binding Canvas.MoveForwardCommand}" ToolTip="Move Forward (Ctrl+] / PageUp)"
+                                   Size="Small"
+                                   Icon="{StaticResource IconMoveForward}"/>
+                    <fluent:Button Header="Backward" Command="{Binding Canvas.SendBackwardCommand}" ToolTip="Send Backward (Ctrl+[ / PageDown)"
+                                   Size="Small"
+                                   Icon="{StaticResource IconSendBackward}"/>
+                    <fluent:Button Header="To Back" Command="{Binding Canvas.SendToBackCommand}" ToolTip="Send to Back (Ctrl+Shift+[ / Shift+PageDown)"
+                                   Size="Small"
+                                   Icon="{StaticResource IconSendToBack}"/>
                 </fluent:RibbonGroupBox>
             </fluent:RibbonTabItem>
 

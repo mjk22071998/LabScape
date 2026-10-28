@@ -4,11 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Generate Room Layout Template"
-        SizeToContent="Height"
-        Width="520"
+        Title="Create New Room Template"
+        Height="780"
+        Width="640"
+        MinHeight="650"
+        MinWidth="540"
         WindowStartupLocation="CenterOwner"
-        ResizeMode="NoResize"
         Background="{DynamicResource DialogBackgroundBrush}">
 
     <Grid Margin="18">
@@ -19,145 +20,174 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="{DynamicResource SectionHeaderBackgroundBrush}" BorderBrush="{DynamicResource SectionHeaderBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="14" Margin="0,0,0,14">
+        <Border Grid.Row="0" Background="{DynamicResource SectionHeaderBackgroundBrush}"
+                BorderBrush="{DynamicResource SectionHeaderBorderBrush}"
+                BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,12">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Image Source="{StaticResource IconRoomTemplate}" Width="22" Height="22" Margin="0,0,8,0"/>
-                    <TextBlock Text="Automated Room &amp; Lab Template Generator" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource SectionHeaderForegroundBrush}" VerticalAlignment="Center"/>
+                    <Image Source="{StaticResource IconRoomTemplate}" Width="24" Height="24" Margin="0,0,10,0"/>
+                    <TextBlock Text="Create New Room Template" FontWeight="Bold" FontSize="15"
+                               Foreground="{DynamicResource SectionHeaderForegroundBrush}" VerticalAlignment="Center"/>
                 </StackPanel>
-                <TextBlock Text="Quickly create a complete room layout with line boundary walls, modular desks, chairs, and correctly oriented workstations."
-                           TextWrapping="Wrap" FontSize="11" Foreground="{DynamicResource SectionHeaderSubForegroundBrush}" Margin="30,4,0,0"/>
+                <TextBlock Text="Configure parameters to generate a reusable room layout. The live CAD preview below reflects the exact geometry that will display on canvas."
+                           TextWrapping="Wrap" FontSize="11" Foreground="{DynamicResource SectionHeaderSubForegroundBrush}" Margin="34,4,0,0"/>
             </StackPanel>
         </Border>
 
-        <!-- Form Fields -->
-        <StackPanel Grid.Row="1" Margin="0,0,0,14">
-            <!-- 1. Room Boundary & Sides -->
-            <GroupBox Header="1. Room Walls &amp; Layout Shape" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}" Margin="0,0,0,10">
-                <StackPanel Margin="10,8" TextElement.FontWeight="Normal">
-                    <TextBlock Text="Select number of boundary walls (max 4):" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,8"/>
-                    
-                    <WrapPanel Orientation="Horizontal" Margin="0,0,0,8">
-                        <RadioButton x:Name="Rb4Sides" GroupName="RoomSidesDialogGroup" Content="4 Sides (Full Room)" IsChecked="True" Checked="OptionChanged" Margin="0,0,16,6" FontWeight="SemiBold"/>
-                        <RadioButton x:Name="Rb3Sides" GroupName="RoomSidesDialogGroup" Content="3 Sides (U-Shape)" Checked="OptionChanged" Margin="0,0,16,6" FontWeight="SemiBold"/>
-                        <RadioButton x:Name="Rb2Sides" GroupName="RoomSidesDialogGroup" Content="2 Sides (Corner / Opposite)" Checked="OptionChanged" Margin="0,0,16,6" FontWeight="SemiBold"/>
-                        <RadioButton x:Name="Rb1Side" GroupName="RoomSidesDialogGroup" Content="1 Side (Bench / Row)" Checked="OptionChanged" Margin="0,0,16,6" FontWeight="SemiBold"/>
-                    </WrapPanel>
+        <!-- Scrollable Configuration Body -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,12" Padding="0,0,6,0">
+            <StackPanel>
 
-                    <!-- Open Side Selector (For 3 Sides) -->
-                    <Grid x:Name="Panel3Sides" Visibility="Collapsed" Margin="0,4,0,6">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="140"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="Open Entrance Side:" VerticalAlignment="Center" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
-                        <ComboBox x:Name="CmbOpenSide" Grid.Column="1" SelectionChanged="OptionChanged">
-                            <ComboBoxItem Content="South (Bottom Entrance)" IsSelected="True" Tag="South"/>
-                            <ComboBoxItem Content="North (Top Entrance)" Tag="North"/>
-                            <ComboBoxItem Content="East (Right Entrance)" Tag="East"/>
-                            <ComboBoxItem Content="West (Left Entrance)" Tag="West"/>
-                        </ComboBox>
-                    </Grid>
-
-                    <!-- 2-Side Selector (For 2 Sides: Corner or Opposite) -->
-                    <Grid x:Name="Panel2Sides" Visibility="Collapsed" Margin="0,4,0,6">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="140"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="2-Side Layout:" VerticalAlignment="Center" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
-                        <ComboBox x:Name="CmbCorner" Grid.Column="1" SelectionChanged="OptionChanged">
-                            <ComboBoxItem Content="North &amp; South (Opposite Facing Rows)" Tag="NorthSouth"/>
-                            <ComboBoxItem Content="West &amp; East (Opposite Facing Columns)" Tag="EastWest"/>
-                            <ComboBoxItem Content="North &amp; West (L-Corner Top-Left)" IsSelected="True" Tag="NorthWest"/>
-                            <ComboBoxItem Content="North &amp; East (L-Corner Top-Right)" Tag="NorthEast"/>
-                            <ComboBoxItem Content="South &amp; West (L-Corner Bottom-Left)" Tag="SouthWest"/>
-                            <ComboBoxItem Content="South &amp; East (L-Corner Bottom-Right)" Tag="SouthEast"/>
-                        </ComboBox>
-                    </Grid>
-
-                    <!-- Single Side Selector (For 1 Side) -->
-                    <Grid x:Name="Panel1Side" Visibility="Collapsed" Margin="0,4,0,6">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="140"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="Wall Direction:" VerticalAlignment="Center" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
-                        <ComboBox x:Name="CmbSingleSide" Grid.Column="1" SelectionChanged="OptionChanged">
-                            <ComboBoxItem Content="North (Top Wall)" IsSelected="True" Tag="North"/>
-                            <ComboBoxItem Content="South (Bottom Wall)" Tag="South"/>
-                            <ComboBoxItem Content="West (Left Wall)" Tag="West"/>
-                            <ComboBoxItem Content="East (Right Wall)" Tag="East"/>
-                        </ComboBox>
-                    </Grid>
-
-                    <!-- Autonomy Hint -->
-                    <Border Background="#F0FDF4" BorderBrush="#BBF7D0" BorderThickness="1" CornerRadius="4" Padding="8,6" Margin="0,4,0,0">
-                        <TextBlock Text="💡 Boundaries are generated using individual Line shapes (never a rigid rectangle), allowing you to easily shorten lines to create custom door openings or delete walls."
-                                   TextWrapping="Wrap" FontSize="11" Foreground="#15803D"/>
-                    </Border>
-                </StackPanel>
-            </GroupBox>
-
-            <!-- 2. Workstation Quantity & Modular Options -->
-            <GroupBox Header="2. Workstations &amp; Furniture" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}" Margin="0,0,0,10">
-                <StackPanel Margin="10,8" TextElement.FontWeight="Normal">
-                    <Grid Margin="0,0,0,10">
+                <!-- Template Metadata -->
+                <GroupBox Header="Template Identity" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}" Margin="0,0,0,10">
+                    <Grid Margin="10,8" TextElement.FontWeight="Normal">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="120"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="50"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="Number of PCs:" VerticalAlignment="Center" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
-                        <Slider x:Name="SliderPcCount" Grid.Column="1" Minimum="1" Maximum="48" Value="12" IsSnapToTickEnabled="True" TickFrequency="1"
-                                VerticalAlignment="Center" Margin="8,0" ValueChanged="SliderPcCount_ValueChanged"/>
-                        <TextBox x:Name="TxtPcCount" Grid.Column="2" Text="12" TextAlignment="Center" FontWeight="Bold" Padding="2"
-                                 TextChanged="TxtPcCount_TextChanged"/>
+                        <TextBlock Text="Template Name:" VerticalAlignment="Center" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
+                        <TextBox x:Name="TxtTemplateName" Grid.Column="1" Text="Custom 12-PC Lab" Padding="5,3" FontWeight="SemiBold"/>
                     </Grid>
+                </GroupBox>
 
-                    <CheckBox x:Name="ChkIncludeDesks" Content="Place PCs on Modular Desks (120×70)" IsChecked="True" Checked="OptionChanged" Unchecked="OptionChanged"
-                              Margin="0,0,0,6"/>
-                    <CheckBox x:Name="ChkIncludeChairs" Content="Include Office Swivel Chairs (Facing Desks)" IsChecked="True" Checked="OptionChanged" Unchecked="OptionChanged"
-                              Margin="0,0,0,6"/>
-                    <CheckBox x:Name="ChkGroupElements" Content="Group Room Components (Ctrl+Shift+G to ungroup at any time)" IsChecked="True" Checked="OptionChanged" Unchecked="OptionChanged"
-                              FontWeight="SemiBold" Margin="0,0,0,2"/>
-                </StackPanel>
-            </GroupBox>
+                <!-- 1. Room Boundary & Sides -->
+                <GroupBox Header="1. Room Walls &amp; Layout Shape" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}" Margin="0,0,0,10">
+                    <StackPanel Margin="10,8" TextElement.FontWeight="Normal">
+                        <TextBlock Text="Select boundary configuration:" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,8"/>
+                        
+                        <WrapPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <RadioButton x:Name="Rb4Sides" GroupName="RoomSidesDialogGroup" Content="4 Sides (Full Enclosed Room)" IsChecked="True" Checked="OptionChanged" Margin="0,0,18,6" FontWeight="SemiBold"/>
+                            <RadioButton x:Name="Rb3Sides" GroupName="RoomSidesDialogGroup" Content="3 Sides (U-Shape)" Checked="OptionChanged" Margin="0,0,18,6" FontWeight="SemiBold"/>
+                            <RadioButton x:Name="Rb2Sides" GroupName="RoomSidesDialogGroup" Content="2 Sides (Corner / Opposite)" Checked="OptionChanged" Margin="0,0,18,6" FontWeight="SemiBold"/>
+                            <RadioButton x:Name="Rb1Side" GroupName="RoomSidesDialogGroup" Content="1 Side (Bench / Row)" Checked="OptionChanged" Margin="0,0,18,6" FontWeight="SemiBold"/>
+                        </WrapPanel>
 
-            <!-- 3. Live Configuration Preview Readout -->
-            <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="12">
-                <StackPanel>
-                    <TextBlock Text="Summary &amp; Distribution Preview" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource AppTextPrimaryBrush}" Margin="0,0,0,6"/>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+                        <!-- Open Side Selector (For 3 Sides) -->
+                        <Grid x:Name="Panel3Sides" Visibility="Collapsed" Margin="0,4,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Open Entrance Side:" VerticalAlignment="Center" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
+                            <ComboBox x:Name="CmbOpenSide" Grid.Column="1" SelectionChanged="OptionChanged">
+                                <ComboBoxItem Content="South (Bottom Entrance)" IsSelected="True" Tag="South"/>
+                                <ComboBoxItem Content="North (Top Entrance)" Tag="North"/>
+                                <ComboBoxItem Content="East (Right Entrance)" Tag="East"/>
+                                <ComboBoxItem Content="West (Left Entrance)" Tag="West"/>
+                            </ComboBox>
+                        </Grid>
 
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Room Size:" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,2"/>
-                        <TextBlock x:Name="TxtSummaryDimensions" Grid.Row="0" Grid.Column="1" Text="580 × 580 px" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}" Margin="0,2"/>
+                        <!-- 2-Side Selector (For 2 Sides: Corner or Opposite) -->
+                        <Grid x:Name="Panel2Sides" Visibility="Collapsed" Margin="0,4,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="2-Side Layout:" VerticalAlignment="Center" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
+                            <ComboBox x:Name="CmbCorner" Grid.Column="1" SelectionChanged="OptionChanged">
+                                <ComboBoxItem Content="North &amp; South (Opposite Facing Rows)" Tag="NorthSouth"/>
+                                <ComboBoxItem Content="West &amp; East (Opposite Facing Columns)" Tag="EastWest"/>
+                                <ComboBoxItem Content="North &amp; West (L-Corner Top-Left)" IsSelected="True" Tag="NorthWest"/>
+                                <ComboBoxItem Content="North &amp; East (L-Corner Top-Right)" Tag="NorthEast"/>
+                                <ComboBoxItem Content="South &amp; West (L-Corner Bottom-Left)" Tag="SouthWest"/>
+                                <ComboBoxItem Content="South &amp; East (L-Corner Bottom-Right)" Tag="SouthEast"/>
+                            </ComboBox>
+                        </Grid>
 
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Perimeter Walls:" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,2"/>
-                        <TextBlock x:Name="TxtSummaryWalls" Grid.Row="1" Grid.Column="1" Text="4 Line segments" Foreground="{DynamicResource AppTextPrimaryBrush}" Margin="0,2"/>
+                        <!-- Single Side Selector (For 1 Side) -->
+                        <Grid x:Name="Panel1Side" Visibility="Collapsed" Margin="0,4,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Wall Direction:" VerticalAlignment="Center" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
+                            <ComboBox x:Name="CmbSingleSide" Grid.Column="1" SelectionChanged="OptionChanged">
+                                <ComboBoxItem Content="North (Top Wall)" IsSelected="True" Tag="North"/>
+                                <ComboBoxItem Content="South (Bottom Wall)" Tag="South"/>
+                                <ComboBoxItem Content="West (Left Wall)" Tag="West"/>
+                                <ComboBoxItem Content="East (Right Wall)" Tag="East"/>
+                            </ComboBox>
+                        </Grid>
+                    </StackPanel>
+                </GroupBox>
 
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Distribution:" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,2"/>
-                        <TextBlock x:Name="TxtSummaryDistribution" Grid.Row="2" Grid.Column="1" Text="North: 3 | East: 3 | South: 3 | West: 3" Foreground="{DynamicResource AppTextPrimaryBrush}" Margin="0,2"/>
-                    </Grid>
-                </StackPanel>
-            </Border>
-        </StackPanel>
+                <!-- 2. Workstations & Equipment -->
+                <GroupBox Header="2. Workstations &amp; Furniture" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}" Margin="0,0,0,10">
+                    <StackPanel Margin="10,8" TextElement.FontWeight="Normal">
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="54"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Number of PCs:" VerticalAlignment="Center" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
+                            <Slider x:Name="SliderPcCount" Grid.Column="1" Minimum="1" Maximum="48" Value="12" IsSnapToTickEnabled="True" TickFrequency="1"
+                                    VerticalAlignment="Center" Margin="8,0" ValueChanged="SliderPcCount_ValueChanged"/>
+                            <TextBox x:Name="TxtPcCount" Grid.Column="2" Text="12" TextAlignment="Center" FontWeight="Bold" Padding="2"
+                                     FontFamily="Consolas, Segoe UI" FontSize="12" TextChanged="TxtPcCount_TextChanged"/>
+                        </Grid>
 
-        <!-- Buttons Footer -->
+                        <WrapPanel Orientation="Horizontal">
+                            <CheckBox x:Name="ChkIncludeDesks" Content="Place PCs on Modular Desks (120×70)" IsChecked="True" Checked="OptionChanged" Unchecked="OptionChanged" Margin="0,0,16,6"/>
+                            <CheckBox x:Name="ChkIncludeChairs" Content="Include Swivel Chairs" IsChecked="True" Checked="OptionChanged" Unchecked="OptionChanged" Margin="0,0,16,6"/>
+                            <CheckBox x:Name="ChkGroupElements" Content="Group Room Components (Ctrl+G)" IsChecked="True" Checked="OptionChanged" Unchecked="OptionChanged" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- 3. Exact 2D Canvas Visual Blueprint Preview -->
+                <GroupBox Header="3. Live Visual Blueprint Preview (Exact Canvas Render)" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}" Margin="0,0,0,10">
+                    <StackPanel Margin="6">
+                        <!-- Blueprint Viewport Frame -->
+                        <Border Background="{DynamicResource CanvasBackgroundBrush}"
+                                BorderBrush="{DynamicResource CanvasGridBrush}"
+                                BorderThickness="1.5" CornerRadius="8" Height="260" ClipToBounds="True">
+                            <Grid>
+                                <!-- Viewbox with dynamically generated Canvas items -->
+                                <Viewbox Margin="14" Stretch="Uniform">
+                                    <Canvas x:Name="PreviewCanvas" Width="600" Height="600" Background="Transparent"/>
+                                </Viewbox>
+
+                                <!-- Readout Overlay Pill at Top Right -->
+                                <Border HorizontalAlignment="Right" VerticalAlignment="Top" Margin="8"
+                                        Background="{DynamicResource CardBackgroundBrush}"
+                                        BorderBrush="{DynamicResource CardBorderBrush}"
+                                        BorderThickness="1" CornerRadius="12" Padding="8,3">
+                                    <TextBlock x:Name="TxtOverlayDimensions" Text="580 × 580 px"
+                                               FontFamily="Consolas, Segoe UI" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource AccentPrimaryBrush}"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- Summary Readouts -->
+                        <Grid Margin="4,8,4,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Distribution:" Foreground="{DynamicResource AppTextSecondaryBrush}" FontSize="11" Margin="0,0,8,0"/>
+                            <TextBlock x:Name="TxtSummaryDistribution" Grid.Column="1" Text="North: 3 | East: 3 | South: 3 | West: 3"
+                                       FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}"/>
+                        </Grid>
+                    </StackPanel>
+                </GroupBox>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer Action Buttons -->
         <DockPanel Grid.Row="2" Margin="0,4,0,0">
+            <TextBlock Text="💡 Template will be permanently saved to your persistent template catalog."
+                       VerticalAlignment="Center" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
+
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Generate Room" Padding="18,7" FontWeight="Bold" Background="#4F46E5" Foreground="White"
-                        Click="BtnGenerate_Click" IsDefault="True" Margin="0,0,8,0"/>
-                <Button Content="Cancel" Padding="14,7" IsCancel="True"/>
+                <Button Content="Save to Template List" Padding="14,7" FontWeight="SemiBold"
+                        Click="BtnSaveOnly_Click" Margin="0,0,8,0" Cursor="Hand"/>
+                <Button Content="Save &amp; Insert on Canvas" Padding="16,7" FontWeight="Bold"
+                        Background="{DynamicResource AccentPrimaryBrush}" Foreground="White"
+                        Click="BtnSaveAndInsert_Click" IsDefault="True" Cursor="Hand" Margin="0,0,8,0"/>
+                <Button Content="Cancel" Padding="14,7" IsCancel="True" Cursor="Hand"/>
             </StackPanel>
         </DockPanel>
     </Grid>

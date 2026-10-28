@@ -2328,4 +2328,105 @@ public class CoreTests
         Assert.Contains("double worldShiftX = shiftLocalX * cos - shiftLocalY * sin;", code);
         Assert.Contains("double worldShiftY = shiftLocalX * sin + shiftLocalY * cos;", code);
     }
+
+    [Fact]
+    public void RoomTemplatePersistence_RoundTrip_SavesAndLoadsTemplatesCorrectly()
+    {
+        string tempDir = Path.Combine(Path.GetTempPath(), "LabScape_Tests_" + Guid.NewGuid().ToString("N"));
+        string tempFile = Path.Combine(tempDir, "templates.json");
+
+        try
+        {
+            // 1. Initial load from non-existent file returns default presets and saves them
+            var defaults = LabScape.ViewModels.Templates.RoomTemplatePersistence.LoadTemplates(tempFile);
+            Assert.NotEmpty(defaults);
+            Assert.True(File.Exists(tempFile));
+            Assert.Contains(defaults, t => t.Name == "12-PC Standard Lab");
+            Assert.Contains(defaults, t => t.Options.Sides == 4);
+
+            // 2. Add custom template and save
+            var custom = new LabScape.ViewModels.Templates.SavedRoomTemplate
+            {
+                Name = "Special 16-PC Studio",
+                Description = "Custom lab for testing",
+                Options = new LabScape.ViewModels.Templates.RoomTemplateOptions
+                {
+                    Sides = 3,
+                    OpenSide = LabScape.Core.Enums.WallSide.East,
+                    PcCount = 16
+                }
+            };
+            defaults.Add(custom);
+            LabScape.ViewModels.Templates.RoomTemplatePersistence.SaveTemplates(defaults, tempFile);
+
+            // 3. Reload from file and verify roundtrip preservation
+            var reloaded = LabScape.ViewModels.Templates.RoomTemplatePersistence.LoadTemplates(tempFile);
+            Assert.Equal(defaults.Count, reloaded.Count);
+            var found = reloaded.FirstOrDefault(t => t.Name == "Special 16-PC Studio");
+            Assert.NotNull(found);
+            Assert.Equal(3, found.Options.Sides);
+            Assert.Equal(LabScape.Core.Enums.WallSide.East, found.Options.OpenSide);
+            Assert.Equal(16, found.Options.PcCount);
+        }
+        finally
+        {
+            if (Directory.Exists(tempDir))
+            {
+                Directory.Delete(tempDir, true);
+            }
+        }
+    }
+
+    [Fact]
+    public void RoomTemplateViewModel_SavedTemplates_AddInsertDelete_MaintainsStateAndCanvas()
+    {
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo) { SnapToGrid = false };
+
+        var vm = new LabScape.ViewModels.Templates.RoomTemplateViewModel(() => canvas, autoLoadTemplates: false);
+
+        // 1. Populate with presets
+        var presets = LabScape.ViewModels.Templates.RoomTemplatePersistence.GetDefaultTemplates();
+        foreach (var p in presets)
+        {
+            vm.SavedTemplates.Add(p);
+        }
+        vm.SelectedTemplate = vm.SavedTemplates[0];
+
+        Assert.Equal(5, vm.SavedTemplates.Count);
+        Assert.NotNull(vm.SelectedTemplate);
+        Assert.Equal(12, vm.PcCount);
+        Assert.Equal(4, vm.Sides);
+
+        // 2. Select another template and verify options sync
+        var uShape = vm.SavedTemplates.First(t => t.Options.Sides == 3);
+        vm.SelectedTemplate = uShape;
+        Assert.Equal(3, vm.Sides);
+        Assert.Equal(8, vm.PcCount);
+
+        // 3. Insert template on canvas
+        Assert.Empty(canvas.Items);
+        vm.InsertTemplate(uShape);
+        Assert.NotEmpty(canvas.Items);
+
+        // 4. Add new template
+        var custom = new LabScape.ViewModels.Templates.SavedRoomTemplate
+        {
+            Name = "My Custom Room",
+            Options = new LabScape.ViewModels.Templates.RoomTemplateOptions
+            {
+                Sides = 2,
+                CornerOption = "NorthWest",
+                PcCount = 6
+            }
+        };
+        vm.AddSavedTemplate(custom, insertImmediately: false);
+        Assert.Equal(6, vm.SavedTemplates.Count);
+        Assert.Equal(custom, vm.SelectedTemplate);
+
+        // 5. Delete template
+        vm.DeleteTemplate(custom);
+        Assert.Equal(5, vm.SavedTemplates.Count);
+        Assert.DoesNotContain(custom, vm.SavedTemplates);
+    }
 }
