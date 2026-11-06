@@ -1187,6 +1187,55 @@ public class CoreTests
     }
 
     [Fact]
+    public void RoundedCornerTriangle_GeometryAndProperties_CalculatedCorrectly()
+    {
+        var roundedTriangle = new ShapeItemViewModel(new ShapeItem
+        {
+            Name = "RoundedTriangle",
+            ShapeType = ShapeType.RoundedCornerTriangle,
+            Width = 80,
+            Height = 80,
+            CornerRadius = 12
+        });
+
+        var undoService = new UndoRedoService();
+        var crCmd = new ModifyCornerRadiusCommand(roundedTriangle, 12, 24);
+        undoService.ExecuteCommand(crCmd);
+        Assert.Equal(24, roundedTriangle.CornerRadius);
+        undoService.Undo();
+        Assert.Equal(12, roundedTriangle.CornerRadius);
+        undoService.Redo();
+        Assert.Equal(24, roundedTriangle.CornerRadius);
+
+        // Verify ShapeGeometryHelper.cs contains proper trigonometric tangent fillet computation
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(projectRoot);
+        string helperPath = Path.Combine(projectRoot, "src", "LabScape.App", "Helpers", "ShapeGeometryHelper.cs");
+        string helperCode = File.ReadAllText(helperPath);
+        Assert.Contains("case ShapeType.RoundedCornerTriangle:", helperCode);
+        Assert.Contains("double lenSide = Math.Sqrt((w * w / 4.0) + (h * h));", helperCode);
+        Assert.Contains("Point t0In = new(p0.X - (t0 * u20.X), p0.Y - (t0 * u20.Y));", helperCode);
+        Assert.DoesNotContain("w - r * 1.5", helperCode);
+
+        // Verify web-viewer index.html contains updated drawRoundedTriangle with midpoint base
+        string webViewerPath = Path.Combine(projectRoot, "web-viewer", "index.html");
+        string webViewerCode = File.ReadAllText(webViewerPath);
+        Assert.Contains("drawRoundedTriangle(ctx, x, y, w, h, radius)", webViewerCode);
+        Assert.Contains("ctx.moveTo((p2.x + p3.x) / 2, p2.y);", webViewerCode);
+    }
+
+    [Fact]
     public void BezierCurve_HasFreeformEndpointsAndControlPoints_SupportsUndoRedoAndUnclippedRendering()
     {
         var bezier = new ShapeItemViewModel(new ShapeItem

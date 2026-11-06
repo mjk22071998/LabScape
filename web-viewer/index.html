@@ -982,16 +982,25 @@
     }
 
     function drawRoundedTriangle(ctx, x, y, w, h, radius) {
-      const r = Math.min(radius, w / 4, h / 4);
       const p1 = { x: x + w / 2, y: y };
       const p2 = { x: x + w, y: y + h };
       const p3 = { x: x, y: y + h };
 
+      if (!radius || radius <= 0.5) {
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.lineTo(p3.x, p3.y);
+        ctx.closePath();
+        return;
+      }
+
+      const r = Math.min(radius, w / 4, h / 4);
       ctx.beginPath();
-      ctx.moveTo(p1.x, p1.y + r);
-      ctx.arcTo(p2.x, p2.y, p3.x, p3.y, r);
-      ctx.arcTo(p3.x, p3.y, p1.x, p1.y, r);
-      ctx.arcTo(p1.x, p1.y, p2.x, p2.y, r);
+      ctx.moveTo((p2.x + p3.x) / 2, p2.y);
+      ctx.arcTo(p2.x, p2.y, p1.x, p1.y, r);
+      ctx.arcTo(p1.x, p1.y, p3.x, p3.y, r);
+      ctx.arcTo(p3.x, p3.y, p2.x, p2.y, r);
       ctx.closePath();
     }
 
