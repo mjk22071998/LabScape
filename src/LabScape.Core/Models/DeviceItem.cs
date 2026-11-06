@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 using LabScape.Core.Enums;
 
 namespace LabScape.Core.Models;
@@ -22,6 +22,9 @@ public class DeviceItem : LayoutItemBase
 
     [JsonPropertyName("validation_status")]
     public ValidationStatus ValidationStatus { get; set; } = ValidationStatus.Unassigned;
+
+    [JsonPropertyName("is_manual_ip")]
+    public bool IsManualIp { get; set; } = true;
 
     public DeviceItem()
     {

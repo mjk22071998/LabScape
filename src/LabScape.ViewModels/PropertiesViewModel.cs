@@ -107,6 +107,48 @@ public partial class PropertiesViewModel : ObservableObject
     private bool _isSingleDevice;
 
     [ObservableProperty]
+    private bool _isMultipleDevices;
+
+    [ObservableProperty]
+    private int _selectedDevicesCount;
+
+    [ObservableProperty]
+    private string _deviceIpAddress = string.Empty;
+
+    [ObservableProperty]
+    private string _deviceMacAddress = string.Empty;
+
+    [ObservableProperty]
+    private string _deviceId = string.Empty;
+
+    [ObservableProperty]
+    private bool _isManualIpMode = true;
+
+    [ObservableProperty]
+    private string _linkedDatabaseDeviceName = string.Empty;
+
+    [ObservableProperty]
+    private ValidationStatus _deviceValidationStatus = ValidationStatus.Unassigned;
+
+    [ObservableProperty]
+    private string _deviceValidationFeedback = "Unassigned";
+
+    [ObservableProperty]
+    private string _deviceValidationColor = "#F59E0B";
+
+    [ObservableProperty]
+    private string _batchStartIp = "192.168.1.101";
+
+    [ObservableProperty]
+    private int _batchIpStep = 1;
+
+    [ObservableProperty]
+    private string _batchNamePrefix = "PC-";
+
+    [ObservableProperty]
+    private bool _batchRenameDevices = true;
+
+    [ObservableProperty]
     private bool _isFurniture;
 
     [ObservableProperty]
@@ -299,8 +341,23 @@ public partial class PropertiesViewModel : ObservableObject
             HeaderTitle = string.Empty;
             HeaderSubtitle = string.Empty;
             DisplayName = string.Empty;
-            IsDevice = false;
+            var selectedDevs = _canvasViewModel != null ? _canvasViewModel.SelectedItems.OfType<DeviceItemViewModel>().ToList() : new List<DeviceItemViewModel>();
+            SelectedDevicesCount = selectedDevs.Count;
+            IsMultipleDevices = selectedDevs.Count > 1;
             IsSingleDevice = false;
+            IsDevice = selectedDevs.Count > 0;
+            if (IsMultipleDevices && string.IsNullOrWhiteSpace(BatchStartIp))
+            {
+                BatchStartIp = _canvasViewModel?.SuggestNextAvailableIp() ?? "192.168.1.101";
+            }
+            IsMultipleDevices = false;
+            SelectedDevicesCount = 0;
+            DeviceIpAddress = string.Empty;
+            DeviceMacAddress = string.Empty;
+            DeviceId = string.Empty;
+            LinkedDatabaseDeviceName = string.Empty;
+            DeviceValidationStatus = ValidationStatus.Unassigned;
+            DeviceValidationFeedback = "No device selected";
             IsFurniture = false;
             IsShape = false;
             IsGroup = false;
@@ -337,6 +394,25 @@ public partial class PropertiesViewModel : ObservableObject
 
             IsDevice = SelectedItem is DeviceItemViewModel;
             IsSingleDevice = IsDevice;
+            IsMultipleDevices = false;
+            SelectedDevicesCount = IsDevice ? 1 : 0;
+            if (SelectedItem is DeviceItemViewModel devSingle)
+            {
+                _isInternalPropertyUpdate = true;
+                try
+                {
+                    DeviceIpAddress = devSingle.IpAddress ?? string.Empty;
+                    DeviceMacAddress = devSingle.MacAddress ?? string.Empty;
+                    DeviceId = devSingle.DeviceId ?? string.Empty;
+                    IsManualIpMode = devSingle.IsManualIp;
+                    LinkedDatabaseDeviceName = devSingle.IsManualIp ? string.Empty : devSingle.Name;
+                    UpdateDeviceValidationDisplay(devSingle);
+                }
+                finally
+                {
+                    _isInternalPropertyUpdate = false;
+                }
+            }
             IsFurniture = SelectedItem is FurnitureItemViewModel;
             IsShape = SelectedItem is ShapeItemViewModel;
             IsGroup = SelectedItem is GroupItemViewModel;
@@ -431,6 +507,15 @@ public partial class PropertiesViewModel : ObservableObject
             nameof(TextItemViewModel.TextColor) or nameof(TextItemViewModel.Background))
         {
             SyncTextFromSelection();
+        }
+
+        if (e.PropertyName is nameof(DeviceItemViewModel.IpAddress) or
+            nameof(DeviceItemViewModel.MacAddress) or
+            nameof(DeviceItemViewModel.DeviceId) or
+            nameof(DeviceItemViewModel.ValidationStatus) or
+            nameof(DeviceItemViewModel.IsManualIp))
+        {
+            SyncDeviceFromSelection();
         }
     }
 
@@ -730,19 +815,313 @@ public partial class PropertiesViewModel : ObservableObject
         }
     }
 
+    private void SyncDeviceFromSelection()
+    {
+        if (SelectedItem is not DeviceItemViewModel dev) return;
+        _isInternalPropertyUpdate = true;
+        try
+        {
+            DeviceIpAddress = dev.IpAddress ?? string.Empty;
+            DeviceMacAddress = dev.MacAddress ?? string.Empty;
+            DeviceId = dev.DeviceId ?? string.Empty;
+            IsManualIpMode = dev.IsManualIp;
+            LinkedDatabaseDeviceName = dev.IsManualIp ? string.Empty : dev.Name;
+            UpdateDeviceValidationDisplay(dev);
+        }
+        finally
+        {
+            _isInternalPropertyUpdate = false;
+        }
+    }
+
+    private void UpdateDeviceValidationDisplay(DeviceItemViewModel dev)
+    {
+        DeviceValidationStatus = dev.ValidationStatus;
+        switch (dev.ValidationStatus)
+        {
+            case ValidationStatus.Valid:
+                DeviceValidationFeedback = "✓ Valid IPv4 Address";
+                DeviceValidationColor = "#10B981"; // Emerald Green
+                break;
+            case ValidationStatus.DuplicateIp:
+                DeviceValidationFeedback = "⛔ Conflict: Duplicate IP on canvas";
+                DeviceValidationColor = "#EF4444"; // Red
+                break;
+            case ValidationStatus.InvalidIpFormat:
+                DeviceValidationFeedback = "⚠️ Invalid IPv4 Format (e.g. 192.168.1.10)";
+                DeviceValidationColor = "#EF4444"; // Red
+                break;
+            case ValidationStatus.Unassigned:
+            default:
+                DeviceValidationFeedback = "⚠️ Unassigned (No IP Address)";
+                DeviceValidationColor = "#F59E0B"; // Amber
+                break;
+        }
+    }
+
+    partial void OnDeviceIpAddressChanged(string value)
+    {
+        if (_isInternalPropertyUpdate || SelectedItem is not DeviceItemViewModel dev) return;
+        string? trimmed = string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+        dev.IpAddress = trimmed;
+        dev.IsManualIp = true;
+        IsManualIpMode = true;
+        _canvasViewModel?.RecalculateValidation();
+        UpdateDeviceValidationDisplay(dev);
+    }
+
+    partial void OnDeviceMacAddressChanged(string value)
+    {
+        if (_isInternalPropertyUpdate || SelectedItem is not DeviceItemViewModel dev) return;
+        dev.MacAddress = string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+    }
+
+    partial void OnDeviceIdChanged(string value)
+    {
+        if (_isInternalPropertyUpdate || SelectedItem is not DeviceItemViewModel dev) return;
+        dev.DeviceId = string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+    }
+
+    [RelayCommand]
+    public void SetManualMode()
+    {
+        IsManualIpMode = true;
+        if (SelectedItem is DeviceItemViewModel dev)
+        {
+            dev.IsManualIp = true;
+            LinkedDatabaseDeviceName = string.Empty;
+        }
+    }
+
+    [RelayCommand]
+    public void SetDatabaseMode()
+    {
+        IsManualIpMode = false;
+    }
+
+    [RelayCommand]
+    public void SwitchToManualMode()
+    {
+        if (SelectedItem is DeviceItemViewModel dev)
+        {
+            dev.IsManualIp = true;
+            IsManualIpMode = true;
+            LinkedDatabaseDeviceName = string.Empty;
+        }
+    }
+
+    [RelayCommand]
+    public void AutoGenerateMac()
+    {
+        if (SelectedItem is not DeviceItemViewModel dev) return;
+        var r = new Random();
+        string mac = $"02:{r.Next(256):X2}:{r.Next(256):X2}:{r.Next(256):X2}:{r.Next(256):X2}:{r.Next(256):X2}";
+        string? oldMac = dev.MacAddress;
+        dev.MacAddress = mac;
+        DeviceMacAddress = mac;
+        _canvasViewModel?.UndoRedoService.ExecuteCommand(new AssignDeviceNetworkCommand(
+            dev,
+            oldIp: dev.IpAddress, newIp: dev.IpAddress,
+            oldMac: oldMac, newMac: mac,
+            oldDeviceId: dev.DeviceId, newDeviceId: dev.DeviceId,
+            oldName: dev.Name, newName: dev.Name,
+            oldIsManual: dev.IsManualIp, newIsManual: dev.IsManualIp));
+    }
+
+    [RelayCommand]
+    public void SuggestNextIp()
+    {
+        if (_canvasViewModel == null || SelectedItem is not DeviceItemViewModel dev) return;
+        string nextIp = _canvasViewModel.SuggestNextAvailableIp();
+        string? oldIp = dev.IpAddress;
+        dev.IpAddress = nextIp;
+        dev.IsManualIp = true;
+        IsManualIpMode = true;
+        DeviceIpAddress = nextIp;
+        _canvasViewModel.RecalculateValidation();
+        UpdateDeviceValidationDisplay(dev);
+
+        _canvasViewModel.UndoRedoService.ExecuteCommand(new AssignDeviceNetworkCommand(
+            dev,
+            oldIp: oldIp, newIp: nextIp,
+            oldMac: dev.MacAddress, newMac: dev.MacAddress,
+            oldDeviceId: dev.DeviceId, newDeviceId: dev.DeviceId,
+            oldName: dev.Name, newName: dev.Name,
+            oldIsManual: dev.IsManualIp, newIsManual: true,
+            onChanged: () => {
+                _canvasViewModel?.RecalculateValidation();
+                SyncDeviceFromSelection();
+            }));
+    }
+
+    [RelayCommand]
+    public void ClearDeviceIp()
+    {
+        if (SelectedItem is not DeviceItemViewModel dev) return;
+        string? oldIp = dev.IpAddress;
+        string? oldId = dev.DeviceId;
+        bool oldIsManual = dev.IsManualIp;
+
+        dev.IpAddress = null;
+        dev.DeviceId = null;
+        dev.IsManualIp = true;
+        IsManualIpMode = true;
+        LinkedDatabaseDeviceName = string.Empty;
+        DeviceIpAddress = string.Empty;
+        DeviceId = string.Empty;
+
+        _canvasViewModel?.RecalculateValidation();
+        UpdateDeviceValidationDisplay(dev);
+
+        _canvasViewModel?.UndoRedoService.ExecuteCommand(new AssignDeviceNetworkCommand(
+            dev,
+            oldIp: oldIp, newIp: null,
+            oldMac: dev.MacAddress, newMac: dev.MacAddress,
+            oldDeviceId: oldId, newDeviceId: null,
+            oldName: dev.Name, newName: dev.Name,
+            oldIsManual: oldIsManual, newIsManual: true,
+            onChanged: () => {
+                _canvasViewModel?.RecalculateValidation();
+                SyncDeviceFromSelection();
+            }));
+    }
+
     public void AssignIpToSelectedDevice(DatabaseDevice dbDevice)
     {
         if (SelectedItem is DeviceItemViewModel dev)
         {
+            string? oldIp = dev.IpAddress;
+            string? oldMac = dev.MacAddress;
+            string? oldId = dev.DeviceId;
+            string oldName = dev.Name;
+            bool oldIsManual = dev.IsManualIp;
+
+            string newName = dbDevice.DisplayName;
+
             dev.DeviceId = dbDevice.DeviceId;
             dev.IpAddress = dbDevice.PrimaryIp;
             dev.MacAddress = dbDevice.MacAddress;
-            if (string.IsNullOrWhiteSpace(dev.Name) || dev.Name.StartsWith("Desktop-") || dev.Name.StartsWith("Laptop-"))
-            {
-                dev.Name = dbDevice.DisplayName;
-            }
+            dev.Name = newName;
+            dev.IsManualIp = false;
+
+            IsManualIpMode = false;
+            LinkedDatabaseDeviceName = dbDevice.DisplayName;
+            DeviceIpAddress = dbDevice.PrimaryIp;
+            DeviceMacAddress = dbDevice.MacAddress;
+            DeviceId = dbDevice.DeviceId;
+            DisplayName = newName;
+
             _canvasViewModel?.RecalculateValidation();
+            UpdateDeviceValidationDisplay(dev);
+
+            _canvasViewModel?.UndoRedoService.ExecuteCommand(new AssignDeviceNetworkCommand(
+                dev,
+                oldIp: oldIp, newIp: dbDevice.PrimaryIp,
+                oldMac: oldMac, newMac: dbDevice.MacAddress,
+                oldDeviceId: oldId, newDeviceId: dbDevice.DeviceId,
+                oldName: oldName, newName: newName,
+                oldIsManual: oldIsManual, newIsManual: false,
+                onChanged: () => {
+                    _canvasViewModel?.RecalculateValidation();
+                    SyncDeviceFromSelection();
+                }));
         }
+    }
+
+    [RelayCommand]
+    public void BatchAssignSequentialIps()
+    {
+        if (_canvasViewModel == null) return;
+        var devices = _canvasViewModel.SelectedItems.OfType<DeviceItemViewModel>()
+            .OrderBy(d => Math.Round(d.Y / 30.0)) // Row first
+            .ThenBy(d => d.X)                    // Then column
+            .ToList();
+
+        if (devices.Count == 0) return;
+
+        string startIp = string.IsNullOrWhiteSpace(BatchStartIp) ? "192.168.1.101" : BatchStartIp.Trim();
+        if (!CanvasViewModel.IsValidIPv4(startIp))
+        {
+            startIp = "192.168.1.101";
+        }
+
+        var states = new List<BatchAssignDeviceNetworkCommand.DeviceNetworkState>();
+        var r = new Random();
+
+        for (int i = 0; i < devices.Count; i++)
+        {
+            var dev = devices[i];
+            TryIncrementIp(startIp, i * Math.Max(1, BatchIpStep), out string assignedIp);
+
+            string? newMac = !string.IsNullOrWhiteSpace(dev.MacAddress)
+                ? dev.MacAddress
+                : $"02:{r.Next(256):X2}:{r.Next(256):X2}:{r.Next(256):X2}:{r.Next(256):X2}:{r.Next(256):X2}";
+
+            string newName = BatchRenameDevices
+                ? $"{BatchNamePrefix.Trim()}{i + 1:D2}"
+                : dev.Name;
+
+            states.Add(new BatchAssignDeviceNetworkCommand.DeviceNetworkState(
+                dev,
+                OldIp: dev.IpAddress, NewIp: assignedIp,
+                OldMac: dev.MacAddress, NewMac: newMac,
+                OldDeviceId: dev.DeviceId, NewDeviceId: dev.DeviceId,
+                OldName: dev.Name, NewName: newName,
+                OldIsManual: dev.IsManualIp, NewIsManual: true));
+        }
+
+        var batchCmd = new BatchAssignDeviceNetworkCommand(states, onChanged: () => {
+            _canvasViewModel?.RecalculateValidation();
+            UpdateSelection();
+        });
+
+        _canvasViewModel.UndoRedoService.ExecuteCommand(batchCmd);
+        _canvasViewModel.RecalculateValidation();
+        UpdateSelection();
+    }
+
+    [RelayCommand]
+    public void BatchClearIps()
+    {
+        if (_canvasViewModel == null) return;
+        var devices = _canvasViewModel.SelectedItems.OfType<DeviceItemViewModel>().ToList();
+        if (devices.Count == 0) return;
+
+        var states = devices.Select(dev => new BatchAssignDeviceNetworkCommand.DeviceNetworkState(
+            dev,
+            OldIp: dev.IpAddress, NewIp: null,
+            OldMac: dev.MacAddress, NewMac: dev.MacAddress,
+            OldDeviceId: dev.DeviceId, NewDeviceId: null,
+            OldName: dev.Name, NewName: dev.Name,
+            OldIsManual: dev.IsManualIp, NewIsManual: true)).ToList();
+
+        var batchCmd = new BatchAssignDeviceNetworkCommand(states, onChanged: () => {
+            _canvasViewModel?.RecalculateValidation();
+            UpdateSelection();
+        });
+
+        _canvasViewModel.UndoRedoService.ExecuteCommand(batchCmd);
+        _canvasViewModel.RecalculateValidation();
+        UpdateSelection();
+    }
+
+    public static bool TryIncrementIp(string baseIp, int step, out string nextIp)
+    {
+        nextIp = baseIp;
+        if (!System.Net.IPAddress.TryParse(baseIp, out var ip)) return false;
+        var bytes = ip.GetAddressBytes();
+        if (bytes.Length != 4) return false;
+
+        uint intAddress = ((uint)bytes[0] << 24) | ((uint)bytes[1] << 16) | ((uint)bytes[2] << 8) | bytes[3];
+        intAddress += (uint)step;
+
+        byte b0 = (byte)((intAddress >> 24) & 0xFF);
+        byte b1 = (byte)((intAddress >> 16) & 0xFF);
+        byte b2 = (byte)((intAddress >> 8) & 0xFF);
+        byte b3 = (byte)(intAddress & 0xFF);
+
+        nextIp = $"{b0}.{b1}.{b2}.{b3}";
+        return true;
     }
 
     private string _initialFill = "#E0E7FF";

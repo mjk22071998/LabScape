@@ -1,8 +1,9 @@
-﻿namespace LabScape.Core.Enums;
+namespace LabScape.Core.Enums;
 
 public enum ValidationStatus
 {
     Valid,
     Unassigned,
-    DuplicateIp
+    DuplicateIp,
+    InvalidIpFormat
 }

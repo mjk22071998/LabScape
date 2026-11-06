@@ -115,10 +115,22 @@
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
+            <Separator/>
+            <MenuItem Header="Assign IP Address (Manual / Batch)..." Click="ItemContextMenu_AssignIp_Click">
+                <MenuItem.Icon>
+                    <TextBlock Text="🌐" FontSize="13" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </MenuItem.Icon>
+            </MenuItem>
         </ContextMenu>
 
         <!-- Canvas Background Context Menu -->
         <ContextMenu x:Key="CanvasContextMenu">
+            <MenuItem Header="Batch Assign Workstation IPs..." Click="CanvasContextMenu_BatchAssignIp_Click">
+                <MenuItem.Icon>
+                    <TextBlock Text="🌐" FontSize="13" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </MenuItem.Icon>
+            </MenuItem>
+            <Separator/>
             <MenuItem Header="Paste" Command="{Binding PasteCommand}" InputGestureText="Ctrl+V">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconPaste}" Width="15" Height="15"/>
@@ -318,6 +330,11 @@
                                                     <Setter Property="BorderBrush" Value="#EF4444"/>
                                                     <Setter Property="BorderThickness" Value="1.5"/>
                                                 </DataTrigger>
+                                                <DataTrigger Binding="{Binding ValidationStatus}" Value="InvalidIpFormat">
+                                                    <Setter Property="Background" Value="#FEE2E2"/>
+                                                    <Setter Property="BorderBrush" Value="#EF4444"/>
+                                                    <Setter Property="BorderThickness" Value="1.5"/>
+                                                </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
@@ -332,6 +349,10 @@
                                                     <DataTrigger Binding="{Binding ValidationStatus}" Value="DuplicateIp">
                                                         <Setter Property="Text" Value="⛔"/>
                                                         <Setter Property="ToolTip" Value="Conflict: Duplicate IP Address assigned!"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding ValidationStatus}" Value="InvalidIpFormat">
+                                                        <Setter Property="Text" Value="⚠️"/>
+                                                        <Setter Property="ToolTip" Value="Error: Invalid IPv4 Address format!"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>

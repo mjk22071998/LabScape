@@ -478,3 +478,115 @@ public class ModifyShapeStyleCommand : IUndoableCommand
         }
     }
 }
+
+
+public class AssignDeviceNetworkCommand : IUndoableCommand
+{
+    private readonly DeviceItemViewModel _device;
+    private readonly string? _oldIp;
+    private readonly string? _newIp;
+    private readonly string? _oldMac;
+    private readonly string? _newMac;
+    private readonly string? _oldDeviceId;
+    private readonly string? _newDeviceId;
+    private readonly string? _oldName;
+    private readonly string? _newName;
+    private readonly bool _oldIsManual;
+    private readonly bool _newIsManual;
+    private readonly Action? _onChanged;
+
+    public string Description => $"Configure IP for {_device.Name}";
+
+    public AssignDeviceNetworkCommand(
+        DeviceItemViewModel device,
+        string? oldIp, string? newIp,
+        string? oldMac, string? newMac,
+        string? oldDeviceId, string? newDeviceId,
+        string? oldName, string? newName,
+        bool oldIsManual, bool newIsManual,
+        Action? onChanged = null)
+    {
+        _device = device;
+        _oldIp = oldIp;
+        _newIp = newIp;
+        _oldMac = oldMac;
+        _newMac = newMac;
+        _oldDeviceId = oldDeviceId;
+        _newDeviceId = newDeviceId;
+        _oldName = oldName;
+        _newName = newName;
+        _oldIsManual = oldIsManual;
+        _newIsManual = newIsManual;
+        _onChanged = onChanged;
+    }
+
+    public void Execute()
+    {
+        _device.IpAddress = _newIp;
+        _device.MacAddress = _newMac;
+        _device.DeviceId = _newDeviceId;
+        if (_newName != null) _device.Name = _newName;
+        _device.IsManualIp = _newIsManual;
+        _onChanged?.Invoke();
+    }
+
+    public void Unexecute()
+    {
+        _device.IpAddress = _oldIp;
+        _device.MacAddress = _oldMac;
+        _device.DeviceId = _oldDeviceId;
+        if (_oldName != null) _device.Name = _oldName;
+        _device.IsManualIp = _oldIsManual;
+        _onChanged?.Invoke();
+    }
+}
+
+public class BatchAssignDeviceNetworkCommand : IUndoableCommand
+{
+    public record DeviceNetworkState(
+        DeviceItemViewModel Device,
+        string? OldIp, string? NewIp,
+        string? OldMac, string? NewMac,
+        string? OldDeviceId, string? NewDeviceId,
+        string? OldName, string? NewName,
+        bool OldIsManual, bool NewIsManual);
+
+    private readonly List<DeviceNetworkState> _entries;
+    private readonly Action? _onChanged;
+
+    public string Description => $"Batch assign network settings to {_entries.Count} devices";
+
+    public IReadOnlyList<DeviceNetworkState> Entries => _entries;
+
+    public BatchAssignDeviceNetworkCommand(IEnumerable<DeviceNetworkState> entries, Action? onChanged = null)
+    {
+        _entries = entries.ToList();
+        _onChanged = onChanged;
+    }
+
+    public void Execute()
+    {
+        foreach (var e in _entries)
+        {
+            e.Device.IpAddress = e.NewIp;
+            e.Device.MacAddress = e.NewMac;
+            e.Device.DeviceId = e.NewDeviceId;
+            if (e.NewName != null) e.Device.Name = e.NewName;
+            e.Device.IsManualIp = e.NewIsManual;
+        }
+        _onChanged?.Invoke();
+    }
+
+    public void Unexecute()
+    {
+        foreach (var e in _entries)
+        {
+            e.Device.IpAddress = e.OldIp;
+            e.Device.MacAddress = e.OldMac;
+            e.Device.DeviceId = e.OldDeviceId;
+            if (e.OldName != null) e.Device.Name = e.OldName;
+            e.Device.IsManualIp = e.OldIsManual;
+        }
+        _onChanged?.Invoke();
+    }
+}

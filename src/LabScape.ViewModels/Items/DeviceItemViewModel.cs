@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using LabScape.Core.Enums;
 using LabScape.Core.Models;
 
@@ -23,6 +23,9 @@ public partial class DeviceItemViewModel : ItemViewModel
     [ObservableProperty]
     private ValidationStatus _validationStatus;
 
+    [ObservableProperty]
+    private bool _isManualIp = true;
+
     /// <summary>
     /// Requirement: ONLY device items show their name below the icon on the canvas.
     /// </summary>
@@ -35,6 +38,7 @@ public partial class DeviceItemViewModel : ItemViewModel
         _macAddress = model.MacAddress;
         _deviceType = model.DeviceType;
         _validationStatus = model.ValidationStatus;
+        _isManualIp = model.IsManualIp;
     }
 
     partial void OnDeviceIdChanged(string? value) => DeviceModel.DeviceId = value;
@@ -42,4 +46,5 @@ public partial class DeviceItemViewModel : ItemViewModel
     partial void OnMacAddressChanged(string? value) => DeviceModel.MacAddress = value;
     partial void OnDeviceTypeChanged(string value) => DeviceModel.DeviceType = value;
     partial void OnValidationStatusChanged(ValidationStatus value) => DeviceModel.ValidationStatus = value;
+    partial void OnIsManualIpChanged(bool value) => DeviceModel.IsManualIp = value;
 }
