@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using LabScape.App.Helpers;
 using LabScape.Core.Enums;
 using LabScape.Core.Interfaces;
 using LabScape.ViewModels;
@@ -427,6 +428,7 @@ public class SelectionAdorner : Adorner
             if (IsHit(p, pRot, rotHitRadius))
             {
                 _activeDrag = DragMode.Rotate;
+                Cursor = CursorHelper.GetRotationCursor(_item.Rotation);
                 SetupRotateDrag(e, w, h);
                 CaptureMouse();
                 e.Handled = true;
@@ -497,6 +499,7 @@ public class SelectionAdorner : Adorner
             else if (IsHit(p, pRot, rotHitRadius))
             {
                 _activeDrag = DragMode.Rotate;
+                Cursor = CursorHelper.GetRotationCursor(_item.Rotation);
                 SetupRotateDrag(e, w, h);
                 CaptureMouse();
                 e.Handled = true;
@@ -555,6 +558,7 @@ public class SelectionAdorner : Adorner
         if (IsHit(p, pRotStandard, rotHitRadius))
         {
             _activeDrag = DragMode.Rotate;
+            Cursor = CursorHelper.GetRotationCursor(_item.Rotation);
             SetupRotateDrag(e, w, h);
             CaptureMouse();
             e.Handled = true;
@@ -979,6 +983,7 @@ public class SelectionAdorner : Adorner
                 }
 
                 _item.Rotation = Math.Round(targetRot, 1);
+                Cursor = CursorHelper.GetRotationCursor(_item.Rotation);
                 InvalidateAdorner();
                 break;
             }
@@ -1120,7 +1125,7 @@ public class SelectionAdorner : Adorner
             Point pRot = new(w / 2.0, h / 2.0 - rotOffset);
 
             if (IsHit(p, pRot, rotHitRadius))
-                Cursor = Cursors.Hand;
+                Cursor = CursorHelper.GetRotationCursor(_item.Rotation);
             else if (IsHit(p, pStart, hitRadius) || IsHit(p, pEnd, hitRadius))
                 Cursor = Cursors.Cross;
             else
@@ -1139,7 +1144,9 @@ public class SelectionAdorner : Adorner
             double topY = Math.Min(Math.Min(pStart.Y, pEnd.Y), Math.Min(cp1.Y, cp2.Y));
             Point pRot = new(midX, topY - rotOffset);
 
-            if (IsHit(p, pRot, rotHitRadius) || IsHit(p, cp1, specialHitRadius) || IsHit(p, cp2, specialHitRadius))
+            if (IsHit(p, pRot, rotHitRadius))
+                Cursor = CursorHelper.GetRotationCursor(_item.Rotation);
+            else if (IsHit(p, cp1, specialHitRadius) || IsHit(p, cp2, specialHitRadius))
                 Cursor = Cursors.Hand;
             else if (IsHit(p, pStart, hitRadius) || IsHit(p, pEnd, hitRadius))
                 Cursor = Cursors.Cross;
@@ -1175,7 +1182,7 @@ public class SelectionAdorner : Adorner
         Point pRotStandard = new(w / 2, -offset - rotOffset);
         if (IsHit(p, pRotStandard, rotHitRadius))
         {
-            Cursor = Cursors.Hand;
+            Cursor = CursorHelper.GetRotationCursor(_item.Rotation);
             return;
         }
 

@@ -5982,4 +5982,49 @@ public class CoreTests
         Assert.Contains("initialGroupRot", canvasCode);
         Assert.Contains("_currentMultiAdorner.GroupRotation", canvasCode);
     }
+
+
+    [Fact]
+    public void RotationCursor_CursorHelper_AdornersUseVectorRotationCursor()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(projectRoot);
+
+        // 1. Verify CursorHelper implementation
+        string cursorHelperPath = Path.Combine(projectRoot, "src", "LabScape.App", "Helpers", "CursorHelper.cs");
+        Assert.True(File.Exists(cursorHelperPath), "CursorHelper.cs should exist in LabScape.App/Helpers");
+        string helperCode = File.ReadAllText(cursorHelperPath);
+
+        Assert.Contains("public static Cursor RotationCursor", helperCode);
+        Assert.Contains("public static Cursor GetRotationCursor(double angleDegrees", helperCode);
+        Assert.Contains("RotationPathData", helperCode);
+        Assert.Contains("PngBitmapEncoder", helperCode);
+        Assert.Contains("writer.Write((ushort)2);", helperCode); // .cur resource type 2
+        Assert.Contains("writer.Write((ushort)16);", helperCode); // hotspot X/Y = 16
+
+        // 2. Verify MultiSelectionAdorner references CursorHelper.GetRotationCursor
+        string multiAdornerPath = Path.Combine(projectRoot, "src", "LabScape.App", "Adorners", "MultiSelectionAdorner.cs");
+        Assert.True(File.Exists(multiAdornerPath));
+        string multiCode = File.ReadAllText(multiAdornerPath);
+        Assert.Contains("Cursor = CursorHelper.GetRotationCursor", multiCode);
+        Assert.DoesNotContain("pRot, rotHitRadius)) { Cursor = Cursors.Hand;", multiCode);
+
+        // 3. Verify SelectionAdorner references CursorHelper.GetRotationCursor
+        string singleAdornerPath = Path.Combine(projectRoot, "src", "LabScape.App", "Adorners", "SelectionAdorner.cs");
+        Assert.True(File.Exists(singleAdornerPath));
+        string singleCode = File.ReadAllText(singleAdornerPath);
+        Assert.Contains("CursorHelper.GetRotationCursor", singleCode);
+        Assert.DoesNotContain("pRotStandard, rotHitRadius))\n        {\n            Cursor = Cursors.Hand;", singleCode.Replace("\r\n", "\n"));
+    }
 }

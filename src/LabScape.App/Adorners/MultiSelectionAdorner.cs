@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using LabScape.App.Helpers;
 using LabScape.Core.Interfaces;
 using LabScape.ViewModels.Commands;
 using LabScape.ViewModels.Items;
@@ -360,6 +361,7 @@ public class MultiSelectionAdorner : Adorner
         if (IsHit(localP, pRot, rotHitRadius))
         {
             _activeDrag = DragMode.Rotate;
+            Cursor = CursorHelper.GetRotationCursor(rot);
             double clickDx = p.X - _initialCenter.X;
             double clickDy = p.Y - _initialCenter.Y;
             double clickAngleRad = Math.Atan2(clickDy, clickDx);
@@ -447,6 +449,7 @@ public class MultiSelectionAdorner : Adorner
             double newGroupRot = (_initialGroupRotation + deltaAngle) % 360.0;
             if (newGroupRot < 0) newGroupRot += 360.0;
             GroupRotation = Math.Round(newGroupRot, 1);
+            Cursor = CursorHelper.GetRotationCursor(GroupRotation);
 
             InvalidateVisual();
             return;
@@ -844,7 +847,7 @@ public class MultiSelectionAdorner : Adorner
         double bottom = center.Y + h / 2.0 + offset;
 
         Point pRot = new(center.X, top - rotOffset);
-        if (IsHit(localP, pRot, rotHitRadius)) { Cursor = Cursors.Hand; return; }
+        if (IsHit(localP, pRot, rotHitRadius)) { Cursor = CursorHelper.GetRotationCursor(rot); return; }
 
         Cursor GetRotatedCursor(double baseAngle)
         {
