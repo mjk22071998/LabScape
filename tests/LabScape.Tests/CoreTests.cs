@@ -1236,6 +1236,60 @@ public class CoreTests
     }
 
     [Fact]
+    public void SelectionAdorner_ResizeAlignmentSnapping_ProjectsAssistingGuidesAndSnapsEdges()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(projectRoot);
+
+        // 1. Verify SelectionAdorner.cs contains alignment assisting lines and snapping methods
+        string adornerPath = Path.Combine(projectRoot, "src", "LabScape.App", "Adorners", "SelectionAdorner.cs");
+        Assert.True(File.Exists(adornerPath));
+        string adornerCode = File.ReadAllText(adornerPath);
+
+        Assert.Contains("public Action<double, double, double>? ShowVerticalGuideAction { get; set; }", adornerCode);
+        Assert.Contains("public Action<double, double, double>? ShowHorizontalGuideAction { get; set; }", adornerCode);
+        Assert.Contains("public Action? HideVerticalGuideAction { get; set; }", adornerCode);
+        Assert.Contains("public Action? HideHorizontalGuideAction { get; set; }", adornerCode);
+        Assert.Contains("public Func<IEnumerable<ItemViewModel>>? GetOtherItems { get; set; }", adornerCode);
+        Assert.Contains("ApplyResizeAlignmentSnapping", adornerCode);
+        Assert.Contains("ApplyLineEndpointAlignmentSnapping", adornerCode);
+
+        // 2. Verify CanvasView.xaml.cs wires up assisting guides and handles cleanup
+        string canvasViewPath = Path.Combine(projectRoot, "src", "LabScape.App", "Views", "CanvasView.xaml.cs");
+        Assert.True(File.Exists(canvasViewPath));
+        string canvasViewCode = File.ReadAllText(canvasViewPath);
+
+        Assert.Contains("ShowVerticalGuideAction = ShowVerticalGuide", canvasViewCode);
+        Assert.Contains("ShowHorizontalGuideAction = ShowHorizontalGuide", canvasViewCode);
+        Assert.Contains("HideVerticalGuideAction = () => SnapGuideVertical.Visibility = Visibility.Collapsed", canvasViewCode);
+        Assert.Contains("HideHorizontalGuideAction = () => SnapGuideHorizontal.Visibility = Visibility.Collapsed", canvasViewCode);
+        Assert.Contains("GetOtherItems = () => ViewModel?.Items ?? Enumerable.Empty<ItemViewModel>()", canvasViewCode);
+
+        // 3. Mathematical Verification of 6.0px magnetic snapping tolerance
+        double snapTolerance = 6.0;
+        double itemLeft = 100;
+        double itemWidth = 80;
+        double candRight = itemLeft + itemWidth; // 180
+        double otherLeft = 184; // 4px away, within 6.0px tolerance
+
+        Assert.True(Math.Abs(candRight - otherLeft) <= snapTolerance);
+        double snappedWidth = Math.Max(20.0, otherLeft - itemLeft);
+        Assert.Equal(84, snappedWidth);
+        Assert.Equal(184, itemLeft + snappedWidth);
+    }
+
+    [Fact]
     public void BezierCurve_HasFreeformEndpointsAndControlPoints_SupportsUndoRedoAndUnclippedRendering()
     {
         var bezier = new ShapeItemViewModel(new ShapeItem

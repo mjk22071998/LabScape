@@ -746,7 +746,12 @@ public partial class CanvasView : UserControl
                     if (selectedItem is GroupItemViewModel grp) grp.RecalculateBounds();
                 }, () => ViewModel?.ZoomLevel ?? 1.0)
                 {
-                    ShowHandles = isSingle
+                    ShowHandles = isSingle,
+                    ShowVerticalGuideAction = ShowVerticalGuide,
+                    ShowHorizontalGuideAction = ShowHorizontalGuide,
+                    HideVerticalGuideAction = () => SnapGuideVertical.Visibility = Visibility.Collapsed,
+                    HideHorizontalGuideAction = () => SnapGuideHorizontal.Visibility = Visibility.Collapsed,
+                    GetOtherItems = () => ViewModel?.Items ?? Enumerable.Empty<ItemViewModel>()
                 };
                 layer.Add(adorner);
                 _currentAdorners.Add(adorner);
@@ -776,6 +781,8 @@ public partial class CanvasView : UserControl
         }
         _currentAdorners.Clear();
         _adornedElements.Clear();
+        SnapGuideVertical.Visibility = Visibility.Collapsed;
+        SnapGuideHorizontal.Visibility = Visibility.Collapsed;
     }
 
     private void Viewport_DragOver(object sender, DragEventArgs e)

@@ -107,7 +107,15 @@ public class SelectionAdorner : Adorner
     public void Detach()
     {
         _item.PropertyChanged -= OnItemPropertyChanged;
+        HideVerticalGuideAction?.Invoke();
+        HideHorizontalGuideAction?.Invoke();
     }
+
+    public Action<double, double, double>? ShowVerticalGuideAction { get; set; }
+    public Action<double, double, double>? ShowHorizontalGuideAction { get; set; }
+    public Action? HideVerticalGuideAction { get; set; }
+    public Action? HideHorizontalGuideAction { get; set; }
+    public Func<IEnumerable<ItemViewModel>>? GetOtherItems { get; set; }
 
     public double GetCurrentZoom()
     {
@@ -213,6 +221,16 @@ public class SelectionAdorner : Adorner
         }
 
         return group;
+    }
+
+    protected override void OnMouseLeave(MouseEventArgs e)
+    {
+        base.OnMouseLeave(e);
+        if (_activeDrag == DragMode.None)
+        {
+            HideVerticalGuideAction?.Invoke();
+            HideHorizontalGuideAction?.Invoke();
+        }
     }
 
     protected override void OnRender(DrawingContext dc)
@@ -629,6 +647,7 @@ public class SelectionAdorner : Adorner
             case DragMode.LineEnd:
             {
                 Point mouseCanvas = currentCanvas;
+                ApplyLineEndpointAlignmentSnapping(ref mouseCanvas, _initialCanvasStart);
                 double vx = mouseCanvas.X - _initialCanvasStart.X;
                 double vy = mouseCanvas.Y - _initialCanvasStart.Y;
                 double len = Math.Max(15.0, Math.Sqrt(vx * vx + vy * vy));
@@ -656,6 +675,7 @@ public class SelectionAdorner : Adorner
             case DragMode.LineStart:
             {
                 Point mouseCanvas = currentCanvas;
+                ApplyLineEndpointAlignmentSnapping(ref mouseCanvas, _initialCanvasEnd);
                 double vx = _initialCanvasEnd.X - mouseCanvas.X;
                 double vy = _initialCanvasEnd.Y - mouseCanvas.Y;
                 double len = Math.Max(15.0, Math.Sqrt(vx * vx + vy * vy));
@@ -975,6 +995,8 @@ public class SelectionAdorner : Adorner
         if (_activeDrag is DragMode.ResizeNW or DragMode.ResizeN or DragMode.ResizeNE or DragMode.ResizeE
             or DragMode.ResizeSE or DragMode.ResizeS or DragMode.ResizeSW or DragMode.ResizeW)
         {
+            ApplyResizeAlignmentSnapping(ref w, ref h, ref shiftLocalX, ref shiftLocalY, altHeld, shiftHeld, ratio);
+
             double worldShiftX = shiftLocalX * cos - shiftLocalY * sin;
             double worldShiftY = shiftLocalX * sin + shiftLocalY * cos;
 
@@ -984,6 +1006,11 @@ public class SelectionAdorner : Adorner
             _item.Width = Math.Round(w, 1);
             _item.Height = Math.Round(h, 1);
         }
+        else if (_activeDrag is not DragMode.LineStart and not DragMode.LineEnd)
+        {
+            HideVerticalGuideAction?.Invoke();
+            HideHorizontalGuideAction?.Invoke();
+        }
 
         InvalidateAdorner();
         _onModified?.Invoke();
@@ -992,6 +1019,8 @@ public class SelectionAdorner : Adorner
     protected override void OnMouseUp(MouseButtonEventArgs e)
     {
         base.OnMouseUp(e);
+        HideVerticalGuideAction?.Invoke();
+        HideHorizontalGuideAction?.Invoke();
         if (_activeDrag != DragMode.None)
         {
             if (_activeDrag == DragMode.CornerRadius)
@@ -1268,4 +1297,316 @@ public class SelectionAdorner : Adorner
     {
         return (Math.Abs(test.X - center.X) <= radius) && (Math.Abs(test.Y - center.Y) <= radius);
     }
+
+    private void ApplyResizeAlignmentSnapping(
+        ref double w, ref double h,
+        ref double shiftLocalX, ref double shiftLocalY,
+        bool altHeld, bool shiftHeld, double ratio)
+    {
+        if (Math.Abs(_initialRot) > 0.01)
+        {
+            HideVerticalGuideAction?.Invoke();
+            HideHorizontalGuideAction?.Invoke();
+            return;
+        }
+
+        IEnumerable<ItemViewModel>? others = GetOtherItems?.Invoke();
+        if (others == null)
+        {
+            var canvas = FindCanvas();
+            if (canvas is FrameworkElement fe && fe.DataContext is CanvasViewModel cvm)
+            {
+                others = cvm.Items;
+            }
+        }
+
+        if (others == null)
+        {
+            HideVerticalGuideAction?.Invoke();
+            HideHorizontalGuideAction?.Invoke();
+            return;
+        }
+
+        const double snapTolerance = 6.0;
+        bool snapXFound = false;
+        bool snapYFound = false;
+
+        bool movesRight = _activeDrag is DragMode.ResizeE or DragMode.ResizeSE or DragMode.ResizeNE;
+        bool movesLeft = _activeDrag is DragMode.ResizeW or DragMode.ResizeSW or DragMode.ResizeNW;
+        bool movesBottom = _activeDrag is DragMode.ResizeS or DragMode.ResizeSE or DragMode.ResizeSW;
+        bool movesTop = _activeDrag is DragMode.ResizeN or DragMode.ResizeNE or DragMode.ResizeNW;
+
+        double fixedLeft = _initialX;
+        double fixedRight = _initialX + _initialW;
+        double fixedTop = _initialY;
+        double fixedBottom = _initialY + _initialH;
+
+        double curLeft = altHeld ? (_initialCenter.X - w / 2.0) : (_initialCenter.X + shiftLocalX - w / 2.0);
+        double curTop = altHeld ? (_initialCenter.Y - h / 2.0) : (_initialCenter.Y + shiftLocalY - h / 2.0);
+        double curRight = curLeft + w;
+        double curBottom = curTop + h;
+
+        ItemViewModel? bestOtherX = null;
+        double bestTargetX = 0;
+        double bestDistX = double.MaxValue;
+
+        ItemViewModel? bestOtherY = null;
+        double bestTargetY = 0;
+        double bestDistY = double.MaxValue;
+
+        // X-axis alignment scan
+        if (movesRight || movesLeft)
+        {
+            double candX = movesRight ? curRight : curLeft;
+
+            foreach (var other in others)
+            {
+                if (other == _item) continue;
+                if (Math.Abs(other.X - candX) > 600 && Math.Abs(other.Y - curTop) > 600) continue;
+
+                double oLeft = other.X;
+                double oCenter = other.X + other.Width / 2.0;
+                double oRight = other.X + other.Width;
+
+                double dLeft = Math.Abs(candX - oLeft);
+                if (dLeft <= snapTolerance && dLeft < bestDistX) { bestDistX = dLeft; bestTargetX = oLeft; bestOtherX = other; }
+
+                double dCenter = Math.Abs(candX - oCenter);
+                if (dCenter <= snapTolerance && dCenter < bestDistX) { bestDistX = dCenter; bestTargetX = oCenter; bestOtherX = other; }
+
+                double dRight = Math.Abs(candX - oRight);
+                if (dRight <= snapTolerance && dRight < bestDistX) { bestDistX = dRight; bestTargetX = oRight; bestOtherX = other; }
+            }
+
+            if (bestOtherX != null)
+            {
+                if (movesRight)
+                {
+                    if (altHeld)
+                    {
+                        w = Math.Max(20.0, 2.0 * (bestTargetX - _initialCenter.X));
+                        shiftLocalX = 0;
+                    }
+                    else
+                    {
+                        w = Math.Max(20.0, bestTargetX - fixedLeft);
+                        shiftLocalX = (w - _initialW) / 2.0;
+                    }
+                }
+                else // movesLeft
+                {
+                    if (altHeld)
+                    {
+                        w = Math.Max(20.0, 2.0 * (_initialCenter.X - bestTargetX));
+                        shiftLocalX = 0;
+                    }
+                    else
+                    {
+                        w = Math.Max(20.0, fixedRight - bestTargetX);
+                        shiftLocalX = -(w - _initialW) / 2.0;
+                    }
+                }
+
+                snapXFound = true;
+            }
+        }
+
+        // Y-axis alignment scan
+        if (movesBottom || movesTop)
+        {
+            double candY = movesBottom ? curBottom : curTop;
+
+            foreach (var other in others)
+            {
+                if (other == _item) continue;
+                if (Math.Abs(other.Y - candY) > 600 && Math.Abs(other.X - curLeft) > 600) continue;
+
+                double oTop = other.Y;
+                double oMiddle = other.Y + other.Height / 2.0;
+                double oBottom = other.Y + other.Height;
+
+                double dTop = Math.Abs(candY - oTop);
+                if (dTop <= snapTolerance && dTop < bestDistY) { bestDistY = dTop; bestTargetY = oTop; bestOtherY = other; }
+
+                double dMiddle = Math.Abs(candY - oMiddle);
+                if (dMiddle <= snapTolerance && dMiddle < bestDistY) { bestDistY = dMiddle; bestTargetY = oMiddle; bestOtherY = other; }
+
+                double dBottom = Math.Abs(candY - oBottom);
+                if (dBottom <= snapTolerance && dBottom < bestDistY) { bestDistY = dBottom; bestTargetY = oBottom; bestOtherY = other; }
+            }
+
+            if (bestOtherY != null)
+            {
+                if (movesBottom)
+                {
+                    if (altHeld)
+                    {
+                        h = Math.Max(20.0, 2.0 * (bestTargetY - _initialCenter.Y));
+                        shiftLocalY = 0;
+                    }
+                    else
+                    {
+                        h = Math.Max(20.0, bestTargetY - fixedTop);
+                        shiftLocalY = (h - _initialH) / 2.0;
+                    }
+                }
+                else // movesTop
+                {
+                    if (altHeld)
+                    {
+                        h = Math.Max(20.0, 2.0 * (_initialCenter.Y - bestTargetY));
+                        shiftLocalY = 0;
+                    }
+                    else
+                    {
+                        h = Math.Max(20.0, fixedBottom - bestTargetY);
+                        shiftLocalY = -(h - _initialH) / 2.0;
+                    }
+                }
+
+                snapYFound = true;
+            }
+        }
+
+        // Proportional lock when Shift is held
+        if (shiftHeld)
+        {
+            if (snapXFound && !snapYFound)
+            {
+                h = Math.Max(20.0, w / ratio);
+                if (!altHeld)
+                {
+                    if (movesBottom) shiftLocalY = (h - _initialH) / 2.0;
+                    else if (movesTop) shiftLocalY = -(h - _initialH) / 2.0;
+                }
+            }
+            else if (snapYFound && !snapXFound)
+            {
+                w = Math.Max(20.0, h * ratio);
+                if (!altHeld)
+                {
+                    if (movesRight) shiftLocalX = (w - _initialW) / 2.0;
+                    else if (movesLeft) shiftLocalX = -(w - _initialW) / 2.0;
+                }
+            }
+        }
+
+        // Recalculate final edges after snapping for guide line extents
+        curLeft = altHeld ? (_initialCenter.X - w / 2.0) : (_initialCenter.X + shiftLocalX - w / 2.0);
+        curTop = altHeld ? (_initialCenter.Y - h / 2.0) : (_initialCenter.Y + shiftLocalY - h / 2.0);
+        curRight = curLeft + w;
+        curBottom = curTop + h;
+
+        if (snapXFound && bestOtherX != null)
+        {
+            ShowVerticalGuideAction?.Invoke(
+                bestTargetX,
+                Math.Min(curTop, bestOtherX.Y),
+                Math.Max(curBottom, bestOtherX.Y + bestOtherX.Height));
+        }
+        else
+        {
+            HideVerticalGuideAction?.Invoke();
+        }
+
+        if (snapYFound && bestOtherY != null)
+        {
+            ShowHorizontalGuideAction?.Invoke(
+                bestTargetY,
+                Math.Min(curLeft, bestOtherY.X),
+                Math.Max(curRight, bestOtherY.X + bestOtherY.Width));
+        }
+        else
+        {
+            HideHorizontalGuideAction?.Invoke();
+        }
+    }
+
+    private void ApplyLineEndpointAlignmentSnapping(ref Point mouseCanvas, Point fixedPoint)
+    {
+        IEnumerable<ItemViewModel>? others = GetOtherItems?.Invoke();
+        if (others == null)
+        {
+            var canvas = FindCanvas();
+            if (canvas is FrameworkElement fe && fe.DataContext is CanvasViewModel cvm)
+            {
+                others = cvm.Items;
+            }
+        }
+
+        if (others == null)
+        {
+            HideVerticalGuideAction?.Invoke();
+            HideHorizontalGuideAction?.Invoke();
+            return;
+        }
+
+        const double snapTolerance = 6.0;
+        bool snapXFound = false;
+        bool snapYFound = false;
+
+        double bestDistX = double.MaxValue;
+        double bestTargetX = 0;
+        ItemViewModel? bestOtherX = null;
+
+        double bestDistY = double.MaxValue;
+        double bestTargetY = 0;
+        ItemViewModel? bestOtherY = null;
+
+        foreach (var other in others)
+        {
+            if (other == _item) continue;
+            if (Math.Abs(other.X - mouseCanvas.X) > 600 && Math.Abs(other.Y - mouseCanvas.Y) > 600) continue;
+
+            double oLeft = other.X;
+            double oCenter = other.X + other.Width / 2.0;
+            double oRight = other.X + other.Width;
+
+            double dLeft = Math.Abs(mouseCanvas.X - oLeft);
+            if (dLeft <= snapTolerance && dLeft < bestDistX) { bestDistX = dLeft; bestTargetX = oLeft; bestOtherX = other; }
+
+            double dCenter = Math.Abs(mouseCanvas.X - oCenter);
+            if (dCenter <= snapTolerance && dCenter < bestDistX) { bestDistX = dCenter; bestTargetX = oCenter; bestOtherX = other; }
+
+            double dRight = Math.Abs(mouseCanvas.X - oRight);
+            if (dRight <= snapTolerance && dRight < bestDistX) { bestDistX = dRight; bestTargetX = oRight; bestOtherX = other; }
+
+            double oTop = other.Y;
+            double oMiddle = other.Y + other.Height / 2.0;
+            double oBottom = other.Y + other.Height;
+
+            double dTop = Math.Abs(mouseCanvas.Y - oTop);
+            if (dTop <= snapTolerance && dTop < bestDistY) { bestDistY = dTop; bestTargetY = oTop; bestOtherY = other; }
+
+            double dMiddle = Math.Abs(mouseCanvas.Y - oMiddle);
+            if (dMiddle <= snapTolerance && dMiddle < bestDistY) { bestDistY = dMiddle; bestTargetY = oMiddle; bestOtherY = other; }
+
+            double dBottom = Math.Abs(mouseCanvas.Y - oBottom);
+            if (dBottom <= snapTolerance && dBottom < bestDistY) { bestDistY = dBottom; bestTargetY = oBottom; bestOtherY = other; }
+        }
+
+        if (bestOtherX != null)
+        {
+            mouseCanvas = new Point(bestTargetX, mouseCanvas.Y);
+            ShowVerticalGuideAction?.Invoke(
+                bestTargetX,
+                Math.Min(fixedPoint.Y, bestOtherX.Y),
+                Math.Max(fixedPoint.Y, bestOtherX.Y + bestOtherX.Height));
+            snapXFound = true;
+        }
+
+        if (bestOtherY != null)
+        {
+            mouseCanvas = new Point(mouseCanvas.X, bestTargetY);
+            ShowHorizontalGuideAction?.Invoke(
+                bestTargetY,
+                Math.Min(fixedPoint.X, bestOtherY.X),
+                Math.Max(fixedPoint.X, bestOtherY.X + bestOtherY.Width));
+            snapYFound = true;
+        }
+
+        if (!snapXFound) HideVerticalGuideAction?.Invoke();
+        if (!snapYFound) HideHorizontalGuideAction?.Invoke();
+    }
+
 }
