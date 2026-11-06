@@ -382,7 +382,7 @@ public partial class PropertiesViewModel : ObservableObject
         else
         {
             HeaderTitle = "MULTIPLE ITEMS SELECTED";
-            HeaderSubtitle = $"{SelectedCount} items selected (Common properties editable below)";
+            HeaderSubtitle = $"{SelectedCount} items selected (Temporary Group)";
             DisplayName = "(Multiple Items Selected)";
             CoordinatesToolTip = "X/Y coordinate editing is disabled when multiple items are selected. Move items directly on canvas or use alignment tools.";
 

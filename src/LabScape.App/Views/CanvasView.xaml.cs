@@ -34,6 +34,7 @@ public partial class CanvasView : UserControl
     private Point _marqueeStart;
 
     private readonly List<SelectionAdorner> _currentAdorners = new();
+    private MultiSelectionAdorner? _currentMultiAdorner;
     private readonly List<FrameworkElement> _adornedElements = new();
     private CanvasViewModel? _subscribedVm;
 
@@ -103,6 +104,7 @@ public partial class CanvasView : UserControl
             {
                 adorner.InvalidateAdorner();
             }
+            _currentMultiAdorner?.InvalidateVisual();
         }
     }
 
@@ -759,6 +761,31 @@ public partial class CanvasView : UserControl
             }
         }
 
+        // Multiple selection acts like a temporary group: project unified bounding box with handles
+        if (!isSingle && ItemsHost != null)
+        {
+            var hostLayer = AdornerLayer.GetAdornerLayer(ItemsHost);
+            if (hostLayer != null)
+            {
+                var multiAdorner = new MultiSelectionAdorner(
+                    ItemsHost,
+                    ViewModel.SelectedItems,
+                    ViewModel.UndoRedoService,
+                    () => ViewModel?.ZoomLevel ?? 1.0)
+                {
+                    ShowVerticalGuideAction = ShowVerticalGuide,
+                    ShowHorizontalGuideAction = ShowHorizontalGuide,
+                    HideVerticalGuideAction = () => SnapGuideVertical.Visibility = Visibility.Collapsed,
+                    HideHorizontalGuideAction = () => SnapGuideHorizontal.Visibility = Visibility.Collapsed,
+                    GetOtherItems = () => ViewModel?.Items != null
+                        ? ViewModel.Items.Except(ViewModel.SelectedItems)
+                        : Enumerable.Empty<ItemViewModel>()
+                };
+                hostLayer.Add(multiAdorner);
+                _currentMultiAdorner = multiAdorner;
+            }
+        }
+
         if (hasMissingContainers && ViewModel.SelectedItems.Count > 0 && !_adornerUpdatePending)
         {
             _adornerUpdatePending = true;
@@ -781,6 +808,15 @@ public partial class CanvasView : UserControl
         }
         _currentAdorners.Clear();
         _adornedElements.Clear();
+
+        if (_currentMultiAdorner != null && ItemsHost != null)
+        {
+            _currentMultiAdorner.Detach();
+            var hostLayer = AdornerLayer.GetAdornerLayer(ItemsHost);
+            hostLayer?.Remove(_currentMultiAdorner);
+            _currentMultiAdorner = null;
+        }
+
         SnapGuideVertical.Visibility = Visibility.Collapsed;
         SnapGuideHorizontal.Visibility = Visibility.Collapsed;
     }

@@ -245,6 +245,49 @@ public class TransformItemCommand : IUndoableCommand
     }
 }
 
+public class TransformMultipleItemsCommand : IUndoableCommand
+{
+    public record ItemTransformRecord(
+        ItemViewModel Item,
+        double OldX, double OldY, double OldWidth, double OldHeight, double OldRotation,
+        double NewX, double NewY, double NewWidth, double NewHeight, double NewRotation);
+
+    private readonly List<ItemTransformRecord> _records;
+
+    public string Description => $"Transform {_records.Count} items";
+
+    public IReadOnlyList<ItemTransformRecord> Records => _records;
+
+    public TransformMultipleItemsCommand(IEnumerable<ItemTransformRecord> records)
+    {
+        _records = records.ToList();
+    }
+
+    public void Execute()
+    {
+        foreach (var r in _records)
+        {
+            r.Item.X = r.NewX;
+            r.Item.Y = r.NewY;
+            r.Item.Width = r.NewWidth;
+            r.Item.Height = r.NewHeight;
+            r.Item.Rotation = r.NewRotation;
+        }
+    }
+
+    public void Unexecute()
+    {
+        foreach (var r in _records)
+        {
+            r.Item.X = r.OldX;
+            r.Item.Y = r.OldY;
+            r.Item.Width = r.OldWidth;
+            r.Item.Height = r.OldHeight;
+            r.Item.Rotation = r.OldRotation;
+        }
+    }
+}
+
 public class ModifyBezierControlPointsCommand : IUndoableCommand
 {
     private readonly ShapeItemViewModel _item;
