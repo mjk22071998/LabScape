@@ -10,8 +10,8 @@ using LabScape.ViewModels.Items;
 namespace LabScape.App.Adorners;
 
 /// <summary>
-/// Adorner that encloses multiple selected items in a unified bounding box with 8 resize handles
-/// and 1 rotation handle, allowing multiple selection to act like a temporary group.
+/// Adorner that encloses multiple selected items in a unified oriented bounding box with 8 resize handles
+/// and 1 rotation handle, allowing multiple selection to act like a temporary group that rotates and scales seamlessly.
 /// </summary>
 public class MultiSelectionAdorner : Adorner
 {
@@ -42,7 +42,11 @@ public class MultiSelectionAdorner : Adorner
     private (double X, double Y, double Width, double Height) _initialBounds;
     private Point _initialCenter;
     private double _initialAngleOffset;
+    private double _initialGroupRotation;
     private readonly Dictionary<ItemViewModel, (double X, double Y, double Width, double Height, double Rotation)> _initialItemStates = new();
+
+    public IReadOnlyList<ItemViewModel> Items => _items;
+    public double GroupRotation { get; set; } = 0.0;
 
     public Action<double, double, double>? ShowVerticalGuideAction { get; set; }
     public Action<double, double, double>? ShowHorizontalGuideAction { get; set; }
@@ -60,12 +64,26 @@ public class MultiSelectionAdorner : Adorner
         UIElement adornedElement,
         IEnumerable<ItemViewModel> items,
         IUndoRedoService undoRedoService,
-        Func<double>? getZoomLevel = null)
+        Func<double>? getZoomLevel = null,
+        double? initialGroupRotation = null)
         : base(adornedElement)
     {
         _items = items.ToList();
         _undoRedoService = undoRedoService;
         _getZoomLevel = getZoomLevel;
+
+        if (initialGroupRotation.HasValue)
+        {
+            GroupRotation = initialGroupRotation.Value;
+        }
+        else if (_items.Count > 0 && _items.All(i => Math.Abs(i.Rotation - _items[0].Rotation) < 0.1))
+        {
+            GroupRotation = _items[0].Rotation;
+        }
+        else
+        {
+            GroupRotation = 0.0;
+        }
 
         IsHitTestVisible = true;
         ClipToBounds = false;
@@ -106,25 +124,88 @@ public class MultiSelectionAdorner : Adorner
         return 1.0;
     }
 
-    public (double X, double Y, double Width, double Height) CalculateUnifiedBounds()
-    {
-        if (_items.Count == 0) return (0, 0, 0, 0);
+    public record OrientedBounds(Point Center, double Width, double Height, double Rotation);
 
-        double minX = double.MaxValue;
-        double minY = double.MaxValue;
-        double maxX = double.MinValue;
-        double maxY = double.MinValue;
+    private static Point RotatePoint(Point p, Point center, double angleDeg)
+    {
+        if (Math.Abs(angleDeg) < 0.001) return p;
+        double rad = angleDeg * Math.PI / 180.0;
+        double cos = Math.Cos(rad);
+        double sin = Math.Sin(rad);
+        double dx = p.X - center.X;
+        double dy = p.Y - center.Y;
+        return new Point(center.X + dx * cos - dy * sin, center.Y + dx * sin + dy * cos);
+    }
+
+    public OrientedBounds CalculateOrientedBounds()
+    {
+        if (_items.Count == 0) return new OrientedBounds(new Point(0, 0), 0, 0, 0);
+
+        double cx = _items.Average(i => i.X + i.Width / 2.0);
+        double cy = _items.Average(i => i.Y + i.Height / 2.0);
+        Point initialCenter = new(cx, cy);
+
+        if (Math.Abs(GroupRotation) < 0.001)
+        {
+            double minX = double.MaxValue, minY = double.MaxValue;
+            double maxX = double.MinValue, maxY = double.MinValue;
+            foreach (var item in _items)
+            {
+                var (bMinX, bMinY, bMaxX, bMaxY) = GroupItemViewModel.GetVisualBounds(item);
+                if (bMinX < minX) minX = bMinX;
+                if (bMinY < minY) minY = bMinY;
+                if (bMaxX > maxX) maxX = bMaxX;
+                if (bMaxY > maxY) maxY = bMaxY;
+            }
+            double w = Math.Max(10.0, maxX - minX);
+            double h = Math.Max(10.0, maxY - minY);
+            return new OrientedBounds(new Point(minX + w / 2.0, minY + h / 2.0), w, h, 0);
+        }
+
+        // Oriented Bounding Box
+        double minLx = double.MaxValue, minLy = double.MaxValue;
+        double maxLx = double.MinValue, maxLy = double.MinValue;
 
         foreach (var item in _items)
         {
-            var (bMinX, bMinY, bMaxX, bMaxY) = GroupItemViewModel.GetVisualBounds(item);
-            if (bMinX < minX) minX = bMinX;
-            if (bMinY < minY) minY = bMinY;
-            if (bMaxX > maxX) maxX = bMaxX;
-            if (bMaxY > maxY) maxY = bMaxY;
+            double iw = item.Width;
+            double ih = item.Height;
+            double icx = item.X + iw / 2.0;
+            double icy = item.Y + ih / 2.0;
+            double irot = item.Rotation;
+
+            Point[] corners =
+            {
+                new(item.X, item.Y),
+                new(item.X + iw, item.Y),
+                new(item.X + iw, item.Y + ih),
+                new(item.X, item.Y + ih)
+            };
+
+            foreach (var corner in corners)
+            {
+                Point worldP = RotatePoint(corner, new Point(icx, icy), irot);
+                Point localP = RotatePoint(worldP, initialCenter, -GroupRotation);
+
+                if (localP.X < minLx) minLx = localP.X;
+                if (localP.Y < minLy) minLy = localP.Y;
+                if (localP.X > maxLx) maxLx = localP.X;
+                if (localP.Y > maxLy) maxLy = localP.Y;
+            }
         }
 
-        return (minX, minY, Math.Max(10.0, maxX - minX), Math.Max(10.0, maxY - minY));
+        double localW = Math.Max(10.0, maxLx - minLx);
+        double localH = Math.Max(10.0, maxLy - minLy);
+        Point localCenter = new((minLx + maxLx) / 2.0, (minLy + maxLy) / 2.0);
+        Point worldCenter = RotatePoint(localCenter, initialCenter, GroupRotation);
+
+        return new OrientedBounds(worldCenter, localW, localH, GroupRotation);
+    }
+
+    public (double X, double Y, double Width, double Height) CalculateUnifiedBounds()
+    {
+        var b = CalculateOrientedBounds();
+        return (b.Center.X - b.Width / 2.0, b.Center.Y - b.Height / 2.0, b.Width, b.Height);
     }
 
     protected override void OnRender(DrawingContext dc)
@@ -133,32 +214,48 @@ public class MultiSelectionAdorner : Adorner
 
         if (_items.Count < 2) return;
 
-        var (x, y, w, h) = CalculateUnifiedBounds();
+        var bounds = CalculateOrientedBounds();
+        Point center = bounds.Center;
+        double w = bounds.Width;
+        double h = bounds.Height;
+        double rot = bounds.Rotation;
         double zoom = GetCurrentZoom();
 
         double hs = BaseHandleSize / Math.Max(0.05, zoom);
         double rotOffset = BaseRotStalkHeight / Math.Max(0.05, zoom);
         double offset = BaseOffset / Math.Max(0.05, zoom);
 
-        // 1. Unified outer bounding box
-        dc.DrawRectangle(null, BoxPen, new Rect(x - offset, y - offset, w + offset * 2, h + offset * 2));
+        // Push rotation transform centered at group center so all handles and bounding lines rotate with group
+        dc.PushTransform(new RotateTransform(rot, center.X, center.Y));
 
-        // 2. Corner handles (NW, NE, SE, SW)
-        DrawSquareHandle(dc, new Point(x - offset, y - offset), hs);
-        DrawSquareHandle(dc, new Point(x + w + offset, y - offset), hs);
-        DrawSquareHandle(dc, new Point(x + w + offset, y + h + offset), hs);
-        DrawSquareHandle(dc, new Point(x - offset, y + h + offset), hs);
+        double left = center.X - w / 2.0 - offset;
+        double top = center.Y - h / 2.0 - offset;
+        double right = center.X + w / 2.0 + offset;
+        double bottom = center.Y + h / 2.0 + offset;
+        double widthWithOffset = w + 2 * offset;
+        double heightWithOffset = h + 2 * offset;
 
-        // 3. Edge midpoint handles (N, E, S, W)
-        DrawSquareHandle(dc, new Point(x + w / 2.0, y - offset), hs);
-        DrawSquareHandle(dc, new Point(x + w + offset, y + h / 2.0), hs);
-        DrawSquareHandle(dc, new Point(x + w / 2.0, y + h + offset), hs);
-        DrawSquareHandle(dc, new Point(x - offset, y + h / 2.0), hs);
+        // 1. Unified outer bounding box (Rotated)
+        dc.DrawRectangle(null, BoxPen, new Rect(left, top, widthWithOffset, heightWithOffset));
 
-        // 4. Rotate stalk and circular handle
-        Point rotPoint = new(x + w / 2.0, y - offset - rotOffset);
-        dc.DrawLine(BoxPen, new Point(x + w / 2.0, y - offset), rotPoint);
+        // 2. Corner handles (Rotated)
+        DrawSquareHandle(dc, new Point(left, top), hs);
+        DrawSquareHandle(dc, new Point(right, top), hs);
+        DrawSquareHandle(dc, new Point(right, bottom), hs);
+        DrawSquareHandle(dc, new Point(left, bottom), hs);
+
+        // 3. Edge midpoint handles (Rotated)
+        DrawSquareHandle(dc, new Point(center.X, top), hs);
+        DrawSquareHandle(dc, new Point(right, center.Y), hs);
+        DrawSquareHandle(dc, new Point(center.X, bottom), hs);
+        DrawSquareHandle(dc, new Point(left, center.Y), hs);
+
+        // 4. Rotate stalk and circular handle (Rotated)
+        Point rotPoint = new(center.X, top - rotOffset);
+        dc.DrawLine(BoxPen, new Point(center.X, top), rotPoint);
         dc.DrawEllipse(HandleBrush, HandlePen, rotPoint, hs / 2.0, hs / 2.0);
+
+        dc.Pop();
     }
 
     private static void DrawSquareHandle(DrawingContext dc, Point center, double size)
@@ -177,7 +274,11 @@ public class MultiSelectionAdorner : Adorner
         if (_items.Count < 2) return null;
 
         Point p = hitTestParameters.HitPoint;
-        var (x, y, w, h) = CalculateUnifiedBounds();
+        var bounds = CalculateOrientedBounds();
+        Point center = bounds.Center;
+        double w = bounds.Width;
+        double h = bounds.Height;
+        double rot = bounds.Rotation;
         double zoom = GetCurrentZoom();
 
         double rotOffset = BaseRotStalkHeight / Math.Max(0.05, zoom);
@@ -185,24 +286,31 @@ public class MultiSelectionAdorner : Adorner
         double hitRadius = (BaseHandleSize / 2.0 + 3.0) / Math.Max(0.05, zoom);
         double rotHitRadius = (BaseHandleSize / 2.0 + 4.0) / Math.Max(0.05, zoom);
 
+        Point localP = RotatePoint(p, center, -rot);
+
+        double left = center.X - w / 2.0 - offset;
+        double top = center.Y - h / 2.0 - offset;
+        double right = center.X + w / 2.0 + offset;
+        double bottom = center.Y + h / 2.0 + offset;
+
         // Rotate handle
-        Point pRot = new(x + w / 2.0, y - offset - rotOffset);
-        if (IsHit(p, pRot, rotHitRadius)) return new PointHitTestResult(this, p);
+        Point pRot = new(center.X, top - rotOffset);
+        if (IsHit(localP, pRot, rotHitRadius)) return new PointHitTestResult(this, p);
 
         // 4 corner handles
-        if (IsHit(p, new Point(x - offset, y - offset), hitRadius) ||
-            IsHit(p, new Point(x + w + offset, y - offset), hitRadius) ||
-            IsHit(p, new Point(x + w + offset, y + h + offset), hitRadius) ||
-            IsHit(p, new Point(x - offset, y + h + offset), hitRadius))
+        if (IsHit(localP, new Point(left, top), hitRadius) ||
+            IsHit(localP, new Point(right, top), hitRadius) ||
+            IsHit(localP, new Point(right, bottom), hitRadius) ||
+            IsHit(localP, new Point(left, bottom), hitRadius))
         {
             return new PointHitTestResult(this, p);
         }
 
         // 4 edge midpoint handles
-        if (IsHit(p, new Point(x + w / 2.0, y - offset), hitRadius) ||
-            IsHit(p, new Point(x + w + offset, y + h / 2.0), hitRadius) ||
-            IsHit(p, new Point(x + w / 2.0, y + h + offset), hitRadius) ||
-            IsHit(p, new Point(x - offset, y + h / 2.0), hitRadius))
+        if (IsHit(localP, new Point(center.X, top), hitRadius) ||
+            IsHit(localP, new Point(right, center.Y), hitRadius) ||
+            IsHit(localP, new Point(center.X, bottom), hitRadius) ||
+            IsHit(localP, new Point(left, center.Y), hitRadius))
         {
             return new PointHitTestResult(this, p);
         }
@@ -217,7 +325,11 @@ public class MultiSelectionAdorner : Adorner
         if (e.LeftButton != MouseButtonState.Pressed || _items.Count < 2) return;
 
         Point p = e.GetPosition(this);
-        var (x, y, w, h) = CalculateUnifiedBounds();
+        var bounds = CalculateOrientedBounds();
+        Point center = bounds.Center;
+        double w = bounds.Width;
+        double h = bounds.Height;
+        double rot = bounds.Rotation;
         double zoom = GetCurrentZoom();
 
         double rotOffset = BaseRotStalkHeight / Math.Max(0.05, zoom);
@@ -225,9 +337,17 @@ public class MultiSelectionAdorner : Adorner
         double hitRadius = (BaseHandleSize / 2.0 + 3.0) / Math.Max(0.05, zoom);
         double rotHitRadius = (BaseHandleSize / 2.0 + 4.0) / Math.Max(0.05, zoom);
 
-        _initialBounds = (x, y, w, h);
-        _initialCenter = new Point(x + w / 2.0, y + h / 2.0);
+        Point localP = RotatePoint(p, center, -rot);
+
+        double left = center.X - w / 2.0 - offset;
+        double top = center.Y - h / 2.0 - offset;
+        double right = center.X + w / 2.0 + offset;
+        double bottom = center.Y + h / 2.0 + offset;
+
+        _initialBounds = (center.X - w / 2.0, center.Y - h / 2.0, w, h);
+        _initialCenter = center;
         _dragStartCanvas = p;
+        _initialGroupRotation = GroupRotation;
 
         _initialItemStates.Clear();
         foreach (var item in _items)
@@ -236,8 +356,8 @@ public class MultiSelectionAdorner : Adorner
         }
 
         // 1. Rotate handle
-        Point pRot = new(x + w / 2.0, y - offset - rotOffset);
-        if (IsHit(p, pRot, rotHitRadius))
+        Point pRot = new(center.X, top - rotOffset);
+        if (IsHit(localP, pRot, rotHitRadius))
         {
             _activeDrag = DragMode.Rotate;
             double clickDx = p.X - _initialCenter.X;
@@ -253,15 +373,15 @@ public class MultiSelectionAdorner : Adorner
         }
 
         // 2. Corner resize handles
-        if (IsHit(p, new Point(x - offset, y - offset), hitRadius)) _activeDrag = DragMode.ResizeNW;
-        else if (IsHit(p, new Point(x + w + offset, y - offset), hitRadius)) _activeDrag = DragMode.ResizeNE;
-        else if (IsHit(p, new Point(x + w + offset, y + h + offset), hitRadius)) _activeDrag = DragMode.ResizeSE;
-        else if (IsHit(p, new Point(x - offset, y + h + offset), hitRadius)) _activeDrag = DragMode.ResizeSW;
+        if (IsHit(localP, new Point(left, top), hitRadius)) _activeDrag = DragMode.ResizeNW;
+        else if (IsHit(localP, new Point(right, top), hitRadius)) _activeDrag = DragMode.ResizeNE;
+        else if (IsHit(localP, new Point(right, bottom), hitRadius)) _activeDrag = DragMode.ResizeSE;
+        else if (IsHit(localP, new Point(left, bottom), hitRadius)) _activeDrag = DragMode.ResizeSW;
         // 3. Edge resize handles
-        else if (IsHit(p, new Point(x + w / 2.0, y - offset), hitRadius)) _activeDrag = DragMode.ResizeN;
-        else if (IsHit(p, new Point(x + w + offset, y + h / 2.0), hitRadius)) _activeDrag = DragMode.ResizeE;
-        else if (IsHit(p, new Point(x + w / 2.0, y + h + offset), hitRadius)) _activeDrag = DragMode.ResizeS;
-        else if (IsHit(p, new Point(x - offset, y + h / 2.0), hitRadius)) _activeDrag = DragMode.ResizeW;
+        else if (IsHit(localP, new Point(center.X, top), hitRadius)) _activeDrag = DragMode.ResizeN;
+        else if (IsHit(localP, new Point(right, center.Y), hitRadius)) _activeDrag = DragMode.ResizeE;
+        else if (IsHit(localP, new Point(center.X, bottom), hitRadius)) _activeDrag = DragMode.ResizeS;
+        else if (IsHit(localP, new Point(left, center.Y), hitRadius)) _activeDrag = DragMode.ResizeW;
 
         if (_activeDrag != DragMode.None)
         {
@@ -283,15 +403,6 @@ public class MultiSelectionAdorner : Adorner
 
         bool shiftHeld = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
         bool altHeld = Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt);
-
-        double deltaX = currentCanvas.X - _dragStartCanvas.X;
-        double deltaY = currentCanvas.Y - _dragStartCanvas.Y;
-
-        double x0 = _initialBounds.X;
-        double y0 = _initialBounds.Y;
-        double w0 = _initialBounds.Width;
-        double h0 = _initialBounds.Height;
-        double ratio = h0 > 0 ? w0 / h0 : 1.0;
 
         if (_activeDrag == DragMode.Rotate)
         {
@@ -332,11 +443,33 @@ public class MultiSelectionAdorner : Adorner
                 item.Rotation = Math.Round(newRot, 1);
             }
 
+            // Update GroupRotation so handles rotate in real time!
+            double newGroupRot = (_initialGroupRotation + deltaAngle) % 360.0;
+            if (newGroupRot < 0) newGroupRot += 360.0;
+            GroupRotation = Math.Round(newGroupRot, 1);
+
             InvalidateVisual();
             return;
         }
 
-        // Resize Modes
+        // Resize Modes in oriented group space
+        double rotRad = GroupRotation * Math.PI / 180.0;
+        double cosR = Math.Cos(rotRad);
+        double sinR = Math.Sin(rotRad);
+
+        double deltaCanvasX = currentCanvas.X - _dragStartCanvas.X;
+        double deltaCanvasY = currentCanvas.Y - _dragStartCanvas.Y;
+
+        // Project canvas mouse delta into local rotated coordinate frame
+        double deltaX = deltaCanvasX * cosR + deltaCanvasY * sinR;
+        double deltaY = -deltaCanvasX * sinR + deltaCanvasY * cosR;
+
+        double x0 = _initialBounds.X;
+        double y0 = _initialBounds.Y;
+        double w0 = _initialBounds.Width;
+        double h0 = _initialBounds.Height;
+        double ratio = h0 > 0 ? w0 / h0 : 1.0;
+
         double candX = x0;
         double candY = y0;
         double candW = w0;
@@ -437,28 +570,43 @@ public class MultiSelectionAdorner : Adorner
                 break;
         }
 
-        // Apply alignment snapping against outside items
-        ApplyResizeSnapping(ref candX, ref candY, ref candW, ref candH, altHeld);
+        // Apply alignment snapping when unrotated
+        if (Math.Abs(GroupRotation) < 0.001)
+        {
+            ApplyResizeSnapping(ref candX, ref candY, ref candW, ref candH, altHeld);
+        }
 
         // Scale and reposition all items inside the temporary group
         double scaleX = w0 > 0 ? candW / w0 : 1.0;
         double scaleY = h0 > 0 ? candH / h0 : 1.0;
 
+        Point newLocalGroupCenter = new(candX + candW / 2.0, candY + candH / 2.0);
+
         foreach (var item in _items)
         {
             if (!_initialItemStates.TryGetValue(item, out var init)) continue;
 
-            double newX = candX + (init.X - x0) * scaleX;
-            double newY = candY + (init.Y - y0) * scaleY;
+            Point initWorldCenter = new(init.X + init.Width / 2.0, init.Y + init.Height / 2.0);
+            Point initLocalCenter = RotatePoint(initWorldCenter, _initialCenter, -_initialGroupRotation);
+
+            double localOffsetX = initLocalCenter.X - x0;
+            double localOffsetY = initLocalCenter.Y - y0;
+
+            double newLocalCx = candX + localOffsetX * scaleX;
+            double newLocalCy = candY + localOffsetY * scaleY;
+            Point newLocalCenter = new(newLocalCx, newLocalCy);
+
+            Point newWorldCenter = RotatePoint(newLocalCenter, newLocalGroupCenter, GroupRotation);
+
             double newW = Math.Max(5.0, init.Width * scaleX);
             double newH = Math.Max(5.0, init.Height * scaleY);
 
-            item.X = Math.Round(newX, 1);
-            item.Y = Math.Round(newY, 1);
+            item.X = Math.Round(newWorldCenter.X - newW / 2.0, 1);
+            item.Y = Math.Round(newWorldCenter.Y - newH / 2.0, 1);
             item.Width = Math.Round(newW, 1);
             item.Height = Math.Round(newH, 1);
 
-            if (item is GroupItemViewModel grp)
+            if (item is GroupItemViewModel grp && Math.Abs(grp.Rotation) < 0.001)
             {
                 grp.RecalculateBounds();
             }
@@ -505,14 +653,14 @@ public class MultiSelectionAdorner : Adorner
                 if (Math.Abs(other.X - movingX) > 600 && Math.Abs(other.Y - curTop) > 600) continue;
 
                 double oLeft = other.X;
-                double oCenter = other.X + other.Width / 2.0;
+                double oMiddle = other.X + other.Width / 2.0;
                 double oRight = other.X + other.Width;
 
                 double dLeft = Math.Abs(movingX - oLeft);
                 if (dLeft <= snapTolerance && dLeft < bestDistX) { bestDistX = dLeft; bestTargetX = oLeft; bestOtherX = other; }
 
-                double dCenter = Math.Abs(movingX - oCenter);
-                if (dCenter <= snapTolerance && dCenter < bestDistX) { bestDistX = dCenter; bestTargetX = oCenter; bestOtherX = other; }
+                double dMiddle = Math.Abs(movingX - oMiddle);
+                if (dMiddle <= snapTolerance && dMiddle < bestDistX) { bestDistX = dMiddle; bestTargetX = oMiddle; bestOtherX = other; }
 
                 double dRight = Math.Abs(movingX - oRight);
                 if (dRight <= snapTolerance && dRight < bestDistX) { bestDistX = dRight; bestTargetX = oRight; bestOtherX = other; }
@@ -633,7 +781,6 @@ public class MultiSelectionAdorner : Adorner
 
         if (_activeDrag != DragMode.None)
         {
-            // Record Undoable Command if any items changed
             var records = new List<TransformMultipleItemsCommand.ItemTransformRecord>();
             foreach (var item in _items)
             {
@@ -677,7 +824,11 @@ public class MultiSelectionAdorner : Adorner
 
     private void UpdateCursor(Point p)
     {
-        var (x, y, w, h) = CalculateUnifiedBounds();
+        var bounds = CalculateOrientedBounds();
+        Point center = bounds.Center;
+        double w = bounds.Width;
+        double h = bounds.Height;
+        double rot = bounds.Rotation;
         double zoom = GetCurrentZoom();
 
         double rotOffset = BaseRotStalkHeight / Math.Max(0.05, zoom);
@@ -685,34 +836,51 @@ public class MultiSelectionAdorner : Adorner
         double hitRadius = (BaseHandleSize / 2.0 + 3.0) / Math.Max(0.05, zoom);
         double rotHitRadius = (BaseHandleSize / 2.0 + 4.0) / Math.Max(0.05, zoom);
 
-        Point pRot = new(x + w / 2.0, y - offset - rotOffset);
-        if (IsHit(p, pRot, rotHitRadius)) { Cursor = Cursors.Hand; return; }
+        Point localP = RotatePoint(p, center, -rot);
 
-        if (IsHit(p, new Point(x - offset, y - offset), hitRadius) ||
-            IsHit(p, new Point(x + w + offset, y + h + offset), hitRadius))
+        double left = center.X - w / 2.0 - offset;
+        double top = center.Y - h / 2.0 - offset;
+        double right = center.X + w / 2.0 + offset;
+        double bottom = center.Y + h / 2.0 + offset;
+
+        Point pRot = new(center.X, top - rotOffset);
+        if (IsHit(localP, pRot, rotHitRadius)) { Cursor = Cursors.Hand; return; }
+
+        Cursor GetRotatedCursor(double baseAngle)
         {
-            Cursor = Cursors.SizeNWSE;
+            double eff = (baseAngle + rot) % 180.0;
+            if (eff < 0) eff += 180.0;
+            if (eff < 22.5 || eff >= 157.5) return Cursors.SizeNS;
+            if (eff < 67.5) return Cursors.SizeNESW;
+            if (eff < 112.5) return Cursors.SizeWE;
+            return Cursors.SizeNWSE;
+        }
+
+        if (IsHit(localP, new Point(left, top), hitRadius) ||
+            IsHit(localP, new Point(right, bottom), hitRadius))
+        {
+            Cursor = GetRotatedCursor(135.0);
             return;
         }
 
-        if (IsHit(p, new Point(x + w + offset, y - offset), hitRadius) ||
-            IsHit(p, new Point(x - offset, y + h + offset), hitRadius))
+        if (IsHit(localP, new Point(right, top), hitRadius) ||
+            IsHit(localP, new Point(left, bottom), hitRadius))
         {
-            Cursor = Cursors.SizeNESW;
+            Cursor = GetRotatedCursor(45.0);
             return;
         }
 
-        if (IsHit(p, new Point(x + w / 2.0, y - offset), hitRadius) ||
-            IsHit(p, new Point(x + w / 2.0, y + h + offset), hitRadius))
+        if (IsHit(localP, new Point(center.X, top), hitRadius) ||
+            IsHit(localP, new Point(center.X, bottom), hitRadius))
         {
-            Cursor = Cursors.SizeNS;
+            Cursor = GetRotatedCursor(0.0);
             return;
         }
 
-        if (IsHit(p, new Point(x + w + offset, y + h / 2.0), hitRadius) ||
-            IsHit(p, new Point(x - offset, y + h / 2.0), hitRadius))
+        if (IsHit(localP, new Point(right, center.Y), hitRadius) ||
+            IsHit(localP, new Point(left, center.Y), hitRadius))
         {
-            Cursor = Cursors.SizeWE;
+            Cursor = GetRotatedCursor(90.0);
             return;
         }
 

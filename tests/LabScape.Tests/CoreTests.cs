@@ -5947,4 +5947,39 @@ public class CoreTests
         Assert.True(dev1.IsVisible && dev2.IsVisible && dev3.IsVisible);
         Assert.Equal(0, layersVm.HiddenLayersCount);
     }
+
+    [Fact]
+    public void MultiSelectionAdorner_HandlesRotateWithGroup_OrientedBoundingBox()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(projectRoot);
+
+        string multiAdornerPath = Path.Combine(projectRoot, "src", "LabScape.App", "Adorners", "MultiSelectionAdorner.cs");
+        Assert.True(File.Exists(multiAdornerPath));
+        string code = File.ReadAllText(multiAdornerPath);
+
+        // Verify oriented bounding box and rotation of handles
+        Assert.Contains("public double GroupRotation", code);
+        Assert.Contains("CalculateOrientedBounds", code);
+        Assert.Contains("RotateTransform(rot, center.X, center.Y)", code);
+        Assert.Contains("RotatePoint", code);
+        Assert.Contains("GetRotatedCursor", code);
+
+        // Verify CanvasView passes initialGroupRot
+        string canvasViewPath = Path.Combine(projectRoot, "src", "LabScape.App", "Views", "CanvasView.xaml.cs");
+        string canvasCode = File.ReadAllText(canvasViewPath);
+        Assert.Contains("initialGroupRot", canvasCode);
+        Assert.Contains("_currentMultiAdorner.GroupRotation", canvasCode);
+    }
 }

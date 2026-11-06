@@ -754,7 +754,7 @@ public partial class CanvasView : UserControl
             {
                 var adorner = new SelectionAdorner(presenter, selectedItem, ViewModel.UndoRedoService, () =>
                 {
-                    if (selectedItem is GroupItemViewModel grp) grp.RecalculateBounds();
+                    if (selectedItem is GroupItemViewModel grp && Math.Abs(grp.Rotation) < 0.001) grp.RecalculateBounds();
                 }, () => ViewModel?.ZoomLevel ?? 1.0)
                 {
                     ShowHandles = isSingle,
@@ -776,11 +776,22 @@ public partial class CanvasView : UserControl
             var hostLayer = AdornerLayer.GetAdornerLayer(ItemsHost);
             if (hostLayer != null)
             {
+                double? initialGroupRot = null;
+                if (_currentMultiAdorner != null && _currentMultiAdorner.Items.SequenceEqual(ViewModel.SelectedItems))
+                {
+                    initialGroupRot = _currentMultiAdorner.GroupRotation;
+                }
+                else if (ViewModel.SelectedItems.All(i => Math.Abs(i.Rotation - ViewModel.SelectedItems[0].Rotation) < 0.1))
+                {
+                    initialGroupRot = ViewModel.SelectedItems[0].Rotation;
+                }
+
                 var multiAdorner = new MultiSelectionAdorner(
                     ItemsHost,
                     ViewModel.SelectedItems,
                     ViewModel.UndoRedoService,
-                    () => ViewModel?.ZoomLevel ?? 1.0)
+                    () => ViewModel?.ZoomLevel ?? 1.0,
+                    initialGroupRot)
                 {
                     ShowVerticalGuideAction = ShowVerticalGuide,
                     ShowHorizontalGuideAction = ShowHorizontalGuide,
