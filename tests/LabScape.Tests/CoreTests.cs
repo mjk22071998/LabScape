@@ -5460,4 +5460,58 @@ public class CoreTests
         Assert.True(loadedManual.IsManualIp);
         Assert.False(loadedDb.IsManualIp);
     }
+
+    [Fact]
+    public void AllXamlStaticResources_ResolveToDeclaredKeys_PreventStartupCrash()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+        Assert.NotNull(projectRoot);
+
+        var appDir = Path.Combine(projectRoot, "src", "LabScape.App");
+        var xamlFiles = Directory.GetFiles(appDir, "*.xaml", SearchOption.AllDirectories);
+
+        var declaredKeys = new HashSet<string>();
+        var keyRegex = new System.Text.RegularExpressions.Regex(@"x:Key=""([^""]+)""");
+        var staticResRegex = new System.Text.RegularExpressions.Regex(@"\{StaticResource\s+([^}]+)\}");
+
+        foreach (var file in xamlFiles)
+        {
+            string content = File.ReadAllText(file);
+            foreach (System.Text.RegularExpressions.Match match in keyRegex.Matches(content))
+            {
+                declaredKeys.Add(match.Groups[1].Value);
+            }
+        }
+
+        var missing = new List<string>();
+        foreach (var file in xamlFiles)
+        {
+            string[] lines = File.ReadAllLines(file);
+            for (int lineNo = 1; lineNo <= lines.Length; lineNo++)
+            {
+                string line = lines[lineNo - 1];
+                foreach (System.Text.RegularExpressions.Match match in staticResRegex.Matches(line))
+                {
+                    string res = match.Groups[1].Value.Trim();
+                    if (res.StartsWith("x:") || res.StartsWith("{")) continue;
+                    if (!declaredKeys.Contains(res))
+                    {
+                        missing.Add($"{Path.GetFileName(file)}:L{lineNo} -> '{res}'");
+                    }
+                }
+            }
+        }
+
+        Assert.Empty(missing);
+    }
 }
