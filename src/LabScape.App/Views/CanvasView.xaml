@@ -288,6 +288,7 @@
                             <Setter Property="Canvas.Left" Value="{Binding X}"/>
                             <Setter Property="Canvas.Top" Value="{Binding Y}"/>
                             <Setter Property="Panel.ZIndex" Value="{Binding Z}"/>
+                            <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             <Setter Property="ClipToBounds" Value="False"/>
                             <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}"/>
                             <Setter Property="Tag" Value="{Binding DataContext, RelativeSource={RelativeSource AncestorType=UserControl}}"/>

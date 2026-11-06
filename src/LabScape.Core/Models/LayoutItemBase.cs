@@ -38,6 +38,12 @@ public abstract class LayoutItemBase
     [JsonPropertyName("rotation")]
     public double Rotation { get; set; } = 0.0;
 
+    [JsonPropertyName("is_locked")]
+    public bool IsLocked { get; set; } = false;
+
+    [JsonPropertyName("is_visible")]
+    public bool IsVisible { get; set; } = true;
+
     [JsonIgnore]
     public string? ParentGroupId { get; set; }
 

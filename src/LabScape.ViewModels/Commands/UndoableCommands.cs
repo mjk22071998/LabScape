@@ -590,3 +590,99 @@ public class BatchAssignDeviceNetworkCommand : IUndoableCommand
         _onChanged?.Invoke();
     }
 }
+
+public class RenameItemCommand : IUndoableCommand
+{
+    private readonly ItemViewModel _item;
+    private readonly string _oldName;
+    private readonly string _newName;
+
+    public string Description => $"Rename '{_oldName}' to '{_newName}'";
+
+    public RenameItemCommand(ItemViewModel item, string oldName, string newName)
+    {
+        _item = item;
+        _oldName = oldName;
+        _newName = newName;
+    }
+
+    public void Execute()
+    {
+        _item.Name = _newName;
+    }
+
+    public void Unexecute()
+    {
+        _item.Name = _oldName;
+    }
+}
+
+public class ToggleItemLockCommand : IUndoableCommand
+{
+    private readonly List<(ItemViewModel Item, bool OldLocked, bool NewLocked)> _changes;
+
+    public string Description => _changes.Count == 1
+        ? $"{(_changes[0].NewLocked ? "Lock" : "Unlock")} {_changes[0].Item.Name}"
+        : $"{(_changes.Count > 0 && _changes[0].NewLocked ? "Lock" : "Unlock")} {_changes.Count} items";
+
+    public ToggleItemLockCommand(IEnumerable<ItemViewModel> items, bool isLocked)
+    {
+        _changes = items.Select(i => (Item: i, OldLocked: i.IsLocked, NewLocked: isLocked)).ToList();
+    }
+
+    public ToggleItemLockCommand(ItemViewModel item, bool isLocked)
+    {
+        _changes = new List<(ItemViewModel, bool, bool)> { (item, item.IsLocked, isLocked) };
+    }
+
+    public void Execute()
+    {
+        foreach (var c in _changes)
+        {
+            c.Item.IsLocked = c.NewLocked;
+        }
+    }
+
+    public void Unexecute()
+    {
+        foreach (var c in _changes)
+        {
+            c.Item.IsLocked = c.OldLocked;
+        }
+    }
+}
+
+public class ToggleItemVisibilityCommand : IUndoableCommand
+{
+    private readonly List<(ItemViewModel Item, bool OldVisible, bool NewVisible)> _changes;
+
+    public string Description => _changes.Count == 1
+        ? $"{(_changes[0].NewVisible ? "Show" : "Hide")} {_changes[0].Item.Name}"
+        : $"{(_changes.Count > 0 && _changes[0].NewVisible ? "Show" : "Hide")} {_changes.Count} items";
+
+    public ToggleItemVisibilityCommand(IEnumerable<ItemViewModel> items, bool isVisible)
+    {
+        _changes = items.Select(i => (Item: i, OldVisible: i.IsVisible, NewVisible: isVisible)).ToList();
+    }
+
+    public ToggleItemVisibilityCommand(ItemViewModel item, bool isVisible)
+    {
+        _changes = new List<(ItemViewModel, bool, bool)> { (item, item.IsVisible, isVisible) };
+    }
+
+    public void Execute()
+    {
+        foreach (var c in _changes)
+        {
+            c.Item.IsVisible = c.NewVisible;
+        }
+    }
+
+    public void Unexecute()
+    {
+        foreach (var c in _changes)
+        {
+            c.Item.IsVisible = c.OldVisible;
+        }
+    }
+}

@@ -247,6 +247,20 @@ public class SelectionAdorner : Adorner
         double h = _item.Height;
         double zoom = GetCurrentZoom();
 
+        if (_item.IsLocked)
+        {
+            // Locked items show bounding box outline but no interactive handles
+            double lockOffset = CalculateOffset(zoom);
+            Rect lockRect = new(-lockOffset, -lockOffset, w + 2 * lockOffset, h + 2 * lockOffset);
+            var lockPen = new Pen(new SolidColorBrush(Color.FromRgb(245, 158, 11)), 1.5)
+            {
+                DashStyle = DashStyles.Dash
+            };
+            lockPen.Freeze();
+            dc.DrawRectangle(null, lockPen, lockRect);
+            return;
+        }
+
         double hs = CalculateHandleSize(zoom);
         double shs = CalculateSpecialHandleSize(zoom);
         double rotOffset = CalculateRotStalkHeight(zoom);
@@ -1181,6 +1195,8 @@ public class SelectionAdorner : Adorner
 
     protected override HitTestResult? HitTestCore(PointHitTestParameters hitTestParameters)
     {
+        if (_item.IsLocked) return null;
+
         Point p = hitTestParameters.HitPoint;
         double w = _item.Width;
         double h = _item.Height;

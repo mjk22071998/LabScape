@@ -5258,260 +5258,693 @@ public class CoreTests
 
         Assert.DoesNotContain(custom, vm.SavedTemplates);
 
-    }
-    [Fact]
-    public void ManualIpAssignment_SingleDevice_SupportsValidationAndUndoRedo()
-    {
-        var undo = new UndoRedoService();
-        var canvas = new CanvasViewModel(undo);
-        var dev1 = new DeviceItemViewModel(new DeviceItem { Name = "PC-01", DeviceType = "desktop" });
-        canvas.AddItem(dev1);
-
-        // 1. Initial status: Unassigned
-        Assert.Equal(ValidationStatus.Unassigned, dev1.ValidationStatus);
-        Assert.Null(dev1.IpAddress);
-        Assert.True(dev1.IsManualIp);
-
-        // 2. Set Invalid IP format
-        dev1.IpAddress = "999.123.456.789";
-        canvas.RecalculateValidation();
-        Assert.Equal(ValidationStatus.InvalidIpFormat, dev1.ValidationStatus);
-
-        // 3. Set Valid IP
-        var assignCmd = new AssignDeviceNetworkCommand(
-            dev1,
-            oldIp: dev1.IpAddress, newIp: "192.168.1.50",
-            oldMac: dev1.MacAddress, newMac: "00:11:22:33:44:55",
-            oldDeviceId: dev1.DeviceId, newDeviceId: null,
-            oldName: dev1.Name, newName: dev1.Name,
-            oldIsManual: true, newIsManual: true,
-            onChanged: () => canvas.RecalculateValidation());
-
-        undo.ExecuteCommand(assignCmd);
-        Assert.Equal("192.168.1.50", dev1.IpAddress);
-        Assert.Equal(ValidationStatus.Valid, dev1.ValidationStatus);
-
-        // 4. Add second device with Duplicate IP
-        var dev2 = new DeviceItemViewModel(new DeviceItem { Name = "PC-02", DeviceType = "desktop", IpAddress = "192.168.1.50" });
-        canvas.AddItem(dev2);
-        Assert.Equal(ValidationStatus.DuplicateIp, dev1.ValidationStatus);
-        Assert.Equal(ValidationStatus.DuplicateIp, dev2.ValidationStatus);
-
-        // 5. Undo second device addition -> dev1 returns to Valid
-        undo.Undo();
-        Assert.Single(canvas.Items);
-        Assert.Equal(ValidationStatus.Valid, dev1.ValidationStatus);
-
-        // 6. Undo assignment -> returns to InvalidIpFormat
-        undo.Undo();
-        Assert.Equal("999.123.456.789", dev1.IpAddress);
-        Assert.Equal(ValidationStatus.InvalidIpFormat, dev1.ValidationStatus);
-
-        // 7. Redo assignment -> Valid again
-        undo.Redo();
-        Assert.Equal("192.168.1.50", dev1.IpAddress);
-        Assert.Equal(ValidationStatus.Valid, dev1.ValidationStatus);
-    }
-
-    [Fact]
-    public void BatchIpAssignment_SequentialAssignment_OrdersSpatiallyAndSupportsUndoRedo()
-    {
-        var undo = new UndoRedoService();
-        var canvas = new CanvasViewModel(undo);
-
-        // Create 4 devices out of spatial order
-        var devD = new DeviceItemViewModel(new DeviceItem { Name = "Old-D", X = 200, Y = 200 });
-        var devA = new DeviceItemViewModel(new DeviceItem { Name = "Old-A", X = 100, Y = 100 });
-        var devC = new DeviceItemViewModel(new DeviceItem { Name = "Old-C", X = 100, Y = 200 });
-        var devB = new DeviceItemViewModel(new DeviceItem { Name = "Old-B", X = 200, Y = 100 });
-
-        canvas.AddItem(devD);
-        canvas.AddItem(devA);
-        canvas.AddItem(devC);
-        canvas.AddItem(devB);
-
-        // Select all 4
-        canvas.SelectAll();
-        Assert.Equal(4, canvas.SelectedItems.Count);
-
-        var propVm = new PropertiesViewModel(canvas);
-        propVm.BatchStartIp = "10.0.0.10";
-        propVm.BatchIpStep = 1;
-        propVm.BatchNamePrefix = "LAB-PC-";
-        propVm.BatchRenameDevices = true;
-
-        propVm.BatchAssignSequentialIps();
-
-        // Check spatial order:
-        // Row 1 (Y=100): devA (X=100) -> 10.0.0.10, devB (X=200) -> 10.0.0.11
-        // Row 2 (Y=200): devC (X=100) -> 10.0.0.12, devD (X=200) -> 10.0.0.13
-        Assert.Equal("10.0.0.10", devA.IpAddress);
-        Assert.Equal("LAB-PC-01", devA.Name);
-        Assert.Equal(ValidationStatus.Valid, devA.ValidationStatus);
-
-        Assert.Equal("10.0.0.11", devB.IpAddress);
-        Assert.Equal("LAB-PC-02", devB.Name);
-        Assert.Equal(ValidationStatus.Valid, devB.ValidationStatus);
-
-        Assert.Equal("10.0.0.12", devC.IpAddress);
-        Assert.Equal("LAB-PC-03", devC.Name);
-        Assert.Equal(ValidationStatus.Valid, devC.ValidationStatus);
-
-        Assert.Equal("10.0.0.13", devD.IpAddress);
-        Assert.Equal("LAB-PC-04", devD.Name);
-        Assert.Equal(ValidationStatus.Valid, devD.ValidationStatus);
-
-        // Test Undo
-        undo.Undo();
-        Assert.Equal("Old-A", devA.Name);
-        Assert.Null(devA.IpAddress);
-        Assert.Equal(ValidationStatus.Unassigned, devA.ValidationStatus);
-
-        // Test Redo
-        undo.Redo();
-        Assert.Equal("10.0.0.10", devA.IpAddress);
-        Assert.Equal("LAB-PC-01", devA.Name);
-        Assert.Equal(ValidationStatus.Valid, devA.ValidationStatus);
-    }
-
-    [Fact]
-    public void ManualIp_PropertiesViewModel_SwitchBetweenDatabaseAndManual()
-    {
-        var undo = new UndoRedoService();
-        var canvas = new CanvasViewModel(undo);
-        var dev = new DeviceItemViewModel(new DeviceItem { Name = "Desktop-01", DeviceType = "desktop" });
-        canvas.AddItem(dev);
-        canvas.SelectItem(dev);
-
-        var propVm = new PropertiesViewModel(canvas);
-
-        // 1. Assign from Database inventory
-        var dbDevice = new DatabaseDevice
-        {
-            DeviceId = "db-srv-01",
-            DisplayName = "PROD-DB-01",
-            PrimaryIp = "192.168.10.5",
-            MacAddress = "00:AA:BB:CC:DD:EE"
-        };
-        propVm.AssignIpToSelectedDevice(dbDevice);
-
-        Assert.False(dev.IsManualIp);
-        Assert.Equal("192.168.10.5", dev.IpAddress);
-        Assert.Equal("PROD-DB-01", dev.Name);
-        Assert.False(propVm.IsManualIpMode);
-        Assert.Equal("PROD-DB-01", propVm.LinkedDatabaseDeviceName);
-
-        // 2. Switch to Manual mode: keeps IP as static IP, marks manual
-        propVm.SwitchToManualMode();
-        Assert.True(dev.IsManualIp);
-        Assert.True(propVm.IsManualIpMode);
-        Assert.Empty(propVm.LinkedDatabaseDeviceName);
-        Assert.Equal("192.168.10.5", dev.IpAddress); // IP is retained
-
-        // 3. Clear IP
-        propVm.ClearDeviceIp();
-        Assert.Null(dev.IpAddress);
-        Assert.Equal(ValidationStatus.Unassigned, dev.ValidationStatus);
-
-        // 4. Next available IP suggestion
-        propVm.SuggestNextIp();
-        Assert.NotNull(dev.IpAddress);
-        Assert.True(CanvasViewModel.IsValidIPv4(dev.IpAddress));
-        Assert.Equal(ValidationStatus.Valid, dev.ValidationStatus);
-    }
-
-    [Fact]
-    public void SchemaSerialization_PreservesIsManualIpFlag()
-    {
-        var repo = new LayoutJsonRepository();
-        var doc = new LayoutDocument
-        {
-            Metadata = new DocumentMetadata { Title = "Test IP Modes" }
-        };
-
-        var devManual = new DeviceItem
-        {
-            Name = "Workstation-Manual",
-            IpAddress = "192.168.1.10",
-            IsManualIp = true
-        };
-        var devDb = new DeviceItem
-        {
-            Name = "Workstation-DbLinked",
-            IpAddress = "192.168.1.20",
-            DeviceId = "INV-999",
-            IsManualIp = false
-        };
-
-        doc.Items.Add(devManual);
-        doc.Items.Add(devDb);
-
-        string json = repo.SerializeToJson(doc);
-        Assert.Contains("\"is_manual_ip\": true", json);
-        Assert.Contains("\"is_manual_ip\": false", json);
-
-        var loaded = repo.DeserializeFromJson(json);
-        Assert.NotNull(loaded);
-        Assert.Equal(2, loaded.Items.Count);
-
-        var loadedManual = loaded.Items.OfType<DeviceItem>().First(d => d.Name == "Workstation-Manual");
-        var loadedDb = loaded.Items.OfType<DeviceItem>().First(d => d.Name == "Workstation-DbLinked");
-
-        Assert.True(loadedManual.IsManualIp);
-        Assert.False(loadedDb.IsManualIp);
-    }
-
-    [Fact]
-    public void AllXamlStaticResources_ResolveToDeclaredKeys_PreventStartupCrash()
-    {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        string? projectRoot = null;
-        while (dir != null)
-        {
-            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
-            {
-                projectRoot = dir.FullName;
-                break;
-            }
-            dir = dir.Parent;
-        }
-        Assert.NotNull(projectRoot);
-
-        var appDir = Path.Combine(projectRoot, "src", "LabScape.App");
-        var xamlFiles = Directory.GetFiles(appDir, "*.xaml", SearchOption.AllDirectories);
-
-        var declaredKeys = new HashSet<string>();
-        var keyRegex = new System.Text.RegularExpressions.Regex(@"x:Key=""([^""]+)""");
-        var staticResRegex = new System.Text.RegularExpressions.Regex(@"\{StaticResource\s+([^}]+)\}");
-
-        foreach (var file in xamlFiles)
-        {
-            string content = File.ReadAllText(file);
-            foreach (System.Text.RegularExpressions.Match match in keyRegex.Matches(content))
-            {
-                declaredKeys.Add(match.Groups[1].Value);
-            }
-        }
-
-        var missing = new List<string>();
-        foreach (var file in xamlFiles)
-        {
-            string[] lines = File.ReadAllLines(file);
-            for (int lineNo = 1; lineNo <= lines.Length; lineNo++)
-            {
-                string line = lines[lineNo - 1];
-                foreach (System.Text.RegularExpressions.Match match in staticResRegex.Matches(line))
-                {
-                    string res = match.Groups[1].Value.Trim();
-                    if (res.StartsWith("x:") || res.StartsWith("{")) continue;
-                    if (!declaredKeys.Contains(res))
-                    {
-                        missing.Add($"{Path.GetFileName(file)}:L{lineNo} -> '{res}'");
-                    }
-                }
-            }
-        }
-
-        Assert.Empty(missing);
-    }
-}
+    }
+
+    [Fact]
+
+    public void ManualIpAssignment_SingleDevice_SupportsValidationAndUndoRedo()
+
+    {
+
+        var undo = new UndoRedoService();
+
+        var canvas = new CanvasViewModel(undo);
+
+        var dev1 = new DeviceItemViewModel(new DeviceItem { Name = "PC-01", DeviceType = "desktop" });
+
+        canvas.AddItem(dev1);
+
+
+
+        // 1. Initial status: Unassigned
+
+        Assert.Equal(ValidationStatus.Unassigned, dev1.ValidationStatus);
+
+        Assert.Null(dev1.IpAddress);
+
+        Assert.True(dev1.IsManualIp);
+
+
+
+        // 2. Set Invalid IP format
+
+        dev1.IpAddress = "999.123.456.789";
+
+        canvas.RecalculateValidation();
+
+        Assert.Equal(ValidationStatus.InvalidIpFormat, dev1.ValidationStatus);
+
+
+
+        // 3. Set Valid IP
+
+        var assignCmd = new AssignDeviceNetworkCommand(
+
+            dev1,
+
+            oldIp: dev1.IpAddress, newIp: "192.168.1.50",
+
+            oldMac: dev1.MacAddress, newMac: "00:11:22:33:44:55",
+
+            oldDeviceId: dev1.DeviceId, newDeviceId: null,
+
+            oldName: dev1.Name, newName: dev1.Name,
+
+            oldIsManual: true, newIsManual: true,
+
+            onChanged: () => canvas.RecalculateValidation());
+
+
+
+        undo.ExecuteCommand(assignCmd);
+
+        Assert.Equal("192.168.1.50", dev1.IpAddress);
+
+        Assert.Equal(ValidationStatus.Valid, dev1.ValidationStatus);
+
+
+
+        // 4. Add second device with Duplicate IP
+
+        var dev2 = new DeviceItemViewModel(new DeviceItem { Name = "PC-02", DeviceType = "desktop", IpAddress = "192.168.1.50" });
+
+        canvas.AddItem(dev2);
+
+        Assert.Equal(ValidationStatus.DuplicateIp, dev1.ValidationStatus);
+
+        Assert.Equal(ValidationStatus.DuplicateIp, dev2.ValidationStatus);
+
+
+
+        // 5. Undo second device addition -> dev1 returns to Valid
+
+        undo.Undo();
+
+        Assert.Single(canvas.Items);
+
+        Assert.Equal(ValidationStatus.Valid, dev1.ValidationStatus);
+
+
+
+        // 6. Undo assignment -> returns to InvalidIpFormat
+
+        undo.Undo();
+
+        Assert.Equal("999.123.456.789", dev1.IpAddress);
+
+        Assert.Equal(ValidationStatus.InvalidIpFormat, dev1.ValidationStatus);
+
+
+
+        // 7. Redo assignment -> Valid again
+
+        undo.Redo();
+
+        Assert.Equal("192.168.1.50", dev1.IpAddress);
+
+        Assert.Equal(ValidationStatus.Valid, dev1.ValidationStatus);
+
+    }
+
+
+
+    [Fact]
+
+    public void BatchIpAssignment_SequentialAssignment_OrdersSpatiallyAndSupportsUndoRedo()
+
+    {
+
+        var undo = new UndoRedoService();
+
+        var canvas = new CanvasViewModel(undo);
+
+
+
+        // Create 4 devices out of spatial order
+
+        var devD = new DeviceItemViewModel(new DeviceItem { Name = "Old-D", X = 200, Y = 200 });
+
+        var devA = new DeviceItemViewModel(new DeviceItem { Name = "Old-A", X = 100, Y = 100 });
+
+        var devC = new DeviceItemViewModel(new DeviceItem { Name = "Old-C", X = 100, Y = 200 });
+
+        var devB = new DeviceItemViewModel(new DeviceItem { Name = "Old-B", X = 200, Y = 100 });
+
+
+
+        canvas.AddItem(devD);
+
+        canvas.AddItem(devA);
+
+        canvas.AddItem(devC);
+
+        canvas.AddItem(devB);
+
+
+
+        // Select all 4
+
+        canvas.SelectAll();
+
+        Assert.Equal(4, canvas.SelectedItems.Count);
+
+
+
+        var propVm = new PropertiesViewModel(canvas);
+
+        propVm.BatchStartIp = "10.0.0.10";
+
+        propVm.BatchIpStep = 1;
+
+        propVm.BatchNamePrefix = "LAB-PC-";
+
+        propVm.BatchRenameDevices = true;
+
+
+
+        propVm.BatchAssignSequentialIps();
+
+
+
+        // Check spatial order:
+
+        // Row 1 (Y=100): devA (X=100) -> 10.0.0.10, devB (X=200) -> 10.0.0.11
+
+        // Row 2 (Y=200): devC (X=100) -> 10.0.0.12, devD (X=200) -> 10.0.0.13
+
+        Assert.Equal("10.0.0.10", devA.IpAddress);
+
+        Assert.Equal("LAB-PC-01", devA.Name);
+
+        Assert.Equal(ValidationStatus.Valid, devA.ValidationStatus);
+
+
+
+        Assert.Equal("10.0.0.11", devB.IpAddress);
+
+        Assert.Equal("LAB-PC-02", devB.Name);
+
+        Assert.Equal(ValidationStatus.Valid, devB.ValidationStatus);
+
+
+
+        Assert.Equal("10.0.0.12", devC.IpAddress);
+
+        Assert.Equal("LAB-PC-03", devC.Name);
+
+        Assert.Equal(ValidationStatus.Valid, devC.ValidationStatus);
+
+
+
+        Assert.Equal("10.0.0.13", devD.IpAddress);
+
+        Assert.Equal("LAB-PC-04", devD.Name);
+
+        Assert.Equal(ValidationStatus.Valid, devD.ValidationStatus);
+
+
+
+        // Test Undo
+
+        undo.Undo();
+
+        Assert.Equal("Old-A", devA.Name);
+
+        Assert.Null(devA.IpAddress);
+
+        Assert.Equal(ValidationStatus.Unassigned, devA.ValidationStatus);
+
+
+
+        // Test Redo
+
+        undo.Redo();
+
+        Assert.Equal("10.0.0.10", devA.IpAddress);
+
+        Assert.Equal("LAB-PC-01", devA.Name);
+
+        Assert.Equal(ValidationStatus.Valid, devA.ValidationStatus);
+
+    }
+
+
+
+    [Fact]
+
+    public void ManualIp_PropertiesViewModel_SwitchBetweenDatabaseAndManual()
+
+    {
+
+        var undo = new UndoRedoService();
+
+        var canvas = new CanvasViewModel(undo);
+
+        var dev = new DeviceItemViewModel(new DeviceItem { Name = "Desktop-01", DeviceType = "desktop" });
+
+        canvas.AddItem(dev);
+
+        canvas.SelectItem(dev);
+
+
+
+        var propVm = new PropertiesViewModel(canvas);
+
+
+
+        // 1. Assign from Database inventory
+
+        var dbDevice = new DatabaseDevice
+
+        {
+
+            DeviceId = "db-srv-01",
+
+            DisplayName = "PROD-DB-01",
+
+            PrimaryIp = "192.168.10.5",
+
+            MacAddress = "00:AA:BB:CC:DD:EE"
+
+        };
+
+        propVm.AssignIpToSelectedDevice(dbDevice);
+
+
+
+        Assert.False(dev.IsManualIp);
+
+        Assert.Equal("192.168.10.5", dev.IpAddress);
+
+        Assert.Equal("PROD-DB-01", dev.Name);
+
+        Assert.False(propVm.IsManualIpMode);
+
+        Assert.Equal("PROD-DB-01", propVm.LinkedDatabaseDeviceName);
+
+
+
+        // 2. Switch to Manual mode: keeps IP as static IP, marks manual
+
+        propVm.SwitchToManualMode();
+
+        Assert.True(dev.IsManualIp);
+
+        Assert.True(propVm.IsManualIpMode);
+
+        Assert.Empty(propVm.LinkedDatabaseDeviceName);
+
+        Assert.Equal("192.168.10.5", dev.IpAddress); // IP is retained
+
+
+
+        // 3. Clear IP
+
+        propVm.ClearDeviceIp();
+
+        Assert.Null(dev.IpAddress);
+
+        Assert.Equal(ValidationStatus.Unassigned, dev.ValidationStatus);
+
+
+
+        // 4. Next available IP suggestion
+
+        propVm.SuggestNextIp();
+
+        Assert.NotNull(dev.IpAddress);
+
+        Assert.True(CanvasViewModel.IsValidIPv4(dev.IpAddress));
+
+        Assert.Equal(ValidationStatus.Valid, dev.ValidationStatus);
+
+    }
+
+
+
+    [Fact]
+
+    public void SchemaSerialization_PreservesIsManualIpFlag()
+
+    {
+
+        var repo = new LayoutJsonRepository();
+
+        var doc = new LayoutDocument
+
+        {
+
+            Metadata = new DocumentMetadata { Title = "Test IP Modes" }
+
+        };
+
+
+
+        var devManual = new DeviceItem
+
+        {
+
+            Name = "Workstation-Manual",
+
+            IpAddress = "192.168.1.10",
+
+            IsManualIp = true
+
+        };
+
+        var devDb = new DeviceItem
+
+        {
+
+            Name = "Workstation-DbLinked",
+
+            IpAddress = "192.168.1.20",
+
+            DeviceId = "INV-999",
+
+            IsManualIp = false
+
+        };
+
+
+
+        doc.Items.Add(devManual);
+
+        doc.Items.Add(devDb);
+
+
+
+        string json = repo.SerializeToJson(doc);
+
+        Assert.Contains("\"is_manual_ip\": true", json);
+
+        Assert.Contains("\"is_manual_ip\": false", json);
+
+
+
+        var loaded = repo.DeserializeFromJson(json);
+
+        Assert.NotNull(loaded);
+
+        Assert.Equal(2, loaded.Items.Count);
+
+
+
+        var loadedManual = loaded.Items.OfType<DeviceItem>().First(d => d.Name == "Workstation-Manual");
+
+        var loadedDb = loaded.Items.OfType<DeviceItem>().First(d => d.Name == "Workstation-DbLinked");
+
+
+
+        Assert.True(loadedManual.IsManualIp);
+
+        Assert.False(loadedDb.IsManualIp);
+
+    }
+
+
+
+    [Fact]
+
+    public void AllXamlStaticResources_ResolveToDeclaredKeys_PreventStartupCrash()
+
+    {
+
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+
+        string? projectRoot = null;
+
+        while (dir != null)
+
+        {
+
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+
+            {
+
+                projectRoot = dir.FullName;
+
+                break;
+
+            }
+
+            dir = dir.Parent;
+
+        }
+
+        Assert.NotNull(projectRoot);
+
+
+
+        var appDir = Path.Combine(projectRoot, "src", "LabScape.App");
+
+        var xamlFiles = Directory.GetFiles(appDir, "*.xaml", SearchOption.AllDirectories);
+
+
+
+        var declaredKeys = new HashSet<string>();
+
+        var keyRegex = new System.Text.RegularExpressions.Regex(@"x:Key=""([^""]+)""");
+
+        var staticResRegex = new System.Text.RegularExpressions.Regex(@"\{StaticResource\s+([^}]+)\}");
+
+
+
+        foreach (var file in xamlFiles)
+
+        {
+
+            string content = File.ReadAllText(file);
+
+            foreach (System.Text.RegularExpressions.Match match in keyRegex.Matches(content))
+
+            {
+
+                declaredKeys.Add(match.Groups[1].Value);
+
+            }
+
+        }
+
+
+
+        var missing = new List<string>();
+
+        foreach (var file in xamlFiles)
+
+        {
+
+            string[] lines = File.ReadAllLines(file);
+
+            for (int lineNo = 1; lineNo <= lines.Length; lineNo++)
+
+            {
+
+                string line = lines[lineNo - 1];
+
+                foreach (System.Text.RegularExpressions.Match match in staticResRegex.Matches(line))
+
+                {
+
+                    string res = match.Groups[1].Value.Trim();
+
+                    if (res.StartsWith("x:") || res.StartsWith("{")) continue;
+
+                    if (!declaredKeys.Contains(res))
+
+                    {
+
+                        missing.Add($"{Path.GetFileName(file)}:L{lineNo} -> '{res}'");
+
+                    }
+
+                }
+
+            }
+
+        }
+
+
+
+        Assert.Empty(missing);
+
+    }
+
+
+    [Fact]
+    public void LayersViewModel_RebuildsAndSortsTopDownByZ()
+    {
+        var undoService = new UndoRedoService();
+        var canvas = new CanvasViewModel(undoService);
+        var layersVm = new LabScape.ViewModels.Layers.LayersViewModel();
+        layersVm.AttachCanvas(canvas);
+
+        var dev1 = new DeviceItemViewModel(new DeviceItem { Name = "PC-01", X = 10, Y = 10, Z = 1 });
+        var dev2 = new DeviceItemViewModel(new DeviceItem { Name = "Server-01", X = 50, Y = 50, Z = 10 });
+        var dev3 = new DeviceItemViewModel(new DeviceItem { Name = "Router-01", X = 90, Y = 90, Z = 5 });
+
+        canvas.Items.Add(dev1);
+        canvas.Items.Add(dev2);
+        canvas.Items.Add(dev3);
+
+        Assert.Equal(3, layersVm.Layers.Count);
+        Assert.Equal("Server-01", layersVm.Layers[0].Name);
+        Assert.Equal("Router-01", layersVm.Layers[1].Name);
+        Assert.Equal("PC-01", layersVm.Layers[2].Name);
+        Assert.Equal(3, layersVm.TotalLayersCount);
+        Assert.Equal(0, layersVm.LockedLayersCount);
+        Assert.Equal(0, layersVm.HiddenLayersCount);
+    }
+
+    [Fact]
+    public void LayersViewModel_MoveLayerInList_ReordersZAndSupportsUndoRedo()
+    {
+        var undoService = new UndoRedoService();
+        var canvas = new CanvasViewModel(undoService);
+        var layersVm = new LabScape.ViewModels.Layers.LayersViewModel();
+        layersVm.AttachCanvas(canvas);
+
+        var dev1 = new DeviceItemViewModel(new DeviceItem { Name = "PC-01", Z = 1 });
+        var dev2 = new DeviceItemViewModel(new DeviceItem { Name = "Server-01", Z = 2 });
+        var dev3 = new DeviceItemViewModel(new DeviceItem { Name = "Router-01", Z = 3 });
+
+        canvas.Items.Add(dev1);
+        canvas.Items.Add(dev2);
+        canvas.Items.Add(dev3);
+
+        // Top-down: [Router-01 (Z=3), Server-01 (Z=2), PC-01 (Z=1)]
+        Assert.Equal("Router-01", layersVm.Layers[0].Name);
+        Assert.Equal("PC-01", layersVm.Layers[2].Name);
+
+        // Move bottom layer (index 2: PC-01) to top (index 0)
+        layersVm.MoveLayerInList(2, 0);
+
+        // Now PC-01 should be at the top with highest Z (3)
+        Assert.Equal("PC-01", layersVm.Layers[0].Name);
+        Assert.Equal(3, dev1.Z);
+
+        // Undo
+        undoService.Undo();
+        layersVm.RefreshVisibleLayers();
+        Assert.Equal("Router-01", layersVm.Layers[0].Name);
+        Assert.Equal(1, dev1.Z);
+
+        // Redo
+        undoService.Redo();
+        layersVm.RefreshVisibleLayers();
+        Assert.Equal("PC-01", layersVm.Layers[0].Name);
+        Assert.Equal(3, dev1.Z);
+    }
+
+    [Fact]
+    public void LayersViewModel_ToggleLockAndVisibility_SupportsUndoRedo()
+    {
+        var undoService = new UndoRedoService();
+        var canvas = new CanvasViewModel(undoService);
+        var layersVm = new LabScape.ViewModels.Layers.LayersViewModel();
+        layersVm.AttachCanvas(canvas);
+
+        var dev = new DeviceItemViewModel(new DeviceItem { Name = "Switch-01", Z = 1 });
+        canvas.Items.Add(dev);
+
+        var layer = layersVm.Layers[0];
+
+        // 1. Lock toggle
+        layer.ToggleLock();
+        Assert.True(dev.IsLocked);
+        Assert.Equal(1, layersVm.LockedLayersCount);
+
+        undoService.Undo();
+        Assert.False(dev.IsLocked);
+        Assert.Equal(0, layersVm.LockedLayersCount);
+
+        undoService.Redo();
+        Assert.True(dev.IsLocked);
+        Assert.Equal(1, layersVm.LockedLayersCount);
+
+        // 2. Visibility toggle
+        layer.ToggleVisibility();
+        Assert.False(dev.IsVisible);
+        Assert.Equal(1, layersVm.HiddenLayersCount);
+
+        undoService.Undo();
+        Assert.True(dev.IsVisible);
+        Assert.Equal(0, layersVm.HiddenLayersCount);
+    }
+
+    [Fact]
+    public void LayersViewModel_RenameItem_SupportsUndoRedo()
+    {
+        var undoService = new UndoRedoService();
+        var canvas = new CanvasViewModel(undoService);
+        var layersVm = new LabScape.ViewModels.Layers.LayersViewModel();
+        layersVm.AttachCanvas(canvas);
+
+        var dev = new DeviceItemViewModel(new DeviceItem { Name = "Original Name", Z = 1 });
+        canvas.Items.Add(dev);
+
+        var layer = layersVm.Layers[0];
+        layer.BeginEdit();
+        layer.EditText = "Renamed Gateway";
+        layer.CommitEdit();
+
+        Assert.Equal("Renamed Gateway", dev.Name);
+        Assert.Equal("Renamed Gateway", layer.Name);
+
+        undoService.Undo();
+        Assert.Equal("Original Name", dev.Name);
+        Assert.Equal("Original Name", layer.Name);
+
+        undoService.Redo();
+        Assert.Equal("Renamed Gateway", dev.Name);
+        Assert.Equal("Renamed Gateway", layer.Name);
+    }
+
+    [Fact]
+    public void LayersViewModel_SearchFilterAndBulkActions_WorkCorrectly()
+    {
+        var undoService = new UndoRedoService();
+        var canvas = new CanvasViewModel(undoService);
+        var layersVm = new LabScape.ViewModels.Layers.LayersViewModel();
+        layersVm.AttachCanvas(canvas);
+
+        var dev1 = new DeviceItemViewModel(new DeviceItem { Name = "Main Server", Z = 1 });
+        var dev2 = new DeviceItemViewModel(new DeviceItem { Name = "Workstation Alpha", Z = 2 });
+        var dev3 = new DeviceItemViewModel(new DeviceItem { Name = "Workstation Beta", Z = 3 });
+
+        canvas.Items.Add(dev1);
+        canvas.Items.Add(dev2);
+        canvas.Items.Add(dev3);
+
+        // Filter
+        layersVm.SearchText = "Alpha";
+        Assert.Single(layersVm.Layers);
+        Assert.Equal("Workstation Alpha", layersVm.Layers[0].Name);
+
+        layersVm.SearchText = "Server";
+        Assert.Single(layersVm.Layers);
+        Assert.Equal("Main Server", layersVm.Layers[0].Name);
+
+        layersVm.SearchText = string.Empty;
+        Assert.Equal(3, layersVm.Layers.Count);
+
+        // Bulk lock all
+        layersVm.ToggleLockAll();
+        Assert.True(dev1.IsLocked && dev2.IsLocked && dev3.IsLocked);
+        Assert.Equal(3, layersVm.LockedLayersCount);
+
+        // Bulk unlock all
+        layersVm.ToggleLockAll();
+        Assert.False(dev1.IsLocked || dev2.IsLocked || dev3.IsLocked);
+        Assert.Equal(0, layersVm.LockedLayersCount);
+
+        // Bulk visibility
+        layersVm.ToggleVisibilityAll();
+        Assert.False(dev1.IsVisible || dev2.IsVisible || dev3.IsVisible);
+        Assert.Equal(3, layersVm.HiddenLayersCount);
+
+        layersVm.ToggleVisibilityAll();
+        Assert.True(dev1.IsVisible && dev2.IsVisible && dev3.IsVisible);
+        Assert.Equal(0, layersVm.HiddenLayersCount);
+    }
+}

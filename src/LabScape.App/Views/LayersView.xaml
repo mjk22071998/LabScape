@@ -1,0 +1,466 @@
+<UserControl x:Class="LabScape.App.Views.LayersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:layers="clr-namespace:LabScape.ViewModels.Layers;assembly=LabScape.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="280">
+
+    <Grid Background="{DynamicResource PanelBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Header & Stats -->
+            <RowDefinition Height="Auto"/> <!-- Filter / Search -->
+            <RowDefinition Height="Auto"/> <!-- Quick Action Toolbar -->
+            <RowDefinition Height="*"/>    <!-- Layers List -->
+            <RowDefinition Height="Auto"/> <!-- Footer / Summary -->
+        </Grid.RowDefinitions>
+
+        <!-- 1. Header & Stats Badges -->
+        <Border Grid.Row="0" Margin="10,8,10,4" Padding="0,2">
+            <DockPanel LastChildFill="False">
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                    <TextBlock Text="Layers" FontWeight="Bold" FontSize="13" Foreground="{DynamicResource AppTextPrimaryBrush}" Margin="0,0,8,0"/>
+                    <Border Background="{DynamicResource AccentSubtleBrush}" BorderBrush="{DynamicResource AccentBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="6,1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding TotalLayersCount, StringFormat='{}{0}'}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentPrimaryBrush}"/>
+                    </Border>
+                </StackPanel>
+
+                <!-- Status Counters (Locked / Hidden) -->
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
+                    <!-- Locked Counter -->
+                    <Border Background="#1EF59E0B" BorderBrush="#40F59E0B" BorderThickness="1" CornerRadius="8" Padding="5,1" Margin="0,0,4,0" ToolTip="Locked layers count">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔒" FontSize="9" Margin="0,0,3,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding LockedLayersCount}" FontSize="9.5" FontWeight="SemiBold" Foreground="#F59E0B" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <!-- Hidden Counter -->
+                    <Border Background="#1EEF4444" BorderBrush="#40EF4444" BorderThickness="1" CornerRadius="8" Padding="5,1" ToolTip="Hidden layers count">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🚫" FontSize="9" Margin="0,0,3,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding HiddenLayersCount}" FontSize="9.5" FontWeight="SemiBold" Foreground="#EF4444" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- 2. Search / Filter Bar -->
+        <Border Grid.Row="1" Margin="10,4,10,6" Background="{DynamicResource InputBackgroundBrush}" CornerRadius="6" BorderBrush="{DynamicResource InputBorderBrush}" BorderThickness="1" Padding="6,3">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="🔍" FontSize="11" Margin="2,0,6,0" VerticalAlignment="Center" Foreground="{DynamicResource AppTextMutedBrush}"/>
+                <TextBox Grid.Column="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                         BorderThickness="0" Background="Transparent" Foreground="{DynamicResource InputForegroundBrush}"
+                         CaretBrush="{DynamicResource InputForegroundBrush}" VerticalAlignment="Center"
+                         FontSize="11.5" Padding="0"/>
+                <Button Grid.Column="2" Content="✕" FontSize="9" Width="16" Height="16"
+                        Background="Transparent" BorderThickness="0"
+                        Foreground="{DynamicResource AppTextMutedBrush}"
+                        Cursor="Hand" ToolTip="Clear Filter"
+                        Click="ClearSearch_Click"
+                        Visibility="{Binding SearchText, Converter={StaticResource StringNotEmptyToVisibilityConverter}}">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Foreground" Value="#EF4444"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- 3. Z-Order & Layer Action Toolbar -->
+        <Border Grid.Row="2" Margin="10,0,10,6" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="4,3">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/> <!-- Z-Order Stack Controls -->
+                    <ColumnDefinition Width="*"/>    <!-- Spacer -->
+                    <ColumnDefinition Width="Auto"/> <!-- Bulk Actions -->
+                </Grid.ColumnDefinitions>
+
+                <!-- Z-Order Reorder Controls -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Button Style="{DynamicResource QuickActionButtonStyle}" Width="24" Height="24" ToolTip="Bring to Front (Highest Z)"
+                            Command="{Binding BringToFrontCommand}">
+                        <TextBlock Text="⏫" FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Button>
+                    <Button Style="{DynamicResource QuickActionButtonStyle}" Width="24" Height="24" Margin="2,0,0,0" ToolTip="Bring Forward (Up One Step)"
+                            Command="{Binding BringForwardCommand}">
+                        <TextBlock Text="▲" FontSize="9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Button>
+                    <Button Style="{DynamicResource QuickActionButtonStyle}" Width="24" Height="24" Margin="2,0,0,0" ToolTip="Send Backward (Down One Step)"
+                            Command="{Binding SendBackwardCommand}">
+                        <TextBlock Text="▼" FontSize="9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Button>
+                    <Button Style="{DynamicResource QuickActionButtonStyle}" Width="24" Height="24" Margin="2,0,0,0" ToolTip="Send to Back (Lowest Z)"
+                            Command="{Binding SendToBackCommand}">
+                        <TextBlock Text="⏬" FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Button>
+                </StackPanel>
+
+                <!-- Bulk & Layer Tools -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button Style="{DynamicResource QuickActionButtonStyle}" Width="24" Height="24" ToolTip="Group Selected (Ctrl+G)"
+                            Command="{Binding GroupSelectedCommand}">
+                        <TextBlock Text="⊞" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Button>
+                    <Button Style="{DynamicResource QuickActionButtonStyle}" Width="24" Height="24" Margin="2,0,0,0" ToolTip="Ungroup Selected (Ctrl+Shift+G)"
+                            Command="{Binding UngroupSelectedCommand}">
+                        <TextBlock Text="⊟" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Button>
+                    <Button Style="{DynamicResource QuickActionButtonStyle}" Width="24" Height="24" Margin="2,0,0,0" ToolTip="Duplicate Layer (Ctrl+D)"
+                            Command="{Binding DuplicateSelectedCommand}">
+                        <TextBlock Text="⎘" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Button>
+                    <Button Style="{DynamicResource QuickActionButtonStyle}" Width="24" Height="24" Margin="2,0,0,0" ToolTip="Lock / Unlock All"
+                            Command="{Binding ToggleLockAllCommand}">
+                        <TextBlock Text="🔒" FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Button>
+                    <Button Style="{DynamicResource QuickActionButtonStyle}" Width="24" Height="24" Margin="2,0,0,0" ToolTip="Show / Hide All"
+                            Command="{Binding ToggleVisibilityAllCommand}">
+                        <TextBlock Text="👁" FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Button>
+                    <Button Style="{DynamicResource DangerButtonStyle}" Width="24" Height="24" Margin="2,0,0,0" ToolTip="Delete Selected Layer"
+                            Command="{Binding DeleteSelectedCommand}">
+                        <TextBlock Text="🗑" FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 4. Layers List (Top-Down Z Order: Topmost Layer at Top) -->
+        <ListBox Grid.Row="3" x:Name="LayersListBox"
+                 ItemsSource="{Binding Layers}"
+                 SelectionMode="Extended"
+                 Background="Transparent"
+                 BorderThickness="0"
+                 Padding="8,0"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 SelectionChanged="LayersListBox_SelectionChanged"
+                 PreviewMouseLeftButtonDown="LayersListBox_PreviewMouseLeftButtonDown"
+                 PreviewMouseMove="LayersListBox_PreviewMouseMove"
+                 Drop="LayersListBox_Drop"
+                 DragOver="LayersListBox_DragOver"
+                 AllowDrop="True">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="Margin" Value="0,1.5"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListBoxItem">
+                                <Border x:Name="itemContainer"
+                                        Background="{DynamicResource CardBackgroundBrush}"
+                                        BorderBrush="{DynamicResource CardBorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="5"
+                                        Padding="6,5"
+                                        SnapsToDevicePixels="True"
+                                        Margin="0,1">
+                                    <ContentPresenter/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="itemContainer" Property="Background" Value="{DynamicResource CardHoverBackgroundBrush}"/>
+                                        <Setter TargetName="itemContainer" Property="BorderBrush" Value="{DynamicResource CardBorderHoverBrush}"/>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="itemContainer" Property="Background" Value="{DynamicResource AccentSubtleBrush}"/>
+                                        <Setter TargetName="itemContainer" Property="BorderBrush" Value="{DynamicResource AccentPrimaryBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.ItemContainerStyle>
+
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type layers:LayerItemViewModel}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/> <!-- Visibility Toggle -->
+                            <ColumnDefinition Width="Auto"/> <!-- Lock Toggle -->
+                            <ColumnDefinition Width="Auto"/> <!-- Type Glyph/Icon -->
+                            <ColumnDefinition Width="*"/>    <!-- Name & Subtitle -->
+                            <ColumnDefinition Width="Auto"/> <!-- Z-Index Badge -->
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Visibility Eye Toggle (👁️ / 🚫) -->
+                        <Button Grid.Column="0" Width="20" Height="20" Margin="0,0,3,0"
+                                Background="Transparent" BorderThickness="0" Cursor="Hand"
+                                Command="{Binding ToggleVisibilityCommand}"
+                                ToolTip="Toggle Visibility (Show / Hide on Canvas)">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                            <Grid>
+                                <!-- Visible State Icon -->
+                                <TextBlock Text="👁" FontSize="11" Foreground="{DynamicResource AppTextPrimaryBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsVisible}" Value="False">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <!-- Hidden State Icon -->
+                                <TextBlock Text="🚫" FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsVisible}" Value="False">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </Button>
+
+                        <!-- Lock Padlock Toggle (🔒 / 🔓) -->
+                        <Button Grid.Column="1" Width="20" Height="20" Margin="0,0,5,0"
+                                Background="Transparent" BorderThickness="0" Cursor="Hand"
+                                Command="{Binding ToggleLockCommand}"
+                                ToolTip="Toggle Lock (Prevent Dragging &amp; Resizing)">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                            <Grid>
+                                <!-- Locked State Icon -->
+                                <TextBlock Text="🔒" FontSize="10" Foreground="#F59E0B"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsLocked}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <!-- Unlocked State Icon -->
+                                <TextBlock Text="🔓" FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}"
+                                           Opacity="0.4"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsLocked}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </Button>
+
+                        <!-- Layer Type Indicator Icon -->
+                        <Border Grid.Column="2" Width="20" Height="20" Margin="0,0,6,0"
+                                Background="{DynamicResource AccentSubtleBrush}"
+                                CornerRadius="4" VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="💻" FontSize="9.5" ToolTip="Workstation / Device">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IconKind}" Value="Device">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <TextBlock Text="🪑" FontSize="9.5" ToolTip="Furniture">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IconKind}" Value="Furniture">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <TextBlock Text="📐" FontSize="9.5" ToolTip="Geometric Shape">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IconKind}" Value="Shape">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <TextBlock Text="T" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentPrimaryBrush}" ToolTip="Text Label">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IconKind}" Value="Text">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <TextBlock Text="📁" FontSize="9.5" ToolTip="Grouped Elements">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IconKind}" Value="Group">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+
+                        <!-- Layer Name & Subtitle -->
+                        <Grid Grid.Column="3" VerticalAlignment="Center">
+                            <!-- Normal Display Mode -->
+                            <StackPanel MouseLeftButtonDown="LayerName_MouseLeftButtonDown">
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsVisible}" Value="False">
+                                                <Setter Property="Opacity" Value="0.45"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+                                <TextBlock Text="{Binding Name}" FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource AppTextPrimaryBrush}"
+                                           TextTrimming="CharacterEllipsis" ToolTip="Double-click to rename"/>
+                                <TextBlock Text="{Binding Subtitle}" FontSize="9.5"
+                                           Foreground="{DynamicResource AppTextMutedBrush}"
+                                           TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+
+                            <!-- Inline Renaming Mode -->
+                            <TextBox x:Name="InlineEditBox"
+                                     Text="{Binding EditText, UpdateSourceTrigger=PropertyChanged}"
+                                     FontSize="11" FontWeight="SemiBold"
+                                     Padding="2,1"
+                                     Loaded="InlineEditBox_Loaded"
+                                     KeyDown="InlineEditBox_KeyDown"
+                                     LostFocus="InlineEditBox_LostFocus">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </Grid>
+
+                        <!-- Z-Order Badge -->
+                        <Border Grid.Column="4" Margin="6,0,0,0" VerticalAlignment="Center"
+                                Background="{DynamicResource InputBackgroundBrush}"
+                                BorderBrush="{DynamicResource InputBorderBrush}"
+                                BorderThickness="1" CornerRadius="4" Padding="4,1"
+                                ToolTip="Canvas Z-Order Layer (Higher = on top)">
+                            <TextBlock Text="{Binding Z, StringFormat='Z:{0}'}" FontSize="9" FontWeight="Medium"
+                                       Foreground="{DynamicResource AppTextMutedBrush}"/>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!-- 5. Empty State Message -->
+        <Border Grid.Row="3" Margin="20" VerticalAlignment="Center" HorizontalAlignment="Center"
+                IsHitTestVisible="False">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding TotalLayersCount}" Value="0">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <StackPanel HorizontalAlignment="Center">
+                <TextBlock Text="📚" FontSize="26" HorizontalAlignment="Center" Margin="0,0,0,6" Opacity="0.5"/>
+                <TextBlock Text="No layers yet" FontWeight="SemiBold" FontSize="11.5" HorizontalAlignment="Center" Foreground="{DynamicResource AppTextPrimaryBrush}"/>
+                <TextBlock Text="Drag items from Stencils Library to start creating layers." FontSize="10" TextWrapping="Wrap" TextAlignment="Center" Margin="0,3,0,0" Foreground="{DynamicResource AppTextMutedBrush}"/>
+            </StackPanel>
+        </Border>
+
+        <!-- 6. Footer Reorder Hint -->
+        <Border Grid.Row="4" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,1,0,0" Padding="8,4">
+            <DockPanel LastChildFill="False">
+                <TextBlock DockPanel.Dock="Left" Text="💡 Drag layers to reorder Z-index" FontSize="9.5" Foreground="{DynamicResource AppTextMutedBrush}" VerticalAlignment="Center"/>
+                <Button DockPanel.Dock="Right" Content="Select All" Style="{DynamicResource QuickActionButtonStyle}" Padding="6,1" FontSize="9.5"
+                        Command="{Binding SelectAllCommand}"/>
+            </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>

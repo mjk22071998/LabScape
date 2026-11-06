@@ -37,6 +37,12 @@ public partial class ItemViewModel : ObservableObject
     private bool _isSelected;
 
     [ObservableProperty]
+    private bool _isLocked;
+
+    [ObservableProperty]
+    private bool _isVisible = true;
+
+    [ObservableProperty]
     private string? _parentGroupId;
 
     public ItemType ItemType => Model.Type;
@@ -58,6 +64,8 @@ public partial class ItemViewModel : ObservableObject
         _width = model.Width;
         _height = model.Height;
         _rotation = model.Rotation;
+        _isLocked = model.IsLocked;
+        _isVisible = model.IsVisible;
         _parentGroupId = model.ParentGroupId;
     }
 
@@ -76,6 +84,8 @@ public partial class ItemViewModel : ObservableObject
     partial void OnWidthChanged(double value) => Model.Width = value;
     partial void OnHeightChanged(double value) => Model.Height = value;
     partial void OnRotationChanged(double value) => Model.Rotation = value;
+    partial void OnIsLockedChanged(bool value) => Model.IsLocked = value;
+    partial void OnIsVisibleChanged(bool value) => Model.IsVisible = value;
     partial void OnParentGroupIdChanged(string? value) => Model.ParentGroupId = value;
 
     protected virtual void OnPositionChanged(double deltaX, double deltaY) { }
