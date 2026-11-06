@@ -80,15 +80,16 @@
 
                         <Grid Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="160"/>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="12"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                            <StackPanel Grid.Column="0">
                                 <TextBlock Text="Hostname Prefix:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,4"/>
                                 <TextBox x:Name="TxtPrefix" Text="PC-" Padding="6,4" TextChanged="Parameters_Changed"/>
                             </StackPanel>
-                            <CheckBox x:Name="ChkRename" Content="Auto-number workstation names (PC-01, PC-02...)"
-                                      IsChecked="True" VerticalAlignment="Bottom" Margin="0,0,0,6"
+                            <CheckBox Grid.Column="2" x:Name="ChkRename" Content="Auto-number workstation names (PC-01, PC-02...)"
+                                      IsChecked="True" VerticalAlignment="Center" Margin="0,16,0,0"
                                       Checked="Parameters_Changed" Unchecked="Parameters_Changed"
                                       Foreground="{DynamicResource AppTextPrimaryBrush}"/>
                         </Grid>
@@ -131,15 +132,14 @@
         <Border Grid.Row="2" Padding="0,8,0,0">
             <DockPanel>
                 <Button Content="Clear / Unassign Selected" Click="Clear_Click"
-                        Padding="12,7" Margin="0,0,8,0" DockPanel.Dock="Left"
-                        Background="Transparent" BorderBrush="{DynamicResource CardBorderBrush}"/>
+                        Style="{StaticResource DangerButtonStyle}"
+                        Padding="14,7" Margin="0,0,8,0" DockPanel.Dock="Left"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="Cancel" Click="Cancel_Click"
-                            Padding="16,7" Margin="0,0,8,0" IsCancel="True"
-                            Background="Transparent" BorderBrush="{DynamicResource CardBorderBrush}"/>
+                            Padding="16,7" Margin="0,0,8,0" IsCancel="True"/>
                     <Button x:Name="BtnAssign" Content="Assign IPs" Click="Assign_Click"
-                            Padding="20,7" IsDefault="True" FontWeight="SemiBold"
-                            Background="{DynamicResource AccentBrush}" Foreground="White" BorderThickness="0"/>
+                            Style="{StaticResource AccentButtonStyle}"
+                            Padding="22,7" IsDefault="True"/>
                 </StackPanel>
             </DockPanel>
         </Border>

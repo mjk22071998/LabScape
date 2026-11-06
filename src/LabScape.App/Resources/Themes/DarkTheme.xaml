@@ -19,6 +19,8 @@
     <SolidColorBrush x:Key="AccentBorderBrush" Color="#0369A1"/>
     <Color x:Key="AccentGlowColor">#4038BDF8</Color>
 
+    <SolidColorBrush x:Key="AccentBrush" Color="#0284C7"/>
+
     <!-- Semantic Status Indicators -->
     <SolidColorBrush x:Key="StatusSuccessBrush" Color="#34D399"/>
     <SolidColorBrush x:Key="StatusWarningBrush" Color="#FBBF24"/>
