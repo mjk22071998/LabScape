@@ -6652,4 +6652,71 @@ public class CoreTests
         Assert.True(tab.IsModified);
         Assert.Equal("custom floor * - LabScape", mainVm.WindowTitle);
     }
+    [Fact]
+    public void GpuHardwareAcceleration_Configuration_And_Manifest_Verification()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(projectRoot);
+
+        // 1. App Manifest & High-DPI Direct3D Swapchain Declaration
+        var manifestPath = Path.Combine(projectRoot, "src", "LabScape.App", "app.manifest");
+        Assert.True(File.Exists(manifestPath), "app.manifest must exist in src/LabScape.App");
+        var manifestText = File.ReadAllText(manifestPath);
+        Assert.Contains("PerMonitorV2", manifestText);
+        Assert.Contains("{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}", manifestText);
+
+        // 2. Project File Manifest Reference
+        var csprojPath = Path.Combine(projectRoot, "src", "LabScape.App", "LabScape.App.csproj");
+        var csprojText = File.ReadAllText(csprojPath);
+        Assert.Contains("<ApplicationManifest>app.manifest</ApplicationManifest>", csprojText);
+
+        // 3. GpuRenderingService Implementation
+        var gpuServicePath = Path.Combine(projectRoot, "src", "LabScape.App", "Services", "GpuRenderingService.cs");
+        Assert.True(File.Exists(gpuServicePath), "GpuRenderingService.cs must exist in src/LabScape.App/Services");
+        var gpuServiceText = File.ReadAllText(gpuServicePath);
+        Assert.Contains("RenderOptions.ProcessRenderMode = RenderMode.Default", gpuServiceText);
+        Assert.Contains("RenderCapability.Tier", gpuServiceText);
+        Assert.Contains("SHIM_MCCOMPAT", gpuServiceText);
+        Assert.Contains("DXGI_FORCE_DISCRETE_GPU", gpuServiceText);
+
+        // 4. MainWindow XAML GPU Attributes & Status Bar Indicator
+        var mainXamlPath = Path.Combine(projectRoot, "src", "LabScape.App", "MainWindow.xaml");
+        var mainXaml = File.ReadAllText(mainXamlPath);
+        Assert.Contains("RenderOptions.BitmapScalingMode=\"HighQuality\"", mainXaml);
+        Assert.Contains("TextOptions.TextFormattingMode=\"Display\"", mainXaml);
+        Assert.Contains("GpuStatusText", mainXaml);
+
+        // 5. Canvas View GPU Rendering Options
+        var canvasXamlPath = Path.Combine(projectRoot, "src", "LabScape.App", "Views", "CanvasView.xaml");
+        var canvasXaml = File.ReadAllText(canvasXamlPath);
+        Assert.Contains("RenderOptions.BitmapScalingMode=\"HighQuality\"", canvasXaml);
+        Assert.Contains("RenderOptions.BitmapScalingMode=\"NearestNeighbor\"", canvasXaml);
+
+        // 6. Stencils & Room Template GPU Texture Caching
+        var stencilsXamlPath = Path.Combine(projectRoot, "src", "LabScape.App", "Views", "StencilsPaletteView.xaml");
+        var stencilsXaml = File.ReadAllText(stencilsXamlPath);
+        Assert.Contains("BitmapCache", stencilsXaml);
+
+        var rtXamlPath = Path.Combine(projectRoot, "src", "LabScape.App", "Views", "RoomTemplateView.xaml");
+        var rtXaml = File.ReadAllText(rtXamlPath);
+        Assert.Contains("BitmapCache", rtXaml);
+
+        // 7. MainViewModel GPU State Properties
+        var jsonRepo = new LayoutJsonRepository();
+        var db = new LabScape.Infrastructure.Services.PostgresDatabaseService();
+        var mainVm = new MainViewModel(jsonRepo, db, new UndoRedoService(), () => new UndoRedoService());
+        Assert.Equal("GPU Accelerated", mainVm.GpuStatusText);
+        Assert.Contains("Direct3D", mainVm.GpuStatusTooltip);
+    }
 }

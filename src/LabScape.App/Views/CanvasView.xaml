@@ -227,6 +227,8 @@
                 ClipToBounds="True"
                 Focusable="True"
                 AllowDrop="True"
+                RenderOptions.BitmapScalingMode="HighQuality"
+                RenderOptions.ClearTypeHint="Enabled"
                 ContextMenu="{StaticResource CanvasContextMenu}"
                 MouseDown="Viewport_MouseDown"
                 MouseMove="Viewport_MouseMove"
@@ -240,7 +242,10 @@
                     Width="{Binding CanvasWidth}"
                     Height="{Binding CanvasHeight}"
                     HorizontalAlignment="Left"
-                    VerticalAlignment="Top">
+                    VerticalAlignment="Top"
+                    RenderOptions.BitmapScalingMode="HighQuality"
+                    RenderOptions.ClearTypeHint="Enabled"
+                    RenderOptions.EdgeMode="Unspecified">
 
                 <Canvas.RenderTransform>
                     <TransformGroup>
@@ -251,7 +256,9 @@
 
                 <!-- Dynamic Grid Pattern -->
                 <Canvas.Background>
-                    <DrawingBrush x:Name="GridBrush" TileMode="Tile" Viewport="0,0,20,20" ViewportUnits="Absolute">
+                    <DrawingBrush x:Name="GridBrush" TileMode="Tile" Viewport="0,0,20,20" ViewportUnits="Absolute"
+                                  RenderOptions.BitmapScalingMode="NearestNeighbor"
+                                  RenderOptions.EdgeMode="Aliased">
                         <DrawingBrush.Drawing>
                             <DrawingGroup>
                                 <GeometryDrawing Brush="{DynamicResource CanvasPaperBackgroundBrush}">
@@ -276,7 +283,8 @@
                 </Canvas.Background>
 
                 <!-- Multi-Page Visio Sheet Grid & Page Dividers -->
-                <ItemsControl ItemsSource="{Binding PageTiles}" IsHitTestVisible="False" Panel.ZIndex="0">
+                <ItemsControl ItemsSource="{Binding PageTiles}" IsHitTestVisible="False" Panel.ZIndex="0"
+                              RenderOptions.EdgeMode="Aliased">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <Canvas/>

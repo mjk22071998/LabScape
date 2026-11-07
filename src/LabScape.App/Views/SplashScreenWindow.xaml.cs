@@ -10,6 +10,7 @@ public partial class SplashScreenWindow : Window
     public SplashScreenWindow()
     {
         InitializeComponent();
+        Services.GpuRenderingService.ApplyGpuAcceleration(this);
     }
 
     public void UpdateStatus(string message, double progressPercent)

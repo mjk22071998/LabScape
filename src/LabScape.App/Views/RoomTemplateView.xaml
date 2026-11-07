@@ -78,6 +78,9 @@
                                             ToolTip="Click to select, drag onto canvas, or click Insert"
                                             MouseLeftButtonDown="TemplateCard_MouseLeftButtonDown"
                                             MouseMove="TemplateCard_MouseMove">
+                                        <Border.CacheMode>
+                                            <BitmapCache EnableClearType="False" RenderAtScale="1.0" SnapsToDevicePixels="True"/>
+                                        </Border.CacheMode>
                                         <Border.Style>
                                             <Style TargetType="Border">
                                                 <Style.Triggers>

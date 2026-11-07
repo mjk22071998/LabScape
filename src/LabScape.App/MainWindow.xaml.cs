@@ -56,6 +56,21 @@ public partial class MainWindow : RibbonWindow
             UpdateThemeToggleState();
             Services.ThemeService.ThemeChanged += OnThemeChanged;
 
+            // GPU Hardware Acceleration Status Synchronization
+            if (ViewModel != null)
+            {
+                ViewModel.GpuStatusText = Services.GpuRenderingService.GpuStatusSummary;
+                ViewModel.GpuStatusTooltip = Services.GpuRenderingService.GpuStatusTooltip;
+                Services.GpuRenderingService.GpuStateChanged += () =>
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        ViewModel.GpuStatusText = Services.GpuRenderingService.GpuStatusSummary;
+                        ViewModel.GpuStatusTooltip = Services.GpuRenderingService.GpuStatusTooltip;
+                    });
+                };
+            }
+
             // 1. Instant Cache Restoration (Zero-wait offline-first startup)
             var cachedDevices = DpapiCredentialVault.LoadInventoryCache();
             if (cachedDevices != null && cachedDevices.Count > 0)

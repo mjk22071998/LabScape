@@ -14,6 +14,8 @@ public partial class App : Application
 
         try
         {
+            // Mandate Direct3D hardware acceleration across the process
+            Services.GpuRenderingService.Initialize();
             Services.ThemeService.Initialize();
         }
         catch
@@ -27,10 +29,11 @@ public partial class App : Application
 
         // 1. Show high-performance branded Splash Screen immediately
         var splash = new Views.SplashScreenWindow();
+        Services.GpuRenderingService.ApplyGpuAcceleration(splash);
         splash.Show();
 
         // 2. Progressive startup milestones with real-time feedback
-        splash.UpdateStatus("Initializing Drafting Engine...", 20);
+        splash.UpdateStatus("Accelerating GPU Direct3D Engine...", 20);
         await Task.Delay(80);
 
         splash.UpdateStatus("Loading Stencil & Component Libraries...", 45);
@@ -42,6 +45,7 @@ public partial class App : Application
         // 3. Instantiate MainWindow (loads Ribbon, AvalonDock, ViewModels)
         splash.UpdateStatus("Preparing Canvas Workspace & Themes...", 90);
         var mainWindow = new MainWindow();
+        Services.GpuRenderingService.ApplyGpuAcceleration(mainWindow);
         MainWindow = mainWindow;
 
         splash.UpdateStatus("Ready", 100);

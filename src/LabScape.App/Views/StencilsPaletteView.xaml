@@ -79,6 +79,9 @@
                                 <Border Margin="3" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="6"
                                         Cursor="Hand" ToolTip="{Binding Title}"
                                         MouseMove="Stencil_MouseMove" MouseLeftButtonDown="Stencil_MouseLeftButtonDown">
+                                    <Border.CacheMode>
+                                        <BitmapCache EnableClearType="False" RenderAtScale="1.0" SnapsToDevicePixels="True"/>
+                                    </Border.CacheMode>
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <Style.Triggers>
@@ -94,7 +97,7 @@
                                             <RowDefinition Height="*"/>
                                             <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
-                                        <Image Grid.Row="0" Source="{Binding IconResourceKey, Converter={StaticResource ResourceKeyToImageConverter}}" Stretch="Uniform" Margin="2"/>
+                                        <Image Grid.Row="0" RenderOptions.BitmapScalingMode="HighQuality" Source="{Binding IconResourceKey, Converter={StaticResource ResourceKeyToImageConverter}}" Stretch="Uniform" Margin="2"/>
                                         <TextBlock Grid.Row="1" Text="{Binding Title}" FontSize="10" FontWeight="Medium" TextAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" Foreground="{DynamicResource AppTextPrimaryBrush}"/>
                                     </Grid>
                                 </Border>
@@ -124,6 +127,9 @@
                                 <Border Margin="3" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="6"
                                         Cursor="Hand" ToolTip="{Binding Title}"
                                         MouseMove="Stencil_MouseMove" MouseLeftButtonDown="Stencil_MouseLeftButtonDown">
+                                    <Border.CacheMode>
+                                        <BitmapCache EnableClearType="False" RenderAtScale="1.0" SnapsToDevicePixels="True"/>
+                                    </Border.CacheMode>
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <Style.Triggers>
@@ -139,7 +145,7 @@
                                             <RowDefinition Height="*"/>
                                             <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
-                                        <Image Grid.Row="0" Source="{Binding IconResourceKey, Converter={StaticResource ResourceKeyToImageConverter}}" Stretch="Uniform" Margin="2"/>
+                                        <Image Grid.Row="0" RenderOptions.BitmapScalingMode="HighQuality" Source="{Binding IconResourceKey, Converter={StaticResource ResourceKeyToImageConverter}}" Stretch="Uniform" Margin="2"/>
                                         <TextBlock Grid.Row="1" Text="{Binding Title}" FontSize="10" FontWeight="Medium" TextAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" Foreground="{DynamicResource AppTextPrimaryBrush}"/>
                                     </Grid>
                                 </Border>
@@ -169,6 +175,9 @@
                                 <Border Margin="3" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="6"
                                         Cursor="Hand" ToolTip="{Binding Title}"
                                         MouseMove="Stencil_MouseMove" MouseLeftButtonDown="Stencil_MouseLeftButtonDown">
+                                    <Border.CacheMode>
+                                        <BitmapCache EnableClearType="False" RenderAtScale="1.0" SnapsToDevicePixels="True"/>
+                                    </Border.CacheMode>
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <Style.Triggers>
@@ -184,7 +193,7 @@
                                             <RowDefinition Height="*"/>
                                             <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
-                                        <Image Grid.Row="0" Source="{Binding IconResourceKey, Converter={StaticResource ResourceKeyToImageConverter}}" Stretch="Uniform" Margin="4"/>
+                                        <Image Grid.Row="0" RenderOptions.BitmapScalingMode="HighQuality" Source="{Binding IconResourceKey, Converter={StaticResource ResourceKeyToImageConverter}}" Stretch="Uniform" Margin="4"/>
                                         <TextBlock Grid.Row="1" Text="{Binding Title}" FontSize="10" FontWeight="Medium" TextAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,3,0,0" Foreground="{DynamicResource AppTextPrimaryBrush}"/>
                                     </Grid>
                                 </Border>

@@ -15,6 +15,7 @@ public partial class PageSetupDialog : Window
     public PageSetupDialog(CanvasViewModel canvas)
     {
         InitializeComponent();
+        Services.GpuRenderingService.ApplyGpuAcceleration(this);
         _canvas = canvas ?? throw new ArgumentNullException(nameof(canvas));
 
         LoadFromCanvas();

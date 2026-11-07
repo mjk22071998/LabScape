@@ -9,7 +9,14 @@
                       mc:Ignorable="d"
                       Title="{Binding WindowTitle}" Height="800" Width="1200"
                       WindowStartupLocation="CenterScreen"
-                      PreviewKeyDown="Window_PreviewKeyDown">
+                      PreviewKeyDown="Window_PreviewKeyDown"
+                      RenderOptions.BitmapScalingMode="HighQuality"
+                      RenderOptions.ClearTypeHint="Enabled"
+                      RenderOptions.EdgeMode="Unspecified"
+                      TextOptions.TextFormattingMode="Display"
+                      TextOptions.TextRenderingMode="ClearType"
+                      UseLayoutRounding="True"
+                      SnapsToDevicePixels="True">
 
     <fluent:RibbonWindow.Resources>
         <!-- Browser Tab Context Menu -->
@@ -700,6 +707,7 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                     </Grid>
                 </ItemsPanelTemplate>
@@ -756,8 +764,18 @@
                 </Border>
             </StatusBarItem>
 
-            <!-- 5. Zoom & Coordinates -->
+            <!-- 5. GPU Hardware Acceleration Indicator -->
             <StatusBarItem Grid.Column="4">
+                <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="11" Padding="8,2" Margin="4,0" ToolTip="{Binding GpuStatusTooltip}">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="⚡" FontSize="10.5" Foreground="#10B981" Margin="0,0,4,0"/>
+                        <TextBlock Text="{Binding GpuStatusText}" FontSize="11" FontWeight="Medium" Foreground="{DynamicResource StatusBarForegroundBrush}"/>
+                    </StackPanel>
+                </Border>
+            </StatusBarItem>
+
+            <!-- 6. Zoom & Coordinates -->
+            <StatusBarItem Grid.Column="5">
                 <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="11" Padding="8,2" Margin="4,0,8,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Text="{Binding Canvas.ZoomLevel, StringFormat='🔍 {0:P0}'}" FontSize="11" FontWeight="Medium" Foreground="{DynamicResource StatusBarForegroundBrush}" Margin="0,0,10,0" FontFamily="Consolas, Segoe UI"/>
