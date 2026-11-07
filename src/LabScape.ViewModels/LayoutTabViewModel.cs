@@ -96,6 +96,8 @@ public partial class LayoutTabViewModel : ObservableObject
                 Title = Title,
                 CanvasWidth = Canvas.CanvasWidth,
                 CanvasHeight = Canvas.CanvasHeight,
+                PagePreset = Canvas.PageSize.ToString(),
+                PageOrientation = Canvas.PageOrientation.ToString(),
                 GridSize = Canvas.GridSize
             }
         };
@@ -117,6 +119,24 @@ public partial class LayoutTabViewModel : ObservableObject
         Canvas.CanvasWidth = doc.Metadata.CanvasWidth;
         Canvas.CanvasHeight = doc.Metadata.CanvasHeight;
         Canvas.GridSize = doc.Metadata.GridSize;
+
+        if (Enum.TryParse<PageSizePreset>(doc.Metadata.PagePreset, out var preset))
+        {
+            Canvas.PageSize = preset;
+        }
+        else
+        {
+            Canvas.PageSize = PageDimensions.DetectPreset(doc.Metadata.CanvasWidth, doc.Metadata.CanvasHeight, out _);
+        }
+
+        if (Enum.TryParse<PageOrientation>(doc.Metadata.PageOrientation, out var orient))
+        {
+            Canvas.PageOrientation = orient;
+        }
+        else
+        {
+            Canvas.PageOrientation = doc.Metadata.CanvasWidth >= doc.Metadata.CanvasHeight ? PageOrientation.Landscape : PageOrientation.Portrait;
+        }
         if (!string.IsNullOrWhiteSpace(doc.Metadata.Title))
         {
             Title = doc.Metadata.Title;

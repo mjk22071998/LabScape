@@ -31,6 +31,128 @@ public partial class PropertiesViewModel : ObservableObject
     private NotifyCollectionChangedEventHandler? _selectionHandler;
     private bool _isInternalPropertyUpdate;
 
+    public CanvasViewModel? Canvas => _canvasViewModel;
+
+    public PageSizePreset CanvasPagePreset
+    {
+        get => _canvasViewModel?.PageSize ?? PageSizePreset.A3;
+        set
+        {
+            if (_canvasViewModel != null && _canvasViewModel.PageSize != value)
+            {
+                _canvasViewModel.SetPageSize(value, _canvasViewModel.PageOrientation);
+                NotifyCanvasPropertiesChanged();
+            }
+        }
+    }
+
+    public PageOrientation CanvasPageOrientation
+    {
+        get => _canvasViewModel?.PageOrientation ?? PageOrientation.Landscape;
+        set
+        {
+            if (_canvasViewModel != null && _canvasViewModel.PageOrientation != value)
+            {
+                _canvasViewModel.SetPageSize(_canvasViewModel.PageSize, value);
+                NotifyCanvasPropertiesChanged();
+            }
+        }
+    }
+
+    public bool IsLandscape => CanvasPageOrientation == PageOrientation.Landscape;
+    public bool IsPortrait => CanvasPageOrientation == PageOrientation.Portrait;
+    public bool IsCustomPageSize => CanvasPagePreset == PageSizePreset.Custom;
+
+    public record PagePresetOption(PageSizePreset Preset, string DisplayName);
+
+    public IReadOnlyList<PagePresetOption> AvailablePresets { get; } = Enum.GetValues<PageSizePreset>()
+        .Select(p => new PagePresetOption(p, PageDimensions.GetDisplayName(p)))
+        .ToList();
+
+    public PagePresetOption? SelectedPresetOption
+    {
+        get => AvailablePresets.FirstOrDefault(p => p.Preset == CanvasPagePreset);
+        set
+        {
+            if (value != null && value.Preset != CanvasPagePreset)
+            {
+                CanvasPagePreset = value.Preset;
+            }
+        }
+    }
+
+    public string CanvasWidthText
+    {
+        get => _canvasViewModel?.CanvasWidth.ToString("F0") ?? "1587";
+        set
+        {
+            if (_canvasViewModel != null && double.TryParse(value, out double w) && w >= 200)
+            {
+                _canvasViewModel.SetPageSize(PageSizePreset.Custom, _canvasViewModel.PageOrientation, customWidth: w);
+                NotifyCanvasPropertiesChanged();
+            }
+        }
+    }
+
+    public string CanvasHeightText
+    {
+        get => _canvasViewModel?.CanvasHeight.ToString("F0") ?? "1123";
+        set
+        {
+            if (_canvasViewModel != null && double.TryParse(value, out double h) && h >= 200)
+            {
+                _canvasViewModel.SetPageSize(PageSizePreset.Custom, _canvasViewModel.PageOrientation, customHeight: h);
+                NotifyCanvasPropertiesChanged();
+            }
+        }
+    }
+
+    [RelayCommand]
+    public void SetPagePreset(PageSizePreset preset)
+    {
+        CanvasPagePreset = preset;
+    }
+
+    [RelayCommand]
+    public void SetOrientation(PageOrientation orientation)
+    {
+        CanvasPageOrientation = orientation;
+    }
+
+    [RelayCommand]
+    public void TogglePageOrientation()
+    {
+        CanvasPageOrientation = CanvasPageOrientation == PageOrientation.Landscape ? PageOrientation.Portrait : PageOrientation.Landscape;
+    }
+
+    [RelayCommand]
+    public void FitPage()
+    {
+        _canvasViewModel?.FitToPage();
+    }
+
+    private void OnCanvasPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(CanvasViewModel.CanvasWidth) or nameof(CanvasViewModel.CanvasHeight) or nameof(CanvasViewModel.PageSize) or nameof(CanvasViewModel.PageOrientation))
+        {
+            NotifyCanvasPropertiesChanged();
+        }
+    }
+
+    private void NotifyCanvasPropertiesChanged()
+    {
+        OnPropertyChanged(nameof(Canvas));
+        OnPropertyChanged(nameof(CanvasPagePreset));
+        OnPropertyChanged(nameof(CanvasPageOrientation));
+        OnPropertyChanged(nameof(IsLandscape));
+        OnPropertyChanged(nameof(IsPortrait));
+        OnPropertyChanged(nameof(IsCustomPageSize));
+        OnPropertyChanged(nameof(CanvasWidthText));
+        OnPropertyChanged(nameof(CanvasHeightText));
+        OnPropertyChanged(nameof(SelectedPresetOption));
+    }
+
+
     [RelayCommand]
     public void MoveToFront() => _canvasViewModel?.MoveToFront();
 
@@ -317,10 +439,17 @@ public partial class PropertiesViewModel : ObservableObject
             _canvasViewModel.SelectedItems.CollectionChanged -= _selectionHandler;
         }
 
+        if (_canvasViewModel != null)
+        {
+            _canvasViewModel.PropertyChanged -= OnCanvasPropertyChanged;
+        }
+
         _canvasViewModel = canvas;
         _selectionHandler = (s, e) => UpdateSelection();
         _canvasViewModel.SelectedItems.CollectionChanged += _selectionHandler;
+        _canvasViewModel.PropertyChanged += OnCanvasPropertyChanged;
         UpdateSelection();
+        NotifyCanvasPropertiesChanged();
     }
 
     private void UpdateSelection()

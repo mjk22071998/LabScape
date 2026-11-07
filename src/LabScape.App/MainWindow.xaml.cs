@@ -792,4 +792,26 @@ public partial class MainWindow : RibbonWindow
     {
         Services.ThemeService.ToggleTheme();
     }
+
+    private void SetPageSizePreset_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement fe && fe.Tag is string tagStr && Enum.TryParse<LabScape.Core.Enums.PageSizePreset>(tagStr, out var preset))
+        {
+            ViewModel?.Canvas?.SetPreset(preset);
+        }
+    }
+
+    private void SetPageOrientation_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement fe && fe.Tag is string tagStr && Enum.TryParse<LabScape.Core.Enums.PageOrientation>(tagStr, out var orientation))
+        {
+            ViewModel?.Canvas?.SetOrientation(orientation);
+        }
+    }
+
+    private void CustomPageSize_Click(object sender, RoutedEventArgs e)
+    {
+        OpenProperties_Click(sender, e);
+        ViewModel?.Canvas?.ClearSelection();
+    }
 }

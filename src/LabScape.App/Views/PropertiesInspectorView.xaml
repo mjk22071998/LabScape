@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:models="clr-namespace:LabScape.Core.Models;assembly=LabScape.Core"
+             xmlns:enums="clr-namespace:LabScape.Core.Enums;assembly=LabScape.Core"
              mc:Ignorable="d" 
              d:DesignHeight="700" d:DesignWidth="300">
 
@@ -24,10 +25,10 @@
     </UserControl.Resources>
 
     <Grid Background="{DynamicResource PanelBackgroundBrush}">
-        <!-- When No Item Selected -->
-        <Border VerticalAlignment="Center" HorizontalAlignment="Center" Margin="24">
-            <Border.Style>
-                <Style TargetType="Border">
+        <!-- When No Item Selected: Canvas & Page Setup Inspector -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <ScrollViewer.Style>
+                <Style TargetType="ScrollViewer">
                     <Setter Property="Visibility" Value="Collapsed"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding HasSelection}" Value="False">
@@ -35,22 +36,202 @@
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
-            </Border.Style>
-            <StackPanel HorizontalAlignment="Center">
-                <Border Width="56" Height="56" CornerRadius="28" Background="{DynamicResource AccentSubtleBrush}"
-                        BorderBrush="{DynamicResource AccentBorderBrush}" BorderThickness="1"
-                        HorizontalAlignment="Center" Margin="0,0,0,12">
-                    <TextBlock Text="📐" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </ScrollViewer.Style>
+
+            <StackPanel Margin="10,12,10,16">
+                <!-- Header Banner -->
+                <Border Background="{DynamicResource SectionHeaderBackgroundBrush}" BorderBrush="{DynamicResource SectionHeaderBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,12">
+                    <StackPanel>
+                        <DockPanel>
+                            <TextBlock Text="CANVAS &amp; PAGE SETUP"
+                                       FontWeight="Bold" FontSize="11.5" Foreground="{DynamicResource SectionHeaderForegroundBrush}" VerticalAlignment="Center"/>
+                            <Border DockPanel.Dock="Right" Background="{DynamicResource AccentSubtleBrush}" BorderBrush="{DynamicResource AccentBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="6,1">
+                                <TextBlock Text="PAGE" FontSize="8.5" FontWeight="Bold" Foreground="{DynamicResource SectionHeaderForegroundBrush}"/>
+                            </Border>
+                        </DockPanel>
+                        <TextBlock Text="Standard Page Size &amp; Paper Boundary" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SectionHeaderSubForegroundBrush}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
                 </Border>
-                <TextBlock Text="No Item Selected"
-                           FontWeight="Bold" FontSize="13.5"
-                           Foreground="{DynamicResource AppTextPrimaryBrush}"
-                           HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                <TextBlock Text="Select an item on the canvas to inspect coordinates, appearance, and network configuration."
-                           FontSize="11" Foreground="{DynamicResource AppTextMutedBrush}"
-                           TextAlignment="Center" TextWrapping="Wrap" MaxWidth="210" LineHeight="16"/>
+
+                <!-- 1. Page Size Preset Selection -->
+                <GroupBox Header="Page Size Preset" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
+                    <StackPanel Margin="4,6" TextElement.FontWeight="Normal">
+                        <TextBlock Text="Standard Preset:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,2,0,4"/>
+                        <ComboBox ItemsSource="{Binding AvailablePresets}"
+                                  SelectedItem="{Binding SelectedPresetOption, Mode=TwoWay}"
+                                  DisplayMemberPath="DisplayName"
+                                  Margin="0,0,0,8"/>
+
+                        <!-- Quick-Pick Preset Pills -->
+                        <TextBlock Text="Quick Presets:" FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}" Margin="0,0,0,4"/>
+                        <WrapPanel Margin="0,0,0,4">
+                            <Button Content="A3 (Lab Standard)" Command="{Binding SetPagePresetCommand}" CommandParameter="{x:Static enums:PageSizePreset.A3}"
+                                    Margin="0,0,4,4" Padding="6,3" FontSize="10" Cursor="Hand"/>
+                            <Button Content="A4" Command="{Binding SetPagePresetCommand}" CommandParameter="{x:Static enums:PageSizePreset.A4}"
+                                    Margin="0,0,4,4" Padding="6,3" FontSize="10" Cursor="Hand"/>
+                            <Button Content="US Letter" Command="{Binding SetPagePresetCommand}" CommandParameter="{x:Static enums:PageSizePreset.Letter}"
+                                    Margin="0,0,4,4" Padding="6,3" FontSize="10" Cursor="Hand"/>
+                            <Button Content="1080p Screen" Command="{Binding SetPagePresetCommand}" CommandParameter="{x:Static enums:PageSizePreset.Screen1080p}"
+                                    Margin="0,0,4,4" Padding="6,3" FontSize="10" Cursor="Hand"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- 2. Page Orientation -->
+                <GroupBox Header="Page Orientation" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
+                    <StackPanel Margin="4,6" TextElement.FontWeight="Normal">
+                        <Border Background="{DynamicResource InputBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="2" Margin="0,2,0,6">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <!-- Landscape Button -->
+                                <Button Grid.Column="0" Command="{Binding SetOrientationCommand}" CommandParameter="{x:Static enums:PageOrientation.Landscape}"
+                                        Padding="4,5" BorderThickness="1" Cursor="Hand" Margin="1">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AppTextSecondaryBrush}"/>
+                                            <Setter Property="BorderBrush" Value="Transparent"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                                CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource CardHoverBackgroundBrush}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource AppTextPrimaryBrush}"/>
+                                                </Trigger>
+                                                <DataTrigger Binding="{Binding IsLandscape}" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource AccentSubtleBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentPrimaryBrush}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource AccentPrimaryBrush}"/>
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{StaticResource IconLandscape}" Width="14" Height="14" Margin="0,0,5,0"/>
+                                        <TextBlock Text="Landscape" FontSize="11" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+
+                                <!-- Portrait Button -->
+                                <Button Grid.Column="1" Command="{Binding SetOrientationCommand}" CommandParameter="{x:Static enums:PageOrientation.Portrait}"
+                                        Padding="4,5" BorderThickness="1" Cursor="Hand" Margin="1">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AppTextSecondaryBrush}"/>
+                                            <Setter Property="BorderBrush" Value="Transparent"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                                CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource CardHoverBackgroundBrush}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource AppTextPrimaryBrush}"/>
+                                                </Trigger>
+                                                <DataTrigger Binding="{Binding IsPortrait}" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource AccentSubtleBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentPrimaryBrush}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource AccentPrimaryBrush}"/>
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{StaticResource IconPortrait}" Width="14" Height="14" Margin="0,0,5,0"/>
+                                        <TextBlock Text="Portrait" FontSize="11" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- 3. Physical & Pixel Dimensions -->
+                <GroupBox Header="Page Dimensions (Pixels @ 96 DPI)" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
+                    <StackPanel Margin="4,6" TextElement.FontWeight="Normal">
+                        <Grid Margin="0,2,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <!-- Width -->
+                            <StackPanel Grid.Column="0" Margin="0,0,4,0">
+                                <TextBlock Text="Width (px):" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,3"/>
+                                <TextBox Text="{Binding CanvasWidthText, UpdateSourceTrigger=LostFocus}"
+                                         Style="{StaticResource NumericCoordinateTextBoxStyle}"/>
+                            </StackPanel>
+                            <!-- Height -->
+                            <StackPanel Grid.Column="1" Margin="4,0,0,0">
+                                <TextBlock Text="Height (px):" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,3"/>
+                                <TextBox Text="{Binding CanvasHeightText, UpdateSourceTrigger=LostFocus}"
+                                         Style="{StaticResource NumericCoordinateTextBoxStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="Standard 96 DPI: 1 mm ≈ 3.78 px | 1 in = 96 px" FontSize="9.5" Foreground="{DynamicResource AppTextMutedBrush}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- 4. Viewport & Navigation -->
+                <GroupBox Header="Page Viewport" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
+                    <StackPanel Margin="4,6" TextElement.FontWeight="Normal">
+                        <Button Command="{Binding FitPageCommand}" Margin="0,2,0,6" Padding="6,5" Cursor="Hand">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Image Source="{StaticResource IconFitPage}" Width="14" Height="14" Margin="0,0,6,0"/>
+                                <TextBlock Text="Fit Page to Screen" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding Canvas.ResetZoomCommand}" Margin="0,0,0,6" Padding="6,4" Cursor="Hand">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Image Source="{StaticResource IconResetZoom}" Width="13" Height="13" Margin="0,0,6,0"/>
+                                <TextBlock Text="Reset Zoom (100%)" FontSize="11" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- 5. Grid & Guides -->
+                <GroupBox Header="Grid &amp; Guides" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
+                    <StackPanel Margin="4,6" TextElement.FontWeight="Normal">
+                        <CheckBox Content="Show Alignment Grid" IsChecked="{Binding Canvas.ShowGrid}" Margin="0,2,0,4"/>
+                        <CheckBox Content="Snap to Grid" IsChecked="{Binding Canvas.SnapToGrid}" Margin="0,2,0,4"/>
+                        <CheckBox Content="Show Metric Rulers" IsChecked="{Binding Canvas.ShowRulers}" Margin="0,2,0,4"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Help Tip Footer -->
+                <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="8,8" Margin="0,4,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="💡" FontSize="12" Margin="0,0,6,0" VerticalAlignment="Top"/>
+                        <TextBlock Text="Drag stencils from the library onto the canvas to place lab devices and furniture."
+                                   FontSize="10.5" Foreground="{DynamicResource AppTextMutedBrush}" TextWrapping="Wrap" LineHeight="14"/>
+                    </StackPanel>
+                </Border>
             </StackPanel>
-        </Border>
+        </ScrollViewer>
 
         <!-- When Item Selected -->
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">

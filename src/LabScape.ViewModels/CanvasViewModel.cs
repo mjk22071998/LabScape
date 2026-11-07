@@ -29,10 +29,18 @@ public partial class CanvasViewModel : ObservableObject
     private double _panY = 0;
 
     [ObservableProperty]
-    private double _canvasWidth = 3000;
+    private PageSizePreset _pageSize = PageSizePreset.A3;
 
     [ObservableProperty]
-    private double _canvasHeight = 2000;
+    private PageOrientation _pageOrientation = PageOrientation.Landscape;
+
+    [ObservableProperty]
+    private double _canvasWidth = 1587; // A3 Landscape
+
+    [ObservableProperty]
+    private double _canvasHeight = 1123; // A3 Landscape
+
+    public string PageSizeDisplayText => $"{PageSize} {PageOrientation} ({CanvasWidth:F0} × {CanvasHeight:F0} px)";
 
     [ObservableProperty]
     private double _gridSize = 20.0;
@@ -504,6 +512,65 @@ public partial class CanvasViewModel : ObservableObject
 
         PanX = Math.Round(40 - minX * ZoomLevel);
         PanY = Math.Round(40 - minY * ZoomLevel);
+    }
+
+    public void SetPageSize(PageSizePreset preset, PageOrientation orientation, double? customWidth = null, double? customHeight = null)
+    {
+        double targetW, targetH;
+        if (preset == PageSizePreset.Custom)
+        {
+            targetW = Math.Max(200, customWidth ?? CanvasWidth);
+            targetH = Math.Max(200, customHeight ?? CanvasHeight);
+        }
+        else
+        {
+            (targetW, targetH) = PageDimensions.GetDimensions(preset, orientation);
+        }
+
+        if (Math.Abs(CanvasWidth - targetW) < 0.5 && Math.Abs(CanvasHeight - targetH) < 0.5 &&
+            PageSize == preset && PageOrientation == orientation)
+        {
+            return;
+        }
+
+        var cmd = new ChangePageSizeCommand(this, CanvasWidth, CanvasHeight, PageSize, PageOrientation, targetW, targetH, preset, orientation);
+        _undoRedoService.ExecuteCommand(cmd);
+    }
+
+    internal void ApplyPageDimensionsInternal(double w, double h, PageSizePreset preset, PageOrientation orientation)
+    {
+        CanvasWidth = w;
+        CanvasHeight = h;
+        PageSize = preset;
+        PageOrientation = orientation;
+        OnPropertyChanged(nameof(PageSizeDisplayText));
+    }
+
+    [RelayCommand]
+    public void SetPreset(PageSizePreset preset)
+    {
+        SetPageSize(preset, PageOrientation);
+    }
+
+    [RelayCommand]
+    public void SetOrientation(PageOrientation orientation)
+    {
+        SetPageSize(PageSize, orientation);
+    }
+
+    [RelayCommand]
+    public void ToggleOrientation()
+    {
+        SetPageSize(PageSize, PageOrientation == PageOrientation.Landscape ? PageOrientation.Portrait : PageOrientation.Landscape);
+    }
+
+    [RelayCommand]
+    public void FitToPage()
+    {
+        double targetZoom = Math.Min(2.0, Math.Max(0.20, Math.Min(1100.0 / (CanvasWidth + 80), 750.0 / (CanvasHeight + 80))));
+        ZoomLevel = Math.Round(targetZoom * 100) / 100;
+        PanX = 40;
+        PanY = 40;
     }
 
     [RelayCommand]

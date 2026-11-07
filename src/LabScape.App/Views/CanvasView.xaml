@@ -275,6 +275,23 @@
                     </DrawingBrush>
                 </Canvas.Background>
 
+                <!-- Physical Page Sheet Boundary & Subtle Sheet Border -->
+                <Rectangle Canvas.Left="0" Canvas.Top="0"
+                           Width="{Binding CanvasWidth}" Height="{Binding CanvasHeight}"
+                           Stroke="{DynamicResource CardBorderBrush}" StrokeThickness="1"
+                           IsHitTestVisible="False"/>
+
+                <!-- Technical Page Dimension Stamp (Subtle CAD watermark) -->
+                <Border Canvas.Left="12" Canvas.Top="8"
+                        Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource CardBorderBrush}"
+                        BorderThickness="1" CornerRadius="4" Padding="6,2"
+                        IsHitTestVisible="False" Opacity="0.75">
+                    <TextBlock Text="{Binding PageSizeDisplayText}"
+                               FontSize="9.5" FontFamily="Consolas, Segoe UI"
+                               Foreground="{DynamicResource AppTextMutedBrush}"/>
+                </Border>
+
                 <!-- Interactive Items Container with Local Adorner Decorator -->
                 <AdornerDecorator Canvas.Left="0" Canvas.Top="0" Width="{Binding CanvasWidth}" Height="{Binding CanvasHeight}" ClipToBounds="False">
                     <ItemsControl x:Name="ItemsHost" ItemsSource="{Binding Items}" ClipToBounds="False">
@@ -642,6 +659,12 @@
 
                     <!-- Separator -->
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource HudBorderBrush}" Margin="4,0"/>
+
+                    <!-- Fit to Page -->
+                    <Button Command="{Binding FitToPageCommand}" ToolTip="Fit Page to View"
+                            Style="{StaticResource HudButtonStyle}">
+                        <Image Source="{StaticResource IconFitPage}" Width="14" Height="14"/>
+                    </Button>
 
                     <!-- Fit to Content -->
                     <Button Command="{Binding FitToContentCommand}" ToolTip="Fit Content to View"

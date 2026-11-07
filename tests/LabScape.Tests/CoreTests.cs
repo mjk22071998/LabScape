@@ -6370,4 +6370,105 @@ public class CoreTests
         Assert.Contains("IsDirectionReversed=\"True\"", styles);
         Assert.Contains("IsDirectionReversed=\"False\"", styles);
     }
+
+    [Fact]
+    public void PageDimensions_PresetValues_MatchIndustryStandardsAt96Dpi()
+    {
+        // A3 Standard (Lab default)
+        var (a3W, a3H) = PageDimensions.GetDimensions(PageSizePreset.A3, PageOrientation.Landscape);
+        Assert.Equal(1587, a3W);
+        Assert.Equal(1123, a3H);
+
+        var (a3PW, a3PH) = PageDimensions.GetDimensions(PageSizePreset.A3, PageOrientation.Portrait);
+        Assert.Equal(1123, a3PW);
+        Assert.Equal(1587, a3PH);
+
+        // A4 Standard
+        var (a4W, a4H) = PageDimensions.GetDimensions(PageSizePreset.A4, PageOrientation.Landscape);
+        Assert.Equal(1123, a4W);
+        Assert.Equal(794, a4H);
+
+        // Letter
+        var (letW, letH) = PageDimensions.GetDimensions(PageSizePreset.Letter, PageOrientation.Landscape);
+        Assert.Equal(1056, letW);
+        Assert.Equal(816, letH);
+
+        // Detection
+        var detectedA3 = PageDimensions.DetectPreset(1587, 1123, out var orientA3);
+        Assert.Equal(PageSizePreset.A3, detectedA3);
+        Assert.Equal(PageOrientation.Landscape, orientA3);
+
+        var detectedA4Port = PageDimensions.DetectPreset(794, 1123, out var orientA4);
+        Assert.Equal(PageSizePreset.A4, detectedA4Port);
+        Assert.Equal(PageOrientation.Portrait, orientA4);
+
+        var detectedCustom = PageDimensions.DetectPreset(1234, 567, out _);
+        Assert.Equal(PageSizePreset.Custom, detectedCustom);
+    }
+
+    [Fact]
+    public void CanvasViewModel_PageSize_ChangeAndUndoRedo()
+    {
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo);
+
+        // Default should be A3 Landscape
+        Assert.Equal(PageSizePreset.A3, canvas.PageSize);
+        Assert.Equal(PageOrientation.Landscape, canvas.PageOrientation);
+        Assert.Equal(1587, canvas.CanvasWidth);
+        Assert.Equal(1123, canvas.CanvasHeight);
+
+        // Change to A4 Portrait
+        canvas.SetPageSize(PageSizePreset.A4, PageOrientation.Portrait);
+        Assert.Equal(PageSizePreset.A4, canvas.PageSize);
+        Assert.Equal(PageOrientation.Portrait, canvas.PageOrientation);
+        Assert.Equal(794, canvas.CanvasWidth);
+        Assert.Equal(1123, canvas.CanvasHeight);
+
+        // Undo
+        Assert.True(undo.CanUndo);
+        undo.Undo();
+        Assert.Equal(PageSizePreset.A3, canvas.PageSize);
+        Assert.Equal(PageOrientation.Landscape, canvas.PageOrientation);
+        Assert.Equal(1587, canvas.CanvasWidth);
+        Assert.Equal(1123, canvas.CanvasHeight);
+
+        // Redo
+        Assert.True(undo.CanRedo);
+        undo.Redo();
+        Assert.Equal(PageSizePreset.A4, canvas.PageSize);
+        Assert.Equal(PageOrientation.Portrait, canvas.PageOrientation);
+        Assert.Equal(794, canvas.CanvasWidth);
+        Assert.Equal(1123, canvas.CanvasHeight);
+    }
+
+    [Fact]
+    public void PropertiesViewModel_PageSetupProperties_SyncWithCanvas()
+    {
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo);
+        var props = new PropertiesViewModel();
+        props.AttachCanvas(canvas);
+
+        Assert.Equal(PageSizePreset.A3, props.CanvasPagePreset);
+        Assert.True(props.IsLandscape);
+        Assert.False(props.IsPortrait);
+        Assert.False(props.IsCustomPageSize);
+
+        // Change orientation
+        props.TogglePageOrientation();
+        Assert.True(props.IsPortrait);
+        Assert.Equal(1123, canvas.CanvasWidth);
+        Assert.Equal(1587, canvas.CanvasHeight);
+
+        // Change preset
+        props.SetPagePreset(PageSizePreset.Letter);
+        Assert.Equal(PageSizePreset.Letter, canvas.PageSize);
+
+        // Custom dimension
+        props.CanvasWidthText = "2400";
+        Assert.Equal(2400, canvas.CanvasWidth);
+        Assert.Equal(PageSizePreset.Custom, canvas.PageSize);
+        Assert.True(props.IsCustomPageSize);
+    }
 }

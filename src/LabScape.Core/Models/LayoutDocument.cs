@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace LabScape.Core.Models;
 
@@ -8,10 +8,16 @@ public class DocumentMetadata
     public string Title { get; set; } = "Untitled Floorplan";
 
     [JsonPropertyName("canvas_width")]
-    public double CanvasWidth { get; set; } = 3000;
+    public double CanvasWidth { get; set; } = 1587;
 
     [JsonPropertyName("canvas_height")]
-    public double CanvasHeight { get; set; } = 2000;
+    public double CanvasHeight { get; set; } = 1123;
+
+    [JsonPropertyName("page_preset")]
+    public string PagePreset { get; set; } = "A3";
+
+    [JsonPropertyName("page_orientation")]
+    public string PageOrientation { get; set; } = "Landscape";
 
     [JsonPropertyName("grid_size")]
     public double GridSize { get; set; } = 20.0;

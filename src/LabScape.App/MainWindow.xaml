@@ -157,6 +157,51 @@
                                    Icon="{StaticResource IconResetZoom}"/>
                 </fluent:RibbonGroupBox>
 
+                <!-- Page Setup & Paper Dimensions -->
+                <fluent:RibbonGroupBox Header="Page Setup">
+                    <!-- Page Size Presets Dropdown -->
+                    <fluent:DropDownButton Header="Page Size"
+                                           Size="Large"
+                                           Icon="{StaticResource IconPageSize}"
+                                           LargeIcon="{StaticResource IconPageSize}"
+                                           ToolTip="Select standard paper size (A4, A3, Letter, etc.) or custom dimensions">
+                        <fluent:MenuItem Header="ISO Standard (Lab &amp; Floorplan)">
+                            <fluent:MenuItem Header="A3 (420 × 297 mm) - Standard Lab" Tag="A3" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
+                            <fluent:MenuItem Header="A4 (297 × 210 mm) - Standard Document" Tag="A4" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
+                            <fluent:MenuItem Header="A2 (594 × 420 mm) - Large Facility" Tag="A2" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
+                            <fluent:MenuItem Header="A1 (841 × 594 mm) - Full Architectural" Tag="A1" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
+                        </fluent:MenuItem>
+                        <fluent:MenuItem Header="US / ANSI Standard">
+                            <fluent:MenuItem Header="US Letter (8.5 × 11 in)" Tag="Letter" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
+                            <fluent:MenuItem Header="US Legal (8.5 × 14 in)" Tag="Legal" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
+                            <fluent:MenuItem Header="US Tabloid / Ledger (11 × 17 in)" Tag="Tabloid" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
+                        </fluent:MenuItem>
+                        <fluent:MenuItem Header="Digital Display">
+                            <fluent:MenuItem Header="Full HD 1080p (1920 × 1080 px)" Tag="Screen1080p" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
+                        </fluent:MenuItem>
+                        <Separator/>
+                        <fluent:MenuItem Header="Custom Dimensions..." Click="CustomPageSize_Click" Icon="{StaticResource IconInspect}"/>
+                    </fluent:DropDownButton>
+
+                    <!-- Page Orientation Dropdown -->
+                    <fluent:DropDownButton Header="Orientation"
+                                           Size="Middle"
+                                           Icon="{StaticResource IconOrientation}"
+                                           LargeIcon="{StaticResource IconOrientation}"
+                                           ToolTip="Change canvas page orientation (Landscape or Portrait)">
+                        <fluent:MenuItem Header="Landscape (Horizontal)" Tag="Landscape" Click="SetPageOrientation_Click" Icon="{StaticResource IconLandscape}"/>
+                        <fluent:MenuItem Header="Portrait (Vertical)" Tag="Portrait" Click="SetPageOrientation_Click" Icon="{StaticResource IconPortrait}"/>
+                    </fluent:DropDownButton>
+
+                    <!-- Fit Page to Viewport -->
+                    <fluent:Button Header="Fit Page"
+                                   Command="{Binding Canvas.FitToPageCommand}"
+                                   Size="Middle"
+                                   Icon="{StaticResource IconFitPage}"
+                                   LargeIcon="{StaticResource IconFitPage}"
+                                   ToolTip="Fit entire page into canvas viewport"/>
+                </fluent:RibbonGroupBox>
+
                 <!-- Templates & Room Generator -->
                 <fluent:RibbonGroupBox Header="Templates">
                     <fluent:Button Header="Room Template" Click="RoomGenerator_Click"
@@ -545,7 +590,9 @@
             <StatusBarItem Grid.Column="1">
                 <StackPanel Orientation="Horizontal" Margin="8,0" VerticalAlignment="Center">
                     <TextBlock Text="📄" FontSize="11" Margin="0,0,5,0"/>
-                    <TextBlock Text="{Binding ActiveTab.Title, StringFormat='Active: {0}'}" FontSize="11" Foreground="{DynamicResource StatusBarForegroundBrush}"/>
+                    <TextBlock Text="{Binding ActiveTab.Title, StringFormat='Active: {0}'}" FontSize="11" FontWeight="Medium" Foreground="{DynamicResource StatusBarForegroundBrush}"/>
+                    <TextBlock Text=" • " FontSize="11" Foreground="{DynamicResource AppTextMutedBrush}" Margin="4,0"/>
+                    <TextBlock Text="{Binding Canvas.PageSizeDisplayText}" FontSize="11" Foreground="{DynamicResource AppTextMutedBrush}" ToolTip="Page size preset, orientation and pixel dimensions"/>
                 </StackPanel>
             </StatusBarItem>
 

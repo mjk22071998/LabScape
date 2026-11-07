@@ -1,3 +1,4 @@
+using LabScape.Core.Enums;
 using System.Collections.ObjectModel;
 using LabScape.Core.Collections;
 using LabScape.Core.Interfaces;
@@ -684,5 +685,46 @@ public class ToggleItemVisibilityCommand : IUndoableCommand
         {
             c.Item.IsVisible = c.OldVisible;
         }
+    }
+}
+
+public class ChangePageSizeCommand : IUndoableCommand
+{
+    private readonly CanvasViewModel _canvas;
+    private readonly double _oldWidth;
+    private readonly double _oldHeight;
+    private readonly PageSizePreset _oldPreset;
+    private readonly PageOrientation _oldOrientation;
+    private readonly double _newWidth;
+    private readonly double _newHeight;
+    private readonly PageSizePreset _newPreset;
+    private readonly PageOrientation _newOrientation;
+
+    public string Description => $"Change Page Size to {_newPreset} ({_newWidth:F0}×{_newHeight:F0})";
+
+    public ChangePageSizeCommand(
+        CanvasViewModel canvas,
+        double oldWidth, double oldHeight, PageSizePreset oldPreset, PageOrientation oldOrientation,
+        double newWidth, double newHeight, PageSizePreset newPreset, PageOrientation newOrientation)
+    {
+        _canvas = canvas;
+        _oldWidth = oldWidth;
+        _oldHeight = oldHeight;
+        _oldPreset = oldPreset;
+        _oldOrientation = oldOrientation;
+        _newWidth = newWidth;
+        _newHeight = newHeight;
+        _newPreset = newPreset;
+        _newOrientation = newOrientation;
+    }
+
+    public void Execute()
+    {
+        _canvas.ApplyPageDimensionsInternal(_newWidth, _newHeight, _newPreset, _newOrientation);
+    }
+
+    public void Unexecute()
+    {
+        _canvas.ApplyPageDimensionsInternal(_oldWidth, _oldHeight, _oldPreset, _oldOrientation);
     }
 }
