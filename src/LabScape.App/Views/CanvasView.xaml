@@ -122,10 +122,23 @@
                           Stroke="{DynamicResource AppTextPrimaryBrush}" StrokeThickness="1" Fill="Transparent" Width="13" Height="13" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 </MenuItem.Icon>
             </MenuItem>
+            <Separator/>
+            <MenuItem Header="Change Custom Image..." Click="ItemContextMenu_ChangeImage_Click">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconImage}" Width="15" Height="15"/>
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Remove Custom Image" Click="ItemContextMenu_RemoveImage_Click"/>
         </ContextMenu>
 
         <!-- Canvas Background Context Menu -->
         <ContextMenu x:Key="CanvasContextMenu">
+            <MenuItem Header="Insert Custom Image..." Click="CanvasContextMenu_InsertImage_Click">
+                <MenuItem.Icon>
+                    <Image Source="{StaticResource IconImage}" Width="15" Height="15"/>
+                </MenuItem.Icon>
+            </MenuItem>
+            <Separator/>
             <MenuItem Header="Batch Assign Workstation IPs..." Click="CanvasContextMenu_BatchAssignIp_Click">
                 <MenuItem.Icon>
                     <Path Data="M 7 1 A 6 6 0 1 0 7 13 A 6 6 0 1 0 7 1 M 1 7 H 13 M 7 1 C 4.5 3 4.5 11 7 13 C 9.5 11 9.5 3 7 1" 
@@ -372,6 +385,8 @@
                                             <Binding Path="Fill"/>
                                             <Binding Path="Stroke"/>
                                             <Binding Path="StrokeThickness"/>
+                                            <Binding Path="CustomImagePath"/>
+                                            <Binding Path="CustomImageData"/>
                                         </MultiBinding>
                                     </Image.Source>
                                 </Image>
@@ -458,6 +473,8 @@
                                             <Binding Path="Fill"/>
                                             <Binding Path="Stroke"/>
                                             <Binding Path="StrokeThickness"/>
+                                            <Binding Path="CustomImagePath"/>
+                                            <Binding Path="CustomImageData"/>
                                         </MultiBinding>
                                     </Image.Source>
                                 </Image>

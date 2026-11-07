@@ -884,6 +884,13 @@ public partial class CanvasView : UserControl
             return;
         }
 
+        if (e.Data.GetDataPresent(DataFormats.FileDrop))
+        {
+            e.Effects = DragDropEffects.Copy;
+            e.Handled = true;
+            return;
+        }
+
         if (e.Data.GetDataPresent(typeof(StencilItem)))
         {
             e.Effects = DragDropEffects.Copy;
@@ -943,6 +950,25 @@ public partial class CanvasView : UserControl
             return;
         }
 
+        if (e.Data.GetDataPresent(DataFormats.FileDrop) &&
+            e.Data.GetData(DataFormats.FileDrop) is string[] files &&
+            files.Length > 0)
+        {
+            string firstFile = files[0];
+            string ext = System.IO.Path.GetExtension(firstFile).ToLowerInvariant();
+            string[] supported = { ".png", ".jpg", ".jpeg", ".bmp", ".gif", ".webp" };
+            if (supported.Contains(ext))
+            {
+                Point p = e.GetPosition(CanvasSurface);
+                if (Window.GetWindow(this) is MainWindow mw)
+                {
+                    mw.InsertCustomImageFromFile(firstFile, p);
+                }
+                e.Handled = true;
+                return;
+            }
+        }
+
         if (e.Data.GetData(typeof(StencilItem)) is StencilItem stencil)
         {
             Point p = e.GetPosition(CanvasSurface);
@@ -960,6 +986,62 @@ public partial class CanvasView : UserControl
             newItem.Y = dropY;
             ViewModel.AddItem(newItem);
             e.Handled = true;
+        }
+    }
+
+    private void CanvasContextMenu_InsertImage_Click(object sender, RoutedEventArgs e)
+    {
+        if (Window.GetWindow(this) is MainWindow mw)
+        {
+            var ofd = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = "Insert Custom Image",
+                Filter = "Image Files (*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp|All Files (*.*)|*.*",
+                CheckFileExists = true
+            };
+
+            if (ofd.ShowDialog(mw) == true)
+            {
+                Point mousePos = Mouse.GetPosition(CanvasSurface);
+                mw.InsertCustomImageFromFile(ofd.FileName, mousePos);
+            }
+        }
+    }
+
+    private void ItemContextMenu_ChangeImage_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel?.SelectedItems.Count > 0 && Window.GetWindow(this) is MainWindow mw)
+        {
+            var item = ViewModel.SelectedItems[0];
+            var ofd = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = "Change Custom Image",
+                Filter = "Image Files (*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp|All Files (*.*)|*.*",
+                CheckFileExists = true
+            };
+
+            if (ofd.ShowDialog(mw) == true)
+            {
+                try
+                {
+                    byte[] bytes = System.IO.File.ReadAllBytes(ofd.FileName);
+                    item.CustomImagePath = ofd.FileName;
+                    item.CustomImageData = Convert.ToBase64String(bytes);
+                }
+                catch { }
+            }
+        }
+    }
+
+    private void ItemContextMenu_RemoveImage_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel?.SelectedItems != null)
+        {
+            foreach (var item in ViewModel.SelectedItems)
+            {
+                item.CustomImagePath = null;
+                item.CustomImageData = null;
+            }
         }
     }
 

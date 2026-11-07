@@ -584,13 +584,13 @@
 
                         <!-- Note for Group Name -->
 
-                        <TextBlock Text="ℹ️ Group name is saved in schema and exported, but hidden from canvas layout."
+                        <TextBlock Text="Group name is saved in schema and exported, but hidden from canvas layout."
 
                                    FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}" TextWrapping="Wrap" Margin="0,0,0,4"
 
                                    Visibility="{Binding IsGroup, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
-                        <TextBlock Text="ℹ️ Name editing disabled for multiple selected items."
+                        <TextBlock Text="Name editing disabled for multiple selected items."
 
                                    FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}" TextWrapping="Wrap" Margin="0,0,0,4"
 
@@ -598,6 +598,34 @@
 
                     </StackPanel>
 
+                </GroupBox>
+
+                <!-- Custom Image Section -->
+                <GroupBox Header="Custom Image" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}"
+                          Visibility="{Binding IsSingleSelection, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <StackPanel Margin="4,6" TextElement.FontWeight="Normal">
+                        <Border Visibility="{Binding SelectedItem.HasCustomImage, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}"
+                                BorderThickness="1" CornerRadius="6" Padding="8">
+                            <StackPanel>
+                                <TextBlock Text="Custom Graphic Active" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource AccentPrimaryBrush}" Margin="0,0,0,3"/>
+                                <TextBlock Text="{Binding SelectedItem.CustomImagePath, TargetNullValue='Embedded Custom Image'}" FontSize="10" Foreground="{DynamicResource AppTextSecondaryBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,0,6"/>
+                                <DockPanel LastChildFill="False">
+                                    <Button Content="Change..." Click="Properties_ChangeCustomImage_Click" Width="80" Padding="4,2" Cursor="Hand" Margin="0,0,6,0"/>
+                                    <Button Content="Clear Image" Click="Properties_ClearCustomImage_Click" Width="80" Padding="4,2" Cursor="Hand"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Visibility="{Binding SelectedItem.HasCustomImage, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
+                                Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}"
+                                BorderThickness="1" CornerRadius="6" Padding="8">
+                            <StackPanel>
+                                <TextBlock Text="Using standard vector stencil." FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}" Margin="0,0,0,6"/>
+                                <Button Content="Attach Custom Image..." Click="Properties_ChangeCustomImage_Click" Padding="6,3" Cursor="Hand" HorizontalAlignment="Left"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                 </GroupBox>
 
 

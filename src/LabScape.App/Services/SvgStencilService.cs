@@ -1,3 +1,5 @@
+using System.IO;
+using System.Windows.Media.Imaging;
 using System.Windows;
 using System.Windows.Media;
 using LabScape.App.Helpers;
@@ -12,6 +14,81 @@ public static class SvgStencilService
 {
     private static readonly Dictionary<string, DrawingImage> _defaultCache = new(StringComparer.OrdinalIgnoreCase);
     private static readonly Dictionary<string, DrawingImage> _customCache = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly Dictionary<string, ImageSource> _customImageCache = new(StringComparer.OrdinalIgnoreCase);
+
+    public static ImageSource? GetItemImage(string? stencilType, string? fill = null, string? stroke = null, double? strokeThickness = null, string? customPath = null, string? customData = null)
+    {
+        if (!string.IsNullOrWhiteSpace(customData) || !string.IsNullOrWhiteSpace(customPath))
+        {
+            var custom = LoadCustomImage(customPath, customData);
+            if (custom != null)
+                return custom;
+        }
+
+        return GetStencilImage(stencilType, fill, stroke, strokeThickness);
+    }
+
+    public static ImageSource? LoadCustomImage(string? customPath, string? customData)
+    {
+        if (!string.IsNullOrWhiteSpace(customData))
+        {
+            string cacheKey = customData.Length > 64 ? customData.Substring(0, 64) + "_" + customData.Length : customData;
+            if (_customImageCache.TryGetValue(cacheKey, out var cachedDataImg))
+                return cachedDataImg;
+
+            try
+            {
+                string base64 = customData;
+                int commaIdx = base64.IndexOf(',');
+                if (commaIdx >= 0)
+                {
+                    base64 = base64.Substring(commaIdx + 1);
+                }
+
+                byte[] bytes = System.Convert.FromBase64String(base64);
+                using var ms = new MemoryStream(bytes);
+                var bi = new BitmapImage();
+                bi.BeginInit();
+                bi.CacheOption = BitmapCacheOption.OnLoad;
+                bi.StreamSource = ms;
+                bi.EndInit();
+                if (bi.CanFreeze && !bi.IsFrozen) bi.Freeze();
+
+                _customImageCache[cacheKey] = bi;
+                return bi;
+            }
+            catch
+            {
+                // Fallback to path or default stencil
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(customPath) && File.Exists(customPath))
+        {
+            string cacheKey = "file:" + customPath;
+            if (_customImageCache.TryGetValue(cacheKey, out var cachedFileImg))
+                return cachedFileImg;
+
+            try
+            {
+                var bi = new BitmapImage();
+                bi.BeginInit();
+                bi.CacheOption = BitmapCacheOption.OnLoad;
+                bi.UriSource = new Uri(customPath, UriKind.Absolute);
+                bi.EndInit();
+                if (bi.CanFreeze && !bi.IsFrozen) bi.Freeze();
+
+                _customImageCache[cacheKey] = bi;
+                return bi;
+            }
+            catch
+            {
+                // Fallback to default stencil
+            }
+        }
+
+        return null;
+    }
 
     public static string ResolveResourceKey(string? rawType)
     {

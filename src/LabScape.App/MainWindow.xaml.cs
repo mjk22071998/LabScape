@@ -1726,5 +1726,47 @@ public partial class MainWindow : RibbonWindow
 
     }
 
+    private void InsertImage_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel?.Canvas == null) return;
+
+        var ofd = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "Insert Custom Image",
+            Filter = "Image Files (*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp|All Files (*.*)|*.*",
+            CheckFileExists = true
+        };
+
+        if (ofd.ShowDialog(this) == true)
+        {
+            InsertCustomImageFromFile(ofd.FileName, null);
+        }
+    }
+
+    public void InsertCustomImageFromFile(string filePath, Point? position)
+    {
+        if (ViewModel?.Canvas == null || string.IsNullOrWhiteSpace(filePath) || !System.IO.File.Exists(filePath))
+            return;
+
+        var dlg = new Dialogs.InsertCustomImageDialog(filePath)
+        {
+            Owner = this
+        };
+
+        if (dlg.ShowDialog() == true)
+        {
+            ViewModel.Canvas.InsertCustomImageItem(
+                dlg.FilePath,
+                dlg.Base64Data,
+                dlg.IsNetworkRelated,
+                dlg.ItemName,
+                dlg.IpAddress,
+                dlg.CalculatedWidth,
+                dlg.CalculatedHeight,
+                position?.X,
+                position?.Y);
+        }
+    }
+
 }
 

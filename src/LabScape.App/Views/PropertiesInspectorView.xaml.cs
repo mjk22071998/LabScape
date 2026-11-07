@@ -61,4 +61,37 @@ public partial class PropertiesInspectorView : UserControl
             (sender as TextBox)?.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
         }
     }
+
+    private void Properties_ChangeCustomImage_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel?.SelectedItem == null) return;
+
+        var ofd = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "Attach Custom Image",
+            Filter = "Image Files (*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp|All Files (*.*)|*.*",
+            CheckFileExists = true
+        };
+
+        if (ofd.ShowDialog() == true)
+        {
+            try
+            {
+                byte[] bytes = System.IO.File.ReadAllBytes(ofd.FileName);
+                ViewModel.SelectedItem.CustomImagePath = ofd.FileName;
+                ViewModel.SelectedItem.CustomImageData = Convert.ToBase64String(bytes);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load image: {ex.Message}", "Image Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+
+    private void Properties_ClearCustomImage_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel?.SelectedItem == null) return;
+        ViewModel.SelectedItem.CustomImagePath = null;
+        ViewModel.SelectedItem.CustomImageData = null;
+    }
 }

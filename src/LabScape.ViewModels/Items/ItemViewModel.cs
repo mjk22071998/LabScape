@@ -45,6 +45,14 @@ public partial class ItemViewModel : ObservableObject
     [ObservableProperty]
     private string? _parentGroupId;
 
+    [ObservableProperty]
+    private string? _customImagePath;
+
+    [ObservableProperty]
+    private string? _customImageData;
+
+    public bool HasCustomImage => !string.IsNullOrWhiteSpace(CustomImagePath) || !string.IsNullOrWhiteSpace(CustomImageData);
+
     public ItemType ItemType => Model.Type;
 
     /// <summary>
@@ -67,6 +75,8 @@ public partial class ItemViewModel : ObservableObject
         _isLocked = model.IsLocked;
         _isVisible = model.IsVisible;
         _parentGroupId = model.ParentGroupId;
+        _customImagePath = model.CustomImagePath;
+        _customImageData = model.CustomImageData;
     }
 
     partial void OnNameChanged(string value) => Model.Name = value;
@@ -87,6 +97,16 @@ public partial class ItemViewModel : ObservableObject
     partial void OnIsLockedChanged(bool value) => Model.IsLocked = value;
     partial void OnIsVisibleChanged(bool value) => Model.IsVisible = value;
     partial void OnParentGroupIdChanged(string? value) => Model.ParentGroupId = value;
+    partial void OnCustomImagePathChanged(string? value)
+    {
+        Model.CustomImagePath = value;
+        OnPropertyChanged(nameof(HasCustomImage));
+    }
+    partial void OnCustomImageDataChanged(string? value)
+    {
+        Model.CustomImageData = value;
+        OnPropertyChanged(nameof(HasCustomImage));
+    }
 
     protected virtual void OnPositionChanged(double deltaX, double deltaY) { }
 

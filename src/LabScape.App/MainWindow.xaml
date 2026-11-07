@@ -155,6 +155,9 @@
                     <fluent:Button Header="Text" Command="{Binding Canvas.AddTextItemCommand}" ToolTip="Insert Text Box (T)"
                                    Size="Large"
                                    Icon="{StaticResource IconText}" LargeIcon="{StaticResource IconText}"/>
+                    <fluent:Button Header="Image" Click="InsertImage_Click" ToolTip="Insert Custom Image (PNG, JPG, BMP...)"
+                                   Size="Large"
+                                   Icon="{StaticResource IconImage}" LargeIcon="{StaticResource IconImage}"/>
                     <fluent:Button Header="Zoom In" Command="{Binding Canvas.ZoomInCommand}" ToolTip="Zoom In (Ctrl++)"
                                    Size="Small"
                                    Icon="{StaticResource IconZoomIn}"/>

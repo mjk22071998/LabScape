@@ -205,6 +205,59 @@ public partial class CanvasViewModel : ObservableObject
         AddItem(vm);
     }
 
+    public ItemViewModel InsertCustomImageItem(
+        string? imagePath,
+        string? base64Data,
+        bool isNetworkRelated,
+        string name,
+        string? ipAddress = null,
+        double width = 80,
+        double height = 80,
+        double? spawnX = null,
+        double? spawnY = null)
+    {
+        double x = spawnX ?? (PanX != 0 ? Math.Max(40, -PanX + 250) : 200);
+        double y = spawnY ?? (PanY != 0 ? Math.Max(40, -PanY + 200) : 200);
+
+        ItemViewModel vm;
+        if (isNetworkRelated)
+        {
+            var dev = new DeviceItem
+            {
+                Name = string.IsNullOrWhiteSpace(name) ? "Custom Device" : name,
+                DeviceType = "desktop_pc",
+                IpAddress = ipAddress,
+                IsManualIp = !string.IsNullOrWhiteSpace(ipAddress),
+                CustomImagePath = imagePath,
+                CustomImageData = base64Data,
+                X = x,
+                Y = y,
+                Width = width,
+                Height = height,
+                ValidationStatus = string.IsNullOrWhiteSpace(ipAddress) ? ValidationStatus.Unassigned : ValidationStatus.Valid
+            };
+            vm = new DeviceItemViewModel(dev);
+        }
+        else
+        {
+            var furn = new FurnitureItem
+            {
+                Name = string.IsNullOrWhiteSpace(name) ? "Custom Asset" : name,
+                FurnitureType = "desk",
+                CustomImagePath = imagePath,
+                CustomImageData = base64Data,
+                X = x,
+                Y = y,
+                Width = width,
+                Height = height
+            };
+            vm = new FurnitureItemViewModel(furn);
+        }
+
+        AddItem(vm);
+        return vm;
+    }
+
     public void AddRoomTemplate(RoomTemplateOptions options)
     {
         var result = RoomTemplateGenerator.Generate(options);

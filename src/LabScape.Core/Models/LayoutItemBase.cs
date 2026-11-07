@@ -44,6 +44,12 @@ public abstract class LayoutItemBase
     [JsonPropertyName("is_visible")]
     public bool IsVisible { get; set; } = true;
 
+    [JsonPropertyName("custom_image_path")]
+    public string? CustomImagePath { get; set; }
+
+    [JsonPropertyName("custom_image_data")]
+    public string? CustomImageData { get; set; }
+
     [JsonIgnore]
     public string? ParentGroupId { get; set; }
 
