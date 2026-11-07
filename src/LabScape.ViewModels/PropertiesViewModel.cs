@@ -2222,7 +2222,8 @@ public partial class PropertiesViewModel : ObservableObject
 
             oldIsManual: dev.IsManualIp, newIsManual: true,
 
-            onChanged: () => {
+            onChanged: () =>
+            {
 
                 _canvasViewModel?.RecalculateValidation();
 
@@ -2286,7 +2287,8 @@ public partial class PropertiesViewModel : ObservableObject
 
             oldIsManual: oldIsManual, newIsManual: true,
 
-            onChanged: () => {
+            onChanged: () =>
+            {
 
                 _canvasViewModel?.RecalculateValidation();
 
@@ -2368,7 +2370,8 @@ public partial class PropertiesViewModel : ObservableObject
 
                 oldIsManual: oldIsManual, newIsManual: false,
 
-                onChanged: () => {
+                onChanged: () =>
+                {
 
                     _canvasViewModel?.RecalculateValidation();
 
@@ -2466,7 +2469,8 @@ public partial class PropertiesViewModel : ObservableObject
 
 
 
-        var batchCmd = new BatchAssignDeviceNetworkCommand(states, onChanged: () => {
+        var batchCmd = new BatchAssignDeviceNetworkCommand(states, onChanged: () =>
+        {
 
             _canvasViewModel?.RecalculateValidation();
 
@@ -2516,7 +2520,8 @@ public partial class PropertiesViewModel : ObservableObject
 
 
 
-        var batchCmd = new BatchAssignDeviceNetworkCommand(states, onChanged: () => {
+        var batchCmd = new BatchAssignDeviceNetworkCommand(states, onChanged: () =>
+        {
 
             _canvasViewModel?.RecalculateValidation();
 

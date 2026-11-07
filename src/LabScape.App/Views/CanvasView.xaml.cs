@@ -137,8 +137,8 @@ public partial class CanvasView : UserControl
         }
 
         // 2. Click on empty canvas surface (start marquee or clear selection)
-        bool isCanvasClick = e.OriginalSource == sender || 
-                             e.OriginalSource == CanvasSurface || 
+        bool isCanvasClick = e.OriginalSource == sender ||
+                             e.OriginalSource == CanvasSurface ||
                              (e.OriginalSource as FrameworkElement)?.DataContext is not ItemViewModel;
 
         // Double-click on empty canvas creates a text item at clicked point

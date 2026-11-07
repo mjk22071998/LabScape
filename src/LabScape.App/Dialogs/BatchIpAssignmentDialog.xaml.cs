@@ -171,7 +171,8 @@ public partial class BatchIpAssignmentDialog : Window
                 OldIsManual: item.Device.IsManualIp, NewIsManual: true));
         }
 
-        var cmd = new BatchAssignDeviceNetworkCommand(states, onChanged: () => {
+        var cmd = new BatchAssignDeviceNetworkCommand(states, onChanged: () =>
+        {
             _canvas.RecalculateValidation();
         });
 
@@ -195,7 +196,8 @@ public partial class BatchIpAssignmentDialog : Window
             OldName: dev.Name, NewName: dev.Name,
             OldIsManual: dev.IsManualIp, NewIsManual: true)).ToList();
 
-        var cmd = new BatchAssignDeviceNetworkCommand(states, onChanged: () => {
+        var cmd = new BatchAssignDeviceNetworkCommand(states, onChanged: () =>
+        {
             _canvas.RecalculateValidation();
         });
 

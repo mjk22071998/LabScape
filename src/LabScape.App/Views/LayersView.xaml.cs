@@ -144,7 +144,7 @@ public partial class LayersView : UserControl
 
         _dragStartPoint = e.GetPosition(this);
         _dragSourceContainer = FindVisualParent<ListBoxItem>(e.OriginalSource as DependencyObject);
-        _draggedItem = _dragSourceContainer?.DataContext as LayerItemViewModel 
+        _draggedItem = _dragSourceContainer?.DataContext as LayerItemViewModel
                        ?? FindParentDataContext<LayerItemViewModel>(e.OriginalSource as DependencyObject);
     }
 
