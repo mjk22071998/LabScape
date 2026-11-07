@@ -25,7 +25,8 @@
                 BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,12">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="🌐" FontSize="20" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                    <Path Data="M 10 1 A 9 9 0 1 0 10 19 A 9 9 0 1 0 10 1 M 1 10 H 19 M 10 1 C 6.5 4 6.5 16 10 19 C 13.5 16 13.5 4 10 1" 
+                          Stroke="{DynamicResource SectionHeaderForegroundBrush}" StrokeThickness="1.4" Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center"/>
                     <TextBlock Text="Manual &amp; Batch IP Assignment" FontWeight="Bold" FontSize="15"
                                Foreground="{DynamicResource SectionHeaderForegroundBrush}" VerticalAlignment="Center"/>
                 </StackPanel>

@@ -584,7 +584,7 @@
                                                                 </TextBlock>
 
                                                                 <!-- Modified Asterisk Indicator -->
-                                                                <TextBlock Text=" *" Foreground="#F59E0B" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"
+                                                                <TextBlock Text=" *" Foreground="{DynamicResource StatusWarningBrush}" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"
                                                                            Visibility="{Binding IsModified, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
                                                                 <!-- Close Tab Button -->
@@ -608,7 +608,7 @@
                                                                             </Setter>
                                                                             <Style.Triggers>
                                                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                                                    <Setter Property="Foreground" Value="#EF4444"/>
+                                                                                    <Setter Property="Foreground" Value="{DynamicResource StatusErrorBrush}"/>
                                                                                     <Setter Property="Background" Value="{DynamicResource TabCloseHoverBackgroundBrush}"/>
                                                                                 </Trigger>
                                                                             </Style.Triggers>
@@ -710,10 +710,10 @@
                         <Ellipse Width="8" Height="8" Margin="0,0,6,0">
                             <Ellipse.Style>
                                 <Style TargetType="Ellipse">
-                                    <Setter Property="Fill" Value="#9CA3AF"/>
+                                    <Setter Property="Fill" Value="{DynamicResource AppTextMutedBrush}"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsDatabaseConnected}" Value="True">
-                                            <Setter Property="Fill" Value="#10B981"/>
+                                            <Setter Property="Fill" Value="{DynamicResource StatusSuccessBrush}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -727,29 +727,30 @@
             <!-- 2. Active Tab & Document Info -->
             <StatusBarItem Grid.Column="1">
                 <StackPanel Orientation="Horizontal" Margin="8,0" VerticalAlignment="Center">
-                    <TextBlock Text="📄" FontSize="11" Margin="0,0,5,0"/>
+                    <Path Data="M 2 1 H 7 L 10 4 V 11 A 1 1 0 0 1 9 12 H 3 A 1 1 0 0 1 2 11 Z M 7 1 V 4 H 10" 
+                          Stroke="{DynamicResource AppTextMutedBrush}" StrokeThickness="1" Fill="Transparent" Width="10" Height="11" Margin="0,0,6,0" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding ActiveTab.Title, StringFormat='Active: {0}'}" FontSize="11" FontWeight="Medium" Foreground="{DynamicResource StatusBarForegroundBrush}"/>
-                    <TextBlock Text=" • " FontSize="11" Foreground="{DynamicResource AppTextMutedBrush}" Margin="4,0"/>
+                    <Border Width="1" Height="10" Background="{DynamicResource AppBorderBrush}" Margin="8,0"/>
                     <TextBlock Text="{Binding Canvas.PageSizeDisplayText}" FontSize="11" Foreground="{DynamicResource AppTextMutedBrush}" ToolTip="Page size preset, orientation and pixel dimensions"/>
                 </StackPanel>
             </StatusBarItem>
 
             <!-- 3. Validation Warnings Counter (Unassigned PCs) -->
             <StatusBarItem Grid.Column="2" Visibility="{Binding ValidationWarningCount, Converter={StaticResource IntToVisibilityConverter}}">
-                <Border Background="#FEF3C7" BorderBrush="#F59E0B" BorderThickness="1" CornerRadius="11" Padding="8,2" Margin="4,0">
+                <Border Background="{DynamicResource StatusWarningBackgroundBrush}" BorderBrush="{DynamicResource StatusWarningBorderBrush}" BorderThickness="1" CornerRadius="11" Padding="8,2" Margin="4,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="⚠️ " FontSize="10"/>
-                        <TextBlock Text="{Binding ValidationWarningCount, StringFormat='{}{0} Unassigned PC(s)'}" FontSize="11" FontWeight="SemiBold" Foreground="#92400E"/>
+                        <Path Data="M 5 0 L 10 9 H 0 Z M 5 3 V 6 M 5 7.5 V 8" Stroke="{DynamicResource StatusWarningForegroundBrush}" StrokeThickness="1" Width="10" Height="9" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding ValidationWarningCount, StringFormat='{}{0} Unassigned PC(s)'}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource StatusWarningForegroundBrush}"/>
                     </StackPanel>
                 </Border>
             </StatusBarItem>
 
             <!-- 4. Validation Errors Counter (Duplicate IP Conflicts) -->
             <StatusBarItem Grid.Column="3" Visibility="{Binding ValidationErrorCount, Converter={StaticResource IntToVisibilityConverter}}">
-                <Border Background="#FEE2E2" BorderBrush="#EF4444" BorderThickness="1" CornerRadius="11" Padding="8,2" Margin="4,0">
+                <Border Background="{DynamicResource StatusErrorBackgroundBrush}" BorderBrush="{DynamicResource StatusErrorBorderBrush}" BorderThickness="1" CornerRadius="11" Padding="8,2" Margin="4,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="⛔ " FontSize="10"/>
-                        <TextBlock Text="{Binding ValidationErrorCount, StringFormat='{}{0} IP Conflict(s)'}" FontSize="11" FontWeight="Bold" Foreground="#B91C1C"/>
+                        <Path Data="M 1 5 H 9 M 5 1 A 4 4 0 1 1 4.99 1" Stroke="{DynamicResource StatusErrorForegroundBrush}" StrokeThickness="1.2" Width="9" Height="9" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding ValidationErrorCount, StringFormat='{}{0} IP Conflict(s)'}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource StatusErrorForegroundBrush}"/>
                     </StackPanel>
                 </Border>
             </StatusBarItem>
@@ -758,7 +759,7 @@
             <StatusBarItem Grid.Column="4">
                 <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="11" Padding="8,2" Margin="4,0" ToolTip="{Binding GpuStatusTooltip}">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="⚡" FontSize="10.5" Foreground="#10B981" Margin="0,0,4,0"/>
+                        <Path Data="M 5 0 L 1 6 H 5 L 4 11 L 9 4.5 H 5 Z" Fill="{DynamicResource StatusSuccessBrush}" Width="9" Height="11" Stretch="Uniform" Margin="0,0,5,0" VerticalAlignment="Center"/>
                         <TextBlock Text="{Binding GpuStatusText}" FontSize="11" FontWeight="Medium" Foreground="{DynamicResource StatusBarForegroundBrush}"/>
                     </StackPanel>
                 </Border>
@@ -768,7 +769,8 @@
             <StatusBarItem Grid.Column="5">
                 <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="11" Padding="8,2" Margin="4,0,8,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding Canvas.ZoomLevel, StringFormat='🔍 {0:P0}'}" FontSize="11" FontWeight="Medium" Foreground="{DynamicResource StatusBarForegroundBrush}" Margin="0,0,10,0" FontFamily="Consolas, Segoe UI"/>
+                        <Path Data="M 4 1 A 3 3 0 1 0 4 7 A 3 3 0 0 0 4 1 M 6 6 L 9 9" Stroke="{DynamicResource StatusBarForegroundBrush}" StrokeThickness="1.2" Width="9" Height="9" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Canvas.ZoomLevel, StringFormat='{}{0:P0}'}" FontSize="11" FontWeight="Medium" Foreground="{DynamicResource StatusBarForegroundBrush}" Margin="0,0,10,0" FontFamily="Consolas, Segoe UI"/>
                         <TextBlock Text="{Binding Canvas.CursorX, StringFormat='X: {0:F0}'}" FontSize="11" Foreground="{DynamicResource AppTextMutedBrush}" Margin="0,0,6,0" FontFamily="Consolas, Segoe UI"/>
                         <TextBlock Text="{Binding Canvas.CursorY, StringFormat='Y: {0:F0}'}" FontSize="11" Foreground="{DynamicResource AppTextMutedBrush}" FontFamily="Consolas, Segoe UI"/>
                     </StackPanel>

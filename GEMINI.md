@@ -54,6 +54,7 @@ This project implements the **Everything Claude Code (ECC)** engineering standar
 - `csharp-security.md`
 - `design-quality.md`
 - `ponytail.md` (Lazy senior dev mode: lean, minimal, edge-case correct changes)
+- `hallmark.md` (Anti-AI-slop design system & editorial craft standards)
 
 ---
 

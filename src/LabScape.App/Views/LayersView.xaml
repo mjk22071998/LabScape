@@ -29,17 +29,17 @@
                 <!-- Status Counters (Locked / Hidden) -->
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
                     <!-- Locked Counter -->
-                    <Border Background="#1EF59E0B" BorderBrush="#40F59E0B" BorderThickness="1" CornerRadius="8" Padding="5,1" Margin="0,0,4,0" ToolTip="Locked layers count">
+                    <Border Background="{DynamicResource StatusWarningBackgroundBrush}" BorderBrush="{DynamicResource StatusWarningBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="5,1" Margin="0,0,4,0" ToolTip="Locked layers count">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="🔒" FontSize="9" Margin="0,0,3,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding LockedLayersCount}" FontSize="9.5" FontWeight="SemiBold" Foreground="#F59E0B" VerticalAlignment="Center"/>
+                            <Path Data="M 3 4 V 3 A 2 2 0 0 1 7 3 V 4 M 1.5 4 H 8.5 V 9 H 1.5 Z" Stroke="{DynamicResource StatusWarningForegroundBrush}" StrokeThickness="1" Fill="Transparent" Width="9" Height="9" Margin="0,0,3,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding LockedLayersCount}" FontSize="9.5" FontWeight="SemiBold" Foreground="{DynamicResource StatusWarningForegroundBrush}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
                     <!-- Hidden Counter -->
-                    <Border Background="#1EEF4444" BorderBrush="#40EF4444" BorderThickness="1" CornerRadius="8" Padding="5,1" ToolTip="Hidden layers count">
+                    <Border Background="{DynamicResource StatusErrorBackgroundBrush}" BorderBrush="{DynamicResource StatusErrorBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="5,1" ToolTip="Hidden layers count">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="🚫" FontSize="9" Margin="0,0,3,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding HiddenLayersCount}" FontSize="9.5" FontWeight="SemiBold" Foreground="#EF4444" VerticalAlignment="Center"/>
+                            <Path Data="M 1 5 C 3 2 7 2 9 5 C 7 8 3 8 1 5 M 2 8 L 8 2" Stroke="{DynamicResource StatusErrorForegroundBrush}" StrokeThickness="1" Fill="Transparent" Width="9" Height="9" Margin="0,0,3,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding HiddenLayersCount}" FontSize="9.5" FontWeight="SemiBold" Foreground="{DynamicResource StatusErrorForegroundBrush}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -54,7 +54,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="🔍" FontSize="11" Margin="2,0,6,0" VerticalAlignment="Center" Foreground="{DynamicResource AppTextMutedBrush}"/>
+                <Path Grid.Column="0" Data="M 4 1 A 3 3 0 1 0 4 7 A 3 3 0 0 0 4 1 M 6 6 L 9 9" Stroke="{DynamicResource AppTextMutedBrush}" StrokeThickness="1.2" Width="9" Height="9" Margin="2,0,6,0" VerticalAlignment="Center"/>
                 <TextBox Grid.Column="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                          BorderThickness="0" Background="Transparent" Foreground="{DynamicResource InputForegroundBrush}"
                          CaretBrush="{DynamicResource InputForegroundBrush}" VerticalAlignment="Center"
@@ -132,15 +132,15 @@
                     </Button>
                     <Button Style="{DynamicResource QuickActionButtonStyle}" Width="24" Height="24" Margin="2,0,0,0" ToolTip="Lock / Unlock All"
                             Command="{Binding ToggleLockAllCommand}">
-                        <TextBlock Text="🔒" FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <Path Data="M 3 4 V 3 A 2 2 0 0 1 7 3 V 4 M 1.5 4 H 8.5 V 9 H 1.5 Z" Stroke="{DynamicResource AppTextPrimaryBrush}" StrokeThickness="1" Fill="Transparent" Width="9" Height="9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </Button>
                     <Button Style="{DynamicResource QuickActionButtonStyle}" Width="24" Height="24" Margin="2,0,0,0" ToolTip="Show / Hide All"
                             Command="{Binding ToggleVisibilityAllCommand}">
-                        <TextBlock Text="👁" FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <Path Data="M 1 5 C 3 2 7 2 9 5 C 7 8 3 8 1 5 M 5 3.5 A 1.5 1.5 0 1 0 5 6.5 A 1.5 1.5 0 0 0 5 3.5" Stroke="{DynamicResource AppTextPrimaryBrush}" StrokeThickness="1" Fill="Transparent" Width="9" Height="9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </Button>
                     <Button Style="{DynamicResource DangerButtonStyle}" Width="24" Height="24" Margin="2,0,0,0" ToolTip="Delete Selected Layer"
                             Command="{Binding DeleteSelectedCommand}">
-                        <TextBlock Text="🗑" FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <Path Data="M 2 3 H 8 M 4 1 H 6 M 3 3 V 8 A 1 1 0 0 0 4 9 H 6 A 1 1 0 0 0 7 8 V 3" Stroke="{DynamicResource StatusErrorBrush}" StrokeThickness="1" Fill="Transparent" Width="9" Height="9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </Button>
                 </StackPanel>
             </Grid>
@@ -212,7 +212,7 @@
                             <ColumnDefinition Width="Auto"/> <!-- Z-Index Badge -->
                         </Grid.ColumnDefinitions>
 
-                        <!-- Visibility Eye Toggle (👁️ / 🚫) -->
+                        <!-- Visibility Toggle (Show / Hide) -->
                         <Button Grid.Column="0" Width="20" Height="20" Margin="0,0,3,0"
                                 Background="Transparent" BorderThickness="0" Cursor="Hand"
                                 Command="{Binding ToggleVisibilityCommand}"
@@ -232,23 +232,21 @@
                             </Button.Style>
                             <Grid>
                                 <!-- Visible State Icon -->
-                                <TextBlock Text="👁" FontSize="11" Foreground="{DynamicResource AppTextPrimaryBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
+                                <Path Data="M 1 5 C 3 2 7 2 9 5 C 7 8 3 8 1 5 M 5 3.5 A 1.5 1.5 0 1 0 5 6.5 A 1.5 1.5 0 0 0 5 3.5" Stroke="{DynamicResource AppTextPrimaryBrush}" StrokeThickness="1" Fill="Transparent" Width="10" Height="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Path.Style>
+                                        <Style TargetType="Path">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsVisible}" Value="False">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
+                                    </Path.Style>
+                                </Path>
                                 <!-- Hidden State Icon -->
-                                <TextBlock Text="🚫" FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
+                                <Path Data="M 1 5 C 3 2 7 2 9 5 C 7 8 3 8 1 5 M 2 8 L 8 2" Stroke="{DynamicResource AppTextMutedBrush}" StrokeThickness="1" Fill="Transparent" Width="10" Height="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Path.Style>
+                                        <Style TargetType="Path">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsVisible}" Value="False">
@@ -256,12 +254,12 @@
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
+                                    </Path.Style>
+                                </Path>
                             </Grid>
                         </Button>
 
-                        <!-- Lock Padlock Toggle (🔒 / 🔓) -->
+                        <!-- Lock Padlock Toggle (Locked / Unlocked) -->
                         <Button Grid.Column="1" Width="20" Height="20" Margin="0,0,5,0"
                                 Background="Transparent" BorderThickness="0" Cursor="Hand"
                                 Command="{Binding ToggleLockCommand}"
@@ -281,10 +279,9 @@
                             </Button.Style>
                             <Grid>
                                 <!-- Locked State Icon -->
-                                <TextBlock Text="🔒" FontSize="10" Foreground="#F59E0B"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
+                                <Path Data="M 3 4 V 3 A 2 2 0 0 1 7 3 V 4 M 1.5 4 H 8.5 V 9 H 1.5 Z" Stroke="{DynamicResource StatusWarningForegroundBrush}" StrokeThickness="1" Fill="Transparent" Width="10" Height="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Path.Style>
+                                        <Style TargetType="Path">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsLocked}" Value="True">
@@ -292,22 +289,20 @@
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
+                                    </Path.Style>
+                                </Path>
                                 <!-- Unlocked State Icon -->
-                                <TextBlock Text="🔓" FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}"
-                                           Opacity="0.4"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
+                                <Path Data="M 3 3 A 2 2 0 0 1 7 3 V 4 M 1.5 4 H 8.5 V 9 H 1.5 Z" Stroke="{DynamicResource AppTextMutedBrush}" Opacity="0.4" StrokeThickness="1" Fill="Transparent" Width="10" Height="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Path.Style>
+                                        <Style TargetType="Path">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsLocked}" Value="True">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
+                                    </Path.Style>
+                                </Path>
                             </Grid>
                         </Button>
 
@@ -316,9 +311,9 @@
                                 Background="{DynamicResource AccentSubtleBrush}"
                                 CornerRadius="4" VerticalAlignment="Center" HorizontalAlignment="Center">
                             <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="💻" FontSize="9.5" ToolTip="Workstation / Device">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
+                                <Path Data="M 2 2 H 8 V 6 H 2 Z M 1 7 H 9" Stroke="{DynamicResource AccentPrimaryBrush}" StrokeThickness="1" Fill="Transparent" Width="10" Height="10" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Workstation / Device">
+                                    <Path.Style>
+                                        <Style TargetType="Path">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IconKind}" Value="Device">
@@ -326,11 +321,11 @@
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                                <TextBlock Text="🪑" FontSize="9.5" ToolTip="Furniture">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
+                                    </Path.Style>
+                                </Path>
+                                <Path Data="M 2 3 H 8 V 6 H 2 Z M 2 6 V 8 M 8 6 V 8" Stroke="{DynamicResource AccentPrimaryBrush}" StrokeThickness="1" Fill="Transparent" Width="10" Height="10" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Furniture">
+                                    <Path.Style>
+                                        <Style TargetType="Path">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IconKind}" Value="Furniture">
@@ -338,11 +333,11 @@
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                                <TextBlock Text="📐" FontSize="9.5" ToolTip="Geometric Shape">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
+                                    </Path.Style>
+                                </Path>
+                                <Path Data="M 2 2 H 8 V 8 H 2 Z" Stroke="{DynamicResource AccentPrimaryBrush}" StrokeThickness="1" Fill="Transparent" Width="10" Height="10" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Geometric Shape">
+                                    <Path.Style>
+                                        <Style TargetType="Path">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IconKind}" Value="Shape">
@@ -350,8 +345,8 @@
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
+                                    </Path.Style>
+                                </Path>
                                 <TextBlock Text="T" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentPrimaryBrush}" ToolTip="Text Label">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
@@ -364,9 +359,9 @@
                                         </Style>
                                     </TextBlock.Style>
                                 </TextBlock>
-                                <TextBlock Text="📁" FontSize="9.5" ToolTip="Grouped Elements">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
+                                <Path Data="M 1 2 H 4 L 5 3 H 9 V 8 H 1 Z" Stroke="{DynamicResource AccentPrimaryBrush}" StrokeThickness="1" Fill="Transparent" Width="10" Height="10" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Grouped Elements">
+                                    <Path.Style>
+                                        <Style TargetType="Path">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IconKind}" Value="Group">
@@ -374,8 +369,8 @@
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
+                                    </Path.Style>
+                                </Path>
                             </Grid>
                         </Border>
 
@@ -452,7 +447,7 @@
                 </Style>
             </Border.Style>
             <StackPanel HorizontalAlignment="Center">
-                <TextBlock Text="📚" FontSize="26" HorizontalAlignment="Center" Margin="0,0,0,6" Opacity="0.5"/>
+                <Path Data="M 2 3 L 8 1 L 14 3 L 8 5 Z M 2 6 L 8 8 L 14 6 M 2 9 L 8 11 L 14 9" Stroke="{DynamicResource AppTextMutedBrush}" StrokeThickness="1.2" Width="24" Height="20" HorizontalAlignment="Center" Margin="0,0,0,6" Opacity="0.5"/>
                 <TextBlock Text="No layers yet" FontWeight="SemiBold" FontSize="11.5" HorizontalAlignment="Center" Foreground="{DynamicResource AppTextPrimaryBrush}"/>
                 <TextBlock Text="Drag items from Stencils Library to start creating layers." FontSize="10" TextWrapping="Wrap" TextAlignment="Center" Margin="0,3,0,0" Foreground="{DynamicResource AppTextMutedBrush}"/>
             </StackPanel>
@@ -461,7 +456,7 @@
         <!-- 6. Footer Reorder Hint -->
         <Border Grid.Row="4" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,1,0,0" Padding="8,4">
             <DockPanel LastChildFill="False">
-                <TextBlock DockPanel.Dock="Left" Text="💡 Drag layers to reorder Z-index" FontSize="9.5" Foreground="{DynamicResource AppTextMutedBrush}" VerticalAlignment="Center"/>
+                <TextBlock DockPanel.Dock="Left" Text="Drag layers to reorder Z-index" FontSize="9.5" Foreground="{DynamicResource AppTextMutedBrush}" VerticalAlignment="Center"/>
                 <Button DockPanel.Dock="Right" Content="Select All" Style="{DynamicResource QuickActionButtonStyle}" Padding="6,1" FontSize="9.5"
                         Command="{Binding SelectAllCommand}"/>
             </DockPanel>

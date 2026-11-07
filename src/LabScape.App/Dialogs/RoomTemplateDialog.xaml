@@ -178,7 +178,7 @@
 
         <!-- Footer Action Buttons -->
         <DockPanel Grid.Row="2" Margin="0,4,0,0">
-            <TextBlock Text="💡 Template will be permanently saved to your persistent template catalog."
+            <TextBlock Text="Template will be permanently saved to your persistent template catalog."
                        VerticalAlignment="Center" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">

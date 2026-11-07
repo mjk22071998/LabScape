@@ -207,23 +207,23 @@
                                 </Border>
 
                                 <DockPanel Margin="0,0,0,5">
-                                    <TextBlock Text="📐 Room Dimensions:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
+                                    <TextBlock Text="Room Dimensions:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding SummaryDimensions}" FontWeight="Bold" FontSize="11"
                                                FontFamily="Consolas, Segoe UI"
                                                Foreground="{DynamicResource AppTextPrimaryBrush}" HorizontalAlignment="Right"/>
                                 </DockPanel>
                                 <DockPanel Margin="0,0,0,5">
-                                    <TextBlock Text="🧱 Boundary Walls:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
+                                    <TextBlock Text="Boundary Walls:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding SummaryWalls}" FontSize="10.5"
                                                Foreground="{DynamicResource AppTextPrimaryBrush}" HorizontalAlignment="Right"/>
                                 </DockPanel>
-                                <TextBlock Text="🖥️ Workstation Breakdown:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,2,0,2"/>
+                                <TextBlock Text="Workstation Breakdown:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,2,0,2"/>
                                 <TextBlock Text="{Binding SummaryDistribution}" FontWeight="SemiBold" FontSize="10.5"
                                            Foreground="{DynamicResource AccentPrimaryBrush}" TextWrapping="Wrap" Margin="4,0,0,6"/>
 
                                 <Border Background="{DynamicResource AccentSubtleBrush}" BorderBrush="{DynamicResource AccentBorderBrush}"
                                         BorderThickness="1" CornerRadius="5" Padding="6,4" Margin="0,4,0,0">
-                                    <TextBlock Text="🖱️ Drag this card directly onto canvas" FontSize="10" FontWeight="SemiBold"
+                                    <TextBlock Text="Drag this card directly onto canvas" FontSize="10" FontWeight="SemiBold"
                                                Foreground="{DynamicResource AccentPrimaryBrush}" HorizontalAlignment="Center"/>
                                 </Border>
                             </StackPanel>

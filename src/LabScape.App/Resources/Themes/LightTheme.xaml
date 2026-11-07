@@ -1,7 +1,7 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- App / Window Surfaces (Architectural Studio Palette) -->
+    <!-- App / Window Surfaces (Architectural Studio Palette - Hallmark Vellum Elevation) -->
     <SolidColorBrush x:Key="AppBackgroundBrush" Color="#F8FAFC"/>
     <SolidColorBrush x:Key="AppSurfaceBrush" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="AppSurfaceAltBrush" Color="#F1F5F9"/>
@@ -21,10 +21,22 @@
 
     <SolidColorBrush x:Key="AccentBrush" Color="#0284C7"/>
 
-    <!-- Semantic Status Indicators -->
+    <!-- Semantic Status Indicators & Badges (Hallmark Light Elevation) -->
     <SolidColorBrush x:Key="StatusSuccessBrush" Color="#10B981"/>
     <SolidColorBrush x:Key="StatusWarningBrush" Color="#F59E0B"/>
     <SolidColorBrush x:Key="StatusErrorBrush" Color="#EF4444"/>
+
+    <SolidColorBrush x:Key="StatusSuccessBackgroundBrush" Color="#ECFDF5"/>
+    <SolidColorBrush x:Key="StatusSuccessBorderBrush" Color="#A7F3D0"/>
+    <SolidColorBrush x:Key="StatusSuccessForegroundBrush" Color="#065F46"/>
+
+    <SolidColorBrush x:Key="StatusWarningBackgroundBrush" Color="#FFFBEB"/>
+    <SolidColorBrush x:Key="StatusWarningBorderBrush" Color="#FDE68A"/>
+    <SolidColorBrush x:Key="StatusWarningForegroundBrush" Color="#92400E"/>
+
+    <SolidColorBrush x:Key="StatusErrorBackgroundBrush" Color="#FEF2F2"/>
+    <SolidColorBrush x:Key="StatusErrorBorderBrush" Color="#FECACA"/>
+    <SolidColorBrush x:Key="StatusErrorForegroundBrush" Color="#991B1B"/>
 
     <!-- Panels (Palette & Inspector) -->
     <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#F8FAFC"/>

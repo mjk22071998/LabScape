@@ -118,7 +118,8 @@
             <Separator/>
             <MenuItem Header="Assign IP Address (Manual / Batch)..." Click="ItemContextMenu_AssignIp_Click">
                 <MenuItem.Icon>
-                    <TextBlock Text="🌐" FontSize="13" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <Path Data="M 7 1 A 6 6 0 1 0 7 13 A 6 6 0 1 0 7 1 M 1 7 H 13 M 7 1 C 4.5 3 4.5 11 7 13 C 9.5 11 9.5 3 7 1" 
+                          Stroke="{DynamicResource AppTextPrimaryBrush}" StrokeThickness="1" Fill="Transparent" Width="13" Height="13" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 </MenuItem.Icon>
             </MenuItem>
         </ContextMenu>
@@ -127,7 +128,8 @@
         <ContextMenu x:Key="CanvasContextMenu">
             <MenuItem Header="Batch Assign Workstation IPs..." Click="CanvasContextMenu_BatchAssignIp_Click">
                 <MenuItem.Icon>
-                    <TextBlock Text="🌐" FontSize="13" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <Path Data="M 7 1 A 6 6 0 1 0 7 13 A 6 6 0 1 0 7 1 M 1 7 H 13 M 7 1 C 4.5 3 4.5 11 7 13 C 9.5 11 9.5 3 7 1" 
+                          Stroke="{DynamicResource AppTextPrimaryBrush}" StrokeThickness="1" Fill="Transparent" Width="13" Height="13" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 </MenuItem.Icon>
             </MenuItem>
             <Separator/>

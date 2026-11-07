@@ -85,7 +85,8 @@
                                         BorderThickness="1.5"
                                         CornerRadius="2"
                                         Width="60" Height="42">
-                                    <TextBlock Text="📄" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Path Data="M 2 1 H 6 L 9 4 V 11 A 1 1 0 0 1 8 12 H 3 A 1 1 0 0 1 2 11 Z M 6 1 V 4 H 9" 
+                                          Stroke="#0078D4" StrokeThickness="1" Fill="Transparent" Width="9" Height="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                             </Grid>
                         </Border>

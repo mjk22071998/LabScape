@@ -21,7 +21,8 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="🔍" FontSize="11" Margin="2,0,6,0" VerticalAlignment="Center" Foreground="{DynamicResource AppTextMutedBrush}"/>
+                <Path Grid.Column="0" Data="M 4 1 A 3 3 0 1 0 4 7 A 3 3 0 0 0 4 1 M 6 6 L 9 9" 
+                      Stroke="{DynamicResource AppTextMutedBrush}" StrokeThickness="1.2" Width="10" Height="10" Margin="2,0,6,0" VerticalAlignment="Center"/>
                 <TextBox Grid.Column="1" Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}"
                          BorderThickness="0" Background="Transparent" Foreground="{DynamicResource InputForegroundBrush}"
                          CaretBrush="{DynamicResource InputForegroundBrush}" VerticalAlignment="Center"
