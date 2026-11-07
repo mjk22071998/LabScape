@@ -108,24 +108,34 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Button Grid.Column="0" Command="{Binding SetManualModeCommand}" Padding="4,3" BorderThickness="0" Cursor="Hand" Margin="1">
+                                <Button Grid.Column="0" Command="{Binding SetManualModeCommand}" Padding="4,4" BorderThickness="0" Cursor="Hand" Margin="1">
                                     <Button.Style>
                                         <Style TargetType="Button">
                                             <Setter Property="Background" Value="Transparent"/>
                                             <Setter Property="Foreground" Value="{DynamicResource AppTextSecondaryBrush}"/>
+                                            <Setter Property="BorderThickness" Value="1"/>
+                                            <Setter Property="BorderBrush" Value="Transparent"/>
                                             <Setter Property="Template">
                                                 <Setter.Value>
                                                     <ControlTemplate TargetType="Button">
-                                                        <Border Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                                CornerRadius="4" Padding="{TemplateBinding Padding}">
                                                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                         </Border>
                                                     </ControlTemplate>
                                                 </Setter.Value>
                                             </Setter>
                                             <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource CardHoverBackgroundBrush}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource AppTextPrimaryBrush}"/>
+                                                </Trigger>
                                                 <DataTrigger Binding="{Binding IsManualIpMode}" Value="True">
-                                                    <Setter Property="Background" Value="#0284C7"/>
-                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="Background" Value="{DynamicResource AccentSubtleBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentPrimaryBrush}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource AccentPrimaryBrush}"/>
                                                     <Setter Property="FontWeight" Value="SemiBold"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -133,24 +143,34 @@
                                     </Button.Style>
                                     <TextBlock Text="✍️ Manual IP" FontSize="11" HorizontalAlignment="Center"/>
                                 </Button>
-                                <Button Grid.Column="1" Command="{Binding SetDatabaseModeCommand}" Padding="4,3" BorderThickness="0" Cursor="Hand" Margin="1">
+                                <Button Grid.Column="1" Command="{Binding SetDatabaseModeCommand}" Padding="4,4" BorderThickness="0" Cursor="Hand" Margin="1">
                                     <Button.Style>
                                         <Style TargetType="Button">
                                             <Setter Property="Background" Value="Transparent"/>
                                             <Setter Property="Foreground" Value="{DynamicResource AppTextSecondaryBrush}"/>
+                                            <Setter Property="BorderThickness" Value="1"/>
+                                            <Setter Property="BorderBrush" Value="Transparent"/>
                                             <Setter Property="Template">
                                                 <Setter.Value>
                                                     <ControlTemplate TargetType="Button">
-                                                        <Border Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                                CornerRadius="4" Padding="{TemplateBinding Padding}">
                                                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                         </Border>
                                                     </ControlTemplate>
                                                 </Setter.Value>
                                             </Setter>
                                             <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource CardHoverBackgroundBrush}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource AppTextPrimaryBrush}"/>
+                                                </Trigger>
                                                 <DataTrigger Binding="{Binding IsManualIpMode}" Value="False">
-                                                    <Setter Property="Background" Value="#0284C7"/>
-                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="Background" Value="{DynamicResource AccentSubtleBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentPrimaryBrush}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource AccentPrimaryBrush}"/>
                                                     <Setter Property="FontWeight" Value="SemiBold"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -224,19 +244,153 @@
                             <!-- Searchable Inventory Picker -->
                             <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="8">
                                 <StackPanel>
-                                    <TextBlock Text="Link from Database Inventory:" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource AppTextPrimaryBrush}" Margin="0,0,0,4"/>
-                                    <TextBox Text="{Binding IpSearchQuery, UpdateSourceTrigger=PropertyChanged}" Padding="5,3" Margin="0,0,0,6"/>
-                                    <ListBox ItemsSource="{Binding FilteredDatabaseDevices}" MaxHeight="140"
-                                             SelectionChanged="DatabaseDevicesListBox_SelectionChanged">
-                                        <ListBox.ItemTemplate>
-                                            <DataTemplate DataType="{x:Type models:DatabaseDevice}">
-                                                <StackPanel Margin="2">
-                                                    <TextBlock FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource AppTextPrimaryBrush}" Text="{Binding DisplayName}"/>
-                                                    <TextBlock FontSize="10" Foreground="{DynamicResource AppTextSecondaryBrush}" Text="{Binding PrimaryIp, StringFormat='IP: {0}'}"/>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </ListBox.ItemTemplate>
-                                    </ListBox>
+                                    <!-- Header & Available Count -->
+                                    <DockPanel Margin="0,0,0,6">
+                                        <TextBlock Text="Link from Database Inventory:" FontWeight="SemiBold" FontSize="11"
+                                                   Foreground="{DynamicResource AppTextPrimaryBrush}" VerticalAlignment="Center"/>
+                                        <Border HorizontalAlignment="Right" Background="{DynamicResource AccentSubtleBrush}"
+                                                BorderBrush="{DynamicResource AccentBorderBrush}" BorderThickness="1" CornerRadius="3"
+                                                Padding="5,1">
+                                            <TextBlock Text="{Binding FilteredDatabaseDevices.Count, StringFormat='{}{0} available'}"
+                                                       FontSize="9.5" FontWeight="SemiBold" Foreground="{DynamicResource AccentPrimaryBrush}"/>
+                                        </Border>
+                                    </DockPanel>
+
+                                    <!-- Search Input with Magnifier & Watermark -->
+                                    <Grid Margin="0,0,0,6">
+                                        <TextBox x:Name="TxtSearchDevices"
+                                                 Text="{Binding IpSearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                                 Padding="22,4,6,4" FontSize="11"/>
+                                        <TextBlock Text="🔍" FontSize="10"
+                                                   Foreground="{DynamicResource AppTextMutedBrush}"
+                                                   VerticalAlignment="Center" Margin="6,0,0,0"
+                                                   IsHitTestVisible="False"/>
+                                        <TextBlock Text="Filter by name, IP, or MAC..."
+                                                   FontSize="11"
+                                                   Foreground="{DynamicResource AppTextMutedBrush}"
+                                                   VerticalAlignment="Center" Margin="24,0,0,0"
+                                                   IsHitTestVisible="False">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Text, ElementName=TxtSearchDevices}" Value="">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+
+                                    <!-- Devices ListBox with dark-theme styled card items -->
+                                    <Border Background="{DynamicResource InputBackgroundBrush}"
+                                            BorderBrush="{DynamicResource InputBorderBrush}"
+                                            BorderThickness="1" CornerRadius="5" Padding="2"
+                                            Visibility="{Binding FilteredDatabaseDevices.Count, Converter={StaticResource IntToVisibilityConverter}}">
+                                        <ListBox ItemsSource="{Binding FilteredDatabaseDevices}"
+                                                 MaxHeight="150"
+                                                 Background="Transparent"
+                                                 BorderThickness="0"
+                                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                 SelectionChanged="DatabaseDevicesListBox_SelectionChanged">
+                                            <ListBox.ItemContainerStyle>
+                                                <Style TargetType="ListBoxItem">
+                                                    <Setter Property="Background" Value="Transparent"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource AppTextPrimaryBrush}"/>
+                                                    <Setter Property="BorderThickness" Value="1"/>
+                                                    <Setter Property="BorderBrush" Value="Transparent"/>
+                                                    <Setter Property="Padding" Value="6,4"/>
+                                                    <Setter Property="Margin" Value="0,1"/>
+                                                    <Setter Property="Cursor" Value="Hand"/>
+                                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="ListBoxItem">
+                                                                <Border x:Name="itemBorder"
+                                                                        Background="{TemplateBinding Background}"
+                                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                                        CornerRadius="4"
+                                                                        Padding="{TemplateBinding Padding}"
+                                                                        SnapsToDevicePixels="True">
+                                                                    <ContentPresenter/>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter TargetName="itemBorder" Property="Background" Value="{DynamicResource CardHoverBackgroundBrush}"/>
+                                                                        <Setter TargetName="itemBorder" Property="BorderBrush" Value="{DynamicResource CardBorderHoverBrush}"/>
+                                                                    </Trigger>
+                                                                    <Trigger Property="IsSelected" Value="True">
+                                                                        <Setter TargetName="itemBorder" Property="Background" Value="{DynamicResource AccentSubtleBrush}"/>
+                                                                        <Setter TargetName="itemBorder" Property="BorderBrush" Value="{DynamicResource AccentPrimaryBrush}"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </ListBox.ItemContainerStyle>
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate DataType="{x:Type models:DatabaseDevice}">
+                                                    <Grid Margin="1,1">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+
+                                                        <!-- Workstation Icon Badge -->
+                                                        <Border Grid.Column="0" Width="22" Height="22" CornerRadius="4"
+                                                                Background="{DynamicResource CardBackgroundBrush}"
+                                                                BorderBrush="{DynamicResource CardBorderBrush}"
+                                                                BorderThickness="1" Margin="0,0,7,0"
+                                                                VerticalAlignment="Center">
+                                                            <TextBlock Text="💻" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+
+                                                        <!-- Name & Device ID -->
+                                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="11"
+                                                                       Foreground="{DynamicResource AppTextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
+                                                            <TextBlock Text="{Binding DeviceId, StringFormat='ID: {0}'}" FontSize="9.5"
+                                                                       Foreground="{DynamicResource AppTextMutedBrush}" TextTrimming="CharacterEllipsis"/>
+                                                        </StackPanel>
+
+                                                        <!-- Monospace IP Chip Badge -->
+                                                        <Border Grid.Column="2" VerticalAlignment="Center"
+                                                                Background="{DynamicResource CardBackgroundBrush}"
+                                                                BorderBrush="{DynamicResource CardBorderBrush}"
+                                                                BorderThickness="1" CornerRadius="3"
+                                                                Padding="5,1.5" Margin="4,0,0,0">
+                                                            <TextBlock Text="{Binding PrimaryIp}"
+                                                                       FontFamily="Consolas, Segoe UI Variable Display, Segoe UI"
+                                                                       FontSize="10" FontWeight="SemiBold"
+                                                                       Foreground="{DynamicResource AccentPrimaryBrush}"/>
+                                                        </Border>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                    </Border>
+
+                                    <!-- Empty State Message when FilteredDatabaseDevices is empty -->
+                                    <Border Background="{DynamicResource InputBackgroundBrush}"
+                                            BorderBrush="{DynamicResource InputBorderBrush}"
+                                            BorderThickness="1" CornerRadius="5" Padding="12,14"
+                                            Visibility="{Binding FilteredDatabaseDevices.Count, Converter={StaticResource ZeroToVisibilityConverter}}">
+                                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <TextBlock Text="🔍" FontSize="15" HorizontalAlignment="Center" Margin="0,0,0,4" Opacity="0.6"/>
+                                            <TextBlock Text="No unassigned workstations match filter."
+                                                       FontSize="11" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource AppTextSecondaryBrush}"
+                                                       HorizontalAlignment="Center" TextAlignment="Center"/>
+                                            <TextBlock Text="Try a different query or switch to Manual IP."
+                                                       FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}"
+                                                       HorizontalAlignment="Center" TextAlignment="Center" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                    </Border>
                                 </StackPanel>
                             </Border>
                         </StackPanel>

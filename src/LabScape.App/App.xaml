@@ -30,6 +30,7 @@
             <converters:EqualityToBooleanConverter x:Key="EqualityToBooleanConverter"/>
             <converters:TextAlignmentConverter x:Key="TextAlignmentConverter"/>
             <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+            <converters:ZeroToVisibilityConverter x:Key="ZeroToVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -6133,4 +6133,55 @@ public class CoreTests
         Assert.Contains("UpdateDropIndicator", viewCode);
         Assert.Contains("MoveLayersInList", viewCode);
     }
+
+    [Fact]
+    public void PropertiesInspector_DarkMode_And_Converters_Test()
+    {
+        // 1. Locate solution root
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(projectRoot);
+
+        // 2. Verify PropertiesInspectorView.xaml dark mode styling
+        string inspectorPath = Path.Combine(projectRoot, "src", "LabScape.App", "Views", "PropertiesInspectorView.xaml");
+        Assert.True(File.Exists(inspectorPath));
+        string inspectorXaml = File.ReadAllText(inspectorPath);
+
+        // Pill buttons should use theme-adaptive brushes rather than hardcoded #0284C7
+        Assert.Contains("SetManualModeCommand", inspectorXaml);
+        Assert.Contains("SetDatabaseModeCommand", inspectorXaml);
+        Assert.Contains("AccentSubtleBrush", inspectorXaml);
+
+        // Search bar with magnifier icon and placeholder
+        Assert.Contains("TxtSearchDevices", inspectorXaml);
+        Assert.Contains("Filter by name, IP, or MAC...", inspectorXaml);
+
+        // Database inventory ListBox must have transparent background & themed container style
+        Assert.Contains("FilteredDatabaseDevices", inspectorXaml);
+        Assert.Contains("DatabaseDevicesListBox_SelectionChanged", inspectorXaml);
+        Assert.Contains("ZeroToVisibilityConverter", inspectorXaml);
+
+        // 3. Verify Styles.xaml defines ListBox and ListBoxItem default styles
+        string stylesPath = Path.Combine(projectRoot, "src", "LabScape.App", "Resources", "Styles.xaml");
+        Assert.True(File.Exists(stylesPath));
+        string stylesXaml = File.ReadAllText(stylesPath);
+        Assert.Contains("TargetType=\"{x:Type ListBox}\"", stylesXaml);
+        Assert.Contains("TargetType=\"{x:Type ListBoxItem}\"", stylesXaml);
+
+        // 4. Verify ValueConverters.cs defines ZeroToVisibilityConverter
+        string convertersPath = Path.Combine(projectRoot, "src", "LabScape.App", "Converters", "ValueConverters.cs");
+        Assert.True(File.Exists(convertersPath));
+        string convertersCode = File.ReadAllText(convertersPath);
+        Assert.Contains("ZeroToVisibilityConverter", convertersCode);
+    }
 }
