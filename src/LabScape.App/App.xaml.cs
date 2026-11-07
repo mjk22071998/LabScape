@@ -8,7 +8,7 @@ namespace LabScape.App;
 
 public partial class App : Application
 {
-    protected override void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
@@ -24,6 +24,32 @@ public partial class App : Application
         DispatcherUnhandledException += App_DispatcherUnhandledException;
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
         TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
+
+        // 1. Show high-performance branded Splash Screen immediately
+        var splash = new Views.SplashScreenWindow();
+        splash.Show();
+
+        // 2. Progressive startup milestones with real-time feedback
+        splash.UpdateStatus("Initializing Drafting Engine...", 20);
+        await Task.Delay(80);
+
+        splash.UpdateStatus("Loading Stencil & Component Libraries...", 45);
+        await Task.Delay(80);
+
+        splash.UpdateStatus("Configuring Workspace & Docking Panels...", 70);
+        await Task.Delay(80);
+
+        // 3. Instantiate MainWindow (loads Ribbon, AvalonDock, ViewModels)
+        splash.UpdateStatus("Preparing Canvas Workspace & Themes...", 90);
+        var mainWindow = new MainWindow();
+        MainWindow = mainWindow;
+
+        splash.UpdateStatus("Ready", 100);
+        await Task.Delay(100);
+
+        // 4. Reveal MainWindow and smoothly dissolve Splash Screen
+        mainWindow.Show();
+        await splash.FadeOutAndCloseAsync(250);
     }
 
     private void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)

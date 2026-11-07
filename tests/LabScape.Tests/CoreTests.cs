@@ -6249,4 +6249,40 @@ public class CoreTests
         Assert.Contains("x:Name=\"LayersAnchorable\"", mainXaml);
         Assert.Contains("IconSource=\"{StaticResource IconLayers}\"", mainXaml);
     }
+
+    [Fact]
+    public void SplashScreen_Configuration_And_StartupLifecycle_Test()
+    {
+        string projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
+        string splashXamlPath = Path.Combine(projectRoot, "src", "LabScape.App", "Views", "SplashScreenWindow.xaml");
+        string splashCsPath = Path.Combine(projectRoot, "src", "LabScape.App", "Views", "SplashScreenWindow.xaml.cs");
+        string appXamlPath = Path.Combine(projectRoot, "src", "LabScape.App", "App.xaml");
+        string appCsPath = Path.Combine(projectRoot, "src", "LabScape.App", "App.xaml.cs");
+
+        Assert.True(File.Exists(splashXamlPath), "SplashScreenWindow.xaml must exist");
+        Assert.True(File.Exists(splashCsPath), "SplashScreenWindow.xaml.cs must exist");
+        Assert.True(File.Exists(appXamlPath), "App.xaml must exist");
+        Assert.True(File.Exists(appCsPath), "App.xaml.cs must exist");
+
+        string splashXaml = File.ReadAllText(splashXamlPath);
+        Assert.Contains("SplashBackgroundBrush", splashXaml);
+        Assert.Contains("ProgressBarIndicator", splashXaml);
+        Assert.Contains("TxtStatus", splashXaml);
+        Assert.Contains("TxtPercent", splashXaml);
+        Assert.Contains("CenterScreen", splashXaml);
+        Assert.Contains("AllowsTransparency=\"True\"", splashXaml);
+
+        string splashCs = File.ReadAllText(splashCsPath);
+        Assert.Contains("void UpdateStatus(string message, double progressPercent)", splashCs);
+        Assert.Contains("FadeOutAndCloseAsync", splashCs);
+
+        string appXaml = File.ReadAllText(appXamlPath);
+        Assert.DoesNotContain("StartupUri=\"MainWindow.xaml\"", appXaml);
+
+        string appCs = File.ReadAllText(appCsPath);
+        Assert.Contains("new Views.SplashScreenWindow()", appCs);
+        Assert.Contains("splash.UpdateStatus", appCs);
+        Assert.Contains("new MainWindow()", appCs);
+        Assert.Contains("splash.FadeOutAndCloseAsync", appCs);
+    }
 }
