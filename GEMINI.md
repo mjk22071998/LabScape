@@ -53,6 +53,7 @@ This project implements the **Everything Claude Code (ECC)** engineering standar
 - `csharp-testing.md`
 - `csharp-security.md`
 - `design-quality.md`
+- `ponytail.md` (Lazy senior dev mode: lean, minimal, edge-case correct changes)
 
 ---
 
