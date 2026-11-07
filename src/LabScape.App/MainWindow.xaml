@@ -169,76 +169,16 @@
                                    Icon="{StaticResource IconResetZoom}"/>
                 </fluent:RibbonGroupBox>
 
-                <!-- Page Setup & Multi-Page Dimensions -->
-                <fluent:RibbonGroupBox Header="Page Setup"
-                                       LauncherClick="OpenPageSetupDialog_Click"
-                                       LauncherToolTip="Open Page Setup Dialog (Ctrl+Shift+P)">
-                    <!-- Visio-Style Auto Size Toggle -->
-                    <fluent:ToggleButton Header="Auto Size"
-                                         IsChecked="{Binding Canvas.AutoSize}"
-                                         Size="Large"
-                                         Icon="{StaticResource IconAutoSize}"
-                                         LargeIcon="{StaticResource IconAutoSize}"
-                                         ToolTip="Automatically expand canvas by adding pages when shapes cross boundaries, and shrink to minimum possible pages (Visio style)"/>
-
-                    <!-- Page Size Presets Dropdown -->
-                    <fluent:DropDownButton Header="Page Size"
-                                           Size="Middle"
-                                           Icon="{StaticResource IconPageSize}"
-                                           LargeIcon="{StaticResource IconPageSize}"
-                                           ToolTip="Select standard base paper size (A4, A3, Letter, etc.) or custom dimensions">
-                        <fluent:MenuItem Header="ISO Standard (Lab &amp; Floorplan)">
-                            <fluent:MenuItem Header="A3 (420 × 297 mm) - Standard Lab" Tag="A3" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
-                            <fluent:MenuItem Header="A4 (297 × 210 mm) - Standard Document" Tag="A4" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
-                            <fluent:MenuItem Header="A2 (594 × 420 mm) - Large Facility" Tag="A2" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
-                            <fluent:MenuItem Header="A1 (841 × 594 mm) - Full Architectural" Tag="A1" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
-                        </fluent:MenuItem>
-                        <fluent:MenuItem Header="US / ANSI Standard">
-                            <fluent:MenuItem Header="US Letter (8.5 × 11 in)" Tag="Letter" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
-                            <fluent:MenuItem Header="US Legal (8.5 × 14 in)" Tag="Legal" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
-                            <fluent:MenuItem Header="US Tabloid / Ledger (11 × 17 in)" Tag="Tabloid" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
-                        </fluent:MenuItem>
-                        <fluent:MenuItem Header="Digital Display">
-                            <fluent:MenuItem Header="Full HD 1080p (1920 × 1080 px)" Tag="Screen1080p" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
-                        </fluent:MenuItem>
-                        <Separator/>
-                        <fluent:MenuItem Header="Custom Dimensions..." Click="CustomPageSize_Click" Icon="{StaticResource IconInspect}"/>
-                        <fluent:MenuItem Header="More Page Sizes..." Click="OpenPageSetupDialog_Click" Icon="{StaticResource IconPageSetupDialog}"/>
-                    </fluent:DropDownButton>
-
-                    <!-- Page Orientation Dropdown -->
-                    <fluent:DropDownButton Header="Orientation"
-                                           Size="Middle"
-                                           Icon="{StaticResource IconOrientation}"
-                                           LargeIcon="{StaticResource IconOrientation}"
-                                           ToolTip="Change canvas page orientation (Landscape or Portrait)">
-                        <fluent:MenuItem Header="Landscape (Horizontal)" Tag="Landscape" Click="SetPageOrientation_Click" Icon="{StaticResource IconLandscape}"/>
-                        <fluent:MenuItem Header="Portrait (Vertical)" Tag="Portrait" Click="SetPageOrientation_Click" Icon="{StaticResource IconPortrait}"/>
-                    </fluent:DropDownButton>
-
-                    <!-- Fit Page to Viewport -->
-                    <fluent:Button Header="Fit Page"
-                                   Command="{Binding Canvas.FitToPageCommand}"
-                                   Size="Middle"
-                                   Icon="{StaticResource IconFitPage}"
-                                   LargeIcon="{StaticResource IconFitPage}"
-                                   ToolTip="Fit entire page into canvas viewport"/>
-                </fluent:RibbonGroupBox>
-
-                <!-- Templates & Room Generator -->
-                <fluent:RibbonGroupBox Header="Templates">
-                    <fluent:Button Header="Room Template" Click="RoomGenerator_Click"
-                                   ToolTip="Open and dock Room Templates window (neighbor of Stencils Library)"
-                                   Size="Large"
-                                   Icon="{StaticResource IconRoomTemplate}" LargeIcon="{StaticResource IconRoomTemplate}"/>
-                </fluent:RibbonGroupBox>
-
                 <!-- Tool Windows & Panels Management -->
                 <fluent:RibbonGroupBox Header="Panels">
                     <fluent:Button Header="Stencils" Click="OpenStencils_Click"
                                    ToolTip="Open and dock Stencils Library window"
                                    Size="Middle"
                                    Icon="{StaticResource IconStencils}"/>
+                    <fluent:Button Header="Room Templates" Click="RoomGenerator_Click"
+                                   ToolTip="Open and dock Room Templates panel"
+                                   Size="Middle"
+                                   Icon="{StaticResource IconRoomTemplate}"/>
                     <fluent:Button Header="Properties" Click="OpenProperties_Click"
                                    ToolTip="Open and dock Properties &amp; Inspector window (F4)"
                                    Size="Middle"
@@ -308,6 +248,7 @@
                             <fluent:MenuItem Header="Full HD 1080p (1920 × 1080 px)" Tag="Screen1080p" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
                         </fluent:MenuItem>
                         <Separator/>
+                        <fluent:MenuItem Header="Custom Dimensions..." Click="CustomPageSize_Click" Icon="{StaticResource IconInspect}"/>
                         <fluent:MenuItem Header="More Page Sizes..." Click="OpenPageSetupDialog_Click" Icon="{StaticResource IconPageSetupDialog}"/>
                     </fluent:DropDownButton>
 

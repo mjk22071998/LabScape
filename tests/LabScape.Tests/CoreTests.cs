@@ -13940,4 +13940,37 @@ public class CoreTests
         Assert.False(undo.CanUndo);
         Assert.True(undo.CanRedo);
     }
+    [Fact]
+    public void Ribbon_HomeTab_Structure_ExcludesDuplicatePageSetupAndIntegratesRoomTemplatesIntoPanels()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+        Assert.NotNull(projectRoot);
+        var mainXpath = Path.Combine(projectRoot, "src", "LabScape.App", "MainWindow.xaml");
+        var xaml = File.ReadAllText(mainXpath);
+
+        var homeTabIndex = xaml.IndexOf("<fluent:RibbonTabItem Header=\"Home\"");
+        var pageLayoutTabIndex = xaml.IndexOf("<fluent:RibbonTabItem Header=\"Page Layout\"");
+        Assert.True(homeTabIndex >= 0 && pageLayoutTabIndex > homeTabIndex);
+
+        var homeTabContent = xaml.Substring(homeTabIndex, pageLayoutTabIndex - homeTabIndex);
+
+        Assert.DoesNotContain("<fluent:RibbonGroupBox Header=\"Page Setup\"", homeTabContent);
+        Assert.DoesNotContain("<fluent:RibbonGroupBox Header=\"Templates\"", homeTabContent);
+
+        Assert.Contains("<fluent:RibbonGroupBox Header=\"Panels\">", homeTabContent);
+        Assert.Contains("Header=\"Room Templates\" Click=\"RoomGenerator_Click\"", homeTabContent);
+        Assert.Contains("Header=\"Stencils\" Click=\"OpenStencils_Click\"", homeTabContent);
+        Assert.Contains("Header=\"Properties\" Click=\"OpenProperties_Click\"", homeTabContent);
+        Assert.Contains("Header=\"Layers\" Click=\"OpenLayers_Click\"", homeTabContent);
+    }
 }
