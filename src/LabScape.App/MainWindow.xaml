@@ -584,18 +584,8 @@
                                                                 </TextBlock>
 
                                                                 <!-- Modified Asterisk Indicator -->
-                                                                <TextBlock Text=" *" Foreground="#F59E0B" FontWeight="Bold" FontSize="12" VerticalAlignment="Center">
-                                                                    <TextBlock.Style>
-                                                                        <Style TargetType="TextBlock">
-                                                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                                                            <Style.Triggers>
-                                                                                <DataTrigger Binding="{Binding IsModified}" Value="True">
-                                                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                                                </DataTrigger>
-                                                                            </Style.Triggers>
-                                                                        </Style>
-                                                                    </TextBlock.Style>
-                                                                </TextBlock>
+                                                                <TextBlock Text=" *" Foreground="#F59E0B" FontWeight="Bold" FontSize="12" VerticalAlignment="Center"
+                                                                           Visibility="{Binding IsModified, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
                                                                 <!-- Close Tab Button -->
                                                                 <Button Margin="8,0,0,0" Width="18" Height="18"

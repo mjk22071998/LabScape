@@ -21,6 +21,7 @@
             <converters:StringNotEmptyToVisibilityConverter x:Key="StringNotEmptyToVisibilityConverter"/>
             <converters:DeviceTypeToImageConverter x:Key="DeviceTypeToImageConverter"/>
             <converters:FurnitureTypeToImageConverter x:Key="FurnitureTypeToImageConverter"/>
+            <converters:StencilImageMultiConverter x:Key="StencilImageMultiConverter"/>
             <converters:ShapeToGeometryConverter x:Key="ShapeToGeometryConverter"/>
             <converters:ResourceKeyToImageConverter x:Key="ResourceKeyToImageConverter"/>
             <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>

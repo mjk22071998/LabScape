@@ -362,8 +362,17 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <!-- Device Stencil Drawing -->
-                                <Image Grid.Row="0" Source="{Binding DeviceType, Converter={StaticResource DeviceTypeToImageConverter}}" Stretch="Uniform" Margin="4"/>
+                                <!-- Device Stencil Drawing (Supports Real-Time Vector Recoloring) -->
+                                <Image Grid.Row="0" Stretch="Uniform" Margin="4">
+                                    <Image.Source>
+                                        <MultiBinding Converter="{StaticResource StencilImageMultiConverter}">
+                                            <Binding Path="DeviceType"/>
+                                            <Binding Path="Fill"/>
+                                            <Binding Path="Stroke"/>
+                                            <Binding Path="StrokeThickness"/>
+                                        </MultiBinding>
+                                    </Image.Source>
+                                </Image>
 
                                 <!-- Validation Badge (Top-Right) -->
                                 <Border Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="2"
@@ -439,7 +448,17 @@
                                     <RotateTransform Angle="{Binding Rotation}" CenterX="{Binding Width, Converter={StaticResource HalfValueConverter}}" CenterY="{Binding Height, Converter={StaticResource HalfValueConverter}}"/>
                                 </Grid.RenderTransform>
 
-                                <Image Source="{Binding FurnitureType, Converter={StaticResource FurnitureTypeToImageConverter}}" Stretch="Fill"/>
+                                <!-- Furniture Stencil Drawing (Supports Real-Time Vector Recoloring) -->
+                                <Image Stretch="Fill">
+                                    <Image.Source>
+                                        <MultiBinding Converter="{StaticResource StencilImageMultiConverter}">
+                                            <Binding Path="FurnitureType"/>
+                                            <Binding Path="Fill"/>
+                                            <Binding Path="Stroke"/>
+                                            <Binding Path="StrokeThickness"/>
+                                        </MultiBinding>
+                                    </Image.Source>
+                                </Image>
                             </Grid>
                         </DataTemplate>
 

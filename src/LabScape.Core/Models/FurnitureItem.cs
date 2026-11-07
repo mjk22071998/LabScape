@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 using LabScape.Core.Enums;
 
 namespace LabScape.Core.Models;
@@ -16,6 +16,9 @@ public class FurnitureItem : LayoutItemBase
 
     [JsonPropertyName("stroke")]
     public string Stroke { get; set; } = "#374151";
+
+    [JsonPropertyName("stroke_thickness")]
+    public double? StrokeThickness { get; set; }
 
     public FurnitureItem()
     {

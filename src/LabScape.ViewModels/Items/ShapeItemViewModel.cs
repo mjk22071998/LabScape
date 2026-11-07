@@ -4,7 +4,7 @@ using LabScape.Core.Models;
 
 namespace LabScape.ViewModels.Items;
 
-public partial class ShapeItemViewModel : ItemViewModel
+public partial class ShapeItemViewModel : ItemViewModel, IStylableItemViewModel
 {
     public ShapeItem ShapeModel => (ShapeItem)Model;
 

@@ -4,7 +4,7 @@ using LabScape.Core.Models;
 
 namespace LabScape.ViewModels.Items;
 
-public partial class DeviceItemViewModel : ItemViewModel
+public partial class DeviceItemViewModel : ItemViewModel, IStylableItemViewModel
 {
     public DeviceItem DeviceModel => (DeviceItem)Model;
 
@@ -26,6 +26,15 @@ public partial class DeviceItemViewModel : ItemViewModel
     [ObservableProperty]
     private bool _isManualIp = true;
 
+    [ObservableProperty]
+    private string? _fill;
+
+    [ObservableProperty]
+    private string? _stroke;
+
+    [ObservableProperty]
+    private double _strokeThickness = 2.0;
+
     /// <summary>
     /// Requirement: ONLY device items show their name below the icon on the canvas.
     /// </summary>
@@ -39,6 +48,9 @@ public partial class DeviceItemViewModel : ItemViewModel
         _deviceType = model.DeviceType;
         _validationStatus = model.ValidationStatus;
         _isManualIp = model.IsManualIp;
+        _fill = model.Fill;
+        _stroke = model.Stroke;
+        _strokeThickness = model.StrokeThickness ?? 2.0;
     }
 
     partial void OnDeviceIdChanged(string? value) => DeviceModel.DeviceId = value;
@@ -47,4 +59,7 @@ public partial class DeviceItemViewModel : ItemViewModel
     partial void OnDeviceTypeChanged(string value) => DeviceModel.DeviceType = value;
     partial void OnValidationStatusChanged(ValidationStatus value) => DeviceModel.ValidationStatus = value;
     partial void OnIsManualIpChanged(bool value) => DeviceModel.IsManualIp = value;
+    partial void OnFillChanged(string? value) => DeviceModel.Fill = value;
+    partial void OnStrokeChanged(string? value) => DeviceModel.Stroke = value;
+    partial void OnStrokeThicknessChanged(double value) => DeviceModel.StrokeThickness = value;
 }

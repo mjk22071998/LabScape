@@ -26,6 +26,15 @@ public class DeviceItem : LayoutItemBase
     [JsonPropertyName("is_manual_ip")]
     public bool IsManualIp { get; set; } = true;
 
+    [JsonPropertyName("fill")]
+    public string? Fill { get; set; }
+
+    [JsonPropertyName("stroke")]
+    public string? Stroke { get; set; }
+
+    [JsonPropertyName("stroke_thickness")]
+    public double? StrokeThickness { get; set; }
+
     public DeviceItem()
     {
         Name = "New Device";
