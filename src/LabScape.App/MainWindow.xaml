@@ -7,7 +7,7 @@
                       xmlns:dock="https://github.com/Dirkster99/AvalonDock"
                       xmlns:views="clr-namespace:LabScape.App.Views"
                       mc:Ignorable="d"
-                      Title="LabScape - Enterprise Physical Layout Designer" Height="800" Width="1200"
+                      Title="{Binding WindowTitle}" Height="800" Width="1200"
                       WindowStartupLocation="CenterScreen"
                       PreviewKeyDown="Window_PreviewKeyDown">
 
@@ -63,7 +63,7 @@
 
             <!-- Office Window TitleBar Integration -->
             <fluent:Ribbon.TitleBar>
-                <fluent:RibbonTitleBar Header="LabScape - Enterprise Physical Layout Designer"/>
+                <fluent:RibbonTitleBar Header="{Binding WindowTitle}"/>
             </fluent:Ribbon.TitleBar>
 
             <!-- Backstage / Application Menu -->
@@ -561,8 +561,8 @@
                                                                 <!-- Tab Icon -->
                                                                 <Image Source="{StaticResource IconNewTab}" Width="14" Height="14" Margin="0,0,6,0" VerticalAlignment="Center"/>
 
-                                                                <!-- Tab Title & Modified Mark -->
-                                                                <TextBlock FontSize="12" VerticalAlignment="Center">
+                                                                <!-- Tab Title -->
+                                                                <TextBlock Text="{Binding Title}" FontSize="12" VerticalAlignment="Center">
                                                                     <TextBlock.Style>
                                                                         <Style TargetType="TextBlock">
                                                                             <Setter Property="Foreground" Value="{DynamicResource TabTextInactiveBrush}"/>
@@ -574,19 +574,20 @@
                                                                             </Style.Triggers>
                                                                         </Style>
                                                                     </TextBlock.Style>
-                                                                    <Run Text="{Binding Title}"/>
-                                                                    <Run Text="*" Foreground="#F59E0B" FontWeight="Bold">
-                                                                        <Run.Style>
-                                                                            <Style TargetType="Run">
-                                                                                <Setter Property="Text" Value=""/>
-                                                                                <Style.Triggers>
-                                                                                    <DataTrigger Binding="{Binding IsModified}" Value="True">
-                                                                                        <Setter Property="Text" Value=" *"/>
-                                                                                    </DataTrigger>
-                                                                                </Style.Triggers>
-                                                                            </Style>
-                                                                        </Run.Style>
-                                                                    </Run>
+                                                                </TextBlock>
+
+                                                                <!-- Modified Asterisk Indicator -->
+                                                                <TextBlock Text=" *" Foreground="#F59E0B" FontWeight="Bold" FontSize="12" VerticalAlignment="Center">
+                                                                    <TextBlock.Style>
+                                                                        <Style TargetType="TextBlock">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding IsModified}" Value="True">
+                                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </TextBlock.Style>
                                                                 </TextBlock>
 
                                                                 <!-- Close Tab Button -->

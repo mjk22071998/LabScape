@@ -40,6 +40,9 @@ public partial class MainViewModel : ObservableObject
     private string _documentTitle = "Untitled Floorplan";
 
     [ObservableProperty]
+    private string _windowTitle = "LabScape - Enterprise Physical Layout Designer";
+
+    [ObservableProperty]
     private bool _isDatabaseConnected;
 
     [ObservableProperty]
@@ -146,6 +149,9 @@ public partial class MainViewModel : ObservableObject
         CurrentFilePath = ActiveTab.FilePath;
         ValidationWarningCount = ActiveTab.ValidationWarningCount;
         ValidationErrorCount = ActiveTab.ValidationErrorCount;
+
+        var modMark = ActiveTab.IsModified ? " *" : "";
+        WindowTitle = $"{ActiveTab.Title}{modMark} - LabScape";
     }
 
     // ==========================================

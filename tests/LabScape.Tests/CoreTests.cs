@@ -6624,4 +6624,32 @@ public class CoreTests
         Assert.NotNull(canvas.FitToPageCommand);
         Assert.True(canvas.FitToPageCommand.CanExecute(null));
     }
+    [Fact]
+    public void Document_IsModified_And_WindowTitle_AsteriskBehavior()
+    {
+        var jsonRepo = new LayoutJsonRepository();
+        var db = new LabScape.Infrastructure.Services.PostgresDatabaseService();
+        var mainVm = new MainViewModel(jsonRepo, db, new UndoRedoService(), () => new UndoRedoService());
+
+        // A new tab should initially be unmodified
+        var tab = mainVm.CreateNewTab("custom floor");
+        Assert.False(tab.IsModified);
+        Assert.Equal("custom floor - LabScape", mainVm.WindowTitle);
+
+        // Modifying canvas (adding an item) marks tab as modified
+        var dev = new DeviceItemViewModel(new DeviceItem { Name = "PC-1", X = 100, Y = 100 });
+        tab.Canvas.Items.Add(dev);
+        Assert.True(tab.IsModified);
+        Assert.Equal("custom floor * - LabScape", mainVm.WindowTitle);
+
+        // Saving file clears modified flag and removes asterisk
+        tab.IsModified = false;
+        Assert.False(tab.IsModified);
+        Assert.Equal("custom floor - LabScape", mainVm.WindowTitle);
+
+        // Modifying again marks modified
+        tab.Canvas.Items.Remove(dev);
+        Assert.True(tab.IsModified);
+        Assert.Equal("custom floor * - LabScape", mainVm.WindowTitle);
+    }
 }
