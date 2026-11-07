@@ -6236,8 +6236,17 @@ public class CoreTests
         Assert.Contains("IconLayers", layersSub);
         Assert.DoesNotContain("IconStencils", layersSub);
 
-        // Dockable Anchorables must also have distinct icons
+        // All 4 dockable anchorables must have matching IconSource and titles consistently
         Assert.Contains("x:Name=\"StencilsAnchorable\"", mainXaml);
+        Assert.Contains("IconSource=\"{StaticResource IconStencils}\"", mainXaml);
+
+        Assert.Contains("x:Name=\"RoomTemplateAnchorable\"", mainXaml);
+        Assert.Contains("IconSource=\"{StaticResource IconRoomTemplate}\"", mainXaml);
+
+        Assert.Contains("x:Name=\"PropertiesAnchorable\"", mainXaml);
+        Assert.Contains("IconSource=\"{StaticResource IconInspect}\"", mainXaml);
+
         Assert.Contains("x:Name=\"LayersAnchorable\"", mainXaml);
+        Assert.Contains("IconSource=\"{StaticResource IconLayers}\"", mainXaml);
     }
 }
