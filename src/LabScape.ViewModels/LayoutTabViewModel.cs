@@ -98,6 +98,9 @@ public partial class LayoutTabViewModel : ObservableObject
                 CanvasHeight = Canvas.CanvasHeight,
                 PagePreset = Canvas.PageSize.ToString(),
                 PageOrientation = Canvas.PageOrientation.ToString(),
+                AutoSize = Canvas.AutoSize,
+                BasePageWidth = Canvas.BasePageWidth,
+                BasePageHeight = Canvas.BasePageHeight,
                 GridSize = Canvas.GridSize
             }
         };
@@ -116,6 +119,9 @@ public partial class LayoutTabViewModel : ObservableObject
         Canvas.ClearSelection();
         _undoRedoService.Clear();
 
+        Canvas.AutoSize = doc.Metadata.AutoSize;
+        Canvas.BasePageWidth = doc.Metadata.BasePageWidth > 0 ? doc.Metadata.BasePageWidth : 1587;
+        Canvas.BasePageHeight = doc.Metadata.BasePageHeight > 0 ? doc.Metadata.BasePageHeight : 1123;
         Canvas.CanvasWidth = doc.Metadata.CanvasWidth;
         Canvas.CanvasHeight = doc.Metadata.CanvasHeight;
         Canvas.GridSize = doc.Metadata.GridSize;
@@ -147,6 +153,7 @@ public partial class LayoutTabViewModel : ObservableObject
             Canvas.Items.Add(ItemViewModel.FromModel(itemModel));
         }
 
+        Canvas.UpdatePageGrid();
         UpdateValidation();
         IsModified = false;
     }

@@ -2027,4 +2027,43 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
+    <!-- 55. Auto Size (MS Visio-style Auto-Expand Multi-Page Canvas) -->
+    <DrawingImage x:Key="IconAutoSize">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <!-- Central Solid Page Sheet -->
+                <GeometryDrawing Geometry="M 6 6 H 18 V 18 H 6 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#F1F5F9" Offset="0.8"/>
+                            <GradientStop Color="#E2E8F0" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0078D4" Thickness="1.2"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Central Document Header Line -->
+                <GeometryDrawing Geometry="M 8 9 H 13 M 8 12 H 16 M 8 15 H 14">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1" StartLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Expansion Arrow Right -->
+                <GeometryDrawing Geometry="M 18 12 H 23 M 21 10 L 23 12 L 21 14">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Expansion Arrow Bottom -->
+                <GeometryDrawing Geometry="M 12 18 V 23 M 10 21 L 12 23 L 14 21">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.4" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Subtle Ghost Page Outline on Right -->
+                <GeometryDrawing Geometry="M 19 6 H 23 V 18 H 19">
+                    <GeometryDrawing.Pen><Pen Brush="#38BDF8" Thickness="1" DashStyle="{x:Static DashStyles.Dash}"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Subtle Ghost Page Outline on Bottom -->
+                <GeometryDrawing Geometry="M 6 19 V 23 H 18 V 19">
+                    <GeometryDrawing.Pen><Pen Brush="#38BDF8" Thickness="1" DashStyle="{x:Static DashStyles.Dash}"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
 </ResourceDictionary>

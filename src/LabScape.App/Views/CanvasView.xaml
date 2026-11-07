@@ -275,22 +275,48 @@
                     </DrawingBrush>
                 </Canvas.Background>
 
-                <!-- Physical Page Sheet Boundary & Subtle Sheet Border -->
+                <!-- Multi-Page Visio Sheet Grid & Page Dividers -->
+                <ItemsControl ItemsSource="{Binding PageTiles}" IsHitTestVisible="False" Panel.ZIndex="0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                            <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Width="{Binding Width}" Height="{Binding Height}">
+                                <!-- Page Perimeter Border (Visio Tile Frame) -->
+                                <Border BorderBrush="{DynamicResource CardBorderBrush}"
+                                        BorderThickness="1"
+                                        Background="Transparent"/>
+
+                                <!-- Page Number & Preset Stamp (Top-Left of each page tile) -->
+                                <Border HorizontalAlignment="Left" VerticalAlignment="Top"
+                                        Margin="12,8,0,0"
+                                        Background="{DynamicResource CardBackgroundBrush}"
+                                        BorderBrush="{DynamicResource CardBorderBrush}"
+                                        BorderThickness="1" CornerRadius="4" Padding="6,2"
+                                        Opacity="0.75">
+                                    <TextBlock Text="{Binding DisplayText}"
+                                               FontSize="9.5" FontFamily="Consolas, Segoe UI"
+                                               Foreground="{DynamicResource AppTextMutedBrush}"/>
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Outer Canvas Boundary (Total Drawing Sheet Perimeter) -->
                 <Rectangle Canvas.Left="0" Canvas.Top="0"
                            Width="{Binding CanvasWidth}" Height="{Binding CanvasHeight}"
-                           Stroke="{DynamicResource CardBorderBrush}" StrokeThickness="1"
+                           Stroke="{DynamicResource CardBorderBrush}" StrokeThickness="1.5"
                            IsHitTestVisible="False"/>
-
-                <!-- Technical Page Dimension Stamp (Subtle CAD watermark) -->
-                <Border Canvas.Left="12" Canvas.Top="8"
-                        Background="{DynamicResource CardBackgroundBrush}"
-                        BorderBrush="{DynamicResource CardBorderBrush}"
-                        BorderThickness="1" CornerRadius="4" Padding="6,2"
-                        IsHitTestVisible="False" Opacity="0.75">
-                    <TextBlock Text="{Binding PageSizeDisplayText}"
-                               FontSize="9.5" FontFamily="Consolas, Segoe UI"
-                               Foreground="{DynamicResource AppTextMutedBrush}"/>
-                </Border>
 
                 <!-- Interactive Items Container with Local Adorner Decorator -->
                 <AdornerDecorator Canvas.Left="0" Canvas.Top="0" Width="{Binding CanvasWidth}" Height="{Binding CanvasHeight}" ClipToBounds="False">

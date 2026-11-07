@@ -19,6 +19,15 @@ public class DocumentMetadata
     [JsonPropertyName("page_orientation")]
     public string PageOrientation { get; set; } = "Landscape";
 
+    [JsonPropertyName("auto_size")]
+    public bool AutoSize { get; set; } = true;
+
+    [JsonPropertyName("base_page_width")]
+    public double BasePageWidth { get; set; } = 1587;
+
+    [JsonPropertyName("base_page_height")]
+    public double BasePageHeight { get; set; } = 1123;
+
     [JsonPropertyName("grid_size")]
     public double GridSize { get; set; } = 20.0;
 

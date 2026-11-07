@@ -63,6 +63,27 @@ public partial class PropertiesViewModel : ObservableObject
     public bool IsPortrait => CanvasPageOrientation == PageOrientation.Portrait;
     public bool IsCustomPageSize => CanvasPagePreset == PageSizePreset.Custom;
 
+    public bool AutoSize
+    {
+        get => _canvasViewModel?.AutoSize ?? true;
+        set
+        {
+            if (_canvasViewModel != null && _canvasViewModel.AutoSize != value)
+            {
+                _canvasViewModel.AutoSize = value;
+                NotifyCanvasPropertiesChanged();
+            }
+        }
+    }
+
+    public int TotalPages => _canvasViewModel?.TotalPages ?? 1;
+    public int PageColumns => _canvasViewModel?.PageColumns ?? 1;
+    public int PageRows => _canvasViewModel?.PageRows ?? 1;
+    public string PageSizeDisplayText => _canvasViewModel?.PageSizeDisplayText ?? string.Empty;
+    public string PageGridSummary => TotalPages <= 1
+        ? "1 Single Page (1 × 1)"
+        : $"{TotalPages} Pages ({PageColumns} Columns × {PageRows} Rows)";
+
     public record PagePresetOption(PageSizePreset Preset, string DisplayName);
 
     public IReadOnlyList<PagePresetOption> AvailablePresets { get; } = Enum.GetValues<PageSizePreset>()
@@ -133,7 +154,7 @@ public partial class PropertiesViewModel : ObservableObject
 
     private void OnCanvasPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(CanvasViewModel.CanvasWidth) or nameof(CanvasViewModel.CanvasHeight) or nameof(CanvasViewModel.PageSize) or nameof(CanvasViewModel.PageOrientation))
+        if (e.PropertyName is nameof(CanvasViewModel.CanvasWidth) or nameof(CanvasViewModel.CanvasHeight) or nameof(CanvasViewModel.PageSize) or nameof(CanvasViewModel.PageOrientation) or nameof(CanvasViewModel.AutoSize) or nameof(CanvasViewModel.PageColumns) or nameof(CanvasViewModel.PageRows) or nameof(CanvasViewModel.TotalPages) or nameof(CanvasViewModel.PageSizeDisplayText))
         {
             NotifyCanvasPropertiesChanged();
         }
@@ -150,6 +171,12 @@ public partial class PropertiesViewModel : ObservableObject
         OnPropertyChanged(nameof(CanvasWidthText));
         OnPropertyChanged(nameof(CanvasHeightText));
         OnPropertyChanged(nameof(SelectedPresetOption));
+        OnPropertyChanged(nameof(AutoSize));
+        OnPropertyChanged(nameof(TotalPages));
+        OnPropertyChanged(nameof(PageColumns));
+        OnPropertyChanged(nameof(PageRows));
+        OnPropertyChanged(nameof(PageSizeDisplayText));
+        OnPropertyChanged(nameof(PageGridSummary));
     }
 
 

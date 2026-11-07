@@ -53,6 +53,28 @@
                     </StackPanel>
                 </Border>
 
+                <!-- Visio-Style Auto-Size & Multi-Page Grid -->
+                <GroupBox Header="Auto Size &amp; Page Grid" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
+                    <StackPanel Margin="4,6" TextElement.FontWeight="Normal">
+                        <CheckBox Content="Auto-Expand Pages (Visio Style)" IsChecked="{Binding AutoSize}" Margin="0,2,0,6"
+                                  ToolTip="Automatically add pages as shapes cross boundaries, and shrink to minimum possible pages"/>
+
+                        <!-- Live Multi-Page Badge -->
+                        <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="8,6" Margin="0,2,0,4">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,3">
+                                    <TextBlock Text="Current Grid:" FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}"/>
+                                    <TextBlock Text="{Binding PageGridSummary}" DockPanel.Dock="Right" FontSize="10.5" FontWeight="SemiBold" Foreground="{DynamicResource AccentPrimaryBrush}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <TextBlock Text="Canvas Size:" FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}"/>
+                                    <TextBlock Text="{Binding Canvas.PageSizeDisplayText}" DockPanel.Dock="Right" FontSize="10" FontFamily="Consolas, Segoe UI" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </GroupBox>
+
                 <!-- 1. Page Size Preset Selection -->
                 <GroupBox Header="Page Size Preset" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
                     <StackPanel Margin="4,6" TextElement.FontWeight="Normal">

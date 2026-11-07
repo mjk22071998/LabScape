@@ -386,6 +386,17 @@ public partial class CanvasView : UserControl
                 item.X = newX;
                 item.Y = newY;
             }
+
+            // Visio-style live page expansion during drag
+            if (ViewModel.AutoSize && _initialItemPositions.Count > 0)
+            {
+                double maxDragX = _initialItemPositions.Keys.Max(i => i.X + i.Width);
+                double maxDragY = _initialItemPositions.Keys.Max(i => i.Y + i.Height);
+                if (maxDragX > ViewModel.CanvasWidth || maxDragY > ViewModel.CanvasHeight)
+                {
+                    ViewModel.ExpandPageGridLive(maxDragX, maxDragY);
+                }
+            }
         }
     }
 
@@ -476,6 +487,10 @@ public partial class CanvasView : UserControl
                 if (moves.Count > 0)
                 {
                     ViewModel.CommitItemMoves(moves);
+                }
+                else
+                {
+                    ViewModel.UpdatePageGrid();
                 }
             }
             else if (_pendingSingleSelection != null && ViewModel != null)

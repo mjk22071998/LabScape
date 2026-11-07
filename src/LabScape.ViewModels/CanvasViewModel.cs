@@ -35,12 +35,41 @@ public partial class CanvasViewModel : ObservableObject
     private PageOrientation _pageOrientation = PageOrientation.Landscape;
 
     [ObservableProperty]
-    private double _canvasWidth = 1587; // A3 Landscape
+    private bool _autoSize = true;
 
     [ObservableProperty]
-    private double _canvasHeight = 1123; // A3 Landscape
+    private int _pageColumns = 1;
 
-    public string PageSizeDisplayText => $"{PageSize} {PageOrientation} ({CanvasWidth:F0} × {CanvasHeight:F0} px)";
+    [ObservableProperty]
+    private int _pageRows = 1;
+
+    [ObservableProperty]
+    private double _basePageWidth = 1587; // A3 Landscape
+
+    [ObservableProperty]
+    private double _basePageHeight = 1123; // A3 Landscape
+
+    [ObservableProperty]
+    private double _canvasWidth = 1587;
+
+    [ObservableProperty]
+    private double _canvasHeight = 1123;
+
+    public int TotalPages => PageColumns * PageRows;
+
+    public ObservableCollection<PageTileViewModel> PageTiles { get; } = new();
+
+    public string PageSizeDisplayText
+    {
+        get
+        {
+            if (TotalPages <= 1)
+            {
+                return $"{PageSize} {PageOrientation} ({CanvasWidth:F0} × {CanvasHeight:F0} px)";
+            }
+            return $"{PageSize} {PageOrientation} • {TotalPages} Pages ({PageColumns}×{PageRows}) • {CanvasWidth:F0} × {CanvasHeight:F0} px";
+        }
+    }
 
     [ObservableProperty]
     private double _gridSize = 20.0;
@@ -69,6 +98,8 @@ public partial class CanvasViewModel : ObservableObject
     {
         _undoRedoService = undoRedoService;
         Items.CollectionChanged += OnItemsCollectionChanged;
+        _undoRedoService.StateChanged += (s, e) => UpdatePageGrid();
+        UpdatePageGrid();
     }
 
     private void OnItemsCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -88,6 +119,7 @@ public partial class CanvasViewModel : ObservableObject
             }
         }
         RecalculateValidation();
+        UpdatePageGrid();
     }
 
     private void HookItem(ItemViewModel item)
@@ -114,6 +146,10 @@ public partial class CanvasViewModel : ObservableObject
         if (e.PropertyName is nameof(DeviceItemViewModel.IpAddress) or nameof(DeviceItemViewModel.ValidationStatus))
         {
             RecalculateValidation();
+        }
+        if (e.PropertyName is nameof(ItemViewModel.X) or nameof(ItemViewModel.Y) or nameof(ItemViewModel.Width) or nameof(ItemViewModel.Height))
+        {
+            UpdatePageGrid();
         }
     }
 
@@ -539,11 +575,130 @@ public partial class CanvasViewModel : ObservableObject
 
     internal void ApplyPageDimensionsInternal(double w, double h, PageSizePreset preset, PageOrientation orientation)
     {
-        CanvasWidth = w;
-        CanvasHeight = h;
         PageSize = preset;
         PageOrientation = orientation;
-        OnPropertyChanged(nameof(PageSizeDisplayText));
+        BasePageWidth = w;
+        BasePageHeight = h;
+        UpdatePageGrid();
+    }
+
+    partial void OnAutoSizeChanged(bool value)
+    {
+        UpdatePageGrid();
+    }
+
+    private bool _isUpdatingPageGrid;
+
+    public void UpdatePageGrid()
+    {
+        if (_isUpdatingPageGrid) return;
+        _isUpdatingPageGrid = true;
+        try
+        {
+            var (baseW, baseH) = PageSize == PageSizePreset.Custom
+                ? (BasePageWidth > 0 ? BasePageWidth : 1587, BasePageHeight > 0 ? BasePageHeight : 1123)
+                : PageDimensions.GetDimensions(PageSize, PageOrientation);
+
+            BasePageWidth = baseW;
+            BasePageHeight = baseH;
+
+            if (!AutoSize)
+            {
+                PageColumns = 1;
+                PageRows = 1;
+                CanvasWidth = BasePageWidth;
+                CanvasHeight = BasePageHeight;
+                UpdatePageTiles();
+                OnPropertyChanged(nameof(PageSizeDisplayText));
+                OnPropertyChanged(nameof(TotalPages));
+                return;
+            }
+
+            if (Items.Count == 0)
+            {
+                PageColumns = 1;
+                PageRows = 1;
+                CanvasWidth = BasePageWidth;
+                CanvasHeight = BasePageHeight;
+                UpdatePageTiles();
+                OnPropertyChanged(nameof(PageSizeDisplayText));
+                OnPropertyChanged(nameof(TotalPages));
+                return;
+            }
+
+            double maxX = 0;
+            double maxY = 0;
+
+            foreach (var item in Items)
+            {
+                maxX = Math.Max(maxX, item.X + item.Width);
+                maxY = Math.Max(maxY, item.Y + item.Height);
+            }
+
+            // Minimum columns and rows to contain all items (minimum 1 page)
+            int neededCols = Math.Max(1, (int)Math.Ceiling(maxX / BasePageWidth));
+            int neededRows = Math.Max(1, (int)Math.Ceiling(maxY / BasePageHeight));
+
+            PageColumns = neededCols;
+            PageRows = neededRows;
+            CanvasWidth = PageColumns * BasePageWidth;
+            CanvasHeight = PageRows * BasePageHeight;
+
+            UpdatePageTiles();
+            OnPropertyChanged(nameof(PageSizeDisplayText));
+            OnPropertyChanged(nameof(TotalPages));
+        }
+        finally
+        {
+            _isUpdatingPageGrid = false;
+        }
+    }
+
+    public void UpdatePageTiles()
+    {
+        PageTiles.Clear();
+        int total = TotalPages;
+        for (int r = 0; r < PageRows; r++)
+        {
+            for (int c = 0; c < PageColumns; c++)
+            {
+                int index = r * PageColumns + c + 1;
+                string label = total > 1
+                    ? $"Page {index} ({c + 1},{r + 1}) • {PageSize} {PageOrientation}"
+                    : $"{PageSize} {PageOrientation} ({BasePageWidth:F0} × {BasePageHeight:F0} px)";
+
+                PageTiles.Add(new PageTileViewModel
+                {
+                    PageIndex = index,
+                    Column = c,
+                    Row = r,
+                    X = c * BasePageWidth,
+                    Y = r * BasePageHeight,
+                    Width = BasePageWidth,
+                    Height = BasePageHeight,
+                    DisplayText = label
+                });
+            }
+        }
+    }
+
+    public void ExpandPageGridLive(double maxX, double maxY)
+    {
+        if (!AutoSize || BasePageWidth <= 0 || BasePageHeight <= 0) return;
+
+        int neededCols = Math.Max(PageColumns, (int)Math.Ceiling(maxX / BasePageWidth));
+        int neededRows = Math.Max(PageRows, (int)Math.Ceiling(maxY / BasePageHeight));
+
+        if (neededCols != PageColumns || neededRows != PageRows)
+        {
+            PageColumns = neededCols;
+            PageRows = neededRows;
+            CanvasWidth = PageColumns * BasePageWidth;
+            CanvasHeight = PageRows * BasePageHeight;
+            UpdatePageTiles();
+            OnPropertyChanged(nameof(PageSizeDisplayText));
+            OnPropertyChanged(nameof(TotalPages));
+        }
     }
 
     [RelayCommand]

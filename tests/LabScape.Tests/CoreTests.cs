@@ -6471,4 +6471,126 @@ public class CoreTests
         Assert.Equal(PageSizePreset.Custom, canvas.PageSize);
         Assert.True(props.IsCustomPageSize);
     }
+
+    [Fact]
+    public void CanvasViewModel_VisioAutoSize_ExpandsHorizontallyWhenItemGoesOutOfCanvas()
+    {
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo);
+
+        // Initially 1 A3 page
+        Assert.Equal(1, canvas.PageColumns);
+        Assert.Equal(1, canvas.PageRows);
+        Assert.Equal(1, canvas.TotalPages);
+        Assert.Equal(1587, canvas.CanvasWidth);
+        Assert.Equal(1123, canvas.CanvasHeight);
+        Assert.Single(canvas.PageTiles);
+
+        // Add item within page 1
+        var item1 = new DeviceItemViewModel(new DeviceItem { Name = "PC-1", X = 200, Y = 200, Width = 80, Height = 80 });
+        canvas.Items.Add(item1);
+        Assert.Equal(1, canvas.TotalPages);
+        Assert.Equal(1587, canvas.CanvasWidth);
+
+        // Move item1 past the right boundary of Page 1 (X + Width = 1550 + 80 = 1630 > 1587)
+        item1.X = 1550;
+        Assert.Equal(2, canvas.PageColumns);
+        Assert.Equal(1, canvas.PageRows);
+        Assert.Equal(2, canvas.TotalPages);
+        Assert.Equal(3174, canvas.CanvasWidth); // 2 * 1587
+        Assert.Equal(1123, canvas.CanvasHeight);
+        Assert.Equal(2, canvas.PageTiles.Count);
+
+        // Verify tile positions
+        Assert.Equal(0, canvas.PageTiles[0].X);
+        Assert.Equal(0, canvas.PageTiles[0].Y);
+        Assert.Equal(1587, canvas.PageTiles[1].X);
+        Assert.Equal(0, canvas.PageTiles[1].Y);
+    }
+
+    [Fact]
+    public void CanvasViewModel_VisioAutoSize_ContractsToMinimumPagesWhenItemMovedBackOrDeleted()
+    {
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo);
+
+        var item = new DeviceItemViewModel(new DeviceItem { Name = "Rack", X = 1600, Y = 300, Width = 80, Height = 80 });
+        canvas.Items.Add(item);
+
+        // 2 pages because item extends past 1587
+        Assert.Equal(2, canvas.PageColumns);
+        Assert.Equal(2, canvas.TotalPages);
+        Assert.Equal(3174, canvas.CanvasWidth);
+
+        // Move item back to Page 1
+        item.X = 400;
+        // Contracts immediately to 1 page (minimum possible pages)
+        Assert.Equal(1, canvas.PageColumns);
+        Assert.Equal(1, canvas.TotalPages);
+        Assert.Equal(1587, canvas.CanvasWidth);
+        Assert.Single(canvas.PageTiles);
+
+        // Move to Page 2 again
+        item.X = 1600;
+        Assert.Equal(2, canvas.TotalPages);
+
+        // Delete the item on Page 2
+        canvas.Items.Remove(item);
+        // Automatically contracts to 1 page
+        Assert.Equal(1, canvas.TotalPages);
+        Assert.Equal(1587, canvas.CanvasWidth);
+        Assert.Single(canvas.PageTiles);
+    }
+
+    [Fact]
+    public void CanvasViewModel_VisioAutoSize_ExpandsVerticallyWhenItemGoesBelow()
+    {
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo);
+
+        var item = new DeviceItemViewModel(new DeviceItem { Name = "Screen", X = 300, Y = 1100, Width = 80, Height = 80 });
+        canvas.Items.Add(item);
+
+        // Y + Height = 1180 > 1123 -> PageRows expands to 2
+        Assert.Equal(1, canvas.PageColumns);
+        Assert.Equal(2, canvas.PageRows);
+        Assert.Equal(2, canvas.TotalPages);
+        Assert.Equal(1587, canvas.CanvasWidth);
+        Assert.Equal(2246, canvas.CanvasHeight); // 2 * 1123
+        Assert.Equal(2, canvas.PageTiles.Count);
+
+        Assert.Equal(0, canvas.PageTiles[0].Y);
+        Assert.Equal(1123, canvas.PageTiles[1].Y);
+    }
+
+    [Fact]
+    public void CanvasViewModel_VisioAutoSize_UndoRedoIntegrity()
+    {
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo);
+
+        var item = new DeviceItemViewModel(new DeviceItem { Name = "PC-A", X = 100, Y = 100, Width = 50, Height = 50 });
+        canvas.Items.Add(item);
+        Assert.Equal(1, canvas.TotalPages);
+
+        // Move item to Page 2 via command
+        canvas.CommitItemMoves(new List<(ItemViewModel, double, double, double, double)>
+        {
+            (item, 100, 100, 1600, 100)
+        });
+        Assert.Equal(2, canvas.TotalPages);
+        Assert.Equal(3174, canvas.CanvasWidth);
+
+        // Undo move
+        undo.Undo();
+        Assert.Equal(100, item.X);
+        Assert.Equal(1, canvas.TotalPages);
+        Assert.Equal(1587, canvas.CanvasWidth);
+
+        // Redo move
+        undo.Redo();
+        Assert.Equal(1600, item.X);
+        Assert.Equal(2, canvas.TotalPages);
+        Assert.Equal(3174, canvas.CanvasWidth);
+    }
 }

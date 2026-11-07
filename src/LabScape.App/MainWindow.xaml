@@ -157,14 +157,22 @@
                                    Icon="{StaticResource IconResetZoom}"/>
                 </fluent:RibbonGroupBox>
 
-                <!-- Page Setup & Paper Dimensions -->
+                <!-- Page Setup & Multi-Page Dimensions -->
                 <fluent:RibbonGroupBox Header="Page Setup">
+                    <!-- Visio-Style Auto Size Toggle -->
+                    <fluent:ToggleButton Header="Auto Size"
+                                         IsChecked="{Binding Canvas.AutoSize}"
+                                         Size="Large"
+                                         Icon="{StaticResource IconAutoSize}"
+                                         LargeIcon="{StaticResource IconAutoSize}"
+                                         ToolTip="Automatically expand canvas by adding pages when shapes cross boundaries, and shrink to minimum possible pages (Visio style)"/>
+
                     <!-- Page Size Presets Dropdown -->
                     <fluent:DropDownButton Header="Page Size"
-                                           Size="Large"
+                                           Size="Middle"
                                            Icon="{StaticResource IconPageSize}"
                                            LargeIcon="{StaticResource IconPageSize}"
-                                           ToolTip="Select standard paper size (A4, A3, Letter, etc.) or custom dimensions">
+                                           ToolTip="Select standard base paper size (A4, A3, Letter, etc.) or custom dimensions">
                         <fluent:MenuItem Header="ISO Standard (Lab &amp; Floorplan)">
                             <fluent:MenuItem Header="A3 (420 × 297 mm) - Standard Lab" Tag="A3" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
                             <fluent:MenuItem Header="A4 (297 × 210 mm) - Standard Document" Tag="A4" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
