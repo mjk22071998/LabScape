@@ -32,7 +32,13 @@ public static class SvgStencilService
     {
         if (!string.IsNullOrWhiteSpace(customData))
         {
-            string cacheKey = customData.Length > 64 ? customData.Substring(0, 64) + "_" + customData.Length : customData;
+            string cacheKey;
+            using (var sha = System.Security.Cryptography.SHA256.Create())
+            {
+                byte[] hash = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(customData));
+                cacheKey = Convert.ToHexString(hash);
+            }
+
             if (_customImageCache.TryGetValue(cacheKey, out var cachedDataImg))
                 return cachedDataImg;
 

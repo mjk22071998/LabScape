@@ -78,7 +78,7 @@
 
         <!-- Buttons Footer -->
         <DockPanel Grid.Row="2" Margin="0,8,0,0">
-            <Button x:Name="BtnTest" Content="⚡ Test Connection" Padding="14,7" FontWeight="SemiBold"
+            <Button x:Name="BtnTest" Content="Test Connection" Padding="14,7" FontWeight="SemiBold"
                     Click="BtnTest_Click"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="Save &amp; Connect" Padding="18,7" FontWeight="Bold" Background="#4F46E5" Foreground="White"

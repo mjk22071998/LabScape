@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using LabScape.Core.Interfaces;
 using LabScape.Core.Models;
@@ -37,8 +37,25 @@ public class LayoutJsonRepository : ILayoutRepository
             Directory.CreateDirectory(dir);
         }
 
-        await using var stream = File.Create(filePath);
-        await JsonSerializer.SerializeAsync(stream, document, JsonOptions);
+        string tempPath = Path.Combine(dir ?? string.Empty, $"{Path.GetFileName(filePath)}.{Guid.NewGuid():N}.tmp");
+        try
+        {
+            await using (var stream = File.Create(tempPath))
+            {
+                await JsonSerializer.SerializeAsync(stream, document, JsonOptions);
+                await stream.FlushAsync();
+            }
+
+            File.Move(tempPath, filePath, overwrite: true);
+        }
+        catch
+        {
+            if (File.Exists(tempPath))
+            {
+                try { File.Delete(tempPath); } catch { }
+            }
+            throw;
+        }
     }
 
     public string SerializeToJson(LayoutDocument document)

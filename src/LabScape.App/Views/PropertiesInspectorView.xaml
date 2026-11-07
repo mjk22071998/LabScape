@@ -718,7 +718,7 @@
 
                                     </Button.Style>
 
-                                    <TextBlock Text="✍️ Manual IP" FontSize="11" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Manual IP" FontSize="11" HorizontalAlignment="Center"/>
 
                                 </Button>
 
@@ -844,11 +844,11 @@
 
                                 </Grid.ColumnDefinitions>
 
-                                <Button Grid.Column="0" Content="⚡ Next Avail IP" Command="{Binding SuggestNextIpCommand}"
+                                <Button Grid.Column="0" Content="Next Available IP" Command="{Binding SuggestNextIpCommand}"
 
                                         Padding="4,3" FontSize="10.5" ToolTip="Scan canvas and auto-fill the next available IP in subnet"/>
 
-                                <Button Grid.Column="2" Content="✖️ Clear IP" Command="{Binding ClearDeviceIpCommand}" Foreground="{DynamicResource StatusErrorBrush}"
+                                <Button Grid.Column="2" Content="Clear IP" Command="{Binding ClearDeviceIpCommand}" Foreground="{DynamicResource StatusErrorBrush}"
 
                                         Padding="4,3" FontSize="10.5" ToolTip="Reset device to unassigned IP state"/>
 
@@ -1238,7 +1238,7 @@
 
                     <StackPanel Margin="4,6" TextElement.FontWeight="Normal">
 
-                        <TextBlock Text="{Binding SelectedDevicesCount, StringFormat='⚡ Configure {0} Selected Workstations'}"
+                        <TextBlock Text="{Binding SelectedDevicesCount, StringFormat='Configure {0} Selected Workstations'}"
 
                                    FontWeight="SemiBold" FontSize="11.5" Foreground="{DynamicResource AccentPrimaryBrush}" Margin="0,0,0,4"/>
 
@@ -1302,13 +1302,13 @@
 
                         <!-- Action Buttons -->
 
-                        <Button Content="⚡ Batch Assign Sequential IPs" Command="{Binding BatchAssignSequentialIpsCommand}"
+                        <Button Content="Batch Assign Sequential IPs" Command="{Binding BatchAssignSequentialIpsCommand}"
 
                                 Style="{StaticResource AccentButtonStyle}"
 
                                 Padding="8,5" Margin="0,0,0,6"/>
 
-                        <Button Content="✖️ Clear Selected IPs" Command="{Binding BatchClearIpsCommand}"
+                        <Button Content="Clear Selected IPs" Command="{Binding BatchClearIpsCommand}"
 
                                 Style="{StaticResource DangerButtonStyle}"
 

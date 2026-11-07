@@ -130,7 +130,7 @@ public class PostgreSqlDeviceRepository : IDeviceRepository
                 {ipCol}::text AS PrimaryIp,
                 {macCol}::text AS MacAddress,
                 {assignedCol}::boolean AS IsAssigned
-            FROM {tableName}
+            FROM ""{tableName}""
             ORDER BY {nameCol} ASC;";
 
         var rows = await conn.QueryAsync<DatabaseDevice>(query);

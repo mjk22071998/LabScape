@@ -30,7 +30,7 @@
 
                 <!-- 2. Primary Action: Create New Template -->
                 <Button x:Name="BtnCreateNew"
-                        Content="➕ Create New Template..."
+                        Content="Create New Template..."
                         Click="BtnCreateNew_Click"
                         Padding="12,9" FontWeight="Bold" FontSize="12"
                         Foreground="White" Cursor="Hand"
@@ -127,7 +127,7 @@
                                             <!-- Row 2: Badges & Insert Action Button (No verbose description!) -->
                                             <DockPanel Grid.Row="2">
                                                 <Button DockPanel.Dock="Right"
-                                                        Content="➕ Insert"
+                                                        Content="Insert"
                                                         ToolTip="Insert template into active canvas"
                                                         Click="BtnInsertTemplate_Click"
                                                         Tag="{Binding}"
@@ -234,7 +234,7 @@
                 <!-- Actions -->
                 <StackPanel Margin="0,0,0,4">
                     <Button x:Name="BtnGenerateRoom"
-                            Content="➕ Generate Room at Canvas Center"
+                            Content="Generate Room at Canvas Center"
                             Command="{Binding GenerateRoomCommand}"
                             Click="BtnGenerateRoom_Click"
                             Padding="12,8" FontWeight="Bold" FontSize="11.5"

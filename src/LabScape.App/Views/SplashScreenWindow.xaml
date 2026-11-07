@@ -164,7 +164,7 @@
                     <!-- Status Label & Percentage -->
                     <DockPanel Margin="0,0,0,6">
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                            <TextBlock Text="⚡" FontSize="11" Foreground="#38BDF8" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                            
                             <TextBlock x:Name="TxtStatus" Text="Initializing application services..." FontSize="11"
                                        Foreground="#CBD5E1" VerticalAlignment="Center"/>
                         </StackPanel>

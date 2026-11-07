@@ -1748,23 +1748,30 @@ public partial class MainWindow : RibbonWindow
         if (ViewModel?.Canvas == null || string.IsNullOrWhiteSpace(filePath) || !System.IO.File.Exists(filePath))
             return;
 
-        var dlg = new Dialogs.InsertCustomImageDialog(filePath)
+        try
         {
-            Owner = this
-        };
+            var dlg = new Dialogs.InsertCustomImageDialog(filePath)
+            {
+                Owner = this
+            };
 
-        if (dlg.ShowDialog() == true)
+            if (dlg.ShowDialog() == true)
+            {
+                ViewModel.Canvas.InsertCustomImageItem(
+                    dlg.FilePath,
+                    dlg.Base64Data,
+                    dlg.IsNetworkRelated,
+                    dlg.ItemName,
+                    dlg.IpAddress,
+                    dlg.CalculatedWidth,
+                    dlg.CalculatedHeight,
+                    position?.X,
+                    position?.Y);
+            }
+        }
+        catch (Exception ex)
         {
-            ViewModel.Canvas.InsertCustomImageItem(
-                dlg.FilePath,
-                dlg.Base64Data,
-                dlg.IsNetworkRelated,
-                dlg.ItemName,
-                dlg.IpAddress,
-                dlg.CalculatedWidth,
-                dlg.CalculatedHeight,
-                position?.X,
-                position?.Y);
+            MessageBox.Show($"Could not load image '{System.IO.Path.GetFileName(filePath)}': {ex.Message}", "Image Import Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 

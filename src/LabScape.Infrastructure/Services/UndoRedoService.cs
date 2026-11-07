@@ -1,14 +1,14 @@
-﻿using LabScape.Core.Interfaces;
+using LabScape.Core.Interfaces;
 
 namespace LabScape.Infrastructure.Services;
 
 public class UndoRedoService : IUndoRedoService
 {
-    private readonly Stack<IUndoableCommand> _undoStack = new();
+    private readonly LinkedList<IUndoableCommand> _undoList = new();
     private readonly Stack<IUndoableCommand> _redoStack = new();
     private const int MaxHistory = 100;
 
-    public bool CanUndo => _undoStack.Count > 0;
+    public bool CanUndo => _undoList.Count > 0;
     public bool CanRedo => _redoStack.Count > 0;
 
     public event EventHandler? StateChanged;
@@ -16,18 +16,12 @@ public class UndoRedoService : IUndoRedoService
     public void ExecuteCommand(IUndoableCommand command)
     {
         command.Execute();
-        _undoStack.Push(command);
+        _undoList.AddLast(command);
         _redoStack.Clear();
 
-        if (_undoStack.Count > MaxHistory)
+        if (_undoList.Count > MaxHistory)
         {
-            var list = _undoStack.ToList();
-            list.RemoveAt(list.Count - 1);
-            _undoStack.Clear();
-            for (int i = list.Count - 1; i >= 0; i--)
-            {
-                _undoStack.Push(list[i]);
-            }
+            _undoList.RemoveFirst();
         }
 
         StateChanged?.Invoke(this, EventArgs.Empty);
@@ -36,7 +30,8 @@ public class UndoRedoService : IUndoRedoService
     public void Undo()
     {
         if (!CanUndo) return;
-        var command = _undoStack.Pop();
+        var command = _undoList.Last!.Value;
+        _undoList.RemoveLast();
         command.Unexecute();
         _redoStack.Push(command);
         StateChanged?.Invoke(this, EventArgs.Empty);
@@ -47,13 +42,13 @@ public class UndoRedoService : IUndoRedoService
         if (!CanRedo) return;
         var command = _redoStack.Pop();
         command.Execute();
-        _undoStack.Push(command);
+        _undoList.AddLast(command);
         StateChanged?.Invoke(this, EventArgs.Empty);
     }
 
     public void Clear()
     {
-        _undoStack.Clear();
+        _undoList.Clear();
         _redoStack.Clear();
         StateChanged?.Invoke(this, EventArgs.Empty);
     }

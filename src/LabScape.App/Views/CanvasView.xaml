@@ -421,15 +421,15 @@
                                             <Style TargetType="TextBlock">
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding ValidationStatus}" Value="Unassigned">
-                                                        <Setter Property="Text" Value="⚠️"/>
+                                                        <Setter Property="Text" Value="!"/>
                                                         <Setter Property="ToolTip" Value="Warning: No IP Address assigned!"/>
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding ValidationStatus}" Value="DuplicateIp">
-                                                        <Setter Property="Text" Value="⛔"/>
+                                                        <Setter Property="Text" Value="×"/>
                                                         <Setter Property="ToolTip" Value="Conflict: Duplicate IP Address assigned!"/>
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding ValidationStatus}" Value="InvalidIpFormat">
-                                                        <Setter Property="Text" Value="⚠️"/>
+                                                        <Setter Property="Text" Value="!"/>
                                                         <Setter Property="ToolTip" Value="Error: Invalid IPv4 Address format!"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>

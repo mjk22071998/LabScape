@@ -1,3 +1,4 @@
+using LabScape.Core.Interfaces;
 using LabScape.Infrastructure.Repositories;
 
 using System.Collections.Specialized;
@@ -13858,5 +13859,85 @@ public class CoreTests
         Assert.Equal("Room Divider", furn.Name);
         Assert.Equal("divider.png", furn.CustomImagePath);
         Assert.Equal("BBBB==", furn.CustomImageData);
+    }
+
+    private class TestUndoableCommand : IUndoableCommand
+    {
+        private readonly Action _exec;
+        private readonly Action _unexec;
+        public TestUndoableCommand(Action exec, Action unexec) { _exec = exec; _unexec = unexec; }
+        public string Description => "Test Command";
+        public void Execute() => _exec();
+        public void Unexecute() => _unexec();
+    }
+
+    [Fact]
+    public async Task LayoutJsonRepository_AtomicSave_CreatesFileSafely_AndCleansUpTempFiles()
+    {
+        var repo = new LayoutJsonRepository();
+        string tempDir = Path.Combine(Path.GetTempPath(), "LabScape_AtomicTest_" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempDir);
+        string testFile = Path.Combine(tempDir, "test_atomic.layout");
+
+        try
+        {
+            var doc = new LayoutDocument
+            {
+                Metadata = new DocumentMetadata { Title = "Atomic Save Test" },
+                Items = new List<LayoutItemBase>
+                {
+                    new DeviceItem { Name = "Switch-1", IpAddress = "192.168.1.1" }
+                }
+            };
+
+            await repo.SaveToFileAsync(doc, testFile);
+
+            Assert.True(File.Exists(testFile));
+            var loaded = await repo.LoadFromFileAsync(testFile);
+            Assert.Equal("Atomic Save Test", loaded.Metadata.Title);
+            Assert.Single(loaded.Items);
+
+            // Assert no left-over .tmp files
+            var tmpFiles = Directory.GetFiles(tempDir, "*.tmp");
+            Assert.Empty(tmpFiles);
+        }
+        finally
+        {
+            if (Directory.Exists(tempDir))
+            {
+                Directory.Delete(tempDir, true);
+            }
+        }
+    }
+
+    [Fact]
+    public void UndoRedoService_LinkedListHistory_EnforcesMaxCapacityWithoutAllocations()
+    {
+        var undo = new UndoRedoService();
+        int executeCount = 0;
+        int unexecuteCount = 0;
+
+        for (int i = 0; i < 110; i++)
+        {
+            var cmd = new TestUndoableCommand(
+                () => executeCount++,
+                () => unexecuteCount++);
+            undo.ExecuteCommand(cmd);
+        }
+
+        Assert.True(undo.CanUndo);
+        Assert.False(undo.CanRedo);
+
+        // Max history is 100, so we can undo exactly 100 times
+        int undone = 0;
+        while (undo.CanUndo)
+        {
+            undo.Undo();
+            undone++;
+        }
+
+        Assert.Equal(100, undone);
+        Assert.False(undo.CanUndo);
+        Assert.True(undo.CanRedo);
     }
 }

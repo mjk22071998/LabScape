@@ -69,7 +69,7 @@ public partial class DatabaseSettingsDialog : Window
             DiagnosticBanner.Background = new SolidColorBrush(Color.FromArgb(40, 16, 185, 129)); // Green tint
             DiagnosticBanner.BorderBrush = new SolidColorBrush(Color.FromRgb(16, 185, 129));
             TxtDiagnosticResult.Foreground = new SolidColorBrush(Color.FromRgb(4, 120, 87));
-            TxtDiagnosticResult.Text = $"✅ Simulated Lab Workstation Engine ready! Latency: {latency.TotalMilliseconds:F1} ms ({devices.Count} simulated devices available).";
+            TxtDiagnosticResult.Text = $"Simulated Lab Workstation Engine ready! Latency: {latency.TotalMilliseconds:F1} ms ({devices.Count} simulated devices available).";
             BtnTest.IsEnabled = true;
             return;
         }
@@ -111,7 +111,7 @@ public partial class DatabaseSettingsDialog : Window
             DiagnosticBanner.Background = new SolidColorBrush(Color.FromArgb(40, 16, 185, 129)); // Green tint
             DiagnosticBanner.BorderBrush = new SolidColorBrush(Color.FromRgb(16, 185, 129));
             TxtDiagnosticResult.Foreground = new SolidColorBrush(Color.FromRgb(4, 120, 87));
-            TxtDiagnosticResult.Text = $"✅ Connection successful! Latency: {sw.ElapsedMilliseconds} ms.\nDatabase: {Profile.Database} on {Profile.Host}:{Profile.Port}\nServer: {pgVersion}\nFound {devices.Count} device(s) ready in inventory.";
+            TxtDiagnosticResult.Text = $"Connection successful! Latency: {sw.ElapsedMilliseconds} ms.\nDatabase: {Profile.Database} on {Profile.Host}:{Profile.Port}\nServer: {pgVersion}\nFound {devices.Count} device(s) ready in inventory.";
         }
         catch (Exception ex)
         {
