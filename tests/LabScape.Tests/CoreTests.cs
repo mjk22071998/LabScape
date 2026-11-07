@@ -6719,4 +6719,51 @@ public class CoreTests
         Assert.Equal("GPU Accelerated", mainVm.GpuStatusText);
         Assert.Contains("Direct3D", mainVm.GpuStatusTooltip);
     }
+
+    [Fact]
+    public void GitHubActions_ReleaseWorkflow_Configuration_Test()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(projectRoot);
+
+        // 1. Release Workflow Exists
+        var releaseWorkflowPath = Path.Combine(projectRoot, ".github", "workflows", "release.yml");
+        Assert.True(File.Exists(releaseWorkflowPath), "release.yml must exist in .github/workflows");
+        var releaseContent = File.ReadAllText(releaseWorkflowPath);
+
+        // 2. Verified Trigger on master push
+        Assert.Contains("branches:", releaseContent);
+        Assert.Contains("- master", releaseContent);
+
+        // 3. Verified Windows Runner and .NET 10 SDK
+        Assert.Contains("runs-on: windows-latest", releaseContent);
+        Assert.Contains("dotnet-version: '10.0.x'", releaseContent);
+
+        // 4. Verified Inno Setup & Build Pipeline Execution
+        Assert.Contains("build-release.ps1", releaseContent);
+        Assert.Contains("innosetup", releaseContent);
+
+        // 5. Verified Release Permissions & GitHub Release Action
+        Assert.Contains("contents: write", releaseContent);
+        Assert.Contains("softprops/action-gh-release@v2", releaseContent);
+        Assert.Contains("LabScape-Setup-v1.0.0.exe", releaseContent);
+        Assert.Contains("LabScape-v1.0.0-Portable-win-x64.zip", releaseContent);
+
+        // 6. CI Workflow Exists
+        var ciWorkflowPath = Path.Combine(projectRoot, ".github", "workflows", "ci.yml");
+        Assert.True(File.Exists(ciWorkflowPath), "ci.yml must exist in .github/workflows");
+        var ciContent = File.ReadAllText(ciWorkflowPath);
+        Assert.Contains("pull_request:", ciContent);
+    }
 }

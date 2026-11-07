@@ -1,0 +1,137 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build & Release Windows Package
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install Inno Setup 6
+        shell: powershell
+        run: |
+          choco install innosetup --no-progress -y
+          $innoPath = "C:\Program Files (x86)\Inno Setup 6"
+          if (Test-Path $innoPath) {
+              echo "$innoPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          }
+
+      - name: Verify Build Environment
+        shell: powershell
+        run: |
+          dotnet --info
+          $iscc = Get-Command iscc.exe -ErrorAction SilentlyContinue
+          if ($iscc) {
+              Write-Host "Inno Setup Compiler: $($iscc.Source)"
+          } else {
+              Write-Host "Inno Setup not in PATH, native setup builder will be used as fallback."
+          }
+
+      - name: Run Build and Packaging Pipeline
+        shell: powershell
+        run: |
+          .\build-release.ps1
+
+      - name: Verify Setup Artifacts
+        shell: powershell
+        run: |
+          $setupExe = "dist/setup/LabScape-Setup-v1.0.0.exe"
+          $portableZip = "dist/setup/LabScape-v1.0.0-Portable-win-x64.zip"
+          
+          if (-not (Test-Path $setupExe)) {
+              Write-Error "Setup installer executable not found at $setupExe!"
+              exit 1
+          }
+          if (-not (Test-Path $portableZip)) {
+              Write-Error "Portable archive not found at $portableZip!"
+              exit 1
+          }
+          
+          Get-ChildItem -Path "dist/setup" | Format-Table Name, Length, LastWriteTime
+
+      - name: Prepare Release Metadata & Hashes
+        id: release_meta
+        shell: powershell
+        run: |
+          $setupExe = "dist/setup/LabScape-Setup-v1.0.0.exe"
+          $portableZip = "dist/setup/LabScape-v1.0.0-Portable-win-x64.zip"
+          
+          $setupHash = (Get-FileHash -Path $setupExe -Algorithm SHA256).Hash
+          $zipHash = (Get-FileHash -Path $portableZip -Algorithm SHA256).Hash
+          $setupSize = [math]::Round(((Get-Item $setupExe).Length / 1MB), 2)
+          $zipSize = [math]::Round(((Get-Item $portableZip).Length / 1MB), 2)
+
+          if ("${{ github.ref_type }}" -eq "tag") {
+              $tag = "${{ github.ref_name }}"
+              $title = "LabScape ${{ github.ref_name }}"
+          } else {
+              $runNum = "${{ github.run_number }}"
+              $tag = "v1.0.$runNum"
+              $title = "LabScape v1.0.$runNum"
+          }
+
+          $notes = @"
+          # LabScape Enterprise Physical Layout Designer
+
+          Automated production build for commit `${{ github.sha }}` on branch ``master``.
+
+          ### 📦 Download Packages
+          | Package | File Size | SHA-256 Checksum |
+          | :--- | :--- | :--- |
+          | **[LabScape-Setup-v1.0.0.exe](https://github.com/${{ github.repository }}/releases/download/$tag/LabScape-Setup-v1.0.0.exe)** | ${setupSize} MB | ``$setupHash`` |
+          | **[LabScape-v1.0.0-Portable-win-x64.zip](https://github.com/${{ github.repository }}/releases/download/$tag/LabScape-v1.0.0-Portable-win-x64.zip)** | ${zipSize} MB | ``$zipHash`` |
+
+          ---
+
+          ### ✨ Key Features in this Build
+          - **Direct3D Tier 2 GPU Acceleration**: Full hardware rasterization, texture caching with ``BitmapCache``, and PerMonitorV2 native swapchains.
+          - **MS Office Ribbon & Page Setup**: Dedicated Page Layout tab, Page Setup modal dialog, and Office dialog launchers.
+          - **Visio Dynamic Multi-Page Tiling**: Auto-expanding and shrinking sheet bounds with watermarked page grids.
+          - **Enterprise Network & Inventory**: PostgreSQL device linking with DPAPI local credential security.
+          - **Theme Engine**: Real-time synchronized Cobalt Light and Dark themes.
+
+          *Built with .NET 10 (Windows Desktop) via GitHub Actions.*
+          "@
+
+          $notes | Out-File -FilePath "release_notes.md" -Encoding utf8
+          "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "title=$title" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_meta.outputs.tag }}
+          name: ${{ steps.release_meta.outputs.title }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            dist/setup/LabScape-Setup-v1.0.0.exe
+            dist/setup/LabScape-v1.0.0-Portable-win-x64.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

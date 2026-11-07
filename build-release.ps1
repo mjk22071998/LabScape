@@ -56,7 +56,7 @@ Copy-Item -Path (Join-Path $ScriptDir "web-viewer\*") -Destination $WebViewerDes
 Write-Host "  Web viewer bundle integrated." -ForegroundColor Green
 
 # 4. Generate Single-File Setup Executable / Inno Setup Compiler
-Write-Host "`n[4/4] Building Single-File Setup Installer..." -ForegroundColor Yellow
+Write-Host "`n[4/5] Building Single-File Setup Installer..." -ForegroundColor Yellow
 $SetupDir = Join-Path $ScriptDir "dist\setup"
 if (-not (Test-Path $SetupDir)) {
     New-Item -ItemType Directory -Path $SetupDir -Force | Out-Null
@@ -110,6 +110,15 @@ if ($isccPath) {
     }
     Write-Host "  Native Single-File Administrator Setup created: $targetExe" -ForegroundColor Green
 }
+
+# 5. Build Portable Zip Distribution
+Write-Host "`n[5/5] Packaging Portable Archive..." -ForegroundColor Yellow
+$portableZip = Join-Path $SetupDir "LabScape-v1.0.0-Portable-win-x64.zip"
+if (Test-Path $portableZip) {
+    Remove-Item -Force $portableZip
+}
+Compress-Archive -Path (Join-Path $PublishDir "*") -DestinationPath $portableZip -Force
+Write-Host "  Portable Archive created: $portableZip" -ForegroundColor Green
 
 Write-Host "`n==========================================================" -ForegroundColor Green
 Write-Host "  Build and Packaging Pipeline Complete!" -ForegroundColor Green
