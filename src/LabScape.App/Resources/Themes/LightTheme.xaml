@@ -82,9 +82,12 @@
     <SolidColorBrush x:Key="HudForegroundBrush" Color="#0F172A"/>
     <SolidColorBrush x:Key="HudButtonHoverBrush" Color="#E2E8F0"/>
 
-    <!-- Minimalist Technical Scrollbars -->
+    <!-- Minimalist Web-Style Technical Scrollbars -->
+    <SolidColorBrush x:Key="ScrollBarTrackBrush" Color="#00000000"/>
+    <SolidColorBrush x:Key="ScrollBarTrackHoverBrush" Color="#F1F5F988"/>
     <SolidColorBrush x:Key="ScrollBarThumbBrush" Color="#CBD5E1"/>
     <SolidColorBrush x:Key="ScrollBarThumbHoverBrush" Color="#94A3B8"/>
+    <SolidColorBrush x:Key="ScrollBarThumbDraggingBrush" Color="#0284C7"/>
 
     <!-- Dialogs -->
     <SolidColorBrush x:Key="DialogBackgroundBrush" Color="#F8FAFC"/>

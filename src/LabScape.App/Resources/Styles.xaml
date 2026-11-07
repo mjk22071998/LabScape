@@ -505,42 +505,117 @@
     </Style>
 
     <!-- ==================================================== -->
-    <!-- 8. MODERN SLIM SCROLLBAR STYLE                        -->
+    <!-- 8. MODERN WEB-STYLE SUBTLE SCROLLBARS                -->
     <!-- ==================================================== -->
-    <Style x:Key="ScrollBarThumb" TargetType="{x:Type Thumb}">
+
+    <!-- Vertical Floating Pill Thumb Style -->
+    <Style x:Key="VerticalScrollBarThumb" TargetType="{x:Type Thumb}">
         <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="IsTabStop" Value="False"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Thumb}">
-                    <Border Background="{DynamicResource ScrollBarThumbBrush}"
+                    <Border x:Name="thumbBorder"
+                            Background="{DynamicResource ScrollBarThumbBrush}"
                             CornerRadius="3"
-                            Margin="1"/>
+                            Margin="1.5,2,1.5,2"
+                            Opacity="0.55"
+                            SnapsToDevicePixels="True"/>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="thumbBorder" Property="Background" Value="{DynamicResource ScrollBarThumbHoverBrush}"/>
+                            <Setter TargetName="thumbBorder" Property="Opacity" Value="0.9"/>
+                        </Trigger>
+                        <Trigger Property="IsDragging" Value="True">
+                            <Setter TargetName="thumbBorder" Property="Background" Value="{DynamicResource ScrollBarThumbDraggingBrush}"/>
+                            <Setter TargetName="thumbBorder" Property="Opacity" Value="1.0"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type ScrollBar}">
+    <!-- Horizontal Floating Pill Thumb Style -->
+    <Style x:Key="HorizontalScrollBarThumb" TargetType="{x:Type Thumb}">
         <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="IsTabStop" Value="False"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type ScrollBar}">
-                    <Grid Background="Transparent">
-                        <Track x:Name="PART_Track" IsDirectionReversed="True">
-                            <Track.Thumb>
-                                <Thumb Style="{StaticResource ScrollBarThumb}"/>
-                            </Track.Thumb>
-                        </Track>
-                    </Grid>
+                <ControlTemplate TargetType="{x:Type Thumb}">
+                    <Border x:Name="thumbBorder"
+                            Background="{DynamicResource ScrollBarThumbBrush}"
+                            CornerRadius="3"
+                            Margin="2,1.5,2,1.5"
+                            Opacity="0.55"
+                            SnapsToDevicePixels="True"/>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="thumbBorder" Property="Background" Value="{DynamicResource ScrollBarThumbHoverBrush}"/>
+                            <Setter TargetName="thumbBorder" Property="Opacity" Value="0.9"/>
+                        </Trigger>
+                        <Trigger Property="IsDragging" Value="True">
+                            <Setter TargetName="thumbBorder" Property="Background" Value="{DynamicResource ScrollBarThumbDraggingBrush}"/>
+                            <Setter TargetName="thumbBorder" Property="Opacity" Value="1.0"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <!-- Vertical ScrollBar Template -->
+    <ControlTemplate x:Key="VerticalScrollBarTemplate" TargetType="{x:Type ScrollBar}">
+        <Grid Background="Transparent" SnapsToDevicePixels="True">
+            <Border x:Name="TrackBorder"
+                    Background="{DynamicResource ScrollBarTrackBrush}"
+                    CornerRadius="3.5"/>
+            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                <Track.Thumb>
+                    <Thumb Style="{StaticResource VerticalScrollBarThumb}"/>
+                </Track.Thumb>
+            </Track>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="TrackBorder" Property="Background" Value="{DynamicResource ScrollBarTrackHoverBrush}"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <!-- Horizontal ScrollBar Template -->
+    <ControlTemplate x:Key="HorizontalScrollBarTemplate" TargetType="{x:Type ScrollBar}">
+        <Grid Background="Transparent" SnapsToDevicePixels="True">
+            <Border x:Name="TrackBorder"
+                    Background="{DynamicResource ScrollBarTrackBrush}"
+                    CornerRadius="3.5"/>
+            <Track x:Name="PART_Track" IsDirectionReversed="False">
+                <Track.Thumb>
+                    <Thumb Style="{StaticResource HorizontalScrollBarThumb}"/>
+                </Track.Thumb>
+            </Track>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="TrackBorder" Property="Background" Value="{DynamicResource ScrollBarTrackHoverBrush}"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <!-- Global ScrollBar Style -->
+    <Style TargetType="{x:Type ScrollBar}">
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Style.Triggers>
             <Trigger Property="Orientation" Value="Vertical">
-                <Setter Property="Width" Value="8"/>
+                <Setter Property="Width" Value="7"/>
+                <Setter Property="Template" Value="{StaticResource VerticalScrollBarTemplate}"/>
             </Trigger>
             <Trigger Property="Orientation" Value="Horizontal">
-                <Setter Property="Height" Value="8"/>
+                <Setter Property="Height" Value="7"/>
+                <Setter Property="Template" Value="{StaticResource HorizontalScrollBarTemplate}"/>
             </Trigger>
         </Style.Triggers>
     </Style>

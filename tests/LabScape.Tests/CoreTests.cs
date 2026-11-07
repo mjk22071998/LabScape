@@ -6324,4 +6324,50 @@ public class CoreTests
         Assert.Contains("AnchorableHeaderTemplate=\"{StaticResource AvalonDockAnchorableHeaderTemplate}\"", mainXaml);
         Assert.Contains("AnchorableTitleTemplate=\"{StaticResource AvalonDockAnchorableTitleTemplate}\"", mainXaml);
     }
+    [Fact]
+    public void ScrollBar_WebStyle_And_ThemeBlending_Configuration_Test()
+    {
+        string projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
+        string stylesXamlPath = Path.Combine(projectRoot, "src", "LabScape.App", "Resources", "Styles.xaml");
+        string darkThemePath = Path.Combine(projectRoot, "src", "LabScape.App", "Resources", "Themes", "DarkTheme.xaml");
+        string lightThemePath = Path.Combine(projectRoot, "src", "LabScape.App", "Resources", "Themes", "LightTheme.xaml");
+
+        Assert.True(File.Exists(stylesXamlPath));
+        Assert.True(File.Exists(darkThemePath));
+        Assert.True(File.Exists(lightThemePath));
+
+        string styles = File.ReadAllText(stylesXamlPath);
+        string dark = File.ReadAllText(darkThemePath);
+        string light = File.ReadAllText(lightThemePath);
+
+        // 1. Theme brushes defined in both Dark and Light themes
+        string[] requiredBrushes = new[]
+        {
+            "ScrollBarTrackBrush",
+            "ScrollBarTrackHoverBrush",
+            "ScrollBarThumbBrush",
+            "ScrollBarThumbHoverBrush",
+            "ScrollBarThumbDraggingBrush"
+        };
+
+        foreach (var brush in requiredBrushes)
+        {
+            Assert.Contains(brush, dark);
+            Assert.Contains(brush, light);
+        }
+
+        // 2. Web-style subtle scrollbar thumb and templates in Styles.xaml
+        Assert.Contains("VerticalScrollBarThumb", styles);
+        Assert.Contains("HorizontalScrollBarThumb", styles);
+        Assert.Contains("VerticalScrollBarTemplate", styles);
+        Assert.Contains("HorizontalScrollBarTemplate", styles);
+
+        // 3. Subtle floating dimensions
+        Assert.Contains("Property=\"Width\" Value=\"7\"", styles);
+        Assert.Contains("Property=\"Height\" Value=\"7\"", styles);
+
+        // 4. Correct direction reversal
+        Assert.Contains("IsDirectionReversed=\"True\"", styles);
+        Assert.Contains("IsDirectionReversed=\"False\"", styles);
+    }
 }
