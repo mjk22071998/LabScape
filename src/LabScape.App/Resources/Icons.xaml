@@ -980,6 +980,68 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
+    <!-- 24b. Stencils Palette / Library (4 Technical Stencil Primitives with Drafting Framing) -->
+    <DrawingImage x:Key="IconStencils">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <!-- Architectural Drafting Corner Brackets / Frame -->
+                <GeometryDrawing Geometry="M 2 6 V 2 H 6 M 18 2 H 22 V 6 M 2 18 V 22 H 6 M 18 22 H 22 V 18">
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1.4" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Subtle Stencil Grid Partition Cross -->
+                <GeometryDrawing Geometry="M 12 3.5 V 20.5 M 3.5 12 H 20.5">
+                    <GeometryDrawing.Pen><Pen Brush="#475569" Thickness="0.8" DashStyle="{x:Static DashStyles.Dash}"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- 1. Top-Left: Workstation / Cube Primitive (Electric Blue) -->
+                <GeometryDrawing Geometry="M 5 4.5 H 9.5 A 1 1 0 0 1 10.5 5.5 V 9.5 A 1 1 0 0 1 9.5 10.5 H 5 A 1 1 0 0 1 4 9.5 V 5.5 A 1 1 0 0 1 5 4.5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#38BDF8" Offset="0"/>
+                            <GradientStop Color="#0284C7" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0369A1" Thickness="0.8"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 5 5.5 H 9">
+                    <GeometryDrawing.Pen><Pen Brush="#60FFFFFF" Thickness="0.8" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- 2. Top-Right: Drafting Node / Circle Primitive (Vibrant Teal / Cyan) -->
+                <GeometryDrawing Geometry="M 19.5 7.5 A 2.8 2.8 0 1 1 13.9 7.5 A 2.8 2.8 0 0 1 19.5 7.5 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#22D3EE" Offset="0"/>
+                            <GradientStop Color="#0891B2" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0E7490" Thickness="0.8"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <GeometryDrawing Geometry="M 15.5 6 A 1.2 1.2 0 0 1 17.5 6">
+                    <GeometryDrawing.Pen><Pen Brush="#60FFFFFF" Thickness="0.8" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- 3. Bottom-Left: Drafting Delta / Triangle Primitive (Architectural Amber) -->
+                <GeometryDrawing Geometry="M 7.25 14 L 10.5 19.5 H 4 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#FBBF24" Offset="0"/>
+                            <GradientStop Color="#D97706" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#B45309" Thickness="0.8" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- 4. Bottom-Right: Component Symbol / Diamond Primitive (Indigo / Violet) -->
+                <GeometryDrawing Geometry="M 16.7 13.7 L 19.7 16.7 L 16.7 19.7 L 13.7 16.7 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#A78BFA" Offset="0"/>
+                            <GradientStop Color="#6366F1" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#4F46E5" Thickness="0.8" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
     <!-- 25. Layers Stack (Visio 3D Isometric Layers) -->
     <DrawingImage x:Key="IconLayers">
         <DrawingImage.Drawing>

@@ -6184,4 +6184,60 @@ public class CoreTests
         string convertersCode = File.ReadAllText(convertersPath);
         Assert.Contains("ZeroToVisibilityConverter", convertersCode);
     }
+
+    [Fact]
+    public void StencilsAndLayers_HaveDistinctIcons_Test()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(projectRoot);
+
+        // 1. Verify Icons.xaml defines both IconStencils and IconLayers
+        string iconsPath = Path.Combine(projectRoot, "src", "LabScape.App", "Resources", "Icons.xaml");
+        Assert.True(File.Exists(iconsPath));
+        string iconsXaml = File.ReadAllText(iconsPath);
+        Assert.Contains("x:Key=\"IconStencils\"", iconsXaml);
+        Assert.Contains("x:Key=\"IconLayers\"", iconsXaml);
+
+        // 2. Verify MainWindow.xaml assigns IconStencils to Stencils and IconLayers to Layers
+        string mainPath = Path.Combine(projectRoot, "src", "LabScape.App", "MainWindow.xaml");
+        Assert.True(File.Exists(mainPath));
+        string mainXaml = File.ReadAllText(mainPath);
+
+        // Stencils Ribbon button must use IconStencils
+        Assert.Contains("fluent:Button Header=\"Stencils\" Click=\"OpenStencils_Click\"", mainXaml);
+        Assert.Contains("Icon=\"{StaticResource IconStencils}\"", mainXaml);
+
+        // Layers Ribbon button must use IconLayers
+        Assert.Contains("fluent:Button Header=\"Layers\" Click=\"OpenLayers_Click\"", mainXaml);
+        Assert.Contains("Icon=\"{StaticResource IconLayers}\"", mainXaml);
+
+        // Stencils and Layers must not use identical icons
+        int stencilsBtnIdx = mainXaml.IndexOf("Header=\"Stencils\"");
+        int layersBtnIdx = mainXaml.IndexOf("Header=\"Layers\"");
+        Assert.True(stencilsBtnIdx >= 0 && layersBtnIdx >= 0);
+
+        string stencilsSub = mainXaml.Substring(stencilsBtnIdx, 400);
+        string layersSub = mainXaml.Substring(layersBtnIdx, 400);
+
+        Assert.Contains("IconStencils", stencilsSub);
+        Assert.DoesNotContain("IconLayers", stencilsSub);
+
+        Assert.Contains("IconLayers", layersSub);
+        Assert.DoesNotContain("IconStencils", layersSub);
+
+        // Dockable Anchorables must also have distinct icons
+        Assert.Contains("x:Name=\"StencilsAnchorable\"", mainXaml);
+        Assert.Contains("x:Name=\"LayersAnchorable\"", mainXaml);
+    }
 }
