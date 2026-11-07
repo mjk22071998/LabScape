@@ -301,4 +301,86 @@ public partial class LayersViewModel : ObservableObject
             RefreshVisibleLayers();
         }
     }
+
+    /// <summary>
+    /// Moves one or more layers to an insertion boundary relative to a target layer (above or below),
+    /// matching Canva/Photoshop drag-and-drop layer reordering with full undo/redo and selection preservation.
+    /// </summary>
+    public void MoveLayersInList(IList<LayerItemViewModel> layersToMove, int targetIndex, bool isUpperHalf)
+    {
+        if (_canvas == null || layersToMove == null || layersToMove.Count == 0) return;
+        if (targetIndex < 0 || targetIndex >= Layers.Count) return;
+
+        if (layersToMove.Count == 1)
+        {
+            int oldIndex = Layers.IndexOf(layersToMove[0]);
+            int newIndex = CalculateNewIndex(oldIndex, targetIndex, isUpperHalf, Layers.Count);
+            if (newIndex >= 0 && newIndex != oldIndex)
+            {
+                MoveLayerInList(oldIndex, newIndex);
+            }
+            return;
+        }
+
+        var movingSet = layersToMove.ToHashSet();
+        var allSorted = _allLayers.OrderByDescending(l => l.Z).ToList();
+        var orderedMoving = allSorted.Where(l => movingSet.Contains(l)).ToList();
+        if (orderedMoving.Count == 0) return;
+
+        var targetLayer = Layers[targetIndex];
+
+        allSorted.RemoveAll(l => movingSet.Contains(l));
+
+        int insertIndex = allSorted.IndexOf(targetLayer);
+        if (insertIndex < 0)
+        {
+            insertIndex = isUpperHalf ? 0 : allSorted.Count;
+        }
+        else if (!isUpperHalf)
+        {
+            insertIndex++;
+        }
+
+        insertIndex = Math.Clamp(insertIndex, 0, allSorted.Count);
+        allSorted.InsertRange(insertIndex, orderedMoving);
+
+        // Normalize Z indices from top to bottom
+        int count = allSorted.Count;
+        var changes = new List<(ItemViewModel Item, int OldZ, int NewZ)>();
+        for (int i = 0; i < count; i++)
+        {
+            int assignedZ = count - i;
+            if (allSorted[i].Item.Z != assignedZ)
+            {
+                changes.Add((allSorted[i].Item, allSorted[i].Item.Z, assignedZ));
+            }
+        }
+
+        if (changes.Count > 0)
+        {
+            _canvas.UndoRedoService.ExecuteCommand(new ReorderLayerZIndexCommand(changes, "Reorder Layers"));
+            RefreshVisibleLayers();
+            _canvas.SetSelection(orderedMoving.Select(l => l.Item));
+        }
+    }
+
+    /// <summary>
+    /// Calculates the destination index when dropping above or below a target item.
+    /// </summary>
+    public static int CalculateNewIndex(int oldIndex, int targetIndex, bool isUpperHalf, int totalCount)
+    {
+        if (oldIndex < 0 || targetIndex < 0 || totalCount <= 0) return -1;
+
+        int newIndex;
+        if (oldIndex < targetIndex)
+        {
+            newIndex = isUpperHalf ? targetIndex - 1 : targetIndex;
+        }
+        else
+        {
+            newIndex = isUpperHalf ? targetIndex : targetIndex + 1;
+        }
+
+        return Math.Clamp(newIndex, 0, totalCount - 1);
+    }
 }

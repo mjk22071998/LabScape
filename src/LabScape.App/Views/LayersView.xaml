@@ -158,8 +158,10 @@
                  SelectionChanged="LayersListBox_SelectionChanged"
                  PreviewMouseLeftButtonDown="LayersListBox_PreviewMouseLeftButtonDown"
                  PreviewMouseMove="LayersListBox_PreviewMouseMove"
-                 Drop="LayersListBox_Drop"
+                 DragEnter="LayersListBox_DragEnter"
                  DragOver="LayersListBox_DragOver"
+                 DragLeave="LayersListBox_DragLeave"
+                 Drop="LayersListBox_Drop"
                  AllowDrop="True">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
@@ -168,6 +170,7 @@
                     <Setter Property="Padding" Value="0"/>
                     <Setter Property="Margin" Value="0,1.5"/>
                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Setter Property="AllowDrop" Value="True"/>
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="ListBoxItem">
@@ -178,7 +181,8 @@
                                         CornerRadius="5"
                                         Padding="6,5"
                                         SnapsToDevicePixels="True"
-                                        Margin="0,1">
+                                        Margin="0,1"
+                                        Cursor="Hand">
                                     <ContentPresenter/>
                                 </Border>
                                 <ControlTemplate.Triggers>

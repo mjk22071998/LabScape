@@ -6027,4 +6027,110 @@ public class CoreTests
         Assert.Contains("CursorHelper.GetRotationCursor", singleCode);
         Assert.DoesNotContain("pRotStandard, rotHitRadius))\n        {\n            Cursor = Cursors.Hand;", singleCode.Replace("\r\n", "\n"));
     }
+
+
+    [Fact]
+    public void LayersViewModel_DragAndDrop_CalculateNewIndex_And_MoveLayersInList()
+    {
+        // 1. Verify CalculateNewIndex logic
+        // Moving downwards (old=0, target=2)
+        Assert.Equal(1, LabScape.ViewModels.Layers.LayersViewModel.CalculateNewIndex(0, 2, isUpperHalf: true, totalCount: 4));
+        Assert.Equal(2, LabScape.ViewModels.Layers.LayersViewModel.CalculateNewIndex(0, 2, isUpperHalf: false, totalCount: 4));
+
+        // Moving upwards (old=3, target=1)
+        Assert.Equal(1, LabScape.ViewModels.Layers.LayersViewModel.CalculateNewIndex(3, 1, isUpperHalf: true, totalCount: 4));
+        Assert.Equal(2, LabScape.ViewModels.Layers.LayersViewModel.CalculateNewIndex(3, 1, isUpperHalf: false, totalCount: 4));
+
+        // Clamping on boundaries
+        Assert.Equal(0, LabScape.ViewModels.Layers.LayersViewModel.CalculateNewIndex(2, 0, isUpperHalf: true, totalCount: 4));
+        Assert.Equal(3, LabScape.ViewModels.Layers.LayersViewModel.CalculateNewIndex(1, 3, isUpperHalf: false, totalCount: 4));
+
+        // 2. Test MoveLayersInList on live canvas items
+        var undoService = new UndoRedoService();
+        var canvas = new CanvasViewModel(undoService);
+        var layersVm = new LabScape.ViewModels.Layers.LayersViewModel();
+        layersVm.AttachCanvas(canvas);
+
+        var devA = new DeviceItemViewModel(new DeviceItem { Name = "A", Z = 1 });
+        var devB = new DeviceItemViewModel(new DeviceItem { Name = "B", Z = 2 });
+        var devC = new DeviceItemViewModel(new DeviceItem { Name = "C", Z = 3 });
+        var devD = new DeviceItemViewModel(new DeviceItem { Name = "D", Z = 4 });
+
+        canvas.Items.Add(devA);
+        canvas.Items.Add(devB);
+        canvas.Items.Add(devC);
+        canvas.Items.Add(devD);
+
+        // Initial top-down order: [D (idx 0), C (idx 1), B (idx 2), A (idx 3)]
+        Assert.Equal("D", layersVm.Layers[0].Name);
+        Assert.Equal("C", layersVm.Layers[1].Name);
+        Assert.Equal("B", layersVm.Layers[2].Name);
+        Assert.Equal("A", layersVm.Layers[3].Name);
+
+        // Drag 'A' (index 3) and drop in upper half of 'C' (index 1) -> places A above C
+        layersVm.MoveLayersInList(new[] { layersVm.Layers[3] }, targetIndex: 1, isUpperHalf: true);
+
+        // Expected order: [D, A, C, B]
+        Assert.Equal("D", layersVm.Layers[0].Name);
+        Assert.Equal("A", layersVm.Layers[1].Name);
+        Assert.Equal("C", layersVm.Layers[2].Name);
+        Assert.Equal("B", layersVm.Layers[3].Name);
+
+        Assert.Equal(4, devD.Z);
+        Assert.Equal(3, devA.Z);
+        Assert.Equal(2, devC.Z);
+        Assert.Equal(1, devB.Z);
+
+        // Undo drag and drop
+        undoService.Undo();
+        layersVm.RefreshVisibleLayers();
+        Assert.Equal("D", layersVm.Layers[0].Name);
+        Assert.Equal("C", layersVm.Layers[1].Name);
+        Assert.Equal("B", layersVm.Layers[2].Name);
+        Assert.Equal("A", layersVm.Layers[3].Name);
+
+        // Redo drag and drop
+        undoService.Redo();
+        layersVm.RefreshVisibleLayers();
+        Assert.Equal("A", layersVm.Layers[1].Name);
+        Assert.Equal(3, devA.Z);
+
+        // 3. Test multi-selection drag-and-drop: move [B, C] above D
+        var multiMove = new[] { layersVm.Layers[2], layersVm.Layers[3] }; // C and B
+        layersVm.MoveLayersInList(multiMove, targetIndex: 0, isUpperHalf: true);
+
+        // Expected order: [C, B, D, A]
+        Assert.Equal("C", layersVm.Layers[0].Name);
+        Assert.Equal("B", layersVm.Layers[1].Name);
+        Assert.Equal("D", layersVm.Layers[2].Name);
+        Assert.Equal("A", layersVm.Layers[3].Name);
+
+        // 4. Verify View and Adorner integration files
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(projectRoot);
+
+        string adornerFile = Path.Combine(projectRoot, "src", "LabScape.App", "Adorners", "LayerDropIndicatorAdorner.cs");
+        Assert.True(File.Exists(adornerFile));
+        string adornerCode = File.ReadAllText(adornerFile);
+        Assert.Contains("LayerDropIndicatorAdorner", adornerCode);
+        Assert.Contains("IndicatorPen", adornerCode);
+
+        string viewFile = Path.Combine(projectRoot, "src", "LabScape.App", "Views", "LayersView.xaml.cs");
+        Assert.True(File.Exists(viewFile));
+        string viewCode = File.ReadAllText(viewFile);
+        Assert.Contains("GetDropTarget", viewCode);
+        Assert.Contains("UpdateDropIndicator", viewCode);
+        Assert.Contains("MoveLayersInList", viewCode);
+    }
 }
