@@ -6285,4 +6285,43 @@ public class CoreTests
         Assert.Contains("new MainWindow()", appCs);
         Assert.Contains("splash.FadeOutAndCloseAsync", appCs);
     }
+
+    [Fact]
+    public void AvalonDock_ThemedTitlebars_And_TopTabs_Configuration_Test()
+    {
+        string projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
+        string stylesXamlPath = Path.Combine(projectRoot, "src", "LabScape.App", "Resources", "Styles.xaml");
+        string mainXamlPath = Path.Combine(projectRoot, "src", "LabScape.App", "MainWindow.xaml");
+
+        Assert.True(File.Exists(stylesXamlPath), "Styles.xaml must exist");
+        Assert.True(File.Exists(mainXamlPath), "MainWindow.xaml must exist");
+
+        string stylesXaml = File.ReadAllText(stylesXamlPath);
+        string mainXaml = File.ReadAllText(mainXamlPath);
+
+        // 1. Verify LayoutAnchorablePaneControl style moves tabs to Top
+        Assert.Contains("TargetType=\"{x:Type dock:LayoutAnchorablePaneControl}\"", stylesXaml);
+        Assert.Contains("Property=\"TabStripPlacement\" Value=\"Top\"", stylesXaml);
+
+        // 2. Verify TabItem template uses theme brushes instead of hardcoded white
+        Assert.Contains("TabActiveBackgroundBrush", stylesXaml);
+        Assert.Contains("TabActiveBorderBrush", stylesXaml);
+        Assert.Contains("TabTextActiveBrush", stylesXaml);
+        Assert.Contains("TabInactiveBackgroundBrush", stylesXaml);
+        Assert.Contains("TabInactiveBorderBrush", stylesXaml);
+        Assert.Contains("TabTextInactiveBrush", stylesXaml);
+
+        // 3. Verify AnchorablePaneTitle uses PanelHeaderBackgroundBrush and AppBorderBrush
+        Assert.Contains("TargetType=\"{x:Type dock:AnchorablePaneTitle}\"", stylesXaml);
+        Assert.Contains("PanelHeaderBackgroundBrush", stylesXaml);
+        Assert.Contains("PART_AutoHidePin", stylesXaml);
+        Assert.Contains("PART_HidePin", stylesXaml);
+
+        // 4. Verify AvalonDock templates exist and are wired up in MainWindow
+        Assert.Contains("x:Key=\"AvalonDockAnchorableHeaderTemplate\"", stylesXaml);
+        Assert.Contains("x:Key=\"AvalonDockAnchorableTitleTemplate\"", stylesXaml);
+
+        Assert.Contains("AnchorableHeaderTemplate=\"{StaticResource AvalonDockAnchorableHeaderTemplate}\"", mainXaml);
+        Assert.Contains("AnchorableTitleTemplate=\"{StaticResource AvalonDockAnchorableTitleTemplate}\"", mainXaml);
+    }
 }

@@ -306,7 +306,9 @@
         <!-- ==================================================== -->
         <!-- 2. AVALONDOCK WORKSPACE (Left, Center, Right)         -->
         <!-- ==================================================== -->
-        <dock:DockingManager Grid.Row="1" x:Name="DockManager">
+        <dock:DockingManager Grid.Row="1" x:Name="DockManager"
+                             AnchorableHeaderTemplate="{StaticResource AvalonDockAnchorableHeaderTemplate}"
+                             AnchorableTitleTemplate="{StaticResource AvalonDockAnchorableTitleTemplate}">
             <dock:LayoutRoot>
                 <dock:LayoutPanel Orientation="Horizontal">
 
