@@ -6593,4 +6593,35 @@ public class CoreTests
         Assert.Equal(2, canvas.TotalPages);
         Assert.Equal(3174, canvas.CanvasWidth);
     }
+
+    [Fact]
+    public void CanvasViewModel_PageLayout_Ribbon_And_Presets_Integration()
+    {
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo);
+
+        // Verify initial state
+        Assert.Equal(PageSizePreset.A3, canvas.PageSize);
+        Assert.Equal(PageOrientation.Landscape, canvas.PageOrientation);
+        Assert.Equal(1587, canvas.BasePageWidth);
+        Assert.Equal(1123, canvas.BasePageHeight);
+        Assert.True(canvas.AutoSize);
+        Assert.Contains("A3", canvas.PageSizeDisplayText);
+
+        // Switch to Letter Portrait
+        canvas.SetPreset(PageSizePreset.Letter);
+        canvas.SetOrientation(PageOrientation.Portrait);
+        Assert.Equal(PageSizePreset.Letter, canvas.PageSize);
+        Assert.Equal(PageOrientation.Portrait, canvas.PageOrientation);
+        Assert.Equal(816, canvas.BasePageWidth);
+        Assert.Equal(1056, canvas.BasePageHeight);
+        Assert.Contains("Letter", canvas.PageSizeDisplayText);
+        Assert.Equal(1, canvas.PageColumns);
+        Assert.Equal(1, canvas.PageRows);
+        Assert.Equal(1, canvas.TotalPages);
+
+        // Fit to page command exists and is executable
+        Assert.NotNull(canvas.FitToPageCommand);
+        Assert.True(canvas.FitToPageCommand.CanExecute(null));
+    }
 }

@@ -80,6 +80,8 @@
                                        Icon="{StaticResource IconSaveAs}" LargeIcon="{StaticResource IconSaveAs}"/>
                         <fluent:Button Header="Close Tab (Ctrl+W)" Command="{Binding CloseActiveTabCommand}"
                                        Icon="{StaticResource IconCloseTab}" LargeIcon="{StaticResource IconCloseTab}"/>
+                        <fluent:Button Header="Page Setup... (Ctrl+Shift+P)" Click="OpenPageSetupDialog_Click"
+                                       Icon="{StaticResource IconPageSetupDialog}" LargeIcon="{StaticResource IconPageSetupDialog}"/>
                         <fluent:Button Header="Export to Web JSON..." Click="ExportJson_Click"
                                        Icon="{StaticResource IconExport}" LargeIcon="{StaticResource IconExport}"/>
                         <fluent:Button Header="Toggle Light / Dark Theme (F8)" Click="ThemeToggle_Click"
@@ -158,7 +160,9 @@
                 </fluent:RibbonGroupBox>
 
                 <!-- Page Setup & Multi-Page Dimensions -->
-                <fluent:RibbonGroupBox Header="Page Setup">
+                <fluent:RibbonGroupBox Header="Page Setup"
+                                       LauncherClick="OpenPageSetupDialog_Click"
+                                       LauncherToolTip="Open Page Setup Dialog (Ctrl+Shift+P)">
                     <!-- Visio-Style Auto Size Toggle -->
                     <fluent:ToggleButton Header="Auto Size"
                                          IsChecked="{Binding Canvas.AutoSize}"
@@ -189,6 +193,7 @@
                         </fluent:MenuItem>
                         <Separator/>
                         <fluent:MenuItem Header="Custom Dimensions..." Click="CustomPageSize_Click" Icon="{StaticResource IconInspect}"/>
+                        <fluent:MenuItem Header="More Page Sizes..." Click="OpenPageSetupDialog_Click" Icon="{StaticResource IconPageSetupDialog}"/>
                     </fluent:DropDownButton>
 
                     <!-- Page Orientation Dropdown -->
@@ -258,7 +263,133 @@
                 </fluent:RibbonGroupBox>
             </fluent:RibbonTabItem>
 
-            <!-- 2. Arrange Tab (Grouping, Alignment & Layers) -->
+            <!-- 2. Page Layout Tab (MS Office Page Setup & Canvas Layout) -->
+            <fluent:RibbonTabItem Header="Page Layout">
+                <!-- Page Setup Group -->
+                <fluent:RibbonGroupBox Header="Page Setup"
+                                       LauncherClick="OpenPageSetupDialog_Click"
+                                       LauncherToolTip="Open Page Setup Dialog (Ctrl+Shift+P)">
+                    <!-- Visio-Style Auto Size Toggle -->
+                    <fluent:ToggleButton Header="Auto Size"
+                                         IsChecked="{Binding Canvas.AutoSize}"
+                                         Size="Large"
+                                         Icon="{StaticResource IconAutoSize}"
+                                         LargeIcon="{StaticResource IconAutoSize}"
+                                         ToolTip="Automatically expand canvas by adding pages when shapes cross boundaries, and shrink to minimum possible pages (Visio style)"/>
+
+                    <!-- Page Size Presets Dropdown -->
+                    <fluent:DropDownButton Header="Size"
+                                           Size="Large"
+                                           Icon="{StaticResource IconPageSize}"
+                                           LargeIcon="{StaticResource IconPageSize}"
+                                           ToolTip="Select standard base paper size (A4, A3, Letter, etc.) or custom dimensions">
+                        <fluent:MenuItem Header="ISO Standard (Lab &amp; Floorplan)">
+                            <fluent:MenuItem Header="A3 (420 × 297 mm) - Standard Lab" Tag="A3" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
+                            <fluent:MenuItem Header="A4 (297 × 210 mm) - Standard Document" Tag="A4" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
+                            <fluent:MenuItem Header="A2 (594 × 420 mm) - Large Facility" Tag="A2" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
+                            <fluent:MenuItem Header="A1 (841 × 594 mm) - Full Architectural" Tag="A1" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
+                        </fluent:MenuItem>
+                        <fluent:MenuItem Header="US / ANSI Standard">
+                            <fluent:MenuItem Header="US Letter (8.5 × 11 in)" Tag="Letter" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
+                            <fluent:MenuItem Header="US Legal (8.5 × 14 in)" Tag="Legal" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
+                            <fluent:MenuItem Header="US Tabloid / Ledger (11 × 17 in)" Tag="Tabloid" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
+                        </fluent:MenuItem>
+                        <fluent:MenuItem Header="Digital Display">
+                            <fluent:MenuItem Header="Full HD 1080p (1920 × 1080 px)" Tag="Screen1080p" Click="SetPageSizePreset_Click" Icon="{StaticResource IconPageSize}"/>
+                        </fluent:MenuItem>
+                        <Separator/>
+                        <fluent:MenuItem Header="More Page Sizes..." Click="OpenPageSetupDialog_Click" Icon="{StaticResource IconPageSetupDialog}"/>
+                    </fluent:DropDownButton>
+
+                    <!-- Page Orientation Dropdown -->
+                    <fluent:DropDownButton Header="Orientation"
+                                           Size="Large"
+                                           Icon="{StaticResource IconOrientation}"
+                                           LargeIcon="{StaticResource IconOrientation}"
+                                           ToolTip="Change canvas page orientation (Landscape or Portrait)">
+                        <fluent:MenuItem Header="Landscape (Horizontal)" Tag="Landscape" Click="SetPageOrientation_Click" Icon="{StaticResource IconLandscape}"/>
+                        <fluent:MenuItem Header="Portrait (Vertical)" Tag="Portrait" Click="SetPageOrientation_Click" Icon="{StaticResource IconPortrait}"/>
+                    </fluent:DropDownButton>
+
+                    <!-- Page Setup Modal Dialog Button -->
+                    <fluent:Button Header="Page Setup"
+                                   Click="OpenPageSetupDialog_Click"
+                                   Size="Middle"
+                                   Icon="{StaticResource IconPageSetupDialog}"
+                                   LargeIcon="{StaticResource IconPageSetupDialog}"
+                                   ToolTip="Open full Page Setup dialog (Ctrl+Shift+P)"/>
+
+                    <!-- Fit Page to Viewport -->
+                    <fluent:Button Header="Fit Page"
+                                   Command="{Binding Canvas.FitToPageCommand}"
+                                   Size="Middle"
+                                   Icon="{StaticResource IconFitPage}"
+                                   LargeIcon="{StaticResource IconFitPage}"
+                                   ToolTip="Fit entire page into canvas viewport"/>
+                </fluent:RibbonGroupBox>
+
+                <!-- Page Dimensions Group -->
+                <fluent:RibbonGroupBox Header="Page Dimensions">
+                    <StackPanel VerticalAlignment="Center" Margin="4,2">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <TextBlock Text="Width:" FontSize="10.5" Width="45" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding Canvas.BasePageWidth, StringFormat='{}{0:F0}', UpdateSourceTrigger=LostFocus}" Width="65"
+                                     Style="{StaticResource NumericCoordinateTextBoxStyle}"/>
+                            <TextBlock Text=" px" FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Height:" FontSize="10.5" Width="45" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding Canvas.BasePageHeight, StringFormat='{}{0:F0}', UpdateSourceTrigger=LostFocus}" Width="65"
+                                     Style="{StaticResource NumericCoordinateTextBoxStyle}"/>
+                            <TextBlock Text=" px" FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="6,3" Margin="4,0" VerticalAlignment="Center">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Canvas.PageSizeDisplayText}" FontSize="9.5" FontWeight="Medium" Foreground="{DynamicResource AccentPrimaryBrush}"/>
+                            <TextBlock Text="Standard 96 DPI" FontSize="8.5" Foreground="{DynamicResource AppTextMutedBrush}"/>
+                        </StackPanel>
+                    </Border>
+                </fluent:RibbonGroupBox>
+
+                <!-- Canvas Guides & Surface Group -->
+                <fluent:RibbonGroupBox Header="Grid &amp; Guides">
+                    <fluent:CheckBox Header="Show Grid" IsChecked="{Binding Canvas.ShowGrid}"
+                                     Icon="{StaticResource IconShowGrid}"/>
+                    <fluent:CheckBox Header="Snap to Grid" IsChecked="{Binding Canvas.SnapToGrid}"
+                                     Icon="{StaticResource IconSnapToGrid}"/>
+                    <fluent:CheckBox Header="Show Rulers" IsChecked="{Binding Canvas.ShowRulers}"
+                                     Icon="{StaticResource IconShowRulers}"/>
+                </fluent:RibbonGroupBox>
+
+                <!-- View & Zoom Navigation -->
+                <fluent:RibbonGroupBox Header="View &amp; Zoom">
+                    <fluent:Button Header="Zoom In" Command="{Binding Canvas.ZoomInCommand}" ToolTip="Zoom In (Ctrl++)"
+                                   Size="Small"
+                                   Icon="{StaticResource IconZoomIn}"/>
+                    <fluent:Button Header="Zoom Out" Command="{Binding Canvas.ZoomOutCommand}" ToolTip="Zoom Out (Ctrl+-)"
+                                   Size="Small"
+                                   Icon="{StaticResource IconZoomOut}"/>
+                    <fluent:Button Header="100%" Command="{Binding Canvas.ResetZoomCommand}" ToolTip="Reset Zoom (Ctrl+0)"
+                                   Size="Small"
+                                   Icon="{StaticResource IconResetZoom}"/>
+                    <fluent:Button Header="Fit Page" Command="{Binding Canvas.FitToPageCommand}" ToolTip="Fit Page"
+                                   Size="Small"
+                                   Icon="{StaticResource IconFitPage}"/>
+                </fluent:RibbonGroupBox>
+
+                <!-- Theme / Appearance -->
+                <fluent:RibbonGroupBox Header="Theme">
+                    <fluent:ToggleButton Header="Dark Theme"
+                                         IsChecked="{Binding ElementName=BtnDarkTheme, Path=IsChecked}"
+                                         Click="ThemeToggle_Click"
+                                         ToolTip="Toggle Light / Dark Theme (F8)"
+                                         Size="Middle"
+                                         Icon="{StaticResource IconThemeDark}"/>
+                </fluent:RibbonGroupBox>
+            </fluent:RibbonTabItem>
+
+            <!-- 3. Arrange Tab (Grouping, Alignment & Layers) -->
             <fluent:RibbonTabItem Header="Arrange">
                 <!-- Grouping & Hierarchy -->
                 <fluent:RibbonGroupBox Header="Grouping">

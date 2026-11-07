@@ -2066,4 +2066,63 @@
         </DrawingImage.Drawing>
     </DrawingImage>
 
+    <!-- 56. Page Margins (MS Office Style) -->
+    <DrawingImage x:Key="IconMargins">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <!-- Sheet Body -->
+                <GeometryDrawing Geometry="M 3 2 H 15 L 20 7 V 21 A 1 1 0 0 1 19 22 H 4 A 1 1 0 0 1 3 21 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0.8,1">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#F8FAFC" Offset="0.6"/>
+                            <GradientStop Color="#E2E8F0" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Fold Corner -->
+                <GeometryDrawing Geometry="M 15 2 V 7 H 20 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#CBD5E1"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="1"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Dashed Margin Box Inside -->
+                <GeometryDrawing Geometry="M 6 6 H 17 V 18 H 6 Z">
+                    <GeometryDrawing.Pen><Pen Brush="#0078D4" Thickness="1.2" DashStyle="{x:Static DashStyles.Dash}"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+    <!-- 57. Page Setup Dialog Launcher -->
+    <DrawingImage x:Key="IconPageSetupDialog">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <!-- Miniature Dialog Window Frame -->
+                <GeometryDrawing Geometry="M 2 3 H 22 V 21 H 2 Z">
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#FFFFFF" Offset="0"/>
+                            <GradientStop Color="#F1F5F9" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#0078D4" Thickness="1.2"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Dialog Titlebar -->
+                <GeometryDrawing Geometry="M 2 3 H 22 V 7 H 2 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#0078D4"/></GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <!-- Page Layout Silhouette Inside -->
+                <GeometryDrawing Geometry="M 5 10 H 13 V 18 H 5 Z">
+                    <GeometryDrawing.Brush><SolidColorBrush Color="#E2E8F0"/></GeometryDrawing.Brush>
+                    <GeometryDrawing.Pen><Pen Brush="#94A3B8" Thickness="0.8"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+                <!-- Sliders / Rulers on Right -->
+                <GeometryDrawing Geometry="M 15 11 H 19 M 15 14 H 19 M 15 17 H 18">
+                    <GeometryDrawing.Pen><Pen Brush="#0284C7" Thickness="1.2" StartLineCap="Round"/></GeometryDrawing.Pen>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
 </ResourceDictionary>

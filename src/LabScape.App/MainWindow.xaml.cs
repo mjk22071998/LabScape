@@ -178,6 +178,14 @@ public partial class MainWindow : RibbonWindow
 
         var canvas = ViewModel.ActiveCanvas;
 
+        // Page Setup Shortcut (Ctrl+Shift+P)
+        if (isCtrl && isShift && !isAlt && e.Key == Key.P)
+        {
+            OpenPageSetupDialog_Click(sender, e);
+            e.Handled = true;
+            return;
+        }
+
         // 1. Tab & File Shortcuts
         if (isCtrl && !isShift && !isAlt && e.Key == Key.N)
         {
@@ -813,5 +821,15 @@ public partial class MainWindow : RibbonWindow
     {
         OpenProperties_Click(sender, e);
         ViewModel?.Canvas?.ClearSelection();
+    }
+
+    private void OpenPageSetupDialog_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel?.Canvas == null) return;
+        var dlg = new Dialogs.PageSetupDialog(ViewModel.Canvas)
+        {
+            Owner = this
+        };
+        dlg.ShowDialog();
     }
 }

@@ -1,0 +1,131 @@
+<Window x:Class="LabScape.App.Dialogs.PageSetupDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:enums="clr-namespace:LabScape.Core.Enums;assembly=LabScape.Core"
+        mc:Ignorable="d"
+        Title="Page Setup"
+        SizeToContent="Height"
+        Width="520"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="{DynamicResource DialogBackgroundBrush}">
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{DynamicResource SectionHeaderBackgroundBrush}" BorderBrush="{DynamicResource SectionHeaderBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,14">
+            <StackPanel>
+                <DockPanel>
+                    <TextBlock Text="Page Setup" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource SectionHeaderForegroundBrush}"/>
+                    <Border DockPanel.Dock="Right" Background="{DynamicResource AccentSubtleBrush}" BorderBrush="{DynamicResource AccentBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="6,1">
+                        <TextBlock Text="MS OFFICE LAYOUT" FontSize="8.5" FontWeight="Bold" Foreground="{DynamicResource SectionHeaderForegroundBrush}"/>
+                    </Border>
+                </DockPanel>
+                <TextBlock Text="Configure document paper dimensions, orientation, multi-page auto-expansion, and grid guides."
+                           TextWrapping="Wrap" FontSize="11" Foreground="{DynamicResource SectionHeaderSubForegroundBrush}" Margin="0,4,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Form Body -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,0,0,14">
+            <StackPanel Margin="0,0,4,0">
+
+                <!-- 1. Paper & Page Size -->
+                <GroupBox Header="Paper &amp; Page Size" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}" Margin="0,0,0,10">
+                    <StackPanel Margin="8" TextElement.FontWeight="Normal">
+                        <TextBlock Text="Standard Page Preset:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,4"/>
+                        <ComboBox x:Name="CmbPreset" SelectionChanged="CmbPreset_SelectionChanged" Margin="0,0,0,10"/>
+
+                        <!-- Width & Height Inputs -->
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                                <TextBlock Text="Width (px @ 96 DPI):" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,3"/>
+                                <TextBox x:Name="TxtWidth" TextChanged="Dimensions_TextChanged" Style="{StaticResource NumericCoordinateTextBoxStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                <TextBlock Text="Height (px @ 96 DPI):" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,3"/>
+                                <TextBox x:Name="TxtHeight" TextChanged="Dimensions_TextChanged" Style="{StaticResource NumericCoordinateTextBoxStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="Standard 96 DPI: 1 mm ≈ 3.78 px | 1 in = 96 px" FontSize="9.5" Foreground="{DynamicResource AppTextMutedBrush}"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- 2. Orientation & Visual Thumbnail -->
+                <GroupBox Header="Orientation" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}" Margin="0,0,0,10">
+                    <Grid Margin="8" TextElement.FontWeight="Normal">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="130"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Radio Options -->
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <RadioButton x:Name="RbLandscape" Content="Landscape (Horizontal)" Checked="Orientation_Checked" GroupName="OrientGroup" Margin="0,0,0,8" FontSize="11"/>
+                            <RadioButton x:Name="RbPortrait" Content="Portrait (Vertical)" Checked="Orientation_Checked" GroupName="OrientGroup" FontSize="11"/>
+                        </StackPanel>
+
+                        <!-- Visual Sheet Miniature Preview -->
+                        <Border Grid.Column="1" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="6" Height="70" Padding="4">
+                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Border x:Name="SheetPreview"
+                                        Background="#FFFFFF"
+                                        BorderBrush="#0078D4"
+                                        BorderThickness="1.5"
+                                        CornerRadius="2"
+                                        Width="60" Height="42">
+                                    <TextBlock Text="📄" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </GroupBox>
+
+                <!-- 3. Visio Multi-Page Auto-Size -->
+                <GroupBox Header="Multi-Page Auto-Size (MS Visio Style)" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}" Margin="0,0,0,10">
+                    <StackPanel Margin="8" TextElement.FontWeight="Normal">
+                        <CheckBox x:Name="ChkAutoSize" Content="Auto-expand canvas by adding pages when items cross boundaries"
+                                  IsChecked="True" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}" Margin="0,0,0,4"/>
+                        <TextBlock Text="Maintains the minimum possible page count automatically as shapes are added, moved, or deleted."
+                                   FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- 4. Grid & Metric Guides -->
+                <GroupBox Header="Grid &amp; Metric Guides" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
+                    <StackPanel Margin="8" TextElement.FontWeight="Normal">
+                        <CheckBox x:Name="ChkShowGrid" Content="Show Alignment Grid" Margin="0,0,0,5"/>
+                        <CheckBox x:Name="ChkSnapToGrid" Content="Snap to Grid" Margin="0,0,0,5"/>
+                        <CheckBox x:Name="ChkShowRulers" Content="Show Metric Rulers" Margin="0,0,0,6"/>
+                        <DockPanel Margin="0,2,0,0">
+                            <TextBlock Text="Grid Spacing (px):" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
+                            <TextBox x:Name="TxtGridSize" Width="70" DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                     Style="{StaticResource NumericCoordinateTextBoxStyle}"/>
+                        </DockPanel>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Action Buttons -->
+        <Border Grid.Row="2" Background="{DynamicResource SectionHeaderBackgroundBrush}" BorderBrush="{DynamicResource SectionHeaderBorderBrush}" BorderThickness="0,1,0,0" Padding="0,12,0,0">
+            <DockPanel LastChildFill="False">
+                <Button Content="Apply" Click="Apply_Click" Width="80" Padding="8,5" Cursor="Hand" Margin="0,0,8,0"/>
+                <Button Content="OK" IsDefault="True" Click="Ok_Click" Width="85" Padding="8,5" Cursor="Hand" DockPanel.Dock="Right" Margin="8,0,0,0"
+                        Background="{DynamicResource AccentPrimaryBrush}" Foreground="#FFFFFF" FontWeight="SemiBold"/>
+                <Button Content="Cancel" IsCancel="True" Click="Cancel_Click" Width="80" Padding="8,5" Cursor="Hand" DockPanel.Dock="Right"/>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>
