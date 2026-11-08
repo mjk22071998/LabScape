@@ -61,5 +61,6 @@ This project implements the **Everything Claude Code (ECC)** engineering standar
 ## 4. Verification & Delivery Gate
 
 - **Automated Verification**: Run `dotnet test LabScape.slnx` before committing any change.
-- **Git Hygiene**: Conventional commits (`feat`, `fix`, `refactor`, `perf`, `test`, `chore`).
+- **Local Review Binary Build**: After every task, always run `dotnet build LabScape.slnx` so the executable (`LabScape.App.exe`) is up-to-date and ready for immediate local user testing and review before pushing.
+- **Git Hygiene**: Conventional commits (`feat`, `fix`, `refactor`, `perf`, `test`, `chore`). Never push to remote (`git push`) without explicit user command.
 - **Release Automation**: Release pipelines triggered on `master` pushes with multi-format packaging (Setup Installer + Portable Archive).
