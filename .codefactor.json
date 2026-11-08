@@ -1,0 +1,10 @@
+{
+  "exclude": [
+    "dist/**",
+    "bin/**",
+    "obj/**",
+    "assets/**",
+    "docs/**",
+    "web-viewer/**"
+  ]
+}

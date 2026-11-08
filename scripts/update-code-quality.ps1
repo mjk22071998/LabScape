@@ -180,14 +180,14 @@ Write-Host "----------------------------------------------------------" -Foregro
 # Update README.md Badge
 if (Test-Path $ReadmePath) {
     $readmeContent = Get-Content $ReadmePath -Raw
-    $newBadge = "[![Code Quality](https://img.shields.io/badge/Code%20Quality-$([Uri]::EscapeDataString($grade))%20%7C%20$totalScore%25-$badgeColor.svg?style=flat-square)](#)"
     
-    if ($readmeContent -match '\[!\[Code Quality\]\(https://img\.shields\.io/badge/Code%20Quality-[^)]+\)\]\(#\)') {
+    # If CodeFactor badge is present, preserve it as the primary external verification authority
+    if ($readmeContent -match 'codefactor\.io') {
+        Write-Host "CodeFactor badge is active as primary external verification authority." -ForegroundColor Green
+    } elseif ($readmeContent -match '\[!\[Code Quality\]\(https://img\.shields\.io/badge/Code%20Quality-[^)]+\)\]\(#\)') {
+        $newBadge = "[![Code Quality](https://img.shields.io/badge/Code%20Quality-$([Uri]::EscapeDataString($grade))%20%7C%20$totalScore%25-$badgeColor.svg?style=flat-square)](#)"
         $readmeContent = [regex]::Replace($readmeContent, '\[!\[Code Quality\]\(https://img\.shields\.io/badge/Code%20Quality-[^)]+\)\]\(#\)', $newBadge)
         Write-Host "Updated existing Code Quality badge in $ReadmePath" -ForegroundColor Green
-    } elseif ($readmeContent -match '\[!\[Unit Tests\]\([^)]+\)\]\([^)]+\)') {
-        $readmeContent = [regex]::Replace($readmeContent, '(\[!\[Unit Tests\]\([^)]+\)\]\([^)]+\))', "`$1`r`n$newBadge")
-        Write-Host "Inserted new Code Quality badge in $ReadmePath" -ForegroundColor Green
     }
 
     if ($totalTests -gt 0 -and $failedTests -eq 0) {

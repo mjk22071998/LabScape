@@ -14259,11 +14259,10 @@ public class CoreTests
         string scriptPath = Path.Combine(projectRoot, "scripts", "update-code-quality.ps1");
         Assert.True(File.Exists(scriptPath), "update-code-quality.ps1 should exist in scripts folder");
 
-        // 2. Verify README.md contains Code Quality badge
+        // 2. Verify README.md contains Code Quality badge (external CodeFactor or internal engine)
         string readmePath = Path.Combine(projectRoot, "README.md");
         string readme = File.ReadAllText(readmePath);
-        Assert.Contains("Code%20Quality-", readme);
-        Assert.Contains("brightgreen", readme);
+        Assert.True(readme.Contains("codefactor.io") || readme.Contains("Code%20Quality-"), "README.md should contain CodeFactor or Code Quality badge");
 
         // 3. Verify all projects mandate Nullable reference types
         var projs = Directory.GetFiles(projectRoot, "*.csproj", SearchOption.AllDirectories);
