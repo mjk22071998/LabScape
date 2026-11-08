@@ -461,7 +461,7 @@ public partial class CanvasView : UserControl
         return (cx - extX, cy - extY, cx + extX, cy + extY);
     }
 
-    private void ShowVerticalGuide(double x, double y1, double y2)
+    internal void ShowVerticalGuide(double x, double y1, double y2)
     {
         SnapGuideVertical.X1 = x;
         SnapGuideVertical.Y1 = y1 - 20;
@@ -470,7 +470,7 @@ public partial class CanvasView : UserControl
         SnapGuideVertical.Visibility = Visibility.Visible;
     }
 
-    private void ShowHorizontalGuide(double y, double x1, double x2)
+    internal void ShowHorizontalGuide(double y, double x1, double x2)
     {
         SnapGuideHorizontal.X1 = x1 - 20;
         SnapGuideHorizontal.Y1 = y;
@@ -479,7 +479,7 @@ public partial class CanvasView : UserControl
         SnapGuideHorizontal.Visibility = Visibility.Visible;
     }
 
-        private void ShowEqualWidthGuide(Rect resizingRect, Rect matchingRect, double width)
+    internal void ShowEqualWidthGuide(Rect resizingRect, Rect matchingRect, double width)
     {
         double zoom = ViewModel?.ZoomLevel ?? 1.0;
         if (zoom < 0.05) zoom = 1.0;
@@ -563,7 +563,7 @@ public partial class CanvasView : UserControl
         SizeWidthBadge.Visibility = Visibility.Collapsed;
     }
 
-    private void ShowEqualHeightGuide(Rect resizingRect, Rect matchingRect, double height)
+    internal void ShowEqualHeightGuide(Rect resizingRect, Rect matchingRect, double height)
     {
         double zoom = ViewModel?.ZoomLevel ?? 1.0;
         if (zoom < 0.05) zoom = 1.0;
