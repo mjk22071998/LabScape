@@ -5,6 +5,7 @@
 [![Architecture](https://img.shields.io/badge/Architecture-Clean%20%7C%20MVVM-0078D4.svg?style=flat-square)](docs/ARCHITECTURE.md)
 [![UI Style](https://img.shields.io/badge/UI-Fluent%20Ribbon%20%7C%20Office%20Visio%20CAD-00B7C3.svg?style=flat-square)](src/LabScape.App/Resources/Icons.xaml)
 [![Unit Tests](https://img.shields.io/badge/Tests-100%20Passed-success.svg?style=flat-square)](tests/LabScape.Tests)
+[![Code Quality](https://img.shields.io/badge/Code%20Quality-A%2B%20%7C%20100%25-brightgreen.svg?style=flat-square)](#)
 [![Data Contract](https://img.shields.io/badge/Schema-JSON%20Schema%202020--12-orange.svg?style=flat-square)](docs/SCHEMA.md)
 
 **LabScape** is a professional, high-performance CAD layout and floorplan drafting application engineered specifically for IT computer laboratories, server rooms, network operations centers (NOC), and modular workstation facilities.

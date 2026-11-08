@@ -26,6 +26,12 @@ if (-not $SkipTests) {
     Write-Host "`n[1/4] Skipping tests as requested." -ForegroundColor DarkGray
 }
 
+# 1b. Audit Code Quality Score & Refresh README Badge
+$QualityScript = Join-Path $ScriptDir "scripts\update-code-quality.ps1"
+if (Test-Path $QualityScript) {
+    & $QualityScript -SkipBuild -SkipTests:($SkipTests)
+}
+
 # 2. Publish Application in Release Mode
 Write-Host "`n[2/4] Publishing LabScape.App in Release mode..." -ForegroundColor Yellow
 Get-Process -Name "LabScape.App", "LabScape" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue

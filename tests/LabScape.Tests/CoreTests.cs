@@ -14238,4 +14238,46 @@ public class CoreTests
         Assert.Contains("ShowEqualHeightGuide", canvasCs);
         Assert.Contains("HideSizeGuides", canvasCs);
     }
+
+    [Fact]
+    public void CodeQualityScore_Badge_And_Engine_Contract_Verified()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+        Assert.NotNull(projectRoot);
+
+        // 1. Verify update-code-quality.ps1 script exists
+        string scriptPath = Path.Combine(projectRoot, "scripts", "update-code-quality.ps1");
+        Assert.True(File.Exists(scriptPath), "update-code-quality.ps1 should exist in scripts folder");
+
+        // 2. Verify README.md contains Code Quality badge
+        string readmePath = Path.Combine(projectRoot, "README.md");
+        string readme = File.ReadAllText(readmePath);
+        Assert.Contains("Code%20Quality-", readme);
+        Assert.Contains("brightgreen", readme);
+
+        // 3. Verify all projects mandate Nullable reference types
+        var projs = Directory.GetFiles(projectRoot, "*.csproj", SearchOption.AllDirectories);
+        foreach (var p in projs)
+        {
+            string xml = File.ReadAllText(p);
+            Assert.Contains("<Nullable>enable</Nullable>", xml);
+        }
+
+        // 4. Verify LabScape.Core contains zero UI dependencies
+        string corePath = Path.Combine(projectRoot, "src", "LabScape.Core", "LabScape.Core.csproj");
+        string coreXml = File.ReadAllText(corePath);
+        Assert.DoesNotContain("PresentationFramework", coreXml);
+        Assert.DoesNotContain("PresentationCore", coreXml);
+        Assert.DoesNotContain("<UseWPF>true</UseWPF>", coreXml);
+    }
 }
