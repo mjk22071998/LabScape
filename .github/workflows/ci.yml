@@ -24,8 +24,3 @@ jobs:
         shell: powershell
         run: |
           dotnet test LabScape.slnx -c Release --verbosity normal
-
-      - name: Verify Code Quality & Refresh Badge
-        shell: powershell
-        run: |
-          .\scripts\update-code-quality.ps1 -SkipBuild
