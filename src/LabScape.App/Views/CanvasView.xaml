@@ -681,6 +681,61 @@
                       Panel.ZIndex="9999"
                       IsHitTestVisible="False"/>
 
+                <!-- Dynamic Size Assist Guides (Equal Width &amp; Equal Height - Visio / Draw.io Style) -->
+                <!-- Width Size Assist: Resizing Item -->
+                <Line x:Name="SizeDimWidthLine1" Stroke="#8B5CF6" StrokeThickness="1.5" StrokeDashArray="3 1"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <Line x:Name="SizeDimWidthTick1A" Stroke="#8B5CF6" StrokeThickness="1.5"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <Line x:Name="SizeDimWidthTick1B" Stroke="#8B5CF6" StrokeThickness="1.5"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <!-- Width Size Assist: Matched Item -->
+                <Line x:Name="SizeDimWidthLine2" Stroke="#8B5CF6" StrokeThickness="1.5" StrokeDashArray="3 1"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <Line x:Name="SizeDimWidthTick2A" Stroke="#8B5CF6" StrokeThickness="1.5"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <Line x:Name="SizeDimWidthTick2B" Stroke="#8B5CF6" StrokeThickness="1.5"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <!-- Width Size Assist Badge -->
+                <Border x:Name="SizeWidthBadge" Background="#7C3AED" BorderBrush="#A78BFA" BorderThickness="1"
+                        CornerRadius="9" Padding="6,2" Visibility="Collapsed" Panel.ZIndex="9999" IsHitTestVisible="False">
+                    <Border.LayoutTransform>
+                        <ScaleTransform x:Name="SizeWidthBadgeScale"/>
+                    </Border.LayoutTransform>
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.28" Color="#000000"/>
+                    </Border.Effect>
+                    <TextBlock x:Name="SizeWidthText" Foreground="White" FontSize="11" FontWeight="SemiBold"
+                               FontFamily="Consolas, Segoe UI"/>
+                </Border>
+
+                <!-- Height Size Assist: Resizing Item -->
+                <Line x:Name="SizeDimHeightLine1" Stroke="#8B5CF6" StrokeThickness="1.5" StrokeDashArray="3 1"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <Line x:Name="SizeDimHeightTick1A" Stroke="#8B5CF6" StrokeThickness="1.5"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <Line x:Name="SizeDimHeightTick1B" Stroke="#8B5CF6" StrokeThickness="1.5"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <!-- Height Size Assist: Matched Item -->
+                <Line x:Name="SizeDimHeightLine2" Stroke="#8B5CF6" StrokeThickness="1.5" StrokeDashArray="3 1"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <Line x:Name="SizeDimHeightTick2A" Stroke="#8B5CF6" StrokeThickness="1.5"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <Line x:Name="SizeDimHeightTick2B" Stroke="#8B5CF6" StrokeThickness="1.5"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <!-- Height Size Assist Badge -->
+                <Border x:Name="SizeHeightBadge" Background="#7C3AED" BorderBrush="#A78BFA" BorderThickness="1"
+                        CornerRadius="9" Padding="6,2" Visibility="Collapsed" Panel.ZIndex="9999" IsHitTestVisible="False">
+                    <Border.LayoutTransform>
+                        <ScaleTransform x:Name="SizeHeightBadgeScale"/>
+                    </Border.LayoutTransform>
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.28" Color="#000000"/>
+                    </Border.Effect>
+                    <TextBlock x:Name="SizeHeightText" Foreground="White" FontSize="11" FontWeight="SemiBold"
+                               FontFamily="Consolas, Segoe UI"/>
+                </Border>
+
                 <!-- Drag & Drop Ghost Preview -->
                 <Border x:Name="DragGhost"
                         BorderBrush="{DynamicResource AccentPrimaryBrush}" BorderThickness="1.5"

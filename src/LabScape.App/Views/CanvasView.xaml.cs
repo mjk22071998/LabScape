@@ -479,7 +479,181 @@ public partial class CanvasView : UserControl
         SnapGuideHorizontal.Visibility = Visibility.Visible;
     }
 
-    private void Viewport_MouseUp(object sender, MouseButtonEventArgs e)
+        private void ShowEqualWidthGuide(Rect resizingRect, Rect matchingRect, double width)
+    {
+        double zoom = ViewModel?.ZoomLevel ?? 1.0;
+        if (zoom < 0.05) zoom = 1.0;
+        double invZoom = 1.0 / zoom;
+
+        double offset = 12 * invZoom;
+        double tickHalf = 5 * invZoom;
+        double strokeW = 1.5 * invZoom;
+
+        double y1 = resizingRect.Bottom + offset;
+        if (ViewModel != null && y1 > ViewModel.CanvasHeight - 30 * invZoom)
+            y1 = resizingRect.Top - offset;
+
+        double y2 = matchingRect.Bottom + offset;
+        if (ViewModel != null && y2 > ViewModel.CanvasHeight - 30 * invZoom)
+            y2 = matchingRect.Top - offset;
+
+        SizeDimWidthLine1.StrokeThickness = strokeW;
+        SizeDimWidthLine1.X1 = resizingRect.Left;
+        SizeDimWidthLine1.X2 = resizingRect.Right;
+        SizeDimWidthLine1.Y1 = y1;
+        SizeDimWidthLine1.Y2 = y1;
+        SizeDimWidthLine1.Visibility = Visibility.Visible;
+
+        SizeDimWidthTick1A.StrokeThickness = strokeW;
+        SizeDimWidthTick1A.X1 = resizingRect.Left;
+        SizeDimWidthTick1A.X2 = resizingRect.Left;
+        SizeDimWidthTick1A.Y1 = y1 - tickHalf;
+        SizeDimWidthTick1A.Y2 = y1 + tickHalf;
+        SizeDimWidthTick1A.Visibility = Visibility.Visible;
+
+        SizeDimWidthTick1B.StrokeThickness = strokeW;
+        SizeDimWidthTick1B.X1 = resizingRect.Right;
+        SizeDimWidthTick1B.X2 = resizingRect.Right;
+        SizeDimWidthTick1B.Y1 = y1 - tickHalf;
+        SizeDimWidthTick1B.Y2 = y1 + tickHalf;
+        SizeDimWidthTick1B.Visibility = Visibility.Visible;
+
+        SizeDimWidthLine2.StrokeThickness = strokeW;
+        SizeDimWidthLine2.X1 = matchingRect.Left;
+        SizeDimWidthLine2.X2 = matchingRect.Right;
+        SizeDimWidthLine2.Y1 = y2;
+        SizeDimWidthLine2.Y2 = y2;
+        SizeDimWidthLine2.Visibility = Visibility.Visible;
+
+        SizeDimWidthTick2A.StrokeThickness = strokeW;
+        SizeDimWidthTick2A.X1 = matchingRect.Left;
+        SizeDimWidthTick2A.X2 = matchingRect.Left;
+        SizeDimWidthTick2A.Y1 = y2 - tickHalf;
+        SizeDimWidthTick2A.Y2 = y2 + tickHalf;
+        SizeDimWidthTick2A.Visibility = Visibility.Visible;
+
+        SizeDimWidthTick2B.StrokeThickness = strokeW;
+        SizeDimWidthTick2B.X1 = matchingRect.Right;
+        SizeDimWidthTick2B.X2 = matchingRect.Right;
+        SizeDimWidthTick2B.Y1 = y2 - tickHalf;
+        SizeDimWidthTick2B.Y2 = y2 + tickHalf;
+        SizeDimWidthTick2B.Visibility = Visibility.Visible;
+
+        SizeWidthBadgeScale.ScaleX = invZoom;
+        SizeWidthBadgeScale.ScaleY = invZoom;
+        SizeWidthText.Text = $"↔ {Math.Round(width)} px";
+        SizeWidthBadge.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        double bw = (SizeWidthBadge.DesiredSize.Width > 0 ? SizeWidthBadge.DesiredSize.Width : 60) * invZoom;
+        double bh = (SizeWidthBadge.DesiredSize.Height > 0 ? SizeWidthBadge.DesiredSize.Height : 20) * invZoom;
+
+        double badgeTop = y1 >= resizingRect.Bottom ? (y1 + 4 * invZoom) : (y1 - bh - 4 * invZoom);
+        Canvas.SetLeft(SizeWidthBadge, (resizingRect.Left + resizingRect.Right) / 2.0 - bw / 2.0);
+        Canvas.SetTop(SizeWidthBadge, badgeTop);
+        SizeWidthBadge.Visibility = Visibility.Visible;
+    }
+
+    private void HideEqualWidthGuide()
+    {
+        SizeDimWidthLine1.Visibility = Visibility.Collapsed;
+        SizeDimWidthTick1A.Visibility = Visibility.Collapsed;
+        SizeDimWidthTick1B.Visibility = Visibility.Collapsed;
+        SizeDimWidthLine2.Visibility = Visibility.Collapsed;
+        SizeDimWidthTick2A.Visibility = Visibility.Collapsed;
+        SizeDimWidthTick2B.Visibility = Visibility.Collapsed;
+        SizeWidthBadge.Visibility = Visibility.Collapsed;
+    }
+
+    private void ShowEqualHeightGuide(Rect resizingRect, Rect matchingRect, double height)
+    {
+        double zoom = ViewModel?.ZoomLevel ?? 1.0;
+        if (zoom < 0.05) zoom = 1.0;
+        double invZoom = 1.0 / zoom;
+
+        double offset = 12 * invZoom;
+        double tickHalf = 5 * invZoom;
+        double strokeW = 1.5 * invZoom;
+
+        double x1 = resizingRect.Right + offset;
+        if (ViewModel != null && x1 > ViewModel.CanvasWidth - 50 * invZoom)
+            x1 = resizingRect.Left - offset;
+
+        double x2 = matchingRect.Right + offset;
+        if (ViewModel != null && x2 > ViewModel.CanvasWidth - 50 * invZoom)
+            x2 = matchingRect.Left - offset;
+
+        SizeDimHeightLine1.StrokeThickness = strokeW;
+        SizeDimHeightLine1.X1 = x1;
+        SizeDimHeightLine1.X2 = x1;
+        SizeDimHeightLine1.Y1 = resizingRect.Top;
+        SizeDimHeightLine1.Y2 = resizingRect.Bottom;
+        SizeDimHeightLine1.Visibility = Visibility.Visible;
+
+        SizeDimHeightTick1A.StrokeThickness = strokeW;
+        SizeDimHeightTick1A.X1 = x1 - tickHalf;
+        SizeDimHeightTick1A.X2 = x1 + tickHalf;
+        SizeDimHeightTick1A.Y1 = resizingRect.Top;
+        SizeDimHeightTick1A.Y2 = resizingRect.Top;
+        SizeDimHeightTick1A.Visibility = Visibility.Visible;
+
+        SizeDimHeightTick1B.StrokeThickness = strokeW;
+        SizeDimHeightTick1B.X1 = x1 - tickHalf;
+        SizeDimHeightTick1B.X2 = x1 + tickHalf;
+        SizeDimHeightTick1B.Y1 = resizingRect.Bottom;
+        SizeDimHeightTick1B.Y2 = resizingRect.Bottom;
+        SizeDimHeightTick1B.Visibility = Visibility.Visible;
+
+        SizeDimHeightLine2.StrokeThickness = strokeW;
+        SizeDimHeightLine2.X1 = x2;
+        SizeDimHeightLine2.X2 = x2;
+        SizeDimHeightLine2.Y1 = matchingRect.Top;
+        SizeDimHeightLine2.Y2 = matchingRect.Bottom;
+        SizeDimHeightLine2.Visibility = Visibility.Visible;
+
+        SizeDimHeightTick2A.StrokeThickness = strokeW;
+        SizeDimHeightTick2A.X1 = x2 - tickHalf;
+        SizeDimHeightTick2A.X2 = x2 + tickHalf;
+        SizeDimHeightTick2A.Y1 = matchingRect.Top;
+        SizeDimHeightTick2A.Y2 = matchingRect.Top;
+        SizeDimHeightTick2A.Visibility = Visibility.Visible;
+
+        SizeDimHeightTick2B.StrokeThickness = strokeW;
+        SizeDimHeightTick2B.X1 = x2 - tickHalf;
+        SizeDimHeightTick2B.X2 = x2 + tickHalf;
+        SizeDimHeightTick2B.Y1 = matchingRect.Bottom;
+        SizeDimHeightTick2B.Y2 = matchingRect.Bottom;
+        SizeDimHeightTick2B.Visibility = Visibility.Visible;
+
+        SizeHeightBadgeScale.ScaleX = invZoom;
+        SizeHeightBadgeScale.ScaleY = invZoom;
+        SizeHeightText.Text = $"↕ {Math.Round(height)} px";
+        SizeHeightBadge.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        double bw = (SizeHeightBadge.DesiredSize.Width > 0 ? SizeHeightBadge.DesiredSize.Width : 60) * invZoom;
+        double bh = (SizeHeightBadge.DesiredSize.Height > 0 ? SizeHeightBadge.DesiredSize.Height : 20) * invZoom;
+
+        double badgeLeft = x1 >= resizingRect.Right ? (x1 + 4 * invZoom) : (x1 - bw - 4 * invZoom);
+        Canvas.SetLeft(SizeHeightBadge, badgeLeft);
+        Canvas.SetTop(SizeHeightBadge, (resizingRect.Top + resizingRect.Bottom) / 2.0 - bh / 2.0);
+        SizeHeightBadge.Visibility = Visibility.Visible;
+    }
+
+    private void HideEqualHeightGuide()
+    {
+        SizeDimHeightLine1.Visibility = Visibility.Collapsed;
+        SizeDimHeightTick1A.Visibility = Visibility.Collapsed;
+        SizeDimHeightTick1B.Visibility = Visibility.Collapsed;
+        SizeDimHeightLine2.Visibility = Visibility.Collapsed;
+        SizeDimHeightTick2A.Visibility = Visibility.Collapsed;
+        SizeDimHeightTick2B.Visibility = Visibility.Collapsed;
+        SizeHeightBadge.Visibility = Visibility.Collapsed;
+    }
+
+    private void HideSizeGuides()
+    {
+        HideEqualWidthGuide();
+        HideEqualHeightGuide();
+    }
+
+private void Viewport_MouseUp(object sender, MouseButtonEventArgs e)
     {
         if (_isPanning)
         {
@@ -539,6 +713,7 @@ public partial class CanvasView : UserControl
                 _isDraggingItem = false;
                 SnapGuideVertical.Visibility = Visibility.Collapsed;
                 SnapGuideHorizontal.Visibility = Visibility.Collapsed;
+                HideSizeGuides();
 
                 // Commit atomic undoable Move Command only if positions actually changed
                 var moves = _initialItemPositions
@@ -843,6 +1018,11 @@ public partial class CanvasView : UserControl
                     ShowHorizontalGuideAction = ShowHorizontalGuide,
                     HideVerticalGuideAction = () => SnapGuideVertical.Visibility = Visibility.Collapsed,
                     HideHorizontalGuideAction = () => SnapGuideHorizontal.Visibility = Visibility.Collapsed,
+                    ShowEqualWidthGuideAction = ShowEqualWidthGuide,
+                    HideEqualWidthGuideAction = HideEqualWidthGuide,
+                    ShowEqualHeightGuideAction = ShowEqualHeightGuide,
+                    HideEqualHeightGuideAction = HideEqualHeightGuide,
+                    HideSizeGuidesAction = HideSizeGuides,
                     GetOtherItems = () => ViewModel?.Items ?? Enumerable.Empty<ItemViewModel>()
                 };
                 layer.Add(adorner);
@@ -879,6 +1059,11 @@ public partial class CanvasView : UserControl
                     ShowHorizontalGuideAction = ShowHorizontalGuide,
                     HideVerticalGuideAction = () => SnapGuideVertical.Visibility = Visibility.Collapsed,
                     HideHorizontalGuideAction = () => SnapGuideHorizontal.Visibility = Visibility.Collapsed,
+                    ShowEqualWidthGuideAction = ShowEqualWidthGuide,
+                    HideEqualWidthGuideAction = HideEqualWidthGuide,
+                    ShowEqualHeightGuideAction = ShowEqualHeightGuide,
+                    HideEqualHeightGuideAction = HideEqualHeightGuide,
+                    HideSizeGuidesAction = HideSizeGuides,
                     GetOtherItems = () => ViewModel?.Items != null
                         ? ViewModel.Items.Except(ViewModel.SelectedItems)
                         : Enumerable.Empty<ItemViewModel>()
@@ -921,6 +1106,7 @@ public partial class CanvasView : UserControl
 
         SnapGuideVertical.Visibility = Visibility.Collapsed;
         SnapGuideHorizontal.Visibility = Visibility.Collapsed;
+        HideSizeGuides();
     }
 
     private void Viewport_DragOver(object sender, DragEventArgs e)

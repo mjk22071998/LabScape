@@ -53,6 +53,11 @@ public class MultiSelectionAdorner : Adorner
     public Action<double, double, double>? ShowHorizontalGuideAction { get; set; }
     public Action? HideVerticalGuideAction { get; set; }
     public Action? HideHorizontalGuideAction { get; set; }
+    public Action<Rect, Rect, double>? ShowEqualWidthGuideAction { get; set; }
+    public Action<Rect, Rect, double>? ShowEqualHeightGuideAction { get; set; }
+    public Action? HideEqualWidthGuideAction { get; set; }
+    public Action? HideEqualHeightGuideAction { get; set; }
+    public Action? HideSizeGuidesAction { get; set; }
     public Func<IEnumerable<ItemViewModel>>? GetOtherItems { get; set; }
 
     static MultiSelectionAdorner()
@@ -105,6 +110,7 @@ public class MultiSelectionAdorner : Adorner
         }
         HideVerticalGuideAction?.Invoke();
         HideHorizontalGuideAction?.Invoke();
+        HideSizeGuidesAction?.Invoke();
     }
 
     private void OnItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -625,6 +631,7 @@ public class MultiSelectionAdorner : Adorner
         {
             HideVerticalGuideAction?.Invoke();
             HideHorizontalGuideAction?.Invoke();
+            HideSizeGuidesAction?.Invoke();
             return;
         }
 
@@ -641,54 +648,116 @@ public class MultiSelectionAdorner : Adorner
 
         bool snapXFound = false;
         bool snapYFound = false;
+        bool snapSizeWFound = false;
+        bool snapSizeHFound = false;
 
-        // X Snapping
-        if (movesRight || movesLeft)
+        ItemViewModel? bestOtherX = null;
+        double bestTargetX = 0;
+        double bestDistX = double.MaxValue;
+
+        ItemViewModel? bestOtherY = null;
+        double bestTargetY = 0;
+        double bestDistY = double.MaxValue;
+
+        ItemViewModel? bestOtherSizeW = null;
+        Rect bestOtherSizeWRect = Rect.Empty;
+        double bestSizeTargetW = 0;
+        double bestDistSizeW = double.MaxValue;
+
+        ItemViewModel? bestOtherSizeH = null;
+        Rect bestOtherSizeHRect = Rect.Empty;
+        double bestSizeTargetH = 0;
+        double bestDistSizeH = double.MaxValue;
+
+        foreach (var other in others)
         {
-            double movingX = movesRight ? curRight : curLeft;
-            double bestDistX = double.MaxValue;
-            double bestTargetX = 0;
-            ItemViewModel? bestOtherX = null;
+            if (_items.Contains(other)) continue;
 
-            foreach (var other in others)
+            double oLeft = other.X;
+            double oRight = other.X + other.Width;
+            double oTop = other.Y;
+            double oBottom = other.Y + other.Height;
+            double oW = other.Width;
+            double oH = other.Height;
+
+            if (other is GroupItemViewModel grp && (grp.Width <= 10 || grp.Height <= 10))
             {
-                if (_items.Contains(other)) continue;
-
-                double oLeft = other.X;
-                double oRight = other.X + other.Width;
-                double oTop = other.Y;
-                double oBottom = other.Y + other.Height;
-
-                if (other is GroupItemViewModel grp && (grp.Width <= 10 || grp.Height <= 10))
-                {
-                    grp.RecalculateBounds();
-                    oLeft = grp.X; oRight = grp.X + grp.Width;
-                    oTop = grp.Y; oBottom = grp.Y + grp.Height;
-                }
-
-                if (Math.Abs(other.Rotation) > 0.001)
-                {
-                    var (bMinX, bMinY, bMaxX, bMaxY) = GroupItemViewModel.GetVisualBounds(other);
-                    oLeft = bMinX; oTop = bMinY; oRight = bMaxX; oBottom = bMaxY;
-                }
-
-                double boxDistX = Math.Max(0.0, Math.Max(movingX - oRight, oLeft - movingX));
-                double boxDistY = Math.Max(0.0, Math.Max(curTop - oBottom, oTop - curBottom));
-                if (boxDistX > 1000 && boxDistY > 1000) continue;
-
-                double oMiddle = (oLeft + oRight) / 2.0;
-
-                double dLeft = Math.Abs(movingX - oLeft);
-                if (dLeft <= snapTolerance && dLeft < bestDistX) { bestDistX = dLeft; bestTargetX = oLeft; bestOtherX = other; }
-
-                double dMiddle = Math.Abs(movingX - oMiddle);
-                if (dMiddle <= snapTolerance && dMiddle < bestDistX) { bestDistX = dMiddle; bestTargetX = oMiddle; bestOtherX = other; }
-
-                double dRight = Math.Abs(movingX - oRight);
-                if (dRight <= snapTolerance && dRight < bestDistX) { bestDistX = dRight; bestTargetX = oRight; bestOtherX = other; }
+                grp.RecalculateBounds();
+                oLeft = grp.X; oRight = grp.X + grp.Width;
+                oTop = grp.Y; oBottom = grp.Y + grp.Height;
+                oW = grp.Width; oH = grp.Height;
             }
 
-            if (bestOtherX != null)
+            if (Math.Abs(other.Rotation) > 0.001)
+            {
+                var (bMinX, bMinY, bMaxX, bMaxY) = GroupItemViewModel.GetVisualBounds(other);
+                oLeft = bMinX; oTop = bMinY; oRight = bMaxX; oBottom = bMaxY;
+                oW = bMaxX - bMinX; oH = bMaxY - bMinY;
+            }
+
+            if (movesRight || movesLeft)
+            {
+                double movingX = movesRight ? curRight : curLeft;
+                double boxDistX = Math.Max(0.0, Math.Max(movingX - oRight, oLeft - movingX));
+                double boxDistY = Math.Max(0.0, Math.Max(curTop - oBottom, oTop - curBottom));
+                if (boxDistX <= 1200 || boxDistY <= 1200)
+                {
+                    double oMiddle = (oLeft + oRight) / 2.0;
+
+                    double dLeft = Math.Abs(movingX - oLeft);
+                    if (dLeft <= snapTolerance && dLeft < bestDistX) { bestDistX = dLeft; bestTargetX = oLeft; bestOtherX = other; }
+
+                    double dMiddle = Math.Abs(movingX - oMiddle);
+                    if (dMiddle <= snapTolerance && dMiddle < bestDistX) { bestDistX = dMiddle; bestTargetX = oMiddle; bestOtherX = other; }
+
+                    double dRight = Math.Abs(movingX - oRight);
+                    if (dRight <= snapTolerance && dRight < bestDistX) { bestDistX = dRight; bestTargetX = oRight; bestOtherX = other; }
+
+                    double dSizeW = Math.Abs(candW - oW);
+                    if (dSizeW <= snapTolerance && dSizeW < bestDistSizeW)
+                    {
+                        bestDistSizeW = dSizeW;
+                        bestSizeTargetW = oW;
+                        bestOtherSizeW = other;
+                        bestOtherSizeWRect = new Rect(oLeft, oTop, oW, oH);
+                    }
+                }
+            }
+
+            if (movesBottom || movesTop)
+            {
+                double movingY = movesBottom ? curBottom : curTop;
+                double boxDistX = Math.Max(0.0, Math.Max(curLeft - oRight, oLeft - curRight));
+                double boxDistY = Math.Max(0.0, Math.Max(movingY - oBottom, oTop - movingY));
+                if (boxDistX <= 1200 || boxDistY <= 1200)
+                {
+                    double oMiddle = (oTop + oBottom) / 2.0;
+
+                    double dTop = Math.Abs(movingY - oTop);
+                    if (dTop <= snapTolerance && dTop < bestDistY) { bestDistY = dTop; bestTargetY = oTop; bestOtherY = other; }
+
+                    double dMiddle = Math.Abs(movingY - oMiddle);
+                    if (dMiddle <= snapTolerance && dMiddle < bestDistY) { bestDistY = dMiddle; bestTargetY = oMiddle; bestOtherY = other; }
+
+                    double dBottom = Math.Abs(movingY - oBottom);
+                    if (dBottom <= snapTolerance && dBottom < bestDistY) { bestDistY = dBottom; bestTargetY = oBottom; bestOtherY = other; }
+
+                    double dSizeH = Math.Abs(candH - oH);
+                    if (dSizeH <= snapTolerance && dSizeH < bestDistSizeH)
+                    {
+                        bestDistSizeH = dSizeH;
+                        bestSizeTargetH = oH;
+                        bestOtherSizeH = other;
+                        bestOtherSizeHRect = new Rect(oLeft, oTop, oW, oH);
+                    }
+                }
+            }
+        }
+
+        // Apply X snapping (edge alignment has priority if closer, otherwise equal size)
+        if (movesRight || movesLeft)
+        {
+            if (bestDistX <= snapTolerance && bestDistX <= bestDistSizeW && bestOtherX != null)
             {
                 if (movesRight)
                 {
@@ -717,62 +786,28 @@ public class MultiSelectionAdorner : Adorner
                         candX = fixedRight - candW;
                     }
                 }
-
-                ShowVerticalGuideAction?.Invoke(
-                    bestTargetX,
-                    Math.Min(candY, bestOtherX.Y),
-                    Math.Max(candY + candH, bestOtherX.Y + bestOtherX.Height));
                 snapXFound = true;
+            }
+            else if (bestDistSizeW <= snapTolerance && bestOtherSizeW != null)
+            {
+                candW = Math.Max(20.0, bestSizeTargetW);
+                if (movesRight)
+                {
+                    candX = altHeld ? (_initialCenter.X - candW / 2.0) : _initialBounds.X;
+                }
+                else // movesLeft
+                {
+                    double fixedRight = _initialBounds.X + _initialBounds.Width;
+                    candX = altHeld ? (_initialCenter.X - candW / 2.0) : (fixedRight - candW);
+                }
+                snapSizeWFound = true;
             }
         }
 
-        // Y Snapping
+        // Apply Y snapping (edge alignment has priority if closer, otherwise equal size)
         if (movesBottom || movesTop)
         {
-            double movingY = movesBottom ? curBottom : curTop;
-            double bestDistY = double.MaxValue;
-            double bestTargetY = 0;
-            ItemViewModel? bestOtherY = null;
-
-            foreach (var other in others)
-            {
-                if (_items.Contains(other)) continue;
-
-                double oLeft = other.X;
-                double oRight = other.X + other.Width;
-                double oTop = other.Y;
-                double oBottom = other.Y + other.Height;
-
-                if (other is GroupItemViewModel grp && (grp.Width <= 10 || grp.Height <= 10))
-                {
-                    grp.RecalculateBounds();
-                    oLeft = grp.X; oRight = grp.X + grp.Width;
-                    oTop = grp.Y; oBottom = grp.Y + grp.Height;
-                }
-
-                if (Math.Abs(other.Rotation) > 0.001)
-                {
-                    var (bMinX, bMinY, bMaxX, bMaxY) = GroupItemViewModel.GetVisualBounds(other);
-                    oLeft = bMinX; oTop = bMinY; oRight = bMaxX; oBottom = bMaxY;
-                }
-
-                double boxDistX = Math.Max(0.0, Math.Max(curLeft - oRight, oLeft - curRight));
-                double boxDistY = Math.Max(0.0, Math.Max(movingY - oBottom, oTop - movingY));
-                if (boxDistX > 1000 && boxDistY > 1000) continue;
-
-                double oMiddle = (oTop + oBottom) / 2.0;
-
-                double dTop = Math.Abs(movingY - oTop);
-                if (dTop <= snapTolerance && dTop < bestDistY) { bestDistY = dTop; bestTargetY = oTop; bestOtherY = other; }
-
-                double dMiddle = Math.Abs(movingY - oMiddle);
-                if (dMiddle <= snapTolerance && dMiddle < bestDistY) { bestDistY = dMiddle; bestTargetY = oMiddle; bestOtherY = other; }
-
-                double dBottom = Math.Abs(movingY - oBottom);
-                if (dBottom <= snapTolerance && dBottom < bestDistY) { bestDistY = dBottom; bestTargetY = oBottom; bestOtherY = other; }
-            }
-
-            if (bestOtherY != null)
+            if (bestDistY <= snapTolerance && bestDistY <= bestDistSizeH && bestOtherY != null)
             {
                 if (movesBottom)
                 {
@@ -801,17 +836,66 @@ public class MultiSelectionAdorner : Adorner
                         candY = fixedBottom - candH;
                     }
                 }
-
-                ShowHorizontalGuideAction?.Invoke(
-                    bestTargetY,
-                    Math.Min(candX, bestOtherY.X),
-                    Math.Max(candX + candW, bestOtherY.X + bestOtherY.Width));
                 snapYFound = true;
+            }
+            else if (bestDistSizeH <= snapTolerance && bestOtherSizeH != null)
+            {
+                candH = Math.Max(20.0, bestSizeTargetH);
+                if (movesBottom)
+                {
+                    candY = altHeld ? (_initialCenter.Y - candH / 2.0) : _initialBounds.Y;
+                }
+                else // movesTop
+                {
+                    double fixedBottom = _initialBounds.Y + _initialBounds.Height;
+                    candY = altHeld ? (_initialCenter.Y - candH / 2.0) : (fixedBottom - candH);
+                }
+                snapSizeHFound = true;
             }
         }
 
-        if (!snapXFound) HideVerticalGuideAction?.Invoke();
-        if (!snapYFound) HideHorizontalGuideAction?.Invoke();
+        Rect currentResizingRect = new Rect(candX, candY, candW, candH);
+        if (snapXFound && bestOtherX != null)
+        {
+            ShowVerticalGuideAction?.Invoke(
+                bestTargetX,
+                Math.Min(candY, bestOtherX.Y),
+                Math.Max(candY + candH, bestOtherX.Y + bestOtherX.Height));
+        }
+        else
+        {
+            HideVerticalGuideAction?.Invoke();
+        }
+
+        if (snapYFound && bestOtherY != null)
+        {
+            ShowHorizontalGuideAction?.Invoke(
+                bestTargetY,
+                Math.Min(candX, bestOtherY.X),
+                Math.Max(candX + candW, bestOtherY.X + bestOtherY.Width));
+        }
+        else
+        {
+            HideHorizontalGuideAction?.Invoke();
+        }
+
+        if (snapSizeWFound && bestOtherSizeW != null)
+        {
+            ShowEqualWidthGuideAction?.Invoke(currentResizingRect, bestOtherSizeWRect, candW);
+        }
+        else
+        {
+            HideEqualWidthGuideAction?.Invoke();
+        }
+
+        if (snapSizeHFound && bestOtherSizeH != null)
+        {
+            ShowEqualHeightGuideAction?.Invoke(currentResizingRect, bestOtherSizeHRect, candH);
+        }
+        else
+        {
+            HideEqualHeightGuideAction?.Invoke();
+        }
     }
 
     protected override void OnMouseUp(MouseButtonEventArgs e)
@@ -819,6 +903,7 @@ public class MultiSelectionAdorner : Adorner
         base.OnMouseUp(e);
         HideVerticalGuideAction?.Invoke();
         HideHorizontalGuideAction?.Invoke();
+        HideSizeGuidesAction?.Invoke();
 
         if (_activeDrag != DragMode.None)
         {
@@ -860,6 +945,7 @@ public class MultiSelectionAdorner : Adorner
         {
             HideVerticalGuideAction?.Invoke();
             HideHorizontalGuideAction?.Invoke();
+            HideSizeGuidesAction?.Invoke();
         }
     }
 

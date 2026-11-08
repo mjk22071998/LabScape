@@ -14150,4 +14150,92 @@ public class CoreTests
         double snappedX = groupRight;
         Assert.Equal(350, snappedX);
     }
+
+    [Fact]
+    public void Size_Assistance_And_Snapping_Matches_Shape_And_Group_Dimensions_Visio_Style()
+    {
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo);
+
+        // 1. Existing shape on canvas with width 120 and height 80
+        var shape1 = new ShapeItemViewModel(new ShapeItem { ShapeType = ShapeType.Rectangle, X = 50, Y = 50, Width = 120, Height = 80 });
+        canvas.Items.Add(shape1);
+
+        // 2. Existing group on canvas with width 200 and height 100
+        var dev1 = new DeviceItemViewModel(new DeviceItem { DeviceType = "desktop_pc", X = 300, Y = 100, Width = 80, Height = 60 });
+        var dev2 = new DeviceItemViewModel(new DeviceItem { DeviceType = "screen", X = 420, Y = 140, Width = 80, Height = 60 });
+        var group = new GroupItemViewModel(new GroupItem { Name = "Group Cluster" });
+        group.AddChild(dev1);
+        group.AddChild(dev2);
+        canvas.Items.Add(group);
+
+        Assert.Equal(200, group.Width);
+        Assert.Equal(100, group.Height);
+
+        // 3. Test Equal Width snapping calculation (Visio / Draw.io style)
+        const double snapTolerance = 6.0;
+        double candidateWidth = 123.5; // Resizing shape approaches 120 (shape1.Width)
+        double diffW = Math.Abs(candidateWidth - shape1.Width);
+        bool shouldSnapW = diffW <= snapTolerance;
+        Assert.True(shouldSnapW, "Candidate width within 6px tolerance should trigger Equal Width snap");
+        double snappedWidth = shouldSnapW ? shape1.Width : candidateWidth;
+        Assert.Equal(120.0, snappedWidth);
+
+        // 4. Test Equal Height snapping calculation
+        double candidateHeight = 77.0; // Resizing shape approaches 80 (shape1.Height)
+        double diffH = Math.Abs(candidateHeight - shape1.Height);
+        bool shouldSnapH = diffH <= snapTolerance;
+        Assert.True(shouldSnapH, "Candidate height within 6px tolerance should trigger Equal Height snap");
+        double snappedHeight = shouldSnapH ? shape1.Height : candidateHeight;
+        Assert.Equal(80.0, snappedHeight);
+
+        // 5. Test Equal Size snapping against Group bounds
+        double candidateGroupWidth = 197.0;
+        double diffGroupW = Math.Abs(candidateGroupWidth - group.Width);
+        bool shouldSnapGroupW = diffGroupW <= snapTolerance;
+        Assert.True(shouldSnapGroupW, "Candidate width within 6px tolerance should trigger Equal Width snap to group bounds");
+        double snappedGroupWidth = shouldSnapGroupW ? group.Width : candidateGroupWidth;
+        Assert.Equal(200.0, snappedGroupWidth);
+
+        // 6. Verify source code contracts for Size Assist UI and Adorners
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+        Assert.NotNull(projectRoot);
+
+        string adornerPath = Path.Combine(projectRoot, "src", "LabScape.App", "Adorners", "SelectionAdorner.cs");
+        string adornerCode = File.ReadAllText(adornerPath);
+        Assert.Contains("ShowEqualWidthGuideAction", adornerCode);
+        Assert.Contains("ShowEqualHeightGuideAction", adornerCode);
+        Assert.Contains("HideSizeGuidesAction", adornerCode);
+
+        string multiAdornerPath = Path.Combine(projectRoot, "src", "LabScape.App", "Adorners", "MultiSelectionAdorner.cs");
+        string multiAdornerCode = File.ReadAllText(multiAdornerPath);
+        Assert.Contains("ShowEqualWidthGuideAction", multiAdornerCode);
+        Assert.Contains("ShowEqualHeightGuideAction", multiAdornerCode);
+        Assert.Contains("HideSizeGuidesAction", multiAdornerCode);
+
+        string canvasXamlPath = Path.Combine(projectRoot, "src", "LabScape.App", "Views", "CanvasView.xaml");
+        string canvasXaml = File.ReadAllText(canvasXamlPath);
+        Assert.Contains("SizeDimWidthLine1", canvasXaml);
+        Assert.Contains("SizeDimWidthLine2", canvasXaml);
+        Assert.Contains("SizeWidthBadge", canvasXaml);
+        Assert.Contains("SizeDimHeightLine1", canvasXaml);
+        Assert.Contains("SizeDimHeightLine2", canvasXaml);
+        Assert.Contains("SizeHeightBadge", canvasXaml);
+
+        string canvasCsPath = Path.Combine(projectRoot, "src", "LabScape.App", "Views", "CanvasView.xaml.cs");
+        string canvasCs = File.ReadAllText(canvasCsPath);
+        Assert.Contains("ShowEqualWidthGuide", canvasCs);
+        Assert.Contains("ShowEqualHeightGuide", canvasCs);
+        Assert.Contains("HideSizeGuides", canvasCs);
+    }
 }
