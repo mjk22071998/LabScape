@@ -1069,7 +1069,7 @@
     </DataTemplate>
 
     <!-- 3. Tool Window Titlebar Style (AnchorablePaneTitle) -->
-    <Style TargetType="{x:Type dock:AnchorablePaneTitle}">
+    <Style x:Key="AnchorablePaneTitleStyle" TargetType="{x:Type dock:AnchorablePaneTitle}">
         <Setter Property="Background" Value="{DynamicResource PanelHeaderBackgroundBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
@@ -1217,6 +1217,7 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <Style TargetType="{x:Type dock:AnchorablePaneTitle}" BasedOn="{StaticResource AnchorablePaneTitleStyle}"/>
 
     <!-- 4. LayoutAnchorableControl Style (Hides redundant titlebar when multiple tabs exist) -->
     <Style TargetType="{x:Type dock:LayoutAnchorableControl}">
@@ -1264,6 +1265,12 @@
                         <DataTrigger Binding="{Binding Model.Parent.ChildrenCount, RelativeSource={RelativeSource Mode=Self}, FallbackValue=1}" Value="4">
                             <Setter TargetName="Header" Property="Visibility" Value="Collapsed"/>
                         </DataTrigger>
+                        <DataTrigger Binding="{Binding Model.Parent.ChildrenCount, RelativeSource={RelativeSource Mode=Self}, FallbackValue=1}" Value="5">
+                            <Setter TargetName="Header" Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Model.Parent.ChildrenCount, RelativeSource={RelativeSource Mode=Self}, FallbackValue=1}" Value="6">
+                            <Setter TargetName="Header" Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -1271,7 +1278,7 @@
     </Style>
 
     <!-- 5. LayoutAnchorablePaneControl Style (Moves tab strip to TOP and styles tabs to blend with theme) -->
-    <Style TargetType="{x:Type dock:LayoutAnchorablePaneControl}">
+    <Style x:Key="AnchorablePaneControlStyle" TargetType="{x:Type dock:LayoutAnchorablePaneControl}">
         <Setter Property="Foreground" Value="{DynamicResource AppTextPrimaryBrush}"/>
         <Setter Property="Background" Value="{DynamicResource PanelBackgroundBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}"/>
@@ -1408,10 +1415,32 @@
         </Setter>
     </Style>
 
+    <Style TargetType="{x:Type dock:LayoutAnchorablePaneControl}" BasedOn="{StaticResource AnchorablePaneControlStyle}"/>
+
+    <!-- LayoutAnchorableTabItem Base Style -->
+    <Style TargetType="{x:Type dock:LayoutAnchorableTabItem}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <!-- LayoutGridResizerControl Splitter Style -->
+    <Style TargetType="{x:Type dock:LayoutGridResizerControl}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type dock:LayoutGridResizerControl}">
+                    <Border Background="{DynamicResource AppBorderBrush}" Width="1" HorizontalAlignment="Center"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- 6. DockingManager Style default templates -->
     <Style TargetType="{x:Type dock:DockingManager}">
+        <Setter Property="Background" Value="{DynamicResource AppBackgroundBrush}"/>
         <Setter Property="AnchorableHeaderTemplate" Value="{StaticResource AvalonDockAnchorableHeaderTemplate}"/>
         <Setter Property="AnchorableTitleTemplate" Value="{StaticResource AvalonDockAnchorableTitleTemplate}"/>
+        <Setter Property="AnchorablePaneControlStyle" Value="{StaticResource AnchorablePaneControlStyle}"/>
     </Style>
 
 </ResourceDictionary>

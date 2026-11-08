@@ -13973,4 +13973,44 @@ public class CoreTests
         Assert.Contains("Header=\"Properties\" Click=\"OpenProperties_Click\"", homeTabContent);
         Assert.Contains("Header=\"Layers\" Click=\"OpenLayers_Click\"", homeTabContent);
     }
+    [Fact]
+    public void DockingManager_Titlebars_And_Tabs_ThemeBlending_And_TopPlacement_Test()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+        Assert.NotNull(projectRoot);
+
+        var stylesXpath = Path.Combine(projectRoot, "src", "LabScape.App", "Resources", "Styles.xaml");
+        var stylesXaml = File.ReadAllText(stylesXpath);
+
+        // 1. AnchorablePaneControlStyle must move tabs to TOP and blend with dynamic theme brushes
+        Assert.Contains("x:Key=\"AnchorablePaneControlStyle\"", stylesXaml);
+        Assert.Contains("Property=\"TabStripPlacement\" Value=\"Top\"", stylesXaml);
+        Assert.Contains("dock:AnchorablePaneTabPanel x:Name=\"HeaderPanel\"", stylesXaml);
+        Assert.Contains("Background=\"{DynamicResource TabBarBackgroundBrush}\"", stylesXaml);
+        Assert.Contains("Value=\"{DynamicResource TabActiveBackgroundBrush}\"", stylesXaml);
+        Assert.Contains("Background=\"{DynamicResource TabInactiveBackgroundBrush}\"", stylesXaml);
+        Assert.Contains("Value=\"{DynamicResource TabTextActiveBrush}\"", stylesXaml);
+
+        // 2. AnchorablePaneTitleStyle must blend titlebars with theme
+        Assert.Contains("x:Key=\"AnchorablePaneTitleStyle\"", stylesXaml);
+        Assert.Contains("Property=\"Background\" Value=\"{DynamicResource PanelHeaderBackgroundBrush}\"", stylesXaml);
+        Assert.Contains("Property=\"Foreground\" Value=\"{DynamicResource AppTextPrimaryBrush}\"", stylesXaml);
+
+        // 3. DockingManager in MainWindow.xaml must explicitly bind AnchorablePaneControlStyle
+        var mainXpath = Path.Combine(projectRoot, "src", "LabScape.App", "MainWindow.xaml");
+        var mainXaml = File.ReadAllText(mainXpath);
+
+        Assert.Contains("AnchorablePaneControlStyle=\"{StaticResource AnchorablePaneControlStyle}\"", mainXaml);
+        Assert.Contains("Background=\"{DynamicResource AppBackgroundBrush}\"", mainXaml);
+    }
 }
