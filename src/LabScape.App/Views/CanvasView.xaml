@@ -258,6 +258,7 @@
                     Height="{Binding CanvasHeight}"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
+                    ClipToBounds="False"
                     RenderOptions.BitmapScalingMode="HighQuality"
                     RenderOptions.ClearTypeHint="Enabled"
                     RenderOptions.EdgeMode="Unspecified">

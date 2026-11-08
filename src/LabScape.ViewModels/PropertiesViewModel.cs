@@ -1714,7 +1714,7 @@ public partial class PropertiesViewModel : ObservableObject
 
         {
 
-            SelectedItem.X = Math.Max(0, x);
+            SelectedItem.X = x;
 
         }
 
@@ -1732,7 +1732,7 @@ public partial class PropertiesViewModel : ObservableObject
 
         {
 
-            SelectedItem.Y = Math.Max(0, y);
+            SelectedItem.Y = y;
 
         }
 

@@ -14053,4 +14053,47 @@ public class CoreTests
         props.ApplyStrokeChanges();
         Assert.Equal("#581C87", dev.Stroke);
     }
+
+    [Fact]
+    public void CanvasItem_CanBePositionedAndMovedOutsideCanvasBounds()
+    {
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo);
+        var props = new PropertiesViewModel(canvas);
+
+        var dev = new DeviceItemViewModel(new DeviceItem { DeviceType = "desktop_pc", X = 100, Y = 100 });
+        canvas.Items.Add(dev);
+        canvas.SelectItem(dev);
+
+        // 1. Move outside canvas to negative coordinates via MoveItemsCommand
+        var moveCmd = new MoveItemsCommand(new List<(ItemViewModel Item, double OldX, double OldY, double NewX, double NewY)>
+        {
+            (dev, 100, 100, -120, -85)
+        });
+        undo.ExecuteCommand(moveCmd);
+
+        Assert.Equal(-120, dev.X);
+        Assert.Equal(-85, dev.Y);
+
+        // Undo move restores original positive position
+        undo.Undo();
+        Assert.Equal(100, dev.X);
+        Assert.Equal(100, dev.Y);
+
+        undo.Redo();
+        Assert.Equal(-120, dev.X);
+        Assert.Equal(-85, dev.Y);
+
+        // 2. Setting negative coordinates directly via PropertiesViewModel
+        props.DisplayX = "-250.5";
+        props.DisplayY = "-310.0";
+        Assert.Equal(-250.5, dev.X);
+        Assert.Equal(-310.0, dev.Y);
+
+        // 3. Move beyond positive canvas sheet boundaries (e.g. CanvasWidth = 1587, move to 2500)
+        props.DisplayX = "2500.0";
+        props.DisplayY = "3000.0";
+        Assert.Equal(2500.0, dev.X);
+        Assert.Equal(3000.0, dev.Y);
+    }
 }

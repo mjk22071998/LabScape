@@ -357,34 +357,8 @@ public partial class CanvasView : UserControl
 
             foreach (var (item, startPos) in _initialItemPositions)
             {
-                double newX = startPos.X + finalDeltaX;
-                double newY = startPos.Y + finalDeltaY;
-
-                // For items with startPos.X >= 0, clamp to >= 0
-                // For rotated items with negative X (e.g. vertical line rotated 90 deg where X = centerX - len/2):
-                // Ensure visual center X >= 0:
-                if (startPos.X >= 0)
-                {
-                    newX = Math.Max(0, newX);
-                }
-                else
-                {
-                    double minAllowedX = -item.Width / 2.0;
-                    newX = Math.Max(minAllowedX, newX);
-                }
-
-                if (startPos.Y >= 0)
-                {
-                    newY = Math.Max(0, newY);
-                }
-                else
-                {
-                    double minAllowedY = -item.Height / 2.0;
-                    newY = Math.Max(minAllowedY, newY);
-                }
-
-                item.X = newX;
-                item.Y = newY;
+                item.X = startPos.X + finalDeltaX;
+                item.Y = startPos.Y + finalDeltaY;
             }
 
             // Visio-style live page expansion during drag
@@ -403,7 +377,7 @@ public partial class CanvasView : UserControl
     private void ShowVerticalGuide(double x, double y1, double y2)
     {
         SnapGuideVertical.X1 = x;
-        SnapGuideVertical.Y1 = Math.Max(0, y1 - 20);
+        SnapGuideVertical.Y1 = y1 - 20;
         SnapGuideVertical.X2 = x;
         SnapGuideVertical.Y2 = y2 + 20;
         SnapGuideVertical.Visibility = Visibility.Visible;
@@ -411,7 +385,7 @@ public partial class CanvasView : UserControl
 
     private void ShowHorizontalGuide(double y, double x1, double x2)
     {
-        SnapGuideHorizontal.X1 = Math.Max(0, x1 - 20);
+        SnapGuideHorizontal.X1 = x1 - 20;
         SnapGuideHorizontal.Y1 = y;
         SnapGuideHorizontal.X2 = x2 + 20;
         SnapGuideHorizontal.Y2 = y;
@@ -767,6 +741,7 @@ public partial class CanvasView : UserControl
             var layer = AdornerLayer.GetAdornerLayer(presenter);
             if (layer != null)
             {
+                layer.ClipToBounds = false;
                 var adorner = new SelectionAdorner(presenter, selectedItem, ViewModel.UndoRedoService, () =>
                 {
                     if (selectedItem is GroupItemViewModel grp && Math.Abs(grp.Rotation) < 0.001) grp.RecalculateBounds();
@@ -791,6 +766,7 @@ public partial class CanvasView : UserControl
             var hostLayer = AdornerLayer.GetAdornerLayer(ItemsHost);
             if (hostLayer != null)
             {
+                hostLayer.ClipToBounds = false;
                 double? initialGroupRot = null;
                 if (_currentMultiAdorner != null && _currentMultiAdorner.Items.SequenceEqual(ViewModel.SelectedItems))
                 {
@@ -865,8 +841,8 @@ public partial class CanvasView : UserControl
             {
                 var preview = RoomTemplateGenerator.Generate(options);
                 Point p = e.GetPosition(CanvasSurface);
-                double gx = Math.Max(0, p.X - preview.RoomWidth / 2.0);
-                double gy = Math.Max(0, p.Y - preview.RoomHeight / 2.0);
+                double gx = p.X - preview.RoomWidth / 2.0;
+                double gy = p.Y - preview.RoomHeight / 2.0;
 
                 if (ViewModel?.SnapToGrid == true)
                 {
@@ -898,8 +874,8 @@ public partial class CanvasView : UserControl
             if (e.Data.GetData(typeof(StencilItem)) is StencilItem stencil)
             {
                 Point p = e.GetPosition(CanvasSurface);
-                double gx = Math.Max(0, p.X - stencil.DefaultWidth / 2.0);
-                double gy = Math.Max(0, p.Y - stencil.DefaultHeight / 2.0);
+                double gx = p.X - stencil.DefaultWidth / 2.0;
+                double gy = p.Y - stencil.DefaultHeight / 2.0;
 
                 if (ViewModel?.SnapToGrid == true)
                 {
@@ -934,8 +910,8 @@ public partial class CanvasView : UserControl
         {
             Point p = e.GetPosition(CanvasSurface);
             var preview = RoomTemplateGenerator.Generate(options);
-            double dropX = Math.Max(0, p.X - preview.RoomWidth / 2.0);
-            double dropY = Math.Max(0, p.Y - preview.RoomHeight / 2.0);
+            double dropX = p.X - preview.RoomWidth / 2.0;
+            double dropY = p.Y - preview.RoomHeight / 2.0;
 
             if (ViewModel.SnapToGrid)
             {
@@ -973,8 +949,8 @@ public partial class CanvasView : UserControl
         {
             Point p = e.GetPosition(CanvasSurface);
             var newItem = stencil.CreateItem();
-            double dropX = Math.Max(0, p.X - newItem.Width / 2.0);
-            double dropY = Math.Max(0, p.Y - newItem.Height / 2.0);
+            double dropX = p.X - newItem.Width / 2.0;
+            double dropY = p.Y - newItem.Height / 2.0;
 
             if (ViewModel.SnapToGrid)
             {
