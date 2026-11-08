@@ -1906,22 +1906,24 @@
 
                             <StackPanel Visibility="{Binding IsSolidFill, Converter={StaticResource BooleanToVisibilityConverter}}">
 
-                                <Grid Margin="0,0,0,4">
-
+                                                                <Grid Margin="0,0,0,4">
                                     <Grid.ColumnDefinitions>
-
                                         <ColumnDefinition Width="26"/>
-
                                         <ColumnDefinition Width="*"/>
-
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-
                                     <Border Grid.Column="0" Width="20" Height="20" CornerRadius="4" BorderBrush="#94A3B8" BorderThickness="1"
-
-                                            Background="{Binding FillColor1, Converter={StaticResource HexToBrushConverter}}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-
+                                            Background="{Binding FillColor1, Converter={StaticResource HexToBrushConverter}}" Margin="0,0,6,0" VerticalAlignment="Center"
+                                            Cursor="Hand" ToolTip="Click to pick from all 16.7 million colors (Color Spectrum)..."
+                                            PreviewMouseDown="OpenFillColorPicker_Click"/>
                                     <TextBox Grid.Column="1" Text="{Binding FillColor1, UpdateSourceTrigger=PropertyChanged}" LostFocus="FillTextBox_LostFocus" KeyDown="FillTextBox_KeyDown" VerticalAlignment="Center"/>
-
+                                    <Button Grid.Column="2" Click="OpenFillColorPicker_Click" Margin="4,0,0,0" Padding="6,1" Height="22" VerticalAlignment="Center"
+                                            ToolTip="Open Color Spectrum &amp; Picker Dialog (All 16.7M Colors)">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="🎨" FontSize="10" Margin="0,0,3,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="All Colors..." FontSize="9.5" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
                                 </Grid>
 
                                 <!-- Quick Swatches -->
@@ -2274,22 +2276,24 @@
 
                             <StackPanel Visibility="{Binding IsSolidStroke, Converter={StaticResource BooleanToVisibilityConverter}}">
 
-                                <Grid Margin="0,0,0,4">
-
+                                                                <Grid Margin="0,0,0,4">
                                     <Grid.ColumnDefinitions>
-
                                         <ColumnDefinition Width="26"/>
-
                                         <ColumnDefinition Width="*"/>
-
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-
                                     <Border Grid.Column="0" Width="20" Height="20" CornerRadius="4" BorderBrush="#94A3B8" BorderThickness="1"
-
-                                            Background="{Binding StrokeColor1, Converter={StaticResource HexToBrushConverter}}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-
+                                            Background="{Binding StrokeColor1, Converter={StaticResource HexToBrushConverter}}" Margin="0,0,6,0" VerticalAlignment="Center"
+                                            Cursor="Hand" ToolTip="Click to pick from all 16.7 million colors (Color Spectrum)..."
+                                            PreviewMouseDown="OpenStrokeColorPicker_Click"/>
                                     <TextBox Grid.Column="1" Text="{Binding StrokeColor1, UpdateSourceTrigger=PropertyChanged}" LostFocus="StrokeTextBox_LostFocus" KeyDown="StrokeTextBox_KeyDown" VerticalAlignment="Center"/>
-
+                                    <Button Grid.Column="2" Click="OpenStrokeColorPicker_Click" Margin="4,0,0,0" Padding="6,1" Height="22" VerticalAlignment="Center"
+                                            ToolTip="Open Color Spectrum &amp; Picker Dialog (All 16.7M Colors)">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="🎨" FontSize="10" Margin="0,0,3,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="All Colors..." FontSize="9.5" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
                                 </Grid>
 
                                 <!-- Quick Swatches for Stroke -->

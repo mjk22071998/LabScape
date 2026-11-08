@@ -94,4 +94,31 @@ public partial class PropertiesInspectorView : UserControl
         ViewModel.SelectedItem.CustomImagePath = null;
         ViewModel.SelectedItem.CustomImageData = null;
     }
+    private void OpenFillColorPicker_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel == null) return;
+        var dlg = new Dialogs.ColorPickerDialog(ViewModel.FillColor1)
+        {
+            Owner = Window.GetWindow(this)
+        };
+        if (dlg.ShowDialog() == true)
+        {
+            ViewModel.FillColor1 = dlg.SelectedColorHex;
+            ViewModel.ApplyFillChanges();
+        }
+    }
+
+    private void OpenStrokeColorPicker_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel == null) return;
+        var dlg = new Dialogs.ColorPickerDialog(ViewModel.StrokeColor1)
+        {
+            Owner = Window.GetWindow(this)
+        };
+        if (dlg.ShowDialog() == true)
+        {
+            ViewModel.StrokeColor1 = dlg.SelectedColorHex;
+            ViewModel.ApplyStrokeChanges();
+        }
+    }
 }

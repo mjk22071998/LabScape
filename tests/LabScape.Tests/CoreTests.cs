@@ -14023,4 +14023,34 @@ public class CoreTests
         Assert.Contains("AnchorablePaneControlStyle=\"{StaticResource AnchorablePaneControlStyle}\"", mainXaml);
         Assert.Contains("Background=\"{DynamicResource AppBackgroundBrush}\"", mainXaml);
     }
+    [Fact]
+    public void PropertiesViewModel_ExtendedColorPalette_And_AllColorsSpectrumSupport()
+    {
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo);
+        var props = new PropertiesViewModel(canvas);
+
+        // Verify extended palette with all color spectrum categories
+        Assert.True(props.AvailablePresetColors.Length >= 48, "Preset colors should provide rich variety across all hues");
+        Assert.Contains("#FFFFFF", props.AvailablePresetColors);
+        Assert.Contains("#000000", props.AvailablePresetColors);
+        Assert.Contains("#EF4444", props.AvailablePresetColors);
+        Assert.Contains("#10B981", props.AvailablePresetColors);
+        Assert.Contains("#3B82F6", props.AvailablePresetColors);
+        Assert.Contains("#1E40AF", props.AvailablePresetColors);
+        Assert.Contains("#F8FAFC", props.AvailablePresetColors);
+
+        // Verify custom hex can be assigned and applied to SVG devices and furniture
+        var dev = new DeviceItemViewModel(new DeviceItem { DeviceType = "desktop_pc" });
+        canvas.Items.Add(dev);
+        canvas.SelectItem(dev);
+
+        props.FillColor1 = "#A855F7";
+        props.ApplyFillChanges();
+        Assert.Equal("#A855F7", dev.Fill);
+
+        props.StrokeColor1 = "#581C87";
+        props.ApplyStrokeChanges();
+        Assert.Equal("#581C87", dev.Stroke);
+    }
 }

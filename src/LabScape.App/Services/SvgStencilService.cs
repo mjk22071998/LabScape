@@ -166,52 +166,94 @@ public static class SvgStencilService
 
     private static void RecolorDrawingGroup(DrawingGroup dg, Brush? fillBrush, Brush? strokeBrush, double thickness)
     {
-        // Extract secondary accent color from fillBrush if solid
-        Brush? accentBrush = null;
+        Brush? primaryBrush = fillBrush;
+        Brush? tintBrush = null;
+        Brush? shadeBrush = null;
+        Brush? screenBrush = null;
+
         if (fillBrush is SolidColorBrush scb)
         {
             var c = scb.Color;
-            float luminance = (0.299f * c.R + 0.587f * c.G + 0.114f * c.B) / 255f;
-            Color accentColor;
-            if (luminance > 0.5f)
-            {
-                accentColor = Color.FromRgb(
-                    (byte)Math.Max(0, c.R * 0.8),
-                    (byte)Math.Max(0, c.G * 0.8),
-                    (byte)Math.Max(0, c.B * 0.8));
-            }
-            else
-            {
-                accentColor = Color.FromRgb(
-                    (byte)Math.Min(255, c.R * 1.3 + 25),
-                    (byte)Math.Min(255, c.G * 1.3 + 25),
-                    (byte)Math.Min(255, c.B * 1.3 + 25));
-            }
-            var acc = new SolidColorBrush(accentColor);
-            acc.Freeze();
-            accentBrush = acc;
+            float lum = (0.299f * c.R + 0.587f * c.G + 0.114f * c.B) / 255f;
+
+            Color tintColor = lum > 0.5f
+                ? Color.FromRgb(
+                    (byte)Math.Max(0, c.R * 0.94),
+                    (byte)Math.Max(0, c.G * 0.94),
+                    (byte)Math.Max(0, c.B * 0.94))
+                : Color.FromRgb(
+                    (byte)Math.Min(255, c.R + (255 - c.R) * 0.28),
+                    (byte)Math.Min(255, c.G + (255 - c.G) * 0.28),
+                    (byte)Math.Min(255, c.B + (255 - c.B) * 0.28));
+
+            Color shadeColor = lum > 0.5f
+                ? Color.FromRgb(
+                    (byte)Math.Max(0, c.R * 0.82),
+                    (byte)Math.Max(0, c.G * 0.82),
+                    (byte)Math.Max(0, c.B * 0.82))
+                : Color.FromRgb(
+                    (byte)Math.Max(0, c.R * 0.65),
+                    (byte)Math.Max(0, c.G * 0.65),
+                    (byte)Math.Max(0, c.B * 0.65));
+
+            Color screenColor = lum > 0.5f
+                ? Color.FromRgb(15, 23, 42) // Deep tech screen glass (#0F172A)
+                : Color.FromRgb(
+                    (byte)Math.Min(255, c.R * 1.35 + 20),
+                    (byte)Math.Min(255, c.G * 1.35 + 20),
+                    (byte)Math.Min(255, c.B * 1.35 + 30));
+
+            var tb = new SolidColorBrush(tintColor); if (tb.CanFreeze) tb.Freeze(); tintBrush = tb;
+            var sb = new SolidColorBrush(shadeColor); if (sb.CanFreeze) sb.Freeze(); shadeBrush = sb;
+            var sc = new SolidColorBrush(screenColor); if (sc.CanFreeze) sc.Freeze(); screenBrush = sc;
         }
         else if (fillBrush is LinearGradientBrush lgb && lgb.GradientStops.Count > 1)
         {
             var acc = new SolidColorBrush(lgb.GradientStops[1].Color);
-            acc.Freeze();
-            accentBrush = acc;
+            if (acc.CanFreeze) acc.Freeze();
+            tintBrush = acc;
+            shadeBrush = acc;
         }
 
-        int geometryIndex = 0;
         foreach (var drawing in dg.Children)
         {
             if (drawing is GeometryDrawing gd)
             {
                 if (fillBrush != null && gd.Brush != null)
                 {
-                    if (geometryIndex == 0)
+                    if (gd.Brush is SolidColorBrush origScb)
                     {
-                        gd.Brush = fillBrush;
+                        var origC = origScb.Color;
+                        // Preserve small illuminated status LEDs (e.g. cyan/green LEDs)
+                        bool isStatusLed = origC.B > 220 && origC.R < 100 && origC.G > 150;
+
+                        if (!isStatusLed)
+                        {
+                            float origLum = (0.299f * origC.R + 0.587f * origC.G + 0.114f * origC.B) / 255f;
+
+                            if (origLum > 0.75f)
+                            {
+                                // Main body surface / keyboard / table top / chair cushion
+                                gd.Brush = primaryBrush;
+                            }
+                            else if (origLum >= 0.35f)
+                            {
+                                // Secondary panel, drawer, stand neck
+                                gd.Brush = tintBrush ?? primaryBrush;
+                            }
+                            else
+                            {
+                                // Screen or chassis shadow
+                                bool isScreenShape = gd.Geometry is PathGeometry || 
+                                                    (gd.Geometry is RectangleGeometry rg && rg.Rect.Height > 25 && rg.Rect.Width > 50);
+
+                                gd.Brush = isScreenShape ? (screenBrush ?? shadeBrush ?? primaryBrush) : (shadeBrush ?? primaryBrush);
+                            }
+                        }
                     }
                     else
                     {
-                        gd.Brush = accentBrush ?? fillBrush;
+                        gd.Brush = primaryBrush;
                     }
                 }
 
@@ -222,10 +264,10 @@ public static class SvgStencilService
 
                 if (thickness > 0 && gd.Pen != null)
                 {
-                    gd.Pen.Thickness = thickness;
+                    var bounds = gd.Geometry != null ? gd.Geometry.Bounds : Rect.Empty;
+                    bool isVeryThin = !bounds.IsEmpty && (bounds.Height <= 6.0 || bounds.Width <= 6.0);
+                    gd.Pen.Thickness = isVeryThin ? Math.Min(thickness, 1.25) : thickness;
                 }
-
-                geometryIndex++;
             }
             else if (drawing is DrawingGroup childGroup)
             {

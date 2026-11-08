@@ -741,17 +741,15 @@ public partial class PropertiesViewModel : ObservableObject
 
 
     public static readonly string[] PresetColors = new[]
-
     {
-
-        "#FFFFFF", "#F8FAFC", "#E2E8F0", "#94A3B8", "#475569", "#0F172A",
-
-        "#EF4444", "#F97316", "#F59E0B", "#EAB308", "#10B981", "#06B6D4",
-
-        "#3B82F6", "#6366F1", "#8B5CF6", "#A855F7", "#EC4899", "#F43F5E",
-
-        "#FEE2E2", "#FEF3C7", "#DCFCE7", "#E0E7FF", "#EDE9FE", "#FCE7F3"
-
+        // 1. Grayscale & Monochromes
+        "#FFFFFF", "#F8FAFC", "#E2E8F0", "#CBD5E1", "#94A3B8", "#64748B", "#475569", "#334155", "#1E293B", "#0F172A", "#000000",
+        // 2. Vivid Standard Hues
+        "#EF4444", "#F97316", "#F59E0B", "#EAB308", "#84CC16", "#10B981", "#14B8A6", "#06B6D4", "#0EA5E9", "#3B82F6", "#6366F1", "#8B5CF6", "#A855F7", "#D946EF", "#EC4899", "#F43F5E",
+        // 3. Rich Deep Shades
+        "#991B1B", "#9A3412", "#92400E", "#854D0E", "#3F6212", "#065F46", "#115E59", "#155E75", "#075985", "#1E40AF", "#3730A3", "#5B21B6", "#6B21A8", "#86198F", "#9D174D", "#9F1239",
+        // 4. Soft Pastels & Light Tints
+        "#FEE2E2", "#FFEDD5", "#FEF3C7", "#FEF9C3", "#ECFCCB", "#DCFCE7", "#CCFBF1", "#CFFAFE", "#E0F2FE", "#DBEAFE", "#E0E7FF", "#EDE9FE", "#F3E8FF", "#FAE8FF", "#FCE7F3", "#FFE4E6"
     };
 
     public string[] AvailablePresetColors => PresetColors;
