@@ -13941,7 +13941,7 @@ public class CoreTests
         Assert.True(undo.CanRedo);
     }
     [Fact]
-    public void Ribbon_HomeTab_Structure_ExcludesDuplicatePageSetupAndIntegratesRoomTemplatesIntoPanels()
+    public void Ribbon_TabStructure_HomeExcludesPageSetupAndPanels_ViewTabContainsPanelsAndTemplates()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         string? projectRoot = null;
@@ -13960,18 +13960,28 @@ public class CoreTests
 
         var homeTabIndex = xaml.IndexOf("<fluent:RibbonTabItem Header=\"Home\"");
         var pageLayoutTabIndex = xaml.IndexOf("<fluent:RibbonTabItem Header=\"Page Layout\"");
+        var viewTabIndex = xaml.IndexOf("<fluent:RibbonTabItem Header=\"View\"");
+        var arrangeTabIndex = xaml.IndexOf("<fluent:RibbonTabItem Header=\"Arrange\"");
+
         Assert.True(homeTabIndex >= 0 && pageLayoutTabIndex > homeTabIndex);
+        Assert.True(viewTabIndex > pageLayoutTabIndex && arrangeTabIndex > viewTabIndex);
 
+        // Home Tab: Excludes Page Setup, Templates, and Panels
         var homeTabContent = xaml.Substring(homeTabIndex, pageLayoutTabIndex - homeTabIndex);
-
         Assert.DoesNotContain("<fluent:RibbonGroupBox Header=\"Page Setup\"", homeTabContent);
         Assert.DoesNotContain("<fluent:RibbonGroupBox Header=\"Templates\"", homeTabContent);
+        Assert.DoesNotContain("<fluent:RibbonGroupBox Header=\"Panels\"", homeTabContent);
 
-        Assert.Contains("<fluent:RibbonGroupBox Header=\"Panels\">", homeTabContent);
-        Assert.Contains("Header=\"Room Templates\" Click=\"RoomGenerator_Click\"", homeTabContent);
-        Assert.Contains("Header=\"Stencils\" Click=\"OpenStencils_Click\"", homeTabContent);
-        Assert.Contains("Header=\"Properties\" Click=\"OpenProperties_Click\"", homeTabContent);
-        Assert.Contains("Header=\"Layers\" Click=\"OpenLayers_Click\"", homeTabContent);
+        // View Tab: Houses Panels & Templates
+        var viewTabContent = xaml.Substring(viewTabIndex, arrangeTabIndex - viewTabIndex);
+        Assert.Contains("<fluent:RibbonGroupBox Header=\"Panels\">", viewTabContent);
+        Assert.Contains("Header=\"Stencils\" Click=\"OpenStencils_Click\"", viewTabContent);
+        Assert.Contains("Header=\"Properties\" Click=\"OpenProperties_Click\"", viewTabContent);
+        Assert.Contains("Header=\"Layers\" Click=\"OpenLayers_Click\"", viewTabContent);
+        Assert.Contains("Header=\"Reset Layout\" Click=\"ResetLayout_Click\"", viewTabContent);
+
+        Assert.Contains("<fluent:RibbonGroupBox Header=\"Templates\">", viewTabContent);
+        Assert.Contains("Header=\"Room Template\" Click=\"RoomGenerator_Click\"", viewTabContent);
     }
     [Fact]
     public void DockingManager_Titlebars_And_Tabs_ThemeBlending_And_TopPlacement_Test()

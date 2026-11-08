@@ -169,29 +169,6 @@
                                    Icon="{StaticResource IconResetZoom}"/>
                 </fluent:RibbonGroupBox>
 
-                <!-- Tool Windows & Panels Management -->
-                <fluent:RibbonGroupBox Header="Panels">
-                    <fluent:Button Header="Stencils" Click="OpenStencils_Click"
-                                   ToolTip="Open and dock Stencils Library window"
-                                   Size="Middle"
-                                   Icon="{StaticResource IconStencils}"/>
-                    <fluent:Button Header="Room Templates" Click="RoomGenerator_Click"
-                                   ToolTip="Open and dock Room Templates panel"
-                                   Size="Middle"
-                                   Icon="{StaticResource IconRoomTemplate}"/>
-                    <fluent:Button Header="Properties" Click="OpenProperties_Click"
-                                   ToolTip="Open and dock Properties &amp; Inspector window (F4)"
-                                   Size="Middle"
-                                   Icon="{StaticResource IconInspect}"/>
-                    <fluent:Button Header="Layers" Click="OpenLayers_Click"
-                                   ToolTip="Open and dock Layers panel"
-                                   Size="Middle"
-                                   Icon="{StaticResource IconLayers}"/>
-                    <fluent:Button Header="Reset Layout" Click="ResetLayout_Click"
-                                   ToolTip="Reopen and dock all tool windows to default positions"
-                                   Size="Small"
-                                   Icon="{StaticResource IconResetZoom}"/>
-                </fluent:RibbonGroupBox>
 
                 <!-- Canvas Surface & Grid View -->
                 <fluent:RibbonGroupBox Header="Grid &amp; Guides">
@@ -340,7 +317,75 @@
                 </fluent:RibbonGroupBox>
             </fluent:RibbonTabItem>
 
-            <!-- 3. Arrange Tab (Grouping, Alignment & Layers) -->
+            <!-- 3. View Tab (Tool Windows, Panels, Templates, Canvas Display & Navigation) -->
+            <fluent:RibbonTabItem Header="View">
+                <!-- Tool Windows & Panels Management -->
+                <fluent:RibbonGroupBox Header="Panels">
+                    <fluent:Button Header="Stencils" Click="OpenStencils_Click"
+                                   ToolTip="Open and dock Stencils Library window"
+                                   Size="Middle"
+                                   Icon="{StaticResource IconStencils}"/>
+                    <fluent:Button Header="Properties" Click="OpenProperties_Click"
+                                   ToolTip="Open and dock Properties &amp; Inspector window (F4)"
+                                   Size="Middle"
+                                   Icon="{StaticResource IconInspect}"/>
+                    <fluent:Button Header="Layers" Click="OpenLayers_Click"
+                                   ToolTip="Open and dock Layers panel"
+                                   Size="Middle"
+                                   Icon="{StaticResource IconLayers}"/>
+                    <fluent:Button Header="Reset Layout" Click="ResetLayout_Click"
+                                   ToolTip="Reopen and dock all tool windows to default positions"
+                                   Size="Small"
+                                   Icon="{StaticResource IconResetZoom}"/>
+                </fluent:RibbonGroupBox>
+
+                <!-- Templates & Room Generator -->
+                <fluent:RibbonGroupBox Header="Templates">
+                    <fluent:Button Header="Room Template" Click="RoomGenerator_Click"
+                                   ToolTip="Open and dock Room Templates panel (neighbor of Stencils Library)"
+                                   Size="Large"
+                                   Icon="{StaticResource IconRoomTemplate}"
+                                   LargeIcon="{StaticResource IconRoomTemplate}"/>
+                </fluent:RibbonGroupBox>
+
+                <!-- Canvas Guides & Surface Group -->
+                <fluent:RibbonGroupBox Header="Grid &amp; Guides">
+                    <fluent:CheckBox Header="Show Grid" IsChecked="{Binding Canvas.ShowGrid}"
+                                     Icon="{StaticResource IconShowGrid}"/>
+                    <fluent:CheckBox Header="Snap to Grid" IsChecked="{Binding Canvas.SnapToGrid}"
+                                     Icon="{StaticResource IconSnapToGrid}"/>
+                    <fluent:CheckBox Header="Show Rulers" IsChecked="{Binding Canvas.ShowRulers}"
+                                     Icon="{StaticResource IconShowRulers}"/>
+                </fluent:RibbonGroupBox>
+
+                <!-- View & Zoom Navigation -->
+                <fluent:RibbonGroupBox Header="View &amp; Zoom">
+                    <fluent:Button Header="Zoom In" Command="{Binding Canvas.ZoomInCommand}" ToolTip="Zoom In (Ctrl++)"
+                                   Size="Small"
+                                   Icon="{StaticResource IconZoomIn}"/>
+                    <fluent:Button Header="Zoom Out" Command="{Binding Canvas.ZoomOutCommand}" ToolTip="Zoom Out (Ctrl+-)"
+                                   Size="Small"
+                                   Icon="{StaticResource IconZoomOut}"/>
+                    <fluent:Button Header="100%" Command="{Binding Canvas.ResetZoomCommand}" ToolTip="Reset Zoom (Ctrl+0)"
+                                   Size="Small"
+                                   Icon="{StaticResource IconResetZoom}"/>
+                    <fluent:Button Header="Fit Page" Command="{Binding Canvas.FitToPageCommand}" ToolTip="Fit Page"
+                                   Size="Small"
+                                   Icon="{StaticResource IconFitPage}"/>
+                </fluent:RibbonGroupBox>
+
+                <!-- Theme / Appearance -->
+                <fluent:RibbonGroupBox Header="Theme">
+                    <fluent:ToggleButton Header="Dark Theme"
+                                         IsChecked="{Binding ElementName=BtnDarkTheme, Path=IsChecked}"
+                                         Click="ThemeToggle_Click"
+                                         ToolTip="Toggle Light / Dark Theme (F8)"
+                                         Size="Middle"
+                                         Icon="{StaticResource IconThemeDark}"/>
+                </fluent:RibbonGroupBox>
+            </fluent:RibbonTabItem>
+
+            <!-- 4. Arrange Tab (Grouping, Alignment & Layers) -->
             <fluent:RibbonTabItem Header="Arrange">
                 <!-- Grouping & Hierarchy -->
                 <fluent:RibbonGroupBox Header="Grouping">
