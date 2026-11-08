@@ -245,115 +245,180 @@ public partial class CanvasView : UserControl
             double deltaX = canvasPos.X - _itemDragStart.X;
             double deltaY = canvasPos.Y - _itemDragStart.Y;
 
-            // Pick the primary dragged item for alignment snapping
-            var primary = _initialItemPositions.Keys.First();
-            var primaryStart = _initialItemPositions[primary];
+            // 1. Calculate collective union bounding box of all dragged items (accurately handles groups and multi-selection)
+            double initMinX = double.MaxValue;
+            double initMinY = double.MaxValue;
+            double initMaxX = double.MinValue;
+            double initMaxY = double.MinValue;
 
-            double targetPrimaryX;
-            double targetPrimaryY;
+            foreach (var (item, startPos) in _initialItemPositions)
+            {
+                if (item is GroupItemViewModel grp)
+                {
+                    grp.RecalculateBounds();
+                }
+
+                var (bMinX, bMinY, bMaxX, bMaxY) = GetItemBoundsAt(item, startPos.X, startPos.Y);
+                initMinX = Math.Min(initMinX, bMinX);
+                initMinY = Math.Min(initMinY, bMinY);
+                initMaxX = Math.Max(initMaxX, bMaxX);
+                initMaxY = Math.Max(initMaxY, bMaxY);
+            }
+
+            double pWidth = initMaxX - initMinX;
+            double pHeight = initMaxY - initMinY;
+
+            double snapDeltaX;
+            double snapDeltaY;
 
             if (ViewModel.SnapToGrid)
             {
-                // For lines, the center is aligned to grid, while X/Y has an offset of Width/2 or Height/2.
-                // Snapping the center preserves accurate grid alignment for both horizontal and rotated lines:
-                if (primary is ShapeItemViewModel { ShapeType: ShapeType.Line })
+                if (_initialItemPositions.Count == 1 && _initialItemPositions.Keys.First() is ShapeItemViewModel { ShapeType: ShapeType.Line } line)
                 {
-                    double primaryCenterX = primaryStart.X + primary.Width / 2.0 + deltaX;
-                    double primaryCenterY = primaryStart.Y + primary.Height / 2.0 + deltaY;
+                    var lineStart = _initialItemPositions[line];
+                    double primaryCenterX = lineStart.X + line.Width / 2.0 + deltaX;
+                    double primaryCenterY = lineStart.Y + line.Height / 2.0 + deltaY;
                     double snappedCenterX = Math.Round(primaryCenterX / ViewModel.GridSize) * ViewModel.GridSize;
                     double snappedCenterY = Math.Round(primaryCenterY / ViewModel.GridSize) * ViewModel.GridSize;
-                    targetPrimaryX = snappedCenterX - primary.Width / 2.0;
-                    targetPrimaryY = snappedCenterY - primary.Height / 2.0;
+                    snapDeltaX = snappedCenterX - line.Width / 2.0 - lineStart.X;
+                    snapDeltaY = snappedCenterY - line.Height / 2.0 - lineStart.Y;
                 }
                 else
                 {
-                    targetPrimaryX = Math.Round((primaryStart.X + deltaX) / ViewModel.GridSize) * ViewModel.GridSize;
-                    targetPrimaryY = Math.Round((primaryStart.Y + deltaY) / ViewModel.GridSize) * ViewModel.GridSize;
+                    double snappedX = Math.Round((initMinX + deltaX) / ViewModel.GridSize) * ViewModel.GridSize;
+                    double snappedY = Math.Round((initMinY + deltaY) / ViewModel.GridSize) * ViewModel.GridSize;
+                    snapDeltaX = snappedX - initMinX;
+                    snapDeltaY = snappedY - initMinY;
                 }
             }
             else
             {
-                targetPrimaryX = primaryStart.X + deltaX;
-                targetPrimaryY = primaryStart.Y + deltaY;
+                snapDeltaX = deltaX;
+                snapDeltaY = deltaY;
             }
 
-            // Magnetic Alignment Snapping against other canvas items (zero-allocation fast scan)
+            double pLeft = initMinX + snapDeltaX;
+            double pRight = pLeft + pWidth;
+            double pCenter = (pLeft + pRight) / 2.0;
+
+            double pTop = initMinY + snapDeltaY;
+            double pBottom = pTop + pHeight;
+            double pMiddle = (pTop + pBottom) / 2.0;
+
+            double targetPLeft = pLeft;
+            double targetPTop = pTop;
+
+            double effectiveTolerance = SnapTolerance / Math.Max(0.2, ViewModel.ZoomLevel);
+
             bool snapXFound = false;
+            double bestDistX = double.MaxValue;
+            double bestGuideX = 0;
+            double bestGuideY1 = 0;
+            double bestGuideY2 = 0;
+
             bool snapYFound = false;
-
-            double pLeft = targetPrimaryX;
-            double pCenter = targetPrimaryX + primary.Width / 2.0;
-            double pRight = targetPrimaryX + primary.Width;
-
-            double pTop = targetPrimaryY;
-            double pMiddle = targetPrimaryY + primary.Height / 2.0;
-            double pBottom = targetPrimaryY + primary.Height;
+            double bestDistY = double.MaxValue;
+            double bestGuideY = 0;
+            double bestGuideX1 = 0;
+            double bestGuideX2 = 0;
 
             foreach (var other in ViewModel.Items)
             {
                 if (_initialItemPositions.ContainsKey(other)) continue;
-                if (Math.Abs(other.X - targetPrimaryX) > 400 && Math.Abs(other.Y - targetPrimaryY) > 400) continue;
-                double oLeft = other.X;
-                double oCenter = other.X + other.Width / 2.0;
-                double oRight = other.X + other.Width;
+                if (!other.IsVisible) continue;
 
-                // X-axis alignment snaps
-                if (!snapXFound)
+                if (other is GroupItemViewModel otherGrp && (otherGrp.Width <= 10 || otherGrp.Height <= 10))
                 {
-                    if (Math.Abs(pLeft - oLeft) <= SnapTolerance)
+                    otherGrp.RecalculateBounds();
+                }
+
+                var (oLeft, oTop, oRight, oBottom) = GetItemBoundsAt(other, other.X, other.Y);
+                double oCenter = (oLeft + oRight) / 2.0;
+                double oMiddle = (oTop + oBottom) / 2.0;
+
+                // Box-to-box distance check: avoids skipping large groups while filtering out distant items
+                double boxDistX = Math.Max(0.0, Math.Max(pLeft - oRight, oLeft - pRight));
+                double boxDistY = Math.Max(0.0, Math.Max(pTop - oBottom, oTop - pBottom));
+                if (boxDistX > 1000 && boxDistY > 1000) continue;
+
+                // X-axis alignment snaps (all 9 combinations: Left, Center, Right vs Left, Center, Right of group/item)
+                var xSnaps = new (double PCoord, double OCoord, double SnappedLeft, double GuideX)[]
+                {
+                    (pLeft, oLeft, oLeft, oLeft),
+                    (pLeft, oCenter, oCenter, oCenter),
+                    (pLeft, oRight, oRight, oRight),
+                    (pCenter, oLeft, oLeft - pWidth / 2.0, oLeft),
+                    (pCenter, oCenter, oCenter - pWidth / 2.0, oCenter),
+                    (pCenter, oRight, oRight - pWidth / 2.0, oRight),
+                    (pRight, oLeft, oLeft - pWidth, oLeft),
+                    (pRight, oCenter, oCenter - pWidth, oCenter),
+                    (pRight, oRight, oRight - pWidth, oRight),
+                };
+
+                foreach (var (pCoord, oCoord, snappedLeft, guideX) in xSnaps)
+                {
+                    double d = Math.Abs(pCoord - oCoord);
+                    if (d <= effectiveTolerance && d < bestDistX)
                     {
-                        targetPrimaryX = oLeft;
-                        ShowVerticalGuide(oLeft, Math.Min(targetPrimaryY, other.Y), Math.Max(pBottom, other.Y + other.Height));
-                        snapXFound = true;
-                    }
-                    else if (Math.Abs(pCenter - oCenter) <= SnapTolerance)
-                    {
-                        targetPrimaryX = oCenter - primary.Width / 2.0;
-                        ShowVerticalGuide(oCenter, Math.Min(targetPrimaryY, other.Y), Math.Max(pBottom, other.Y + other.Height));
-                        snapXFound = true;
-                    }
-                    else if (Math.Abs(pRight - oRight) <= SnapTolerance)
-                    {
-                        targetPrimaryX = oRight - primary.Width;
-                        ShowVerticalGuide(oRight, Math.Min(targetPrimaryY, other.Y), Math.Max(pBottom, other.Y + other.Height));
+                        bestDistX = d;
+                        targetPLeft = snappedLeft;
+                        bestGuideX = guideX;
+                        bestGuideY1 = Math.Min(pTop, oTop);
+                        bestGuideY2 = Math.Max(pBottom, oBottom);
                         snapXFound = true;
                     }
                 }
 
-                // Y-axis alignment snaps
-                double oTop = other.Y;
-                double oMiddle = other.Y + other.Height / 2.0;
-                double oBottom = other.Y + other.Height;
-
-                if (!snapYFound)
+                // Y-axis alignment snaps (all 9 combinations: Top, Middle, Bottom vs Top, Middle, Bottom of group/item)
+                var ySnaps = new (double PCoord, double OCoord, double SnappedTop, double GuideY)[]
                 {
-                    if (Math.Abs(pTop - oTop) <= SnapTolerance)
+                    (pTop, oTop, oTop, oTop),
+                    (pTop, oMiddle, oMiddle, oMiddle),
+                    (pTop, oBottom, oBottom, oBottom),
+                    (pMiddle, oTop, oTop - pHeight / 2.0, oTop),
+                    (pMiddle, oMiddle, oMiddle - pHeight / 2.0, oMiddle),
+                    (pMiddle, oBottom, oBottom - pHeight / 2.0, oBottom),
+                    (pBottom, oTop, oTop - pHeight, oTop),
+                    (pBottom, oMiddle, oMiddle - pHeight, oMiddle),
+                    (pBottom, oBottom, oBottom - pHeight, oBottom),
+                };
+
+                foreach (var (pCoord, oCoord, snappedTop, guideY) in ySnaps)
+                {
+                    double d = Math.Abs(pCoord - oCoord);
+                    if (d <= effectiveTolerance && d < bestDistY)
                     {
-                        targetPrimaryY = oTop;
-                        ShowHorizontalGuide(oTop, Math.Min(targetPrimaryX, other.X), Math.Max(pRight, other.X + other.Width));
-                        snapYFound = true;
-                    }
-                    else if (Math.Abs(pMiddle - oMiddle) <= SnapTolerance)
-                    {
-                        targetPrimaryY = oMiddle - primary.Height / 2.0;
-                        ShowHorizontalGuide(oMiddle, Math.Min(targetPrimaryX, other.X), Math.Max(pRight, other.X + other.Width));
-                        snapYFound = true;
-                    }
-                    else if (Math.Abs(pBottom - oBottom) <= SnapTolerance)
-                    {
-                        targetPrimaryY = oBottom - primary.Height;
-                        ShowHorizontalGuide(oBottom, Math.Min(targetPrimaryX, other.X), Math.Max(pRight, other.X + other.Width));
+                        bestDistY = d;
+                        targetPTop = snappedTop;
+                        bestGuideY = guideY;
+                        bestGuideX1 = Math.Min(pLeft, oLeft);
+                        bestGuideX2 = Math.Max(pRight, oRight);
                         snapYFound = true;
                     }
                 }
             }
 
-            if (!snapXFound) SnapGuideVertical.Visibility = Visibility.Collapsed;
-            if (!snapYFound) SnapGuideHorizontal.Visibility = Visibility.Collapsed;
+            if (snapXFound)
+            {
+                ShowVerticalGuide(bestGuideX, bestGuideY1, bestGuideY2);
+            }
+            else
+            {
+                SnapGuideVertical.Visibility = Visibility.Collapsed;
+            }
 
-            // Apply calculated offset to all selected items
-            double finalDeltaX = targetPrimaryX - primaryStart.X;
-            double finalDeltaY = targetPrimaryY - primaryStart.Y;
+            if (snapYFound)
+            {
+                ShowHorizontalGuide(bestGuideY, bestGuideX1, bestGuideX2);
+            }
+            else
+            {
+                SnapGuideHorizontal.Visibility = Visibility.Collapsed;
+            }
+
+            // Apply calculated offset to all selected items uniformly
+            double finalDeltaX = targetPLeft - initMinX;
+            double finalDeltaY = targetPTop - initMinY;
 
             foreach (var (item, startPos) in _initialItemPositions)
             {
@@ -372,6 +437,28 @@ public partial class CanvasView : UserControl
                 }
             }
         }
+    }
+
+    private static (double MinX, double MinY, double MaxX, double MaxY) GetItemBoundsAt(ItemViewModel item, double startX, double startY)
+    {
+        double w = item.Width;
+        double h = item.Height;
+        if (Math.Abs(item.Rotation) < 0.001)
+        {
+            return (startX, startY, startX + w, startY + h);
+        }
+
+        double rad = item.Rotation * Math.PI / 180.0;
+        double cos = Math.Abs(Math.Cos(rad));
+        double sin = Math.Abs(Math.Sin(rad));
+
+        double cx = startX + w / 2.0;
+        double cy = startY + h / 2.0;
+
+        double extX = (w / 2.0) * cos + (h / 2.0) * sin;
+        double extY = (w / 2.0) * sin + (h / 2.0) * cos;
+
+        return (cx - extX, cy - extY, cx + extX, cy + extY);
     }
 
     private void ShowVerticalGuide(double x, double y1, double y2)
@@ -605,6 +692,10 @@ public partial class CanvasView : UserControl
         if (ViewModel == null) return;
 
         ItemViewModel targetItem = FindRootItem(itemVm);
+        if (targetItem is GroupItemViewModel targetGrp)
+        {
+            targetGrp.RecalculateBounds();
+        }
 
         if (e.RightButton == MouseButtonState.Pressed)
         {

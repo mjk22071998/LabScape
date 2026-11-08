@@ -1385,11 +1385,30 @@ public class SelectionAdorner : Adorner
             foreach (var other in others)
             {
                 if (other == _item) continue;
-                if (Math.Abs(other.X - candX) > 600 && Math.Abs(other.Y - curTop) > 600) continue;
 
                 double oLeft = other.X;
-                double oCenter = other.X + other.Width / 2.0;
                 double oRight = other.X + other.Width;
+                double oTop = other.Y;
+                double oBottom = other.Y + other.Height;
+
+                if (other is GroupItemViewModel grp && (grp.Width <= 10 || grp.Height <= 10))
+                {
+                    grp.RecalculateBounds();
+                    oLeft = grp.X; oRight = grp.X + grp.Width;
+                    oTop = grp.Y; oBottom = grp.Y + grp.Height;
+                }
+
+                if (Math.Abs(other.Rotation) > 0.001)
+                {
+                    var (bMinX, bMinY, bMaxX, bMaxY) = GroupItemViewModel.GetVisualBounds(other);
+                    oLeft = bMinX; oTop = bMinY; oRight = bMaxX; oBottom = bMaxY;
+                }
+
+                double boxDistX = Math.Max(0.0, Math.Max(candX - oRight, oLeft - candX));
+                double boxDistY = Math.Max(0.0, Math.Max(curTop - oBottom, oTop - curBottom));
+                if (boxDistX > 1000 && boxDistY > 1000) continue;
+
+                double oCenter = (oLeft + oRight) / 2.0;
 
                 double dLeft = Math.Abs(candX - oLeft);
                 if (dLeft <= snapTolerance && dLeft < bestDistX) { bestDistX = dLeft; bestTargetX = oLeft; bestOtherX = other; }
@@ -1442,11 +1461,30 @@ public class SelectionAdorner : Adorner
             foreach (var other in others)
             {
                 if (other == _item) continue;
-                if (Math.Abs(other.Y - candY) > 600 && Math.Abs(other.X - curLeft) > 600) continue;
 
+                double oLeft = other.X;
+                double oRight = other.X + other.Width;
                 double oTop = other.Y;
-                double oMiddle = other.Y + other.Height / 2.0;
                 double oBottom = other.Y + other.Height;
+
+                if (other is GroupItemViewModel grp && (grp.Width <= 10 || grp.Height <= 10))
+                {
+                    grp.RecalculateBounds();
+                    oLeft = grp.X; oRight = grp.X + grp.Width;
+                    oTop = grp.Y; oBottom = grp.Y + grp.Height;
+                }
+
+                if (Math.Abs(other.Rotation) > 0.001)
+                {
+                    var (bMinX, bMinY, bMaxX, bMaxY) = GroupItemViewModel.GetVisualBounds(other);
+                    oLeft = bMinX; oTop = bMinY; oRight = bMaxX; oBottom = bMaxY;
+                }
+
+                double boxDistX = Math.Max(0.0, Math.Max(curLeft - oRight, oLeft - curRight));
+                double boxDistY = Math.Max(0.0, Math.Max(candY - oBottom, oTop - candY));
+                if (boxDistX > 1000 && boxDistY > 1000) continue;
+
+                double oMiddle = (oTop + oBottom) / 2.0;
 
                 double dTop = Math.Abs(candY - oTop);
                 if (dTop <= snapTolerance && dTop < bestDistY) { bestDistY = dTop; bestTargetY = oTop; bestOtherY = other; }

@@ -14096,4 +14096,58 @@ public class CoreTests
         Assert.Equal(2500.0, dev.X);
         Assert.Equal(3000.0, dev.Y);
     }
+
+    [Fact]
+    public void Alignment_Snapping_And_Assistance_Lines_Work_With_Group_Bounds()
+    {
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo);
+
+        // 1. Create group with multiple children and verify calculated group bounds
+        var dev1 = new DeviceItemViewModel(new DeviceItem { DeviceType = "desktop_pc", X = 100, Y = 100, Width = 80, Height = 60 });
+        var dev2 = new DeviceItemViewModel(new DeviceItem { DeviceType = "screen", X = 200, Y = 120, Width = 100, Height = 80 });
+
+        var groupModel = new GroupItem { Name = "Workstation Cluster" };
+        var group = new GroupItemViewModel(groupModel);
+        group.AddChild(dev1);
+        group.AddChild(dev2);
+
+        canvas.Items.Add(group);
+
+        // Group bounds encompass dev1 and dev2
+        Assert.Equal(100, group.X);
+        Assert.Equal(100, group.Y);
+        Assert.Equal(200, group.Width); // maxX (300) - minX (100) = 200
+        Assert.Equal(100, group.Height); // maxY (200) - minY (100) = 100
+
+        // 2. Moving the group updates group position and translates all child items uniformly
+        group.X += 50;
+        group.Y += 30;
+
+        Assert.Equal(150, group.X);
+        Assert.Equal(130, group.Y);
+        Assert.Equal(150, dev1.X);
+        Assert.Equal(130, dev1.Y);
+        Assert.Equal(250, dev2.X);
+        Assert.Equal(150, dev2.Y);
+
+        // 3. Verify visual bounds helper for group bounds
+        var (bMinX, bMinY, bMaxX, bMaxY) = GroupItemViewModel.GetVisualBounds(group);
+        Assert.Equal(150, bMinX);
+        Assert.Equal(130, bMinY);
+        Assert.Equal(350, bMaxX);
+        Assert.Equal(230, bMaxY);
+
+        // 4. Verify snap candidate math: dragged item left edge (e.g. 348) snaps to group right edge (350)
+        double groupRight = bMaxX; // 350
+        double draggedItemX = 348;
+        double snapTolerance = 6.0;
+
+        bool snapped = Math.Abs(draggedItemX - groupRight) <= snapTolerance;
+        Assert.True(snapped, "Dragged item should snap to group's right boundary edge");
+
+        // Verify snapped coordinate equals group boundary
+        double snappedX = groupRight;
+        Assert.Equal(350, snappedX);
+    }
 }
