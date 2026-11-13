@@ -261,4 +261,6 @@ stateDiagram-v2
 | **Data Integrity** | Multi-level Undo/Redo and collision-proof JSON export. | GoF Command Pattern stack + hard export validation blocking. |
 
 ---
+*For the exhaustive log of individual architectural decisions, technical trade-offs, and rejected alternatives, see [Technical Decision Records (DECISIONS.md)](DECISIONS.md).*
+
 *End of Architectural Specification.*

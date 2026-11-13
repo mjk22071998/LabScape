@@ -244,6 +244,7 @@ LabScape uses a standardized, human-readable JSON schema (Draft 2020-12) for lay
 
 Detailed engineering documentation is located in the [`docs/`](docs/) directory:
 * [Architecture Guidelines (ARCHITECTURE.md)](docs/ARCHITECTURE.md) — Architectural paradigms, MVVM evaluation, and layering boundaries.
+* [Technical Decision Records (DECISIONS.md)](docs/DECISIONS.md) — Exhaustive catalog of 35+ architecture, engineering, and design decisions with technical rationale and rejected alternatives.
 * [System Requirements Specification (SRS.md)](docs/SRS.md) — Comprehensive functional, UX, performance, and security requirements.
 * [Software Design Description (SDD.md)](docs/SDD.md) — Low-level design, class diagrams, adorner math, and database schemas.
 * [Implementation Roadmap (ROADMAP.md)](docs/ROADMAP.md) — Milestone breakdown, verification criteria, and quality gates.
