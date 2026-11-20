@@ -4,7 +4,7 @@
 [![Framework](https://img.shields.io/badge/Framework-.NET%2010.0%20%7C%20WPF-512BD4.svg?style=flat-square)](https://dotnet.microsoft.com/)
 [![Architecture](https://img.shields.io/badge/Architecture-Clean%20%7C%20MVVM-0078D4.svg?style=flat-square)](docs/ARCHITECTURE.md)
 [![UI Style](https://img.shields.io/badge/UI-Fluent%20Ribbon%20%7C%20Office%20Visio%20CAD-00B7C3.svg?style=flat-square)](src/LabScape.App/Resources/Icons.xaml)
-[![Unit Tests](https://img.shields.io/badge/Tests-101%20Passed-success.svg?style=flat-square)](tests/LabScape.Tests)
+[![Unit Tests](https://img.shields.io/badge/Tests-103%20Passed-success.svg?style=flat-square)](tests/LabScape.Tests)
 [![Data Contract](https://img.shields.io/badge/Schema-JSON%20Schema%202020--12-orange.svg?style=flat-square)](docs/SCHEMA.md)
 
 **LabScape** is a professional, high-performance CAD layout and floorplan drafting application engineered specifically for IT computer laboratories, server rooms, network operations centers (NOC), and modular workstation facilities.
@@ -15,19 +15,23 @@ Combining the familiar ergonomics of **Microsoft Office & Microsoft Visio** with
 
 ## 📸 Screenshots & Visual Overview
 
-### Primary Workspace (Dark Theme)
-![LabScape Dark Theme Workspace](docs/images/labscape-main-dark.png)
+### Nocturne Dark Theme — Warm Obsidian & Luminous Mint Sage
+*High-contrast architectural dark mode featuring deep obsidian basalt (`#0F1413`), warm charcoal studio panels, and luminous mint sage accents designed for extended drafting sessions.*
+![LabScape Nocturne Dark Theme Workspace](docs/images/labscape-main-dark.png)
 
-### Modern Precision Workspace (Light Theme)
-![LabScape Light Theme Workspace](docs/images/labscape-main-light.png)
+### Arcline Light Theme — Scandinavian Interior Architecture Studio
+*Warm architectural studio aesthetic inspired by Arcline Scandinavian interior design — crafted with limestone cotton vellum (`#FAF8F4`), deep forest spruce accents (`#1A4D45`), natural oak ochre (`#C89B3C`), and terracotta highlights.*
+![LabScape Arcline Light Theme Workspace](docs/images/labscape-main-light.png)
 
 <details>
 <summary><b>🔍 View More Screenshots (Room Templates Catalog &amp; Size Assist Engine)</b></summary>
 
-#### Parametric Room Templates Catalog &amp; 2D Previews
+#### Parametric Room Templates Catalog &amp; 2D CAD Blueprints
+*Dockable visual room catalog with real-time vector previews for 4-wall labs, 3-wall collaborative studios, L-corners, and modular computer stations.*
 ![Parametric Room Templates Catalog](docs/images/labscape-room-templates.png)
 
 #### Equal Size Assistance &amp; Magnetic Snapping (Visio / Draw.io Style)
+*Smart dynamic alignment guides, equal spacing indicators, and size matching hints across individual items and composite groups.*
 ![Equal Size Assistance & Snapping](docs/images/labscape-size-assist.png)
 
 </details>
@@ -120,7 +124,7 @@ flowchart TD
 | **`LabScape.ViewModels`** | `net10.0` | Presentation logic, state management, undo/redo command stack, and room generator algorithms powered by `CommunityToolkit.Mvvm`. |
 | **`LabScape.App`** | `net10.0-windows` | Desktop application shell, `Fluent.Ribbon` window, `AvalonDock` workspaces, custom vector drawing dictionaries, and interactive adorners. |
 | **`LabScape.Setup`** | `net10.0-windows` | Lightweight standalone self-extracting installer and desktop deployment package. |
-| **`LabScape.Tests`** | `net10.0` | Comprehensive xUnit test suite (100 unit tests) validating spatial math, MVVM state, algorithms, and schema compatibility. |
+| **`LabScape.Tests`** | `net10.0` | Comprehensive xUnit test suite (103 unit tests) validating spatial math, MVVM state, algorithms, and schema compatibility. |
 
 ---
 
