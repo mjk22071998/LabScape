@@ -52,7 +52,7 @@ public static class ThemeService
             // 1. Fluent.Ribbon theme
             try
             {
-                ThemeManager.Current.ChangeTheme(app, isDark ? "Dark.Cobalt" : "Light.Cobalt");
+                ThemeManager.Current.ChangeTheme(app, isDark ? "Dark.Emerald" : "Light.Emerald");
             }
             catch
             {

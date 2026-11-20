@@ -9,6 +9,7 @@
                       mc:Ignorable="d"
                       Title="{Binding WindowTitle}" Height="800" Width="1200"
                       WindowStartupLocation="CenterScreen"
+                      Background="{DynamicResource AppBackgroundBrush}"
                       PreviewKeyDown="Window_PreviewKeyDown"
                       RenderOptions.BitmapScalingMode="HighQuality"
                       RenderOptions.ClearTypeHint="Enabled"
@@ -66,11 +67,11 @@
         <!-- ==================================================== -->
         <!-- 1. OFFICE FLUENT RIBBON                              -->
         <!-- ==================================================== -->
-        <fluent:Ribbon Grid.Row="0">
+        <fluent:Ribbon Grid.Row="0" Foreground="{DynamicResource AppTextPrimaryBrush}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="0,0,0,1">
 
             <!-- Office Window TitleBar Integration -->
             <fluent:Ribbon.TitleBar>
-                <fluent:RibbonTitleBar Header="{Binding WindowTitle}"/>
+                <fluent:RibbonTitleBar Header="{Binding WindowTitle}" Foreground="{DynamicResource AppTextPrimaryBrush}"/>
             </fluent:Ribbon.TitleBar>
 
             <!-- Backstage / Application Menu -->
@@ -488,6 +489,8 @@
         <!-- ==================================================== -->
         <dock:DockingManager Grid.Row="1" x:Name="DockManager"
                              Background="{DynamicResource AppBackgroundBrush}"
+                             BorderBrush="{DynamicResource AppBorderBrush}"
+                             BorderThickness="0"
                              AnchorableHeaderTemplate="{StaticResource AvalonDockAnchorableHeaderTemplate}"
                              AnchorableTitleTemplate="{StaticResource AvalonDockAnchorableTitleTemplate}"
                              AnchorablePaneControlStyle="{StaticResource AnchorablePaneControlStyle}">

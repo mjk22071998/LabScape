@@ -110,6 +110,8 @@ public partial class MainWindow : RibbonWindow
 
 
             UpdateThemeToggleState();
+            UpdateDockManagerStyles();
+            LayoutUpdated += (s, e) => UpdateDockManagerStyles();
 
             Services.ThemeService.ThemeChanged += OnThemeChanged;
 
@@ -1614,11 +1616,37 @@ public partial class MainWindow : RibbonWindow
 
 
     private void OnThemeChanged(bool isDark)
-
     {
-
         UpdateThemeToggleState();
+        UpdateDockManagerStyles();
+    }
 
+    private void UpdateDockManagerStyles()
+    {
+        if (DockManager == null) return;
+        var canvasBg = TryFindResource("CanvasWorkspaceBackgroundBrush") as System.Windows.Media.Brush;
+        foreach (var b in FindVisualChildren<Border>(DockManager))
+        {
+            if (b.Name == "ContentPanel")
+            {
+                b.BorderThickness = new Thickness(0);
+                b.BorderBrush = System.Windows.Media.Brushes.Transparent;
+                if (canvasBg != null) b.Background = canvasBg;
+            }
+        }
+    }
+
+    private static System.Collections.Generic.IEnumerable<T> FindVisualChildren<T>(DependencyObject parent) where T : DependencyObject
+    {
+        for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent); i++)
+        {
+            var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+            if (child is T typedChild) yield return typedChild;
+            foreach (var descendant in FindVisualChildren<T>(child))
+            {
+                yield return descendant;
+            }
+        }
     }
 
 
