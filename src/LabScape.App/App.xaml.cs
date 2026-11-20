@@ -26,6 +26,7 @@ public partial class App : Application
             Services.GpuRenderingService.Initialize();
             Services.ThemeService.Initialize();
             PropertiesViewModel.StencilColorsProvider = Services.SvgStencilService.GetStencilColors;
+            PropertiesViewModel.ItemColorsProvider = Services.SvgStencilService.GetItemColors;
         }
         catch
         {

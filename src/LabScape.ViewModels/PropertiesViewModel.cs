@@ -908,6 +908,8 @@ public partial class PropertiesViewModel : ObservableObject
 
     public static Func<string?, IReadOnlyList<string>>? StencilColorsProvider { get; set; }
 
+    public static Func<string?, string?, string?, IReadOnlyList<string>>? ItemColorsProvider { get; set; }
+
     public ObservableCollection<SvgColorEntryViewModel> SvgColors { get; } = new();
 
     [ObservableProperty]
@@ -962,6 +964,52 @@ public partial class PropertiesViewModel : ObservableObject
         _canvasViewModel.SelectedItems.CollectionChanged += _selectionHandler;
 
         _canvasViewModel.PropertyChanged += OnCanvasPropertyChanged;
+
+        UpdateSelection();
+
+        NotifyCanvasPropertiesChanged();
+
+    }
+
+
+
+    public void DetachCanvas()
+
+    {
+
+        if (_canvasViewModel != null && _selectionHandler != null)
+
+        {
+
+            _canvasViewModel.SelectedItems.CollectionChanged -= _selectionHandler;
+
+            _selectionHandler = null;
+
+        }
+
+
+
+        if (_canvasViewModel != null)
+
+        {
+
+            _canvasViewModel.PropertyChanged -= OnCanvasPropertyChanged;
+
+            _canvasViewModel = null;
+
+        }
+
+
+
+        if (SelectedItem != null)
+
+        {
+
+            SelectedItem.PropertyChanged -= OnSelectedItemPropertyChanged;
+
+        }
+
+
 
         UpdateSelection();
 
@@ -2779,7 +2827,9 @@ public partial class PropertiesViewModel : ObservableObject
             return;
         }
 
-        var colors = StencilColorsProvider?.Invoke(stencilType) ?? Array.Empty<string>();
+        var colors = ItemColorsProvider?.Invoke(stencilType, SelectedItem.CustomImagePath, SelectedItem.CustomImageData)
+            ?? StencilColorsProvider?.Invoke(stencilType)
+            ?? Array.Empty<string>();
         if (colors.Count == 0)
         {
             HasSvgColors = false;

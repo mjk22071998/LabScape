@@ -69,7 +69,7 @@ public partial class PropertiesInspectorView : UserControl
         var ofd = new Microsoft.Win32.OpenFileDialog
         {
             Title = "Attach Custom Image",
-            Filter = "Image Files (*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp|All Files (*.*)|*.*",
+            Filter = "Vector & Image Files (*.svg;*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp)|*.svg;*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp|SVG Files (*.svg)|*.svg|Raster Images (*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp|All Files (*.*)|*.*",
             CheckFileExists = true
         };
 

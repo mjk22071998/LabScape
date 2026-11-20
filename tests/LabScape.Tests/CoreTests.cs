@@ -14437,4 +14437,41 @@ public class CoreTests
         Assert.Null(testDevice.SvgColorMap);
         Assert.All(propsVm.SvgColors, c => Assert.False(c.IsCustomized));
     }
+
+    [Fact]
+    public void PropertiesViewModel_DetachCanvas_And_ItemColorsProvider_Verified()
+    {
+        var undoRedoService = new UndoRedoService();
+        var canvasVm = new CanvasViewModel(undoRedoService);
+        var dev = new DeviceItemViewModel(new DeviceItem
+        {
+            DeviceType = "custom_sensor",
+            Name = "Sensor 1",
+            CustomImageData = "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IGZpbGw9IiMxMTIyMzMiLz48L3N2Zz4="
+        });
+
+        canvasVm.AddItem(dev);
+        canvasVm.SelectedItems.Add(dev);
+
+        PropertiesViewModel.ItemColorsProvider = (type, path, data) =>
+        {
+            if (!string.IsNullOrEmpty(data))
+            {
+                byte[] raw = Convert.FromBase64String(data);
+                string text = System.Text.Encoding.UTF8.GetString(raw);
+                if (text.Contains("#112233")) return new[] { "#112233" };
+            }
+            return Array.Empty<string>();
+        };
+
+        var propsVm = new PropertiesViewModel(canvasVm);
+        Assert.True(propsVm.HasSvgColors);
+        Assert.Single(propsVm.SvgColors);
+        Assert.Equal("#112233", propsVm.SvgColors[0].OriginalColor);
+
+        propsVm.DetachCanvas();
+        Assert.Null(propsVm.Canvas);
+        Assert.False(propsVm.HasSelection);
+        Assert.Null(propsVm.SelectedItem);
+    }
 }

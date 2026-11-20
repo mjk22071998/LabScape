@@ -83,6 +83,25 @@ public static class SvgStencilService
                 }
 
                 byte[] bytes = System.Convert.FromBase64String(base64);
+
+                // Check if the decoded base64 payload is actually an SVG document
+                string decodedUtf8 = System.Text.Encoding.UTF8.GetString(bytes);
+                if (decodedUtf8.TrimStart().StartsWith("<svg", StringComparison.OrdinalIgnoreCase) || decodedUtf8.Contains("<svg "))
+                {
+                    var dg = ParseSvg(decodedUtf8);
+                    if (dg != null)
+                    {
+                        if (colorMap != null && colorMap.Count > 0)
+                        {
+                            RecolorDrawingGroup(dg, null, null, 0, colorMap);
+                        }
+                        var di = new DrawingImage(dg);
+                        if (di.CanFreeze && !di.IsFrozen) di.Freeze();
+                        _customImageCache[cacheKey] = di;
+                        return di;
+                    }
+                }
+
                 using var ms = new MemoryStream(bytes);
                 var bi = new BitmapImage();
                 bi.BeginInit();
@@ -198,7 +217,7 @@ public static class SvgStencilService
             catch { }
         }
 
-        if (!string.IsNullOrWhiteSpace(customData) && (customData.Contains("<svg") || customData.Contains("svg+xml")))
+        if (!string.IsNullOrWhiteSpace(customData))
         {
             try
             {
@@ -212,12 +231,30 @@ public static class SvgStencilService
                 {
                     text = Uri.UnescapeDataString(text.Substring("data:image/svg+xml;utf8,".Length));
                 }
-
-                var dg = ParseSvg(text);
-                if (dg != null)
+                else if (!text.TrimStart().StartsWith("<svg", StringComparison.OrdinalIgnoreCase) && !text.Contains("<svg "))
                 {
-                    CollectColorsFromDrawingGroup(dg, colors, seen);
-                    return colors;
+                    int commaIdx = text.IndexOf(',');
+                    string b64 = commaIdx >= 0 ? text.Substring(commaIdx + 1) : text;
+                    try
+                    {
+                        byte[] raw = Convert.FromBase64String(b64);
+                        string candidate = System.Text.Encoding.UTF8.GetString(raw);
+                        if (candidate.TrimStart().StartsWith("<svg", StringComparison.OrdinalIgnoreCase) || candidate.Contains("<svg "))
+                        {
+                            text = candidate;
+                        }
+                    }
+                    catch { }
+                }
+
+                if (text.TrimStart().StartsWith("<svg", StringComparison.OrdinalIgnoreCase) || text.Contains("<svg "))
+                {
+                    var dg = ParseSvg(text);
+                    if (dg != null)
+                    {
+                        CollectColorsFromDrawingGroup(dg, colors, seen);
+                        return colors;
+                    }
                 }
             }
             catch { }
@@ -492,7 +529,7 @@ public static class SvgStencilService
                     if (w > 0 && h > 0)
                     {
                         var geom = new RectangleGeometry(new Rect(x, y, w, h), rx, ry);
-                        dg.Children.Add(new GeometryDrawing(ParseSvgBrush(GetAttr(el, "fill")), ParseSvgPen(el), geom));
+                        dg.Children.Add(new GeometryDrawing(ParseSvgBrush(el), ParseSvgPen(el), geom));
                     }
                     break;
                 }
@@ -504,7 +541,7 @@ public static class SvgStencilService
                     if (r > 0)
                     {
                         var geom = new EllipseGeometry(new Point(cx, cy), r, r);
-                        dg.Children.Add(new GeometryDrawing(ParseSvgBrush(GetAttr(el, "fill")), ParseSvgPen(el), geom));
+                        dg.Children.Add(new GeometryDrawing(ParseSvgBrush(el), ParseSvgPen(el), geom));
                     }
                     break;
                 }
@@ -517,7 +554,7 @@ public static class SvgStencilService
                     if (rx > 0 && ry > 0)
                     {
                         var geom = new EllipseGeometry(new Point(cx, cy), rx, ry);
-                        dg.Children.Add(new GeometryDrawing(ParseSvgBrush(GetAttr(el, "fill")), ParseSvgPen(el), geom));
+                        dg.Children.Add(new GeometryDrawing(ParseSvgBrush(el), ParseSvgPen(el), geom));
                     }
                     break;
                 }
@@ -533,13 +570,13 @@ public static class SvgStencilService
                 }
             case "path":
                 {
-                    string? d = GetAttr(el, "d");
+                    string? d = GetStyleOrAttr(el, "d");
                     if (!string.IsNullOrWhiteSpace(d))
                     {
                         try
                         {
                             var geom = Geometry.Parse(d);
-                            dg.Children.Add(new GeometryDrawing(ParseSvgBrush(GetAttr(el, "fill")), ParseSvgPen(el), geom));
+                            dg.Children.Add(new GeometryDrawing(ParseSvgBrush(el), ParseSvgPen(el), geom));
                         }
                         catch { }
                     }
@@ -548,14 +585,14 @@ public static class SvgStencilService
             case "polygon":
             case "polyline":
                 {
-                    string? pts = GetAttr(el, "points");
+                    string? pts = GetStyleOrAttr(el, "points");
                     if (!string.IsNullOrWhiteSpace(pts))
                     {
                         try
                         {
-                            string d = "M " + pts + (name == "polygon" ? " Z" : "");
+                            string d = "M " + pts.Trim() + (name == "polygon" ? " Z" : "");
                             var geom = Geometry.Parse(d);
-                            dg.Children.Add(new GeometryDrawing(ParseSvgBrush(GetAttr(el, "fill")), ParseSvgPen(el), geom));
+                            dg.Children.Add(new GeometryDrawing(ParseSvgBrush(el), ParseSvgPen(el), geom));
                         }
                         catch { }
                     }
@@ -574,29 +611,79 @@ public static class SvgStencilService
         return el.Attribute(name)?.Value ?? el.Attribute(System.Xml.Linq.XName.Get(name, el.Name.NamespaceName))?.Value;
     }
 
-    private static double GetDoubleAttr(System.Xml.Linq.XElement el, string name, double fallback = 0.0)
+    private static string? GetStyleOrAttr(System.Xml.Linq.XElement el, string name)
     {
         string? val = GetAttr(el, name);
+        if (!string.IsNullOrWhiteSpace(val)) return val;
+        string? style = GetAttr(el, "style");
+        if (!string.IsNullOrWhiteSpace(style))
+        {
+            var parts = style.Split(';');
+            foreach (var part in parts)
+            {
+                var kv = part.Split(':');
+                if (kv.Length == 2 && kv[0].Trim().Equals(name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return kv[1].Trim();
+                }
+            }
+        }
+        return null;
+    }
+
+    private static double GetDoubleAttr(System.Xml.Linq.XElement el, string name, double fallback = 0.0)
+    {
+        string? val = GetStyleOrAttr(el, name);
         if (string.IsNullOrWhiteSpace(val)) return fallback;
         val = val.TrimEnd('p', 'x', 'P', 'X');
         return double.TryParse(val, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double d) ? d : fallback;
     }
 
-    private static Brush? ParseSvgBrush(string? fill)
+    private static Brush? ParseSvgBrush(System.Xml.Linq.XElement el, string attrName = "fill")
     {
+        string? fill = GetStyleOrAttr(el, attrName);
         if (string.IsNullOrWhiteSpace(fill) || fill.Equals("none", StringComparison.OrdinalIgnoreCase))
             return null;
-        return BrushHelper.ParseBrush(fill);
+
+        var brush = BrushHelper.ParseBrush(fill);
+        if (brush is SolidColorBrush scb)
+        {
+            double opacity = GetDoubleAttr(el, "opacity", 1.0);
+            double fillOpacity = GetDoubleAttr(el, "fill-opacity", opacity);
+            if (fillOpacity < 1.0 && fillOpacity >= 0)
+            {
+                var c = scb.Color;
+                byte a = (byte)Math.Clamp((int)(c.A * fillOpacity), 0, 255);
+                var transparentBrush = new SolidColorBrush(Color.FromArgb(a, c.R, c.G, c.B));
+                if (transparentBrush.CanFreeze && !transparentBrush.IsFrozen) transparentBrush.Freeze();
+                return transparentBrush;
+            }
+        }
+        return brush;
     }
 
     private static Pen? ParseSvgPen(System.Xml.Linq.XElement el)
     {
-        string? stroke = GetAttr(el, "stroke");
+        string? stroke = GetStyleOrAttr(el, "stroke");
         if (string.IsNullOrWhiteSpace(stroke) || stroke.Equals("none", StringComparison.OrdinalIgnoreCase))
             return null;
 
         var brush = BrushHelper.ParseBrush(stroke);
         if (brush == null) return null;
+
+        if (brush is SolidColorBrush scb)
+        {
+            double opacity = GetDoubleAttr(el, "opacity", 1.0);
+            double strokeOpacity = GetDoubleAttr(el, "stroke-opacity", opacity);
+            if (strokeOpacity < 1.0 && strokeOpacity >= 0)
+            {
+                var c = scb.Color;
+                byte a = (byte)Math.Clamp((int)(c.A * strokeOpacity), 0, 255);
+                var transparentBrush = new SolidColorBrush(Color.FromArgb(a, c.R, c.G, c.B));
+                if (transparentBrush.CanFreeze && !transparentBrush.IsFrozen) transparentBrush.Freeze();
+                brush = transparentBrush;
+            }
+        }
 
         double width = GetDoubleAttr(el, "stroke-width", 1.0);
         var pen = new Pen(brush, width);

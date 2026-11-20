@@ -541,11 +541,11 @@ Each record captures:
 - **Status:** Accepted & Enforced
 - **Context:** Previously, stencil recoloring in `SvgStencilService` only supported global multi-tone tinting derived from a single fill color based on luminance thresholds. Users could not customize individual components of vector stencils (such as changing just the monitor glass, keyboard surface, PC chassis, or status LED).
 - **Decision:** Implement granular per-color remapping (`SvgColorMap`) across the graphics pipeline:
-  1. *Color Discovery:* `SvgStencilService.GetStencilColors` dynamically traverses the vector `DrawingGroup` (and imported SVG XML) to discover all distinct solid fill and stroke hex colors.
+  1. *Color Discovery & Custom Images:* `SvgStencilService.GetItemColors` and `GetStencilColors` dynamically traverse the vector `DrawingGroup` (and raw base64/data-URI imported SVG XML) to discover all distinct solid fill and stroke hex colors with inline CSS style (`style="..."`), `opacity`, and polygon coordinate support.
   2. *Domain & Persistence:* Add `SvgColorMap` (`Dictionary<string, string>?`) to `LayoutItemBase` and `IStylableItemViewModel`, persisted in document JSON as `"svg_color_map"`.
   3. *Properties Inspector UI:* Render an "SVG Individual Colors" palette section under Appearance & Style with concentric radii and tabular typography (`Consolas`), displaying each original color swatch next to its active color swatch, human-readable labels, and an interactive 16.7M color spectrum picker.
   4. *Direct3D Tier-2 Acceleration:* Custom recolored `DrawingGroup` instances are frozen (`DrawingImage.Freeze()`) and cached by composite key, preserving Direct3D GPU caching in VRAM.
-  5. *Undo/Redo Support:* Wrap color map edits into `ModifySvgColorMapCommand`, enabling instantaneous live canvas updates on Ctrl+Z / Ctrl+Y.
+  5. *Undo/Redo & Lifecycle Safety:* Wrap color map edits into `ModifySvgColorMapCommand`, enabling instantaneous live canvas updates on Ctrl+Z / Ctrl+Y. Provide `DetachCanvas()` on `PropertiesViewModel` for deterministic unhooking and memory safety.
 - **Alternatives Considered:**
   - *Global-Only Tinting:* Preserved as fallback when no granular color map is defined, but insufficient for multi-colored equipment components.
   - *Full Inkscape/Illustrator Vector Node Editor:* High complexity with excessive UI overhead for layout design workflows.
