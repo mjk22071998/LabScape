@@ -102,8 +102,9 @@ public class StencilImageMultiConverter : IMultiValueConverter
         double? thickness = values.Length > 3 && values[3] is double t ? t : null;
         string? customPath = values.Length > 4 && values[4] is string cp && cp != DependencyProperty.UnsetValue.ToString() ? cp : null;
         string? customData = values.Length > 5 && values[5] is string cd && cd != DependencyProperty.UnsetValue.ToString() ? cd : null;
+        IDictionary<string, string>? colorMap = values.Length > 6 && values[6] is IDictionary<string, string> cm ? cm : null;
 
-        return SvgStencilService.GetItemImage(type, fill, stroke, thickness, customPath, customData);
+        return SvgStencilService.GetItemImage(type, fill, stroke, thickness, customPath, customData, colorMap);
     }
 
     public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => throw new NotImplementedException();

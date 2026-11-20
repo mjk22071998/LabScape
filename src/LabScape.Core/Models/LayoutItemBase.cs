@@ -50,6 +50,10 @@ public abstract class LayoutItemBase
     [JsonPropertyName("custom_image_data")]
     public string? CustomImageData { get; set; }
 
+    [JsonPropertyName("svg_color_map")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public Dictionary<string, string>? SvgColorMap { get; set; }
+
     [JsonIgnore]
     public string? ParentGroupId { get; set; }
 

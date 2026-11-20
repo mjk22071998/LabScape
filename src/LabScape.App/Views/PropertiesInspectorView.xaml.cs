@@ -121,4 +121,31 @@ public partial class PropertiesInspectorView : UserControl
             ViewModel.ApplyStrokeChanges();
         }
     }
+
+    private void SvgColorEntry_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.LeftButton != MouseButtonState.Pressed) return;
+        PromptSvgColorPicker(sender);
+    }
+
+    private void PickSvgColorEntry_Click(object sender, RoutedEventArgs e)
+    {
+        PromptSvgColorPicker(sender);
+    }
+
+    private void PromptSvgColorPicker(object sender)
+    {
+        if (ViewModel == null) return;
+        if ((sender as FrameworkElement)?.DataContext is not LabScape.ViewModels.Items.SvgColorEntryViewModel entry)
+            return;
+
+        var dlg = new Dialogs.ColorPickerDialog(entry.CurrentColor)
+        {
+            Owner = Window.GetWindow(this)
+        };
+        if (dlg.ShowDialog() == true)
+        {
+            ViewModel.ChangeSvgColor(entry.OriginalColor, dlg.SelectedColorHex);
+        }
+    }
 }

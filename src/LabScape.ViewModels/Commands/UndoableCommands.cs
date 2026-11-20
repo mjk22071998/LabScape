@@ -498,6 +498,32 @@ public class ModifyShapeStyleCommand : IUndoableCommand
     public void Unexecute() => _inner.Unexecute();
 }
 
+public class ModifySvgColorMapCommand : IUndoableCommand
+{
+    private readonly ItemViewModel _item;
+    private readonly Dictionary<string, string>? _oldMap;
+    private readonly Dictionary<string, string>? _newMap;
+
+    public string Description => $"Change SVG Color on {_item.Name}";
+
+    public ModifySvgColorMapCommand(ItemViewModel item, Dictionary<string, string>? oldMap, Dictionary<string, string>? newMap)
+    {
+        _item = item;
+        _oldMap = oldMap != null ? new Dictionary<string, string>(oldMap, StringComparer.OrdinalIgnoreCase) : null;
+        _newMap = newMap != null ? new Dictionary<string, string>(newMap, StringComparer.OrdinalIgnoreCase) : null;
+    }
+
+    public void Execute()
+    {
+        _item.SvgColorMap = _newMap != null ? new Dictionary<string, string>(_newMap, StringComparer.OrdinalIgnoreCase) : null;
+    }
+
+    public void Unexecute()
+    {
+        _item.SvgColorMap = _oldMap != null ? new Dictionary<string, string>(_oldMap, StringComparer.OrdinalIgnoreCase) : null;
+    }
+}
+
 
 public class AssignDeviceNetworkCommand : IUndoableCommand
 {

@@ -62,7 +62,7 @@ public partial class MainWindow : RibbonWindow
 
         ViewModel.RequestRoomTemplateDialog += ActivateRoomTemplateWindow;
 
-
+        PropertiesViewModel.StencilColorsProvider ??= Services.SvgStencilService.GetStencilColors;
 
         DataContext = ViewModel;
 

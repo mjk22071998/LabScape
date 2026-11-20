@@ -14310,4 +14310,131 @@ public class CoreTests
         Assert.Equal(260.0, targetAdjacentMLeft);
         Assert.Equal(existingGap, targetAdjacentMLeft - bRight);
     }
+
+    [Fact]
+    public void SvgIndividualColorMapping_Model_ViewModel_UndoRedo_And_Recoloring_Verified()
+    {
+        // 1. Model JSON Serialization & Deserialization with SvgColorMap
+        var deviceModel = new DeviceItem
+        {
+            Name = "Core Switch",
+            DeviceType = "switch",
+            SvgColorMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["#1F2937"] = "#1E3A8A",
+                ["#E5E7EB"] = "#FEF08A",
+                ["#10B981"] = "#EF4444"
+            }
+        };
+
+        string json = System.Text.Json.JsonSerializer.Serialize(deviceModel);
+        Assert.Contains("svg_color_map", json);
+        Assert.Contains("#1F2937", json);
+        Assert.Contains("#1E3A8A", json);
+
+        var deserialized = System.Text.Json.JsonSerializer.Deserialize<DeviceItem>(json);
+        Assert.NotNull(deserialized);
+        Assert.NotNull(deserialized.SvgColorMap);
+        Assert.Equal(3, deserialized.SvgColorMap.Count);
+        Assert.Equal("#1E3A8A", deserialized.SvgColorMap["#1F2937"]);
+        Assert.Equal("#FEF08A", deserialized.SvgColorMap["#E5E7EB"]);
+        Assert.Equal("#EF4444", deserialized.SvgColorMap["#10B981"]);
+
+        // 2. ViewModel Initialization and Property Notification
+        var deviceVm = new DeviceItemViewModel(deviceModel);
+        Assert.NotNull(deviceVm.SvgColorMap);
+        Assert.Equal("#1E3A8A", deviceVm.SvgColorMap["#1F2937"]);
+
+        bool propChangedFired = false;
+        deviceVm.PropertyChanged += (s, e) =>
+        {
+            if (e.PropertyName == nameof(ItemViewModel.SvgColorMap))
+                propChangedFired = true;
+        };
+
+        var updatedMap = new Dictionary<string, string>(deviceVm.SvgColorMap, StringComparer.OrdinalIgnoreCase)
+        {
+            ["#1F2937"] = "#3B82F6"
+        };
+        deviceVm.SvgColorMap = updatedMap;
+        Assert.True(propChangedFired);
+        Assert.Equal("#3B82F6", deviceModel.SvgColorMap?["#1F2937"]);
+
+        // 3. Undo/Redo Command Execution
+        var initialMap = new Dictionary<string, string> { ["#1F2937"] = "#1E3A8A" };
+        var targetMap = new Dictionary<string, string> { ["#1F2937"] = "#DC2626", ["#9CA3AF"] = "#000000" };
+        var undoRedoService = new UndoRedoService();
+
+        var cmd = new ModifySvgColorMapCommand(deviceVm, initialMap, targetMap);
+        undoRedoService.ExecuteCommand(cmd);
+        Assert.NotNull(deviceVm.SvgColorMap);
+        Assert.Equal("#DC2626", deviceVm.SvgColorMap["#1F2937"]);
+        Assert.Equal("#000000", deviceVm.SvgColorMap["#9CA3AF"]);
+
+        undoRedoService.Undo();
+        Assert.NotNull(deviceVm.SvgColorMap);
+        Assert.Equal("#1E3A8A", deviceVm.SvgColorMap["#1F2937"]);
+        Assert.False(deviceVm.SvgColorMap.ContainsKey("#9CA3AF"));
+
+        undoRedoService.Redo();
+        Assert.NotNull(deviceVm.SvgColorMap);
+        Assert.Equal("#DC2626", deviceVm.SvgColorMap["#1F2937"]);
+        Assert.Equal("#000000", deviceVm.SvgColorMap["#9CA3AF"]);
+
+        // 4. PropertiesViewModel Integration
+        PropertiesViewModel.StencilColorsProvider = type => new[] { "#1F2937", "#9CA3AF", "#E5E7EB", "#10B981" };
+
+        var canvasVm = new CanvasViewModel(undoRedoService);
+        var testDevice = new DeviceItemViewModel(new DeviceItem { DeviceType = "desktop_pc", Name = "Engineering PC" });
+        canvasVm.AddItem(testDevice);
+        canvasVm.SelectedItems.Add(testDevice);
+
+        var propsVm = new PropertiesViewModel(canvasVm);
+        Assert.True(propsVm.HasSvgColors);
+        Assert.Equal(4, propsVm.SvgColors.Count);
+
+        // Verify color labels and default state
+        var screenEntry = propsVm.SvgColors.First(c => c.OriginalColor == "#1F2937");
+        Assert.Equal("#1F2937", screenEntry.CurrentColor);
+        Assert.Contains("Screen Glass", screenEntry.Label);
+        Assert.False(screenEntry.IsCustomized);
+
+        // Change an individual SVG color
+        propsVm.ChangeSvgColor("#1F2937", "#2563EB");
+        Assert.Equal("#2563EB", screenEntry.CurrentColor);
+        Assert.True(screenEntry.IsCustomized);
+        Assert.NotNull(testDevice.SvgColorMap);
+        Assert.Equal("#2563EB", testDevice.SvgColorMap["#1F2937"]);
+
+        // Undo color change
+        undoRedoService.Undo();
+        Assert.Null(testDevice.SvgColorMap);
+        Assert.Equal("#1F2937", screenEntry.CurrentColor);
+        Assert.False(screenEntry.IsCustomized);
+
+        // Redo color change
+        undoRedoService.Redo();
+        Assert.NotNull(testDevice.SvgColorMap);
+        Assert.Equal("#2563EB", testDevice.SvgColorMap["#1F2937"]);
+        Assert.Equal("#2563EB", screenEntry.CurrentColor);
+        Assert.True(screenEntry.IsCustomized);
+
+        // Change a second color
+        propsVm.ChangeSvgColor("#10B981", "#EF4444");
+        var ledEntry = propsVm.SvgColors.First(c => c.OriginalColor == "#10B981");
+        Assert.Equal("#EF4444", ledEntry.CurrentColor);
+        Assert.True(ledEntry.IsCustomized);
+        Assert.Equal(2, testDevice.SvgColorMap.Count);
+
+        // Reset single color
+        propsVm.ResetSvgColor(screenEntry);
+        Assert.Equal("#1F2937", screenEntry.CurrentColor);
+        Assert.False(screenEntry.IsCustomized);
+        Assert.Single(testDevice.SvgColorMap);
+
+        // Reset all colors
+        propsVm.ResetAllSvgColors();
+        Assert.Null(testDevice.SvgColorMap);
+        Assert.All(propsVm.SvgColors, c => Assert.False(c.IsCustomized));
+    }
 }

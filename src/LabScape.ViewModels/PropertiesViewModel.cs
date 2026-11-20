@@ -906,6 +906,13 @@ public partial class PropertiesViewModel : ObservableObject
 
     public bool IsNoStroke => StrokeType == BrushType.None;
 
+    public static Func<string?, IReadOnlyList<string>>? StencilColorsProvider { get; set; }
+
+    public ObservableCollection<SvgColorEntryViewModel> SvgColors { get; } = new();
+
+    [ObservableProperty]
+    private bool _hasSvgColors;
+
 
 
     public PropertiesViewModel(CanvasViewModel? canvasViewModel = null)
@@ -1047,6 +1054,10 @@ public partial class PropertiesViewModel : ObservableObject
             IsDonut = false;
 
             IsFillApplicable = false;
+
+            SvgColors.Clear();
+
+            HasSvgColors = false;
 
             IsText = false;
 
@@ -1288,6 +1299,8 @@ public partial class PropertiesViewModel : ObservableObject
 
         SyncStyleFromSelection();
 
+        SyncSvgColorsFromSelection();
+
     }
 
 
@@ -1321,6 +1334,14 @@ public partial class PropertiesViewModel : ObservableObject
         {
 
             SyncStyleFromSelection();
+
+        }
+
+        if (e.PropertyName is nameof(ItemViewModel.SvgColorMap))
+
+        {
+
+            SyncSvgColorsMapState();
 
         }
 
@@ -2735,6 +2756,179 @@ public partial class PropertiesViewModel : ObservableObject
 
         };
 
+    }
+
+    private void SyncSvgColorsFromSelection()
+    {
+        SvgColors.Clear();
+        if (SelectedItem == null)
+        {
+            HasSvgColors = false;
+            return;
+        }
+
+        string? stencilType = null;
+        if (SelectedItem is DeviceItemViewModel dev)
+            stencilType = dev.DeviceType;
+        else if (SelectedItem is FurnitureItemViewModel furn)
+            stencilType = furn.FurnitureType;
+
+        if (string.IsNullOrWhiteSpace(stencilType) && !SelectedItem.HasCustomImage)
+        {
+            HasSvgColors = false;
+            return;
+        }
+
+        var colors = StencilColorsProvider?.Invoke(stencilType) ?? Array.Empty<string>();
+        if (colors.Count == 0)
+        {
+            HasSvgColors = false;
+            return;
+        }
+
+        var colorMap = SelectedItem.SvgColorMap;
+        foreach (var c in colors)
+        {
+            string current = c;
+            if (colorMap != null && TryGetMappedColor(colorMap, c, out var mapped))
+            {
+                current = mapped;
+            }
+
+            string label = GetColorDescription(c);
+            SvgColors.Add(new SvgColorEntryViewModel(c, current, label));
+        }
+
+        HasSvgColors = SvgColors.Count > 0;
+    }
+
+    private void SyncSvgColorsMapState()
+    {
+        if (SelectedItem == null) return;
+        var map = SelectedItem.SvgColorMap;
+        foreach (var entry in SvgColors)
+        {
+            if (map != null && TryGetMappedColor(map, entry.OriginalColor, out var mapped))
+            {
+                entry.CurrentColor = mapped;
+            }
+            else
+            {
+                entry.CurrentColor = entry.OriginalColor;
+            }
+        }
+    }
+
+    public void ChangeSvgColor(string originalColor, string newColor)
+    {
+        if (SelectedItem == null || string.IsNullOrWhiteSpace(originalColor) || string.IsNullOrWhiteSpace(newColor))
+            return;
+
+        var oldMap = SelectedItem.SvgColorMap != null
+            ? new Dictionary<string, string>(SelectedItem.SvgColorMap, StringComparer.OrdinalIgnoreCase)
+            : null;
+
+        var newMap = oldMap != null
+            ? new Dictionary<string, string>(oldMap, StringComparer.OrdinalIgnoreCase)
+            : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        if (string.Equals(originalColor, newColor, StringComparison.OrdinalIgnoreCase))
+        {
+            newMap.Remove(originalColor);
+        }
+        else
+        {
+            newMap[originalColor] = newColor;
+        }
+
+        var finalNewMap = newMap.Count > 0 ? newMap : null;
+        _canvasViewModel?.UndoRedoService.ExecuteCommand(new ModifySvgColorMapCommand(SelectedItem, oldMap, finalNewMap));
+
+        var entry = SvgColors.FirstOrDefault(e => string.Equals(e.OriginalColor, originalColor, StringComparison.OrdinalIgnoreCase));
+        if (entry != null)
+        {
+            entry.CurrentColor = finalNewMap != null && finalNewMap.TryGetValue(originalColor, out var m) ? m : originalColor;
+        }
+    }
+
+    [RelayCommand]
+    public void ResetSvgColor(SvgColorEntryViewModel? entry)
+    {
+        if (entry == null) return;
+        ChangeSvgColor(entry.OriginalColor, entry.OriginalColor);
+    }
+
+    [RelayCommand]
+    public void ResetAllSvgColors()
+    {
+        if (SelectedItem == null || SelectedItem.SvgColorMap == null) return;
+        var oldMap = new Dictionary<string, string>(SelectedItem.SvgColorMap, StringComparer.OrdinalIgnoreCase);
+        _canvasViewModel?.UndoRedoService.ExecuteCommand(new ModifySvgColorMapCommand(SelectedItem, oldMap, null));
+
+        foreach (var entry in SvgColors)
+        {
+            entry.CurrentColor = entry.OriginalColor;
+        }
+    }
+
+    private static bool TryGetMappedColor(IDictionary<string, string> map, string hex, out string mappedHex)
+    {
+        if (map.TryGetValue(hex, out mappedHex!)) return true;
+        string norm = hex.StartsWith('#') ? hex.Substring(1) : hex;
+        foreach (var kv in map)
+        {
+            string kNorm = kv.Key.StartsWith('#') ? kv.Key.Substring(1) : kv.Key;
+            if (string.Equals(norm, kNorm, StringComparison.OrdinalIgnoreCase))
+            {
+                mappedHex = kv.Value;
+                return true;
+            }
+        }
+        mappedHex = string.Empty;
+        return false;
+    }
+
+    private static string GetColorDescription(string hex)
+    {
+        if (string.IsNullOrWhiteSpace(hex)) return "Color";
+        return hex.ToUpperInvariant() switch
+        {
+            "#1F2937" => "Screen Glass / Bezel",
+            "#111827" => "Outline / Shadow",
+            "#9CA3AF" => "Accents / Stand / Key Rows",
+            "#E5E7EB" => "Light Surface / Keys / Cushion",
+            "#374151" => "Chassis / Frame / Dark Border",
+            "#4B5563" => "Stand Neck / Secondary Panel",
+            "#6B7280" => "Grille / Details / Mid Gray",
+            "#10B981" => "Status Indicator LED (Emerald)",
+            "#06B6D4" => "Port / Tech Indicator (Cyan)",
+            "#3B82F6" => "Primary Accent (Blue)",
+            "#F59E0B" => "Alert / Amber",
+            "#EF4444" => "Alert / Red",
+            _ => GetLuminanceDescription(hex)
+        };
+    }
+
+    private static string GetLuminanceDescription(string hex)
+    {
+        try
+        {
+            string clean = hex.TrimStart('#');
+            if (clean.Length == 6 &&
+                byte.TryParse(clean[..2], System.Globalization.NumberStyles.HexNumber, null, out byte r) &&
+                byte.TryParse(clean[2..4], System.Globalization.NumberStyles.HexNumber, null, out byte g) &&
+                byte.TryParse(clean[4..6], System.Globalization.NumberStyles.HexNumber, null, out byte b))
+            {
+                float lum = (0.299f * r + 0.587f * g + 0.114f * b) / 255f;
+                if (lum > 0.85f) return $"Light Tone ({hex})";
+                if (lum > 0.60f) return $"Mid-Light Tone ({hex})";
+                if (lum > 0.35f) return $"Mid-Dark Tone ({hex})";
+                if (lum > 0.15f) return $"Dark Tone ({hex})";
+                return $"Deep Shadow ({hex})";
+            }
+        }
+        catch { }
+        return hex;
     }
 
 

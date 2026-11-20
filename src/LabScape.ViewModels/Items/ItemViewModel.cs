@@ -51,6 +51,9 @@ public partial class ItemViewModel : ObservableObject
     [ObservableProperty]
     private string? _customImageData;
 
+    [ObservableProperty]
+    private Dictionary<string, string>? _svgColorMap;
+
     public bool HasCustomImage => !string.IsNullOrWhiteSpace(CustomImagePath) || !string.IsNullOrWhiteSpace(CustomImageData);
 
     public ItemType ItemType => Model.Type;
@@ -77,6 +80,7 @@ public partial class ItemViewModel : ObservableObject
         _parentGroupId = model.ParentGroupId;
         _customImagePath = model.CustomImagePath;
         _customImageData = model.CustomImageData;
+        _svgColorMap = model.SvgColorMap != null ? new Dictionary<string, string>(model.SvgColorMap, StringComparer.OrdinalIgnoreCase) : null;
     }
 
     partial void OnNameChanged(string value) => Model.Name = value;
@@ -106,6 +110,10 @@ public partial class ItemViewModel : ObservableObject
     {
         Model.CustomImageData = value;
         OnPropertyChanged(nameof(HasCustomImage));
+    }
+    partial void OnSvgColorMapChanged(Dictionary<string, string>? value)
+    {
+        Model.SvgColorMap = value != null ? new Dictionary<string, string>(value, StringComparer.OrdinalIgnoreCase) : null;
     }
 
     protected virtual void OnPositionChanged(double deltaX, double deltaY) { }

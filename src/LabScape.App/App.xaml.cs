@@ -25,6 +25,7 @@ public partial class App : Application
             // Mandate Direct3D hardware acceleration across the process
             Services.GpuRenderingService.Initialize();
             Services.ThemeService.Initialize();
+            PropertiesViewModel.StencilColorsProvider = Services.SvgStencilService.GetStencilColors;
         }
         catch
         {

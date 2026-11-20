@@ -388,6 +388,7 @@
                                             <Binding Path="StrokeThickness"/>
                                             <Binding Path="CustomImagePath"/>
                                             <Binding Path="CustomImageData"/>
+                                            <Binding Path="SvgColorMap"/>
                                         </MultiBinding>
                                     </Image.Source>
                                 </Image>
@@ -476,6 +477,7 @@
                                             <Binding Path="StrokeThickness"/>
                                             <Binding Path="CustomImagePath"/>
                                             <Binding Path="CustomImageData"/>
+                                            <Binding Path="SvgColorMap"/>
                                         </MultiBinding>
                                     </Image.Source>
                                 </Image>
