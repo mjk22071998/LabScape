@@ -59,6 +59,7 @@ Each record captures:
 | **[TDR-033](#tdr-033-adoption-of-ponytail-lazy-senior-dev-mode-for-lean-diffs)** | Process | Adoption of Ponytail Lazy Senior Dev Mode for Lean Diffs | Accepted |
 | **[TDR-034](#tdr-034-hallmark-anti-ai-slop-design-engineering-standards)** | Design | Hallmark Anti-AI-Slop Design-Engineering Standards | Accepted |
 | **[TDR-035](#tdr-035-automated-100-test-gatekeeper-without-superficial-vanity-badges)** | Quality | Automated 100-Test Gatekeeper Without Superficial Vanity Badges | Accepted |
+| **[TDR-036](#tdr-036-real-time-equal-spacing-and-distance-guides-matching-drawio)** | Snapping | Real-Time Equal Spacing and Distance Guides Matching draw.io | Accepted |
 
 ---
 
@@ -516,6 +517,22 @@ Each record captures:
   - *Third-Party SaaS Badges (CodeFactor/SonarCloud):* Adds external dashboard coupling and configuration overhead.
 - **Rationale:** True code quality is demonstrated by automated, reproducible verification in CI that halts regressions, rather than decorative badges.
 - **Consequences:** Every feature and bugfix must maintain 100% test pass rate in both Debug and Release configurations.
+
+---
+
+### TDR-036: Real-Time Equal Spacing and Distance Guides Matching draw.io
+- **Domain:** CAD Snapping & Spacing Assistance
+- **Status:** Accepted & Enforced
+- **Context:** Placing equipment rows, desks, or server racks at uniform distances required manual grid counting or numerical property entries. In modern diagramming tools like draw.io (`DistanceGuides.js`) and Figma, dragging items automatically reveals equal spacing indicators when gaps between elements match.
+- **Decision:** Implement real-time equal spacing detection and snapping across X and Y axes in `CanvasView`:
+  1. *Between Pattern ($A < M < B$):* When dragging item/group/multi-selection $M$ between two stationary obstacles, snaps when $\text{gap}(A, M) = \text{gap}(M, B)$.
+  2. *Adjacent Pattern ($A < B < M$):* When dragging next to two stationary obstacles with an existing gap, snaps when $\text{gap}(B, M) = \text{gap}(A, B)$.
+  3. *Visual Indicators:* Displays high-contrast sky blue (`#0284C7`) dimension bracket lines, tick marks, and floating badges (`↔ {gap} px`, `↕ {gap} px`) across both matching gaps.
+  4. *Universal Scope:* Fully active when dragging individual shapes, groups (`GroupItemViewModel`), and multiple selections.
+- **Alternatives Considered:**
+  - *Menu-Only "Distribute Horizontally/Vertically":* Useful for post-hoc formatting, but lacks real-time interactive tactile feedback while drafting.
+- **Rationale:** Provides exact feature parity with draw.io's `enableDistanceGuides` and smart spacing in professional CAD software, eliminating manual measurement.
+- **Consequences:** Spacing search runs dynamically during drag-move operations with proximity filtering to preserve 60 FPS performance.
 
 ---
 

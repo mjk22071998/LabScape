@@ -398,22 +398,221 @@ public partial class CanvasView : UserControl
                 }
             }
 
-            if (snapXFound)
+            // ---------------------------------------------------------------
+            // Equal Spacing / Distance Snapping (Draw.io DistanceGuides style)
+            // ---------------------------------------------------------------
+            bool snapSpaceXFound = false;
+            double bestSpaceDistX = double.MaxValue;
+            double targetSpaceLeft = targetPLeft;
+            double bestSpaceXGap = 0;
+            double bestSpaceX1A = 0, bestSpaceX1B = 0;
+            double bestSpaceX2A = 0, bestSpaceX2B = 0;
+            double bestSpaceXY = pMiddle;
+
+            bool snapSpaceYFound = false;
+            double bestSpaceDistY = double.MaxValue;
+            double targetSpaceTop = targetPTop;
+            double bestSpaceYGap = 0;
+            double bestSpaceY1A = 0, bestSpaceY1B = 0;
+            double bestSpaceY2A = 0, bestSpaceY2B = 0;
+            double bestSpaceYX = pCenter;
+
+            // Gather stationary items with visual bounds
+            var stationary = new List<(double Left, double Top, double Right, double Bottom, double MidX, double MidY)>();
+            foreach (var other in ViewModel.Items)
             {
+                if (_initialItemPositions.ContainsKey(other)) continue;
+                if (!other.IsVisible) continue;
+                if (other is GroupItemViewModel otherGrp && (otherGrp.Width <= 10 || otherGrp.Height <= 10))
+                {
+                    otherGrp.RecalculateBounds();
+                }
+                var (oLeft, oTop, oRight, oBottom) = GetItemBoundsAt(other, other.X, other.Y);
+                stationary.Add((oLeft, oTop, oRight, oBottom, (oLeft + oRight) / 2.0, (oTop + oBottom) / 2.0));
+            }
+
+            // --- Horizontal Equal Spacing Scan ---
+            var hCandidates = stationary
+                .Where(s => Math.Max(0.0, Math.Min(pBottom, s.Bottom) - Math.Max(pTop, s.Top)) > 0 || Math.Abs(s.MidY - pMiddle) <= 150)
+                .OrderBy(s => s.Left)
+                .ToList();
+
+            if (hCandidates.Count >= 2)
+            {
+                // Pattern 1: Moving item M is between two stationary items A and B (A.Right <= pLeft and pRight <= B.Left)
+                for (int i = 0; i < hCandidates.Count - 1; i++)
+                {
+                    var a = hCandidates[i];
+                    var b = hCandidates[i + 1];
+                    if (a.Right <= b.Left)
+                    {
+                        double availDist = b.Left - a.Right;
+                        if (availDist > pWidth + 10)
+                        {
+                            double gap = (availDist - pWidth) / 2.0;
+                            double candTargetLeft = a.Right + gap;
+                            double d = Math.Abs(pLeft - candTargetLeft);
+                            if (d <= effectiveTolerance && d < bestSpaceDistX)
+                            {
+                                bestSpaceDistX = d;
+                                targetSpaceLeft = candTargetLeft;
+                                bestSpaceXGap = gap;
+                                bestSpaceX1A = a.Right; bestSpaceX1B = candTargetLeft;
+                                bestSpaceX2A = candTargetLeft + pWidth; bestSpaceX2B = b.Left;
+                                bestSpaceXY = (a.MidY + b.MidY + pMiddle) / 3.0;
+                                snapSpaceXFound = true;
+                            }
+                        }
+                    }
+                }
+
+                // Pattern 2: Stationary pair (A, B) with existing gap, M placed adjacent (to right of B or left of A)
+                for (int i = 0; i < hCandidates.Count - 1; i++)
+                {
+                    var a = hCandidates[i];
+                    var b = hCandidates[i + 1];
+                    double existGap = b.Left - a.Right;
+                    if (existGap >= 10 && existGap <= 600)
+                    {
+                        // 2a: M is to the right of B
+                        double candRightLeft = b.Right + existGap;
+                        double dRight = Math.Abs(pLeft - candRightLeft);
+                        if (dRight <= effectiveTolerance && dRight < bestSpaceDistX)
+                        {
+                            bestSpaceDistX = dRight;
+                            targetSpaceLeft = candRightLeft;
+                            bestSpaceXGap = existGap;
+                            bestSpaceX1A = a.Right; bestSpaceX1B = b.Left;
+                            bestSpaceX2A = b.Right; bestSpaceX2B = candRightLeft;
+                            bestSpaceXY = (b.MidY + pMiddle) / 2.0;
+                            snapSpaceXFound = true;
+                        }
+
+                        // 2b: M is to the left of A
+                        double candLeftLeft = a.Left - existGap - pWidth;
+                        double dLeft = Math.Abs(pLeft - candLeftLeft);
+                        if (dLeft <= effectiveTolerance && dLeft < bestSpaceDistX)
+                        {
+                            bestSpaceDistX = dLeft;
+                            targetSpaceLeft = candLeftLeft;
+                            bestSpaceXGap = existGap;
+                            bestSpaceX1A = candLeftLeft + pWidth; bestSpaceX1B = a.Left;
+                            bestSpaceX2A = a.Right; bestSpaceX2B = b.Left;
+                            bestSpaceXY = (a.MidY + pMiddle) / 2.0;
+                            snapSpaceXFound = true;
+                        }
+                    }
+                }
+            }
+
+            // --- Vertical Equal Spacing Scan ---
+            var vCandidates = stationary
+                .Where(s => Math.Max(0.0, Math.Min(pRight, s.Right) - Math.Max(pLeft, s.Left)) > 0 || Math.Abs(s.MidX - pCenter) <= 150)
+                .OrderBy(s => s.Top)
+                .ToList();
+
+            if (vCandidates.Count >= 2)
+            {
+                // Pattern 1: Moving item M is between two stationary items A and B (A.Bottom <= pTop and pBottom <= B.Top)
+                for (int i = 0; i < vCandidates.Count - 1; i++)
+                {
+                    var a = vCandidates[i];
+                    var b = vCandidates[i + 1];
+                    if (a.Bottom <= b.Top)
+                    {
+                        double availDist = b.Top - a.Bottom;
+                        if (availDist > pHeight + 10)
+                        {
+                            double gap = (availDist - pHeight) / 2.0;
+                            double candTargetTop = a.Bottom + gap;
+                            double d = Math.Abs(pTop - candTargetTop);
+                            if (d <= effectiveTolerance && d < bestSpaceDistY)
+                            {
+                                bestSpaceDistY = d;
+                                targetSpaceTop = candTargetTop;
+                                bestSpaceYGap = gap;
+                                bestSpaceY1A = a.Bottom; bestSpaceY1B = candTargetTop;
+                                bestSpaceY2A = candTargetTop + pHeight; bestSpaceY2B = b.Top;
+                                bestSpaceYX = (a.MidX + b.MidX + pCenter) / 3.0;
+                                snapSpaceYFound = true;
+                            }
+                        }
+                    }
+                }
+
+                // Pattern 2: Stationary pair (A, B) with existing gap, M placed adjacent (below B or above A)
+                for (int i = 0; i < vCandidates.Count - 1; i++)
+                {
+                    var a = vCandidates[i];
+                    var b = vCandidates[i + 1];
+                    double existGap = b.Top - a.Bottom;
+                    if (existGap >= 10 && existGap <= 600)
+                    {
+                        // 2a: M is below B
+                        double candBelowTop = b.Bottom + existGap;
+                        double dBelow = Math.Abs(pTop - candBelowTop);
+                        if (dBelow <= effectiveTolerance && dBelow < bestSpaceDistY)
+                        {
+                            bestSpaceDistY = dBelow;
+                            targetSpaceTop = candBelowTop;
+                            bestSpaceYGap = existGap;
+                            bestSpaceY1A = a.Bottom; bestSpaceY1B = b.Top;
+                            bestSpaceY2A = b.Bottom; bestSpaceY2B = candBelowTop;
+                            bestSpaceYX = (b.MidX + pCenter) / 2.0;
+                            snapSpaceYFound = true;
+                        }
+
+                        // 2b: M is above A
+                        double candAboveTop = a.Top - existGap - pHeight;
+                        double dAbove = Math.Abs(pTop - candAboveTop);
+                        if (dAbove <= effectiveTolerance && dAbove < bestSpaceDistY)
+                        {
+                            bestSpaceDistY = dAbove;
+                            targetSpaceTop = candAboveTop;
+                            bestSpaceYGap = existGap;
+                            bestSpaceY1A = candAboveTop + pHeight; bestSpaceY1B = a.Top;
+                            bestSpaceY2A = a.Bottom; bestSpaceY2B = b.Top;
+                            bestSpaceYX = (a.MidX + pCenter) / 2.0;
+                            snapSpaceYFound = true;
+                        }
+                    }
+                }
+            }
+
+            if (snapXFound && (!snapSpaceXFound || bestDistX <= bestSpaceDistX))
+            {
+                // targetPLeft is already snapped to edge alignment
                 ShowVerticalGuide(bestGuideX, bestGuideY1, bestGuideY2);
+                HideSpaceGuideHorizontal();
+            }
+            else if (snapSpaceXFound)
+            {
+                targetPLeft = targetSpaceLeft;
+                SnapGuideVertical.Visibility = Visibility.Collapsed;
+                ShowSpaceGuideHorizontal(bestSpaceX1A, bestSpaceX1B, bestSpaceX2A, bestSpaceX2B, bestSpaceXY, bestSpaceXGap);
             }
             else
             {
                 SnapGuideVertical.Visibility = Visibility.Collapsed;
+                HideSpaceGuideHorizontal();
             }
 
-            if (snapYFound)
+            if (snapYFound && (!snapSpaceYFound || bestDistY <= bestSpaceDistY))
             {
+                // targetPTop is already snapped to edge alignment
                 ShowHorizontalGuide(bestGuideY, bestGuideX1, bestGuideX2);
+                HideSpaceGuideVertical();
+            }
+            else if (snapSpaceYFound)
+            {
+                targetPTop = targetSpaceTop;
+                SnapGuideHorizontal.Visibility = Visibility.Collapsed;
+                ShowSpaceGuideVertical(bestSpaceY1A, bestSpaceY1B, bestSpaceY2A, bestSpaceY2B, bestSpaceYX, bestSpaceYGap);
             }
             else
             {
                 SnapGuideHorizontal.Visibility = Visibility.Collapsed;
+                HideSpaceGuideVertical();
             }
 
             // Apply calculated offset to all selected items uniformly
@@ -653,6 +852,186 @@ public partial class CanvasView : UserControl
         HideEqualHeightGuide();
     }
 
+    internal void ShowSpaceGuideHorizontal(double startX1, double endX1, double startX2, double endX2, double y, double gap)
+    {
+        double zoom = ViewModel?.ZoomLevel ?? 1.0;
+        if (zoom < 0.05) zoom = 1.0;
+        double invZoom = 1.0 / zoom;
+
+        double tickHalf = 6 * invZoom;
+        double strokeW = 1.5 * invZoom;
+
+        // Gap 1
+        SpaceDimXLine1.StrokeThickness = strokeW;
+        SpaceDimXLine1.X1 = startX1;
+        SpaceDimXLine1.X2 = endX1;
+        SpaceDimXLine1.Y1 = y;
+        SpaceDimXLine1.Y2 = y;
+        SpaceDimXLine1.Visibility = Visibility.Visible;
+
+        SpaceDimXTick1A.StrokeThickness = strokeW;
+        SpaceDimXTick1A.X1 = startX1;
+        SpaceDimXTick1A.X2 = startX1;
+        SpaceDimXTick1A.Y1 = y - tickHalf;
+        SpaceDimXTick1A.Y2 = y + tickHalf;
+        SpaceDimXTick1A.Visibility = Visibility.Visible;
+
+        SpaceDimXTick1B.StrokeThickness = strokeW;
+        SpaceDimXTick1B.X1 = endX1;
+        SpaceDimXTick1B.X2 = endX1;
+        SpaceDimXTick1B.Y1 = y - tickHalf;
+        SpaceDimXTick1B.Y2 = y + tickHalf;
+        SpaceDimXTick1B.Visibility = Visibility.Visible;
+
+        // Gap 2
+        SpaceDimXLine2.StrokeThickness = strokeW;
+        SpaceDimXLine2.X1 = startX2;
+        SpaceDimXLine2.X2 = endX2;
+        SpaceDimXLine2.Y1 = y;
+        SpaceDimXLine2.Y2 = y;
+        SpaceDimXLine2.Visibility = Visibility.Visible;
+
+        SpaceDimXTick2A.StrokeThickness = strokeW;
+        SpaceDimXTick2A.X1 = startX2;
+        SpaceDimXTick2A.X2 = startX2;
+        SpaceDimXTick2A.Y1 = y - tickHalf;
+        SpaceDimXTick2A.Y2 = y + tickHalf;
+        SpaceDimXTick2A.Visibility = Visibility.Visible;
+
+        SpaceDimXTick2B.StrokeThickness = strokeW;
+        SpaceDimXTick2B.X1 = endX2;
+        SpaceDimXTick2B.X2 = endX2;
+        SpaceDimXTick2B.Y1 = y - tickHalf;
+        SpaceDimXTick2B.Y2 = y + tickHalf;
+        SpaceDimXTick2B.Visibility = Visibility.Visible;
+
+        // Badges
+        SpaceXBadgeScale1.ScaleX = invZoom;
+        SpaceXBadgeScale1.ScaleY = invZoom;
+        SpaceXText1.Text = $"↔ {Math.Round(gap)} px";
+        SpaceXBadge1.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        double bw1 = (SpaceXBadge1.DesiredSize.Width > 0 ? SpaceXBadge1.DesiredSize.Width : 60) * invZoom;
+        double bh1 = (SpaceXBadge1.DesiredSize.Height > 0 ? SpaceXBadge1.DesiredSize.Height : 20) * invZoom;
+        Canvas.SetLeft(SpaceXBadge1, (startX1 + endX1) / 2.0 - bw1 / 2.0);
+        Canvas.SetTop(SpaceXBadge1, y + 4 * invZoom);
+        SpaceXBadge1.Visibility = Visibility.Visible;
+
+        SpaceXBadgeScale2.ScaleX = invZoom;
+        SpaceXBadgeScale2.ScaleY = invZoom;
+        SpaceXText2.Text = $"↔ {Math.Round(gap)} px";
+        SpaceXBadge2.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        double bw2 = (SpaceXBadge2.DesiredSize.Width > 0 ? SpaceXBadge2.DesiredSize.Width : 60) * invZoom;
+        double bh2 = (SpaceXBadge2.DesiredSize.Height > 0 ? SpaceXBadge2.DesiredSize.Height : 20) * invZoom;
+        Canvas.SetLeft(SpaceXBadge2, (startX2 + endX2) / 2.0 - bw2 / 2.0);
+        Canvas.SetTop(SpaceXBadge2, y + 4 * invZoom);
+        SpaceXBadge2.Visibility = Visibility.Visible;
+    }
+
+    private void HideSpaceGuideHorizontal()
+    {
+        SpaceDimXLine1.Visibility = Visibility.Collapsed;
+        SpaceDimXTick1A.Visibility = Visibility.Collapsed;
+        SpaceDimXTick1B.Visibility = Visibility.Collapsed;
+        SpaceDimXLine2.Visibility = Visibility.Collapsed;
+        SpaceDimXTick2A.Visibility = Visibility.Collapsed;
+        SpaceDimXTick2B.Visibility = Visibility.Collapsed;
+        SpaceXBadge1.Visibility = Visibility.Collapsed;
+        SpaceXBadge2.Visibility = Visibility.Collapsed;
+    }
+
+    internal void ShowSpaceGuideVertical(double startY1, double endY1, double startY2, double endY2, double x, double gap)
+    {
+        double zoom = ViewModel?.ZoomLevel ?? 1.0;
+        if (zoom < 0.05) zoom = 1.0;
+        double invZoom = 1.0 / zoom;
+
+        double tickHalf = 6 * invZoom;
+        double strokeW = 1.5 * invZoom;
+
+        // Gap 1
+        SpaceDimYLine1.StrokeThickness = strokeW;
+        SpaceDimYLine1.X1 = x;
+        SpaceDimYLine1.X2 = x;
+        SpaceDimYLine1.Y1 = startY1;
+        SpaceDimYLine1.Y2 = endY1;
+        SpaceDimYLine1.Visibility = Visibility.Visible;
+
+        SpaceDimYTick1A.StrokeThickness = strokeW;
+        SpaceDimYTick1A.X1 = x - tickHalf;
+        SpaceDimYTick1A.X2 = x + tickHalf;
+        SpaceDimYTick1A.Y1 = startY1;
+        SpaceDimYTick1A.Y2 = startY1;
+        SpaceDimYTick1A.Visibility = Visibility.Visible;
+
+        SpaceDimYTick1B.StrokeThickness = strokeW;
+        SpaceDimYTick1B.X1 = x - tickHalf;
+        SpaceDimYTick1B.X2 = x + tickHalf;
+        SpaceDimYTick1B.Y1 = endY1;
+        SpaceDimYTick1B.Y2 = endY1;
+        SpaceDimYTick1B.Visibility = Visibility.Visible;
+
+        // Gap 2
+        SpaceDimYLine2.StrokeThickness = strokeW;
+        SpaceDimYLine2.X1 = x;
+        SpaceDimYLine2.X2 = x;
+        SpaceDimYLine2.Y1 = startY2;
+        SpaceDimYLine2.Y2 = endY2;
+        SpaceDimYLine2.Visibility = Visibility.Visible;
+
+        SpaceDimYTick2A.StrokeThickness = strokeW;
+        SpaceDimYTick2A.X1 = x - tickHalf;
+        SpaceDimYTick2A.X2 = x + tickHalf;
+        SpaceDimYTick2A.Y1 = startY2;
+        SpaceDimYTick2A.Y2 = startY2;
+        SpaceDimYTick2A.Visibility = Visibility.Visible;
+
+        SpaceDimYTick2B.StrokeThickness = strokeW;
+        SpaceDimYTick2B.X1 = x - tickHalf;
+        SpaceDimYTick2B.X2 = x + tickHalf;
+        SpaceDimYTick2B.Y1 = endY2;
+        SpaceDimYTick2B.Y2 = endY2;
+        SpaceDimYTick2B.Visibility = Visibility.Visible;
+
+        // Badges
+        SpaceYBadgeScale1.ScaleX = invZoom;
+        SpaceYBadgeScale1.ScaleY = invZoom;
+        SpaceYText1.Text = $"↕ {Math.Round(gap)} px";
+        SpaceYBadge1.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        double bw1 = (SpaceYBadge1.DesiredSize.Width > 0 ? SpaceYBadge1.DesiredSize.Width : 60) * invZoom;
+        double bh1 = (SpaceYBadge1.DesiredSize.Height > 0 ? SpaceYBadge1.DesiredSize.Height : 20) * invZoom;
+        Canvas.SetLeft(SpaceYBadge1, x + 4 * invZoom);
+        Canvas.SetTop(SpaceYBadge1, (startY1 + endY1) / 2.0 - bh1 / 2.0);
+        SpaceYBadge1.Visibility = Visibility.Visible;
+
+        SpaceYBadgeScale2.ScaleX = invZoom;
+        SpaceYBadgeScale2.ScaleY = invZoom;
+        SpaceYText2.Text = $"↕ {Math.Round(gap)} px";
+        SpaceYBadge2.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        double bw2 = (SpaceYBadge2.DesiredSize.Width > 0 ? SpaceYBadge2.DesiredSize.Width : 60) * invZoom;
+        double bh2 = (SpaceYBadge2.DesiredSize.Height > 0 ? SpaceYBadge2.DesiredSize.Height : 20) * invZoom;
+        Canvas.SetLeft(SpaceYBadge2, x + 4 * invZoom);
+        Canvas.SetTop(SpaceYBadge2, (startY2 + endY2) / 2.0 - bh2 / 2.0);
+        SpaceYBadge2.Visibility = Visibility.Visible;
+    }
+
+    private void HideSpaceGuideVertical()
+    {
+        SpaceDimYLine1.Visibility = Visibility.Collapsed;
+        SpaceDimYTick1A.Visibility = Visibility.Collapsed;
+        SpaceDimYTick1B.Visibility = Visibility.Collapsed;
+        SpaceDimYLine2.Visibility = Visibility.Collapsed;
+        SpaceDimYTick2A.Visibility = Visibility.Collapsed;
+        SpaceDimYTick2B.Visibility = Visibility.Collapsed;
+        SpaceYBadge1.Visibility = Visibility.Collapsed;
+        SpaceYBadge2.Visibility = Visibility.Collapsed;
+    }
+
+    internal void HideSpaceGuides()
+    {
+        HideSpaceGuideHorizontal();
+        HideSpaceGuideVertical();
+    }
+
 private void Viewport_MouseUp(object sender, MouseButtonEventArgs e)
     {
         if (_isPanning)
@@ -714,6 +1093,7 @@ private void Viewport_MouseUp(object sender, MouseButtonEventArgs e)
                 SnapGuideVertical.Visibility = Visibility.Collapsed;
                 SnapGuideHorizontal.Visibility = Visibility.Collapsed;
                 HideSizeGuides();
+                HideSpaceGuides();
 
                 // Commit atomic undoable Move Command only if positions actually changed
                 var moves = _initialItemPositions
@@ -1107,6 +1487,7 @@ private void Viewport_MouseUp(object sender, MouseButtonEventArgs e)
         SnapGuideVertical.Visibility = Visibility.Collapsed;
         SnapGuideHorizontal.Visibility = Visibility.Collapsed;
         HideSizeGuides();
+        HideSpaceGuides();
     }
 
     private void Viewport_DragOver(object sender, DragEventArgs e)

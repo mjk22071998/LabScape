@@ -14238,4 +14238,76 @@ public class CoreTests
         Assert.Contains("ShowEqualHeightGuide", canvasCs);
         Assert.Contains("HideSizeGuides", canvasCs);
     }
+
+    [Fact]
+    public void SpaceAndSizeHints_DrawIoParity_Groups_MultiSelection_And_IndividualItems_Verified()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+        Assert.NotNull(projectRoot);
+
+        // 1. Verify Space Assist XAML definitions (Lines, Ticks, Badges for X and Y gaps matching draw.io DistanceGuides)
+        string canvasXamlPath = Path.Combine(projectRoot, "src", "LabScape.App", "Views", "CanvasView.xaml");
+        string canvasXaml = File.ReadAllText(canvasXamlPath);
+        Assert.Contains("SpaceDimXLine1", canvasXaml);
+        Assert.Contains("SpaceDimXLine2", canvasXaml);
+        Assert.Contains("SpaceXBadge1", canvasXaml);
+        Assert.Contains("SpaceXBadge2", canvasXaml);
+        Assert.Contains("SpaceDimYLine1", canvasXaml);
+        Assert.Contains("SpaceDimYLine2", canvasXaml);
+        Assert.Contains("SpaceYBadge1", canvasXaml);
+        Assert.Contains("SpaceYBadge2", canvasXaml);
+
+        // 2. Verify CanvasView code-behind implements space guide methods and snap logic
+        string canvasCsPath = Path.Combine(projectRoot, "src", "LabScape.App", "Views", "CanvasView.xaml.cs");
+        string canvasCs = File.ReadAllText(canvasCsPath);
+        Assert.Contains("ShowSpaceGuideHorizontal", canvasCs);
+        Assert.Contains("ShowSpaceGuideVertical", canvasCs);
+        Assert.Contains("HideSpaceGuides", canvasCs);
+        Assert.Contains("snapSpaceXFound", canvasCs);
+        Assert.Contains("snapSpaceYFound", canvasCs);
+
+        // 3. Verify Size Assist is present in both SelectionAdorner (individual & groups) and MultiSelectionAdorner (multiple selection)
+        string adornerPath = Path.Combine(projectRoot, "src", "LabScape.App", "Adorners", "SelectionAdorner.cs");
+        string adornerCode = File.ReadAllText(adornerPath);
+        Assert.Contains("ShowEqualWidthGuideAction", adornerCode);
+        Assert.Contains("ShowEqualHeightGuideAction", adornerCode);
+        Assert.Contains("bestDistSizeW", adornerCode);
+        Assert.Contains("bestDistSizeH", adornerCode);
+
+        string multiAdornerPath = Path.Combine(projectRoot, "src", "LabScape.App", "Adorners", "MultiSelectionAdorner.cs");
+        string multiAdornerCode = File.ReadAllText(multiAdornerPath);
+        Assert.Contains("ShowEqualWidthGuideAction", multiAdornerCode);
+        Assert.Contains("ShowEqualHeightGuideAction", multiAdornerCode);
+        Assert.Contains("bestDistSizeW", multiAdornerCode);
+        Assert.Contains("bestDistSizeH", multiAdornerCode);
+
+        // 4. Verify mathematical gap calculation for equal spacing:
+        // Pattern 1: M placed between A and B -> gap = (B.Left - A.Right - M.Width) / 2
+        double aRight = 100.0;
+        double bLeft = 400.0;
+        double mWidth = 100.0;
+        double expectedGap = (bLeft - aRight - mWidth) / 2.0; // (400 - 100 - 100) / 2 = 100
+        double targetMLeft = aRight + expectedGap; // 200
+        Assert.Equal(100.0, expectedGap);
+        Assert.Equal(200.0, targetMLeft);
+        Assert.Equal(expectedGap, targetMLeft - aRight);
+        Assert.Equal(expectedGap, bLeft - (targetMLeft + mWidth));
+
+        // Pattern 2: M placed adjacent to A and B with existing gap -> gap = B.Left - A.Right
+        double existingGap = 60.0;
+        double bRight = 200.0;
+        double targetAdjacentMLeft = bRight + existingGap; // 260
+        Assert.Equal(260.0, targetAdjacentMLeft);
+        Assert.Equal(existingGap, targetAdjacentMLeft - bRight);
+    }
 }

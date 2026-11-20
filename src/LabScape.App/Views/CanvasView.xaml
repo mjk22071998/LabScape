@@ -736,6 +736,83 @@
                                FontFamily="Consolas, Segoe UI"/>
                 </Border>
 
+                <!-- Dynamic Space Assist Guides (Equal Spacing / Distance - Draw.io Style) -->
+                <!-- Horizontal Spacing Gap 1 -->
+                <Line x:Name="SpaceDimXLine1" Stroke="#0284C7" StrokeThickness="1.5" StrokeDashArray="3 1"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <Line x:Name="SpaceDimXTick1A" Stroke="#0284C7" StrokeThickness="1.5"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <Line x:Name="SpaceDimXTick1B" Stroke="#0284C7" StrokeThickness="1.5"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <!-- Horizontal Spacing Gap 2 -->
+                <Line x:Name="SpaceDimXLine2" Stroke="#0284C7" StrokeThickness="1.5" StrokeDashArray="3 1"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <Line x:Name="SpaceDimXTick2A" Stroke="#0284C7" StrokeThickness="1.5"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <Line x:Name="SpaceDimXTick2B" Stroke="#0284C7" StrokeThickness="1.5"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <!-- Horizontal Spacing Badges -->
+                <Border x:Name="SpaceXBadge1" Background="#0284C7" BorderBrush="#38BDF8" BorderThickness="1"
+                        CornerRadius="9" Padding="6,2" Visibility="Collapsed" Panel.ZIndex="9999" IsHitTestVisible="False">
+                    <Border.LayoutTransform>
+                        <ScaleTransform x:Name="SpaceXBadgeScale1"/>
+                    </Border.LayoutTransform>
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.28" Color="#000000"/>
+                    </Border.Effect>
+                    <TextBlock x:Name="SpaceXText1" Foreground="White" FontSize="11" FontWeight="SemiBold"
+                               FontFamily="Consolas, Segoe UI"/>
+                </Border>
+                <Border x:Name="SpaceXBadge2" Background="#0284C7" BorderBrush="#38BDF8" BorderThickness="1"
+                        CornerRadius="9" Padding="6,2" Visibility="Collapsed" Panel.ZIndex="9999" IsHitTestVisible="False">
+                    <Border.LayoutTransform>
+                        <ScaleTransform x:Name="SpaceXBadgeScale2"/>
+                    </Border.LayoutTransform>
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.28" Color="#000000"/>
+                    </Border.Effect>
+                    <TextBlock x:Name="SpaceXText2" Foreground="White" FontSize="11" FontWeight="SemiBold"
+                               FontFamily="Consolas, Segoe UI"/>
+                </Border>
+
+                <!-- Vertical Spacing Gap 1 -->
+                <Line x:Name="SpaceDimYLine1" Stroke="#0284C7" StrokeThickness="1.5" StrokeDashArray="3 1"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <Line x:Name="SpaceDimYTick1A" Stroke="#0284C7" StrokeThickness="1.5"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <Line x:Name="SpaceDimYTick1B" Stroke="#0284C7" StrokeThickness="1.5"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <!-- Vertical Spacing Gap 2 -->
+                <Line x:Name="SpaceDimYLine2" Stroke="#0284C7" StrokeThickness="1.5" StrokeDashArray="3 1"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <Line x:Name="SpaceDimYTick2A" Stroke="#0284C7" StrokeThickness="1.5"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <Line x:Name="SpaceDimYTick2B" Stroke="#0284C7" StrokeThickness="1.5"
+                      Visibility="Collapsed" Panel.ZIndex="9998" IsHitTestVisible="False"/>
+                <!-- Vertical Spacing Badges -->
+                <Border x:Name="SpaceYBadge1" Background="#0284C7" BorderBrush="#38BDF8" BorderThickness="1"
+                        CornerRadius="9" Padding="6,2" Visibility="Collapsed" Panel.ZIndex="9999" IsHitTestVisible="False">
+                    <Border.LayoutTransform>
+                        <ScaleTransform x:Name="SpaceYBadgeScale1"/>
+                    </Border.LayoutTransform>
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.28" Color="#000000"/>
+                    </Border.Effect>
+                    <TextBlock x:Name="SpaceYText1" Foreground="White" FontSize="11" FontWeight="SemiBold"
+                               FontFamily="Consolas, Segoe UI"/>
+                </Border>
+                <Border x:Name="SpaceYBadge2" Background="#0284C7" BorderBrush="#38BDF8" BorderThickness="1"
+                        CornerRadius="9" Padding="6,2" Visibility="Collapsed" Panel.ZIndex="9999" IsHitTestVisible="False">
+                    <Border.LayoutTransform>
+                        <ScaleTransform x:Name="SpaceYBadgeScale2"/>
+                    </Border.LayoutTransform>
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.28" Color="#000000"/>
+                    </Border.Effect>
+                    <TextBlock x:Name="SpaceYText2" Foreground="White" FontSize="11" FontWeight="SemiBold"
+                               FontFamily="Consolas, Segoe UI"/>
+                </Border>
+
                 <!-- Drag & Drop Ghost Preview -->
                 <Border x:Name="DragGhost"
                         BorderBrush="{DynamicResource AccentPrimaryBrush}" BorderThickness="1.5"
