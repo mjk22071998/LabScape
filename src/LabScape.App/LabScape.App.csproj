@@ -25,4 +25,16 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
+  <!-- Automatically sync build output to dist/publish so root LabScape.lnk always launches the latest app -->
+  <Target Name="SyncToDistPublish" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <_AppOutputFiles Include="$(TargetDir)**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_AppOutputFiles)"
+          DestinationFiles="@(_AppOutputFiles->'$(MSBuildThisFileDirectory)..\..\dist\publish\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true"
+          OverwriteReadOnlyFiles="true"
+          ContinueOnError="true" />
+  </Target>
+
 </Project>
