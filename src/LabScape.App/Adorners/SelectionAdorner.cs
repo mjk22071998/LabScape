@@ -77,7 +77,6 @@ public class SelectionAdorner : Adorner
     private double _initialAngleOffset;
     private double _initialX, _initialY, _initialW, _initialH, _initialRot;
     private double _initialCornerRadius, _initialInnerRadius;
-    private double _initialCP1X, _initialCP1Y, _initialCP2X, _initialCP2Y;
     private double _initialStartX, _initialStartY, _initialEndX, _initialEndY;
     private Point _initialCanvasStart, _initialCanvasEnd;
 

@@ -12,7 +12,7 @@
 
     <UserControl.Resources>
         <!-- Canvas Item Context Menu -->
-        <ContextMenu x:Key="ItemContextMenu">
+        <ContextMenu x:Key="ItemContextMenu" Opened="ItemContextMenu_Opened">
             <MenuItem Header="Cut" Command="{Binding PlacementTarget.Tag.CutSelectedCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" InputGestureText="Ctrl+X">
                 <MenuItem.Icon>
                     <Image Source="{StaticResource IconCut}" Width="15" Height="15"/>
@@ -129,6 +129,9 @@
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="Remove Custom Image" Click="ItemContextMenu_RemoveImage_Click"/>
+            <Separator Tag="BezierSeparator"/>
+            <MenuItem Header="Add Control Point" Tag="BezierAdd" Click="ItemContextMenu_AddBezierPoint_Click"/>
+            <MenuItem Header="Remove Control Point" Tag="BezierRemove" Click="ItemContextMenu_RemoveBezierPoint_Click"/>
         </ContextMenu>
 
         <!-- Canvas Background Context Menu -->

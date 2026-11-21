@@ -14478,4 +14478,61 @@ public class CoreTests
         Assert.Contains("control_points", webViewerCode);
         Assert.Contains("evaluateDeCasteljau", webViewerCode);
     }
+
+    [Fact]
+    public void PropertiesViewModel_BezierControlPointsCommands_ExecuteSuccessfully()
+    {
+        var undo = new UndoRedoService();
+        var canvas = new CanvasViewModel(undo);
+        var shape = new ShapeItemViewModel(new ShapeItem
+        {
+            ShapeType = ShapeType.Bezier,
+            StartX = 10,
+            StartY = 20,
+            EndX = 200,
+            EndY = 150,
+            ControlPoint1X = 60,
+            ControlPoint1Y = 30,
+            ControlPoint2X = 140,
+            ControlPoint2Y = 170
+        });
+
+        canvas.AddItem(shape);
+        canvas.SelectedItems.Add(shape);
+
+        var props = new PropertiesViewModel(canvas);
+        Assert.True(props.IsBezier);
+        Assert.Equal(2, props.BezierControlPointsCount);
+        Assert.True(props.CanAddBezierControlPoint);
+        Assert.True(props.CanRemoveBezierControlPoint);
+
+        // Add a control point
+        props.AddBezierControlPointCommand.Execute(null);
+        Assert.Equal(3, props.BezierControlPointsCount);
+        Assert.Equal(3, shape.ControlPointCount);
+
+        // Undo
+        undo.Undo();
+        Assert.Equal(2, shape.ControlPointCount);
+        Assert.Equal(2, props.BezierControlPointsCount);
+
+        // Redo
+        undo.Redo();
+        Assert.Equal(3, shape.ControlPointCount);
+        Assert.Equal(3, props.BezierControlPointsCount);
+
+        // Remove a control point
+        props.RemoveBezierControlPointCommand.Execute(null);
+        Assert.Equal(2, props.BezierControlPointsCount);
+        Assert.Equal(2, shape.ControlPointCount);
+
+        // Remove down to 1
+        props.RemoveBezierControlPointCommand.Execute(null);
+        Assert.Equal(1, props.BezierControlPointsCount);
+        Assert.False(props.CanRemoveBezierControlPoint);
+
+        // Trying to remove when count == 1 should do nothing
+        props.RemoveBezierControlPointCommand.Execute(null);
+        Assert.Equal(1, props.BezierControlPointsCount);
+    }
 }

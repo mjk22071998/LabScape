@@ -1411,6 +1411,24 @@ public partial class PropertiesViewModel : ObservableObject
 
         }
 
+        if (e.PropertyName is nameof(ShapeItemViewModel.ControlPointCount))
+
+        {
+
+            if (SelectedItem is ShapeItemViewModel shape && shape.ShapeType == ShapeType.Bezier)
+
+            {
+
+                BezierControlPointsCount = shape.ControlPointCount;
+
+                OnPropertyChanged(nameof(CanAddBezierControlPoint));
+
+                OnPropertyChanged(nameof(CanRemoveBezierControlPoint));
+
+            }
+
+        }
+
         if (e.PropertyName is nameof(ItemViewModel.SvgColorMap))
 
         {

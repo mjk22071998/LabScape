@@ -1679,6 +1679,74 @@ private void Viewport_MouseUp(object sender, MouseButtonEventArgs e)
         }
     }
 
+    private void ItemContextMenu_Opened(object sender, RoutedEventArgs e)
+    {
+        if (sender is not ContextMenu cm) return;
+        bool isBezier = ViewModel?.SelectedItems.FirstOrDefault() is ShapeItemViewModel shape && shape.ShapeType == ShapeType.Bezier;
+        foreach (var item in cm.Items)
+        {
+            if (item is MenuItem mi)
+            {
+                if (Equals(mi.Tag, "BezierAdd"))
+                {
+                    mi.Visibility = isBezier ? Visibility.Visible : Visibility.Collapsed;
+                }
+                else if (Equals(mi.Tag, "BezierRemove"))
+                {
+                    mi.Visibility = isBezier ? Visibility.Visible : Visibility.Collapsed;
+                    if (isBezier && ViewModel?.SelectedItems.FirstOrDefault() is ShapeItemViewModel bezierShape)
+                    {
+                        mi.IsEnabled = bezierShape.ControlPointCount > 1;
+                    }
+                }
+            }
+            else if (item is Separator sep && Equals(sep.Tag, "BezierSeparator"))
+            {
+                sep.Visibility = isBezier ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+    }
+
+    private void ItemContextMenu_AddBezierPoint_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel?.SelectedItems.FirstOrDefault() is ShapeItemViewModel shape && shape.ShapeType == ShapeType.Bezier)
+        {
+            var oldPoints = shape.GetControlPoints().Select(p => new ControlPoint(p.X, p.Y)).ToList();
+            double newX, newY;
+            if (oldPoints.Count > 0)
+            {
+                var last = oldPoints[^1];
+                newX = Math.Round((last.X + shape.EndX) / 2.0, 1);
+                newY = Math.Round((last.Y + shape.EndY) / 2.0, 1);
+            }
+            else
+            {
+                newX = Math.Round((shape.StartX + shape.EndX) / 2.0, 1);
+                newY = Math.Round((shape.StartY + shape.EndY) / 2.0, 1);
+            }
+            var newPoints = new List<ControlPoint>(oldPoints) { new ControlPoint(newX, newY) };
+            var cmd = new ModifyBezierControlPointsCommand(
+                shape,
+                shape.StartX, shape.StartY, shape.EndX, shape.EndY, oldPoints,
+                shape.StartX, shape.StartY, shape.EndX, shape.EndY, newPoints);
+            ViewModel.UndoRedoService.ExecuteCommand(cmd);
+        }
+    }
+
+    private void ItemContextMenu_RemoveBezierPoint_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel?.SelectedItems.FirstOrDefault() is ShapeItemViewModel shape && shape.ShapeType == ShapeType.Bezier && shape.ControlPointCount > 1)
+        {
+            var oldPoints = shape.GetControlPoints().Select(p => new ControlPoint(p.X, p.Y)).ToList();
+            var newPoints = oldPoints.Take(oldPoints.Count - 1).ToList();
+            var cmd = new ModifyBezierControlPointsCommand(
+                shape,
+                shape.StartX, shape.StartY, shape.EndX, shape.EndY, oldPoints,
+                shape.StartX, shape.StartY, shape.EndX, shape.EndY, newPoints);
+            ViewModel.UndoRedoService.ExecuteCommand(cmd);
+        }
+    }
+
     private string? _editingInitialText;
 
     private void InPlaceTextBox_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
