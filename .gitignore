@@ -8,3 +8,4 @@ dist/
 src/LabScape.Setup/Resources/payload.zip
 .worktrees/
 worktrees/
+.superpowers/

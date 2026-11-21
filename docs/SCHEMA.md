@@ -239,7 +239,8 @@ interface ShapeItem extends BaseItem {
   cornerRadius?: number;        // For rounded_rectangle & rounded_corner_triangle
   innerRadius?: number;         // For donut
   outerRadius?: number;         // For donut
-  points?: number[];            // Coordinates for line [x1,y1,x2,y2] or bezier [x0,y0,cp1x,cp1y,cp2x,cp2y,x1,y1]
+  points?: number[];            // Coordinates for line [x1,y1,x2,y2] or legacy bezier [x0,y0,cp1x,cp1y,cp2x,cp2y,x1,y1]
+  control_points?: { x: number; y: number }[]; // Multi-control-point spline points for bezier curve
 }
 ```
 

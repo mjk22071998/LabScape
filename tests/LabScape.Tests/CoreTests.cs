@@ -14474,4 +14474,55 @@ public class CoreTests
         Assert.False(propsVm.HasSelection);
         Assert.Null(propsVm.SelectedItem);
     }
+
+    [Fact]
+    public void ShapeItem_MultiControlPoints_SerializesAndMaintainsBackwardCompatibility()
+    {
+        var shape = new ShapeItem
+        {
+            ShapeType = ShapeType.Bezier,
+            StartX = 10,
+            StartY = 80,
+            EndX = 200,
+            EndY = 80
+        };
+        shape.ControlPoints.Clear();
+        shape.ControlPoints.Add(new ControlPoint(40, 20));
+        shape.ControlPoints.Add(new ControlPoint(100, 140));
+        shape.ControlPoints.Add(new ControlPoint(160, 20));
+
+        Assert.Equal(3, shape.ControlPoints.Count);
+        Assert.Equal(40, shape.ControlPoint1X);
+        Assert.Equal(100, shape.ControlPoint2X);
+
+        string json = System.Text.Json.JsonSerializer.Serialize(shape);
+        Assert.Contains("\"control_points\":", json);
+
+        var deserialized = System.Text.Json.JsonSerializer.Deserialize<ShapeItem>(json);
+        Assert.NotNull(deserialized);
+        Assert.Equal(3, deserialized.ControlPoints.Count);
+        Assert.Equal(160, deserialized.ControlPoints[2].X);
+
+        // Also test backward compatibility: older JSON without control_points
+        string legacyJson = """
+        {
+            "shape_type": 7,
+            "start_x": 15,
+            "start_y": 75,
+            "end_x": 150,
+            "end_y": 75,
+            "control_point1_x": 45,
+            "control_point1_y": 25,
+            "control_point2_x": 115,
+            "control_point2_y": 125
+        }
+        """;
+        var legacyDeserialized = System.Text.Json.JsonSerializer.Deserialize<ShapeItem>(legacyJson);
+        Assert.NotNull(legacyDeserialized);
+        Assert.Equal(2, legacyDeserialized.ControlPoints.Count);
+        Assert.Equal(45, legacyDeserialized.ControlPoints[0].X);
+        Assert.Equal(25, legacyDeserialized.ControlPoints[0].Y);
+        Assert.Equal(115, legacyDeserialized.ControlPoints[1].X);
+        Assert.Equal(125, legacyDeserialized.ControlPoints[1].Y);
+    }
 }
