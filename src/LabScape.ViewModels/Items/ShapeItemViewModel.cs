@@ -50,6 +50,69 @@ public partial class ShapeItemViewModel : ItemViewModel, IStylableItemViewModel
     [ObservableProperty]
     private double _controlPoint2Y;
 
+    public IReadOnlyList<ControlPoint> GetControlPoints() => ShapeModel.ControlPoints.AsReadOnly();
+
+    public int ControlPointCount => ShapeModel.ControlPoints.Count;
+
+    public void AddControlPoint(double x, double y, int? index = null)
+    {
+        var cp = new ControlPoint(x, y);
+        if (index.HasValue && index.Value >= 0 && index.Value <= ShapeModel.ControlPoints.Count)
+        {
+            ShapeModel.ControlPoints.Insert(index.Value, cp);
+        }
+        else
+        {
+            ShapeModel.ControlPoints.Add(cp);
+        }
+
+        SyncFromModel();
+        OnPropertyChanged(nameof(ControlPointCount));
+        OnPropertyChanged(string.Empty);
+    }
+
+    public bool RemoveControlPoint(int index)
+    {
+        if (ShapeModel.ControlPoints.Count <= 1 || index < 0 || index >= ShapeModel.ControlPoints.Count)
+        {
+            return false;
+        }
+
+        ShapeModel.ControlPoints.RemoveAt(index);
+        SyncFromModel();
+        OnPropertyChanged(nameof(ControlPointCount));
+        OnPropertyChanged(string.Empty);
+        return true;
+    }
+
+    public void SetControlPoint(int index, double x, double y)
+    {
+        if (index >= 0 && index < ShapeModel.ControlPoints.Count)
+        {
+            ShapeModel.ControlPoints[index].X = x;
+            ShapeModel.ControlPoints[index].Y = y;
+            SyncFromModel();
+            OnPropertyChanged(string.Empty);
+        }
+    }
+
+    public void SetAllControlPoints(IEnumerable<ControlPoint> points)
+    {
+        ShapeModel.ControlPoints = points.Select(p => new ControlPoint(p.X, p.Y)).ToList();
+        SyncFromModel();
+        OnPropertyChanged(nameof(ControlPointCount));
+        OnPropertyChanged(string.Empty);
+    }
+
+    private void SyncFromModel()
+    {
+        ShapeModel.SyncLegacyControlPoints();
+        ControlPoint1X = ShapeModel.ControlPoint1X;
+        ControlPoint1Y = ShapeModel.ControlPoint1Y;
+        ControlPoint2X = ShapeModel.ControlPoint2X;
+        ControlPoint2Y = ShapeModel.ControlPoint2Y;
+    }
+
     public override bool ShowCanvasLabel => false;
 
     public ShapeItemViewModel(ShapeItem model) : base(model)

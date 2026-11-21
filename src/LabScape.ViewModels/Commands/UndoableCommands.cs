@@ -2,6 +2,7 @@ using LabScape.Core.Enums;
 using System.Collections.ObjectModel;
 using LabScape.Core.Collections;
 using LabScape.Core.Interfaces;
+using LabScape.Core.Models;
 using LabScape.ViewModels.Items;
 
 namespace LabScape.ViewModels.Commands;
@@ -293,11 +294,31 @@ public class ModifyBezierControlPointsCommand : IUndoableCommand
 {
     private readonly ShapeItemViewModel _item;
     private readonly double _oldStartX, _oldStartY, _oldEndX, _oldEndY;
-    private readonly double _oldCp1X, _oldCp1Y, _oldCp2X, _oldCp2Y;
     private readonly double _newStartX, _newStartY, _newEndX, _newEndY;
-    private readonly double _newCp1X, _newCp1Y, _newCp2X, _newCp2Y;
+    private readonly List<ControlPoint> _oldPoints;
+    private readonly List<ControlPoint> _newPoints;
 
     public string Description => $"Modify Bezier Curve on {_item.Name}";
+
+    public ModifyBezierControlPointsCommand(
+        ShapeItemViewModel item,
+        double oldStartX, double oldStartY, double oldEndX, double oldEndY,
+        IEnumerable<ControlPoint> oldPoints,
+        double newStartX, double newStartY, double newEndX, double newEndY,
+        IEnumerable<ControlPoint> newPoints)
+    {
+        _item = item;
+        _oldStartX = oldStartX;
+        _oldStartY = oldStartY;
+        _oldEndX = oldEndX;
+        _oldEndY = oldEndY;
+        _oldPoints = oldPoints.Select(p => new ControlPoint(p.X, p.Y)).ToList();
+        _newStartX = newStartX;
+        _newStartY = newStartY;
+        _newEndX = newEndX;
+        _newEndY = newEndY;
+        _newPoints = newPoints.Select(p => new ControlPoint(p.X, p.Y)).ToList();
+    }
 
     public ModifyBezierControlPointsCommand(
         ShapeItemViewModel item,
@@ -305,9 +326,9 @@ public class ModifyBezierControlPointsCommand : IUndoableCommand
         double newCp1X, double newCp1Y, double newCp2X, double newCp2Y)
         : this(item,
                item.StartX, item.StartY, item.EndX, item.EndY,
-               oldCp1X, oldCp1Y, oldCp2X, oldCp2Y,
+               new[] { new ControlPoint(oldCp1X, oldCp1Y), new ControlPoint(oldCp2X, oldCp2Y) },
                item.StartX, item.StartY, item.EndX, item.EndY,
-               newCp1X, newCp1Y, newCp2X, newCp2Y)
+               new[] { new ControlPoint(newCp1X, newCp1Y), new ControlPoint(newCp2X, newCp2Y) })
     {
     }
 
@@ -317,24 +338,12 @@ public class ModifyBezierControlPointsCommand : IUndoableCommand
         double oldCp1X, double oldCp1Y, double oldCp2X, double oldCp2Y,
         double newStartX, double newStartY, double newEndX, double newEndY,
         double newCp1X, double newCp1Y, double newCp2X, double newCp2Y)
+        : this(item,
+               oldStartX, oldStartY, oldEndX, oldEndY,
+               new[] { new ControlPoint(oldCp1X, oldCp1Y), new ControlPoint(oldCp2X, oldCp2Y) },
+               newStartX, newStartY, newEndX, newEndY,
+               new[] { new ControlPoint(newCp1X, newCp1Y), new ControlPoint(newCp2X, newCp2Y) })
     {
-        _item = item;
-        _oldStartX = oldStartX;
-        _oldStartY = oldStartY;
-        _oldEndX = oldEndX;
-        _oldEndY = oldEndY;
-        _oldCp1X = oldCp1X;
-        _oldCp1Y = oldCp1Y;
-        _oldCp2X = oldCp2X;
-        _oldCp2Y = oldCp2Y;
-        _newStartX = newStartX;
-        _newStartY = newStartY;
-        _newEndX = newEndX;
-        _newEndY = newEndY;
-        _newCp1X = newCp1X;
-        _newCp1Y = newCp1Y;
-        _newCp2X = newCp2X;
-        _newCp2Y = newCp2Y;
     }
 
     public void Execute()
@@ -343,10 +352,7 @@ public class ModifyBezierControlPointsCommand : IUndoableCommand
         _item.StartY = _newStartY;
         _item.EndX = _newEndX;
         _item.EndY = _newEndY;
-        _item.ControlPoint1X = _newCp1X;
-        _item.ControlPoint1Y = _newCp1Y;
-        _item.ControlPoint2X = _newCp2X;
-        _item.ControlPoint2Y = _newCp2Y;
+        _item.SetAllControlPoints(_newPoints);
         UpdateDimensions(_item);
     }
 
@@ -356,19 +362,25 @@ public class ModifyBezierControlPointsCommand : IUndoableCommand
         _item.StartY = _oldStartY;
         _item.EndX = _oldEndX;
         _item.EndY = _oldEndY;
-        _item.ControlPoint1X = _oldCp1X;
-        _item.ControlPoint1Y = _oldCp1Y;
-        _item.ControlPoint2X = _oldCp2X;
-        _item.ControlPoint2Y = _oldCp2Y;
+        _item.SetAllControlPoints(_oldPoints);
         UpdateDimensions(_item);
     }
 
     private static void UpdateDimensions(ShapeItemViewModel shape)
     {
-        double minX = Math.Min(Math.Min(shape.StartX, shape.EndX), Math.Min(shape.ControlPoint1X, shape.ControlPoint2X));
-        double maxX = Math.Max(Math.Max(shape.StartX, shape.EndX), Math.Max(shape.ControlPoint1X, shape.ControlPoint2X));
-        double minY = Math.Min(Math.Min(shape.StartY, shape.EndY), Math.Min(shape.ControlPoint1Y, shape.ControlPoint2Y));
-        double maxY = Math.Max(Math.Max(shape.StartY, shape.EndY), Math.Max(shape.ControlPoint1Y, shape.ControlPoint2Y));
+        var pts = shape.GetControlPoints();
+        double minX = Math.Min(shape.StartX, shape.EndX);
+        double maxX = Math.Max(shape.StartX, shape.EndX);
+        double minY = Math.Min(shape.StartY, shape.EndY);
+        double maxY = Math.Max(shape.StartY, shape.EndY);
+
+        foreach (var p in pts)
+        {
+            minX = Math.Min(minX, p.X);
+            maxX = Math.Max(maxX, p.X);
+            minY = Math.Min(minY, p.Y);
+            maxY = Math.Max(maxY, p.Y);
+        }
 
         double spanX = minX < 0 ? maxX - minX : maxX;
         double spanY = minY < 0 ? maxY - minY : maxY;

@@ -630,6 +630,18 @@ public partial class PropertiesViewModel : ObservableObject
 
     private bool _isDonut;
 
+    [ObservableProperty]
+
+    private bool _isBezier;
+
+    [ObservableProperty]
+
+    private int _bezierControlPointsCount;
+
+    public bool CanAddBezierControlPoint => IsBezier;
+
+    public bool CanRemoveBezierControlPoint => IsBezier && BezierControlPointsCount > 1;
+
 
 
     [ObservableProperty]
@@ -1101,6 +1113,10 @@ public partial class PropertiesViewModel : ObservableObject
 
             IsDonut = false;
 
+            IsBezier = false;
+
+            BezierControlPointsCount = 0;
+
             IsFillApplicable = false;
 
             SvgColors.Clear();
@@ -1271,6 +1287,10 @@ public partial class PropertiesViewModel : ObservableObject
 
                 IsDonut = shapeVm.ShapeType == ShapeType.Donut;
 
+                IsBezier = shapeVm.ShapeType == ShapeType.Bezier;
+
+                BezierControlPointsCount = shapeVm.ShapeType == ShapeType.Bezier ? shapeVm.ControlPointCount : 0;
+
                 CommonCornerRadius = shapeVm.CornerRadius;
 
                 CommonInnerRadius = shapeVm.InnerRadius;
@@ -1286,6 +1306,10 @@ public partial class PropertiesViewModel : ObservableObject
                 IsRoundedShape = false;
 
                 IsDonut = false;
+
+            IsBezier = false;
+
+            BezierControlPointsCount = 0;
 
             }
 
@@ -1323,9 +1347,11 @@ public partial class PropertiesViewModel : ObservableObject
 
             IsDonut = _canvasViewModel.SelectedItems.All(i => i is ShapeItemViewModel s && s.ShapeType == ShapeType.Donut);
 
-
+            IsBezier = _canvasViewModel.SelectedItems.All(i => i is ShapeItemViewModel s && s.ShapeType == ShapeType.Bezier);
 
             var firstShape = _canvasViewModel.SelectedItems.OfType<ShapeItemViewModel>().FirstOrDefault();
+
+            BezierControlPointsCount = IsBezier && firstShape != null ? firstShape.ControlPointCount : 0;
 
             if (firstShape != null)
 
@@ -3409,6 +3435,66 @@ public partial class PropertiesViewModel : ObservableObject
 
         }
 
+    }
+
+    [RelayCommand]
+    public void AddBezierControlPoint()
+    {
+        if (SelectedItem is not ShapeItemViewModel shape || shape.ShapeType != ShapeType.Bezier) return;
+        var oldPoints = shape.GetControlPoints().Select(p => new ControlPoint(p.X, p.Y)).ToList();
+
+        double newX, newY;
+        if (oldPoints.Count > 0)
+        {
+            var last = oldPoints[^1];
+            newX = Math.Round((last.X + shape.EndX) / 2.0, 1);
+            newY = Math.Round((last.Y + shape.EndY) / 2.0, 1);
+        }
+        else
+        {
+            newX = Math.Round((shape.StartX + shape.EndX) / 2.0, 1);
+            newY = Math.Round((shape.StartY + shape.EndY) / 2.0, 1);
+        }
+
+        var newPoints = new List<ControlPoint>(oldPoints) { new ControlPoint(newX, newY) };
+        var cmd = new ModifyBezierControlPointsCommand(
+            shape,
+            shape.StartX, shape.StartY, shape.EndX, shape.EndY, oldPoints,
+            shape.StartX, shape.StartY, shape.EndX, shape.EndY, newPoints);
+        if (_canvasViewModel?.UndoRedoService != null)
+        {
+            _canvasViewModel.UndoRedoService.ExecuteCommand(cmd);
+        }
+        else
+        {
+            cmd.Execute();
+        }
+        BezierControlPointsCount = shape.ControlPointCount;
+        OnPropertyChanged(nameof(CanAddBezierControlPoint));
+        OnPropertyChanged(nameof(CanRemoveBezierControlPoint));
+    }
+
+    [RelayCommand]
+    public void RemoveBezierControlPoint()
+    {
+        if (SelectedItem is not ShapeItemViewModel shape || shape.ShapeType != ShapeType.Bezier || shape.ControlPointCount <= 1) return;
+        var oldPoints = shape.GetControlPoints().Select(p => new ControlPoint(p.X, p.Y)).ToList();
+        var newPoints = oldPoints.Take(oldPoints.Count - 1).ToList();
+        var cmd = new ModifyBezierControlPointsCommand(
+            shape,
+            shape.StartX, shape.StartY, shape.EndX, shape.EndY, oldPoints,
+            shape.StartX, shape.StartY, shape.EndX, shape.EndY, newPoints);
+        if (_canvasViewModel?.UndoRedoService != null)
+        {
+            _canvasViewModel.UndoRedoService.ExecuteCommand(cmd);
+        }
+        else
+        {
+            cmd.Execute();
+        }
+        BezierControlPointsCount = shape.ControlPointCount;
+        OnPropertyChanged(nameof(CanAddBezierControlPoint));
+        OnPropertyChanged(nameof(CanRemoveBezierControlPoint));
     }
 
 }

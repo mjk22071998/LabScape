@@ -14525,4 +14525,34 @@ public class CoreTests
         Assert.Equal(115, legacyDeserialized.ControlPoints[1].X);
         Assert.Equal(125, legacyDeserialized.ControlPoints[1].Y);
     }
+
+    [Fact]
+    public void ShapeItemViewModel_AddAndRemoveControlPoints_WithUndoRedo()
+    {
+        var model = new ShapeItem { ShapeType = ShapeType.Bezier };
+        var vm = new ShapeItemViewModel(model);
+        var undoService = new UndoRedoService();
+
+        Assert.Equal(2, vm.GetControlPoints().Count);
+
+        // Add 3rd control point
+        var oldPoints = vm.GetControlPoints().Select(p => new ControlPoint(p.X, p.Y)).ToList();
+        vm.AddControlPoint(70, 50, 1);
+        var newPoints = vm.GetControlPoints().Select(p => new ControlPoint(p.X, p.Y)).ToList();
+
+        var cmd = new ModifyBezierControlPointsCommand(
+            vm,
+            vm.StartX, vm.StartY, vm.EndX, vm.EndY, oldPoints,
+            vm.StartX, vm.StartY, vm.EndX, vm.EndY, newPoints);
+        undoService.ExecuteCommand(cmd);
+
+        Assert.Equal(3, vm.GetControlPoints().Count);
+        Assert.Equal(70, vm.GetControlPoints()[1].X);
+
+        undoService.Undo();
+        Assert.Equal(2, vm.GetControlPoints().Count);
+
+        undoService.Redo();
+        Assert.Equal(3, vm.GetControlPoints().Count);
+    }
 }
