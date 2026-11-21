@@ -14555,4 +14555,36 @@ public class CoreTests
         undoService.Redo();
         Assert.Equal(3, vm.GetControlPoints().Count);
     }
+
+    [Fact]
+    public void ShapeGeometryHelper_CodeAnalysis_MultiPointBezier_UsesDeCasteljau_AndWebViewerSupports()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        string? projectRoot = null;
+        while (dir != null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
+            {
+                projectRoot = dir.FullName;
+                break;
+            }
+            dir = dir.Parent;
+        }
+
+        Assert.NotNull(projectRoot);
+
+        string helperPath = Path.Combine(projectRoot, "src", "LabScape.App", "Helpers", "ShapeGeometryHelper.cs");
+        Assert.True(File.Exists(helperPath));
+        string helperCode = File.ReadAllText(helperPath);
+
+        Assert.Contains("case ShapeType.Bezier:", helperCode);
+        Assert.Contains("EvaluateDeCasteljau", helperCode);
+        Assert.Contains("PolyLineSegment", helperCode);
+
+        string webViewerPath = Path.Combine(projectRoot, "web-viewer", "index.html");
+        Assert.True(File.Exists(webViewerPath));
+        string webViewerCode = File.ReadAllText(webViewerPath);
+        Assert.Contains("control_points", webViewerCode);
+        Assert.Contains("evaluateDeCasteljau", webViewerCode);
+    }
 }

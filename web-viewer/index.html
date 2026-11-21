@@ -963,13 +963,48 @@
           break;
 
         case "bezier":
-          const cp1x = item.control_point1_x ?? item.controlPoint1X ?? w * 0.25;
-          const cp1y = item.control_point1_y ?? item.controlPoint1Y ?? 0;
-          const cp2x = item.control_point2_x ?? item.controlPoint2X ?? w * 0.75;
-          const cp2y = item.control_point2_y ?? item.controlPoint2Y ?? h;
+          const startX = item.start_x ?? item.startX ?? 0;
+          const startY = item.start_y ?? item.startY ?? h * 0.65;
+          const endX = item.end_x ?? item.endX ?? w;
+          const endY = item.end_y ?? item.endY ?? h * 0.15;
+          const rawCps = item.control_points ?? item.controlPoints;
 
-          ctx.moveTo(0, h * 0.65);
-          ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, w, h * 0.15);
+          if (Array.isArray(rawCps) && rawCps.length > 2) {
+            const allPts = [{ x: startX, y: startY }];
+            for (const pt of rawCps) {
+              allPts.push({ x: pt.x ?? pt.X, y: pt.y ?? pt.Y });
+            }
+            allPts.push({ x: endX, y: endY });
+
+            function evaluateDeCasteljau(pts, t) {
+              let px = pts.map(p => p.x);
+              let py = pts.map(p => p.y);
+              const n = pts.length;
+              const omt = 1.0 - t;
+              for (let r = 1; r < n; r++) {
+                for (let i = 0; i < n - r; i++) {
+                  px[i] = omt * px[i] + t * px[i + 1];
+                  py[i] = omt * py[i] + t * py[i + 1];
+                }
+              }
+              return { x: px[0], y: py[0] };
+            }
+
+            ctx.moveTo(startX, startY);
+            const steps = 60;
+            for (let s = 1; s <= steps; s++) {
+              const pt = evaluateDeCasteljau(allPts, s / steps);
+              ctx.lineTo(pt.x, pt.y);
+            }
+          } else {
+            const cp1x = (rawCps && rawCps.length > 0) ? (rawCps[0].x ?? rawCps[0].X) : (item.control_point1_x ?? item.controlPoint1X ?? w * 0.25);
+            const cp1y = (rawCps && rawCps.length > 0) ? (rawCps[0].y ?? rawCps[0].Y) : (item.control_point1_y ?? item.controlPoint1Y ?? 0);
+            const cp2x = (rawCps && rawCps.length > 1) ? (rawCps[1].x ?? rawCps[1].X) : (item.control_point2_x ?? item.controlPoint2X ?? w * 0.75);
+            const cp2y = (rawCps && rawCps.length > 1) ? (rawCps[1].y ?? rawCps[1].Y) : (item.control_point2_y ?? item.controlPoint2Y ?? h);
+
+            ctx.moveTo(startX, startY);
+            ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, endX, endY);
+          }
           ctx.stroke();
           break;
 

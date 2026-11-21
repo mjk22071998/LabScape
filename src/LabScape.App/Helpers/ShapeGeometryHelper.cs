@@ -136,10 +136,45 @@ public static class ShapeGeometryHelper
                         IsClosed = false,
                         IsFilled = false
                     };
-                    Point p1 = new(shape.ControlPoint1X, shape.ControlPoint1Y);
-                    Point p2 = new(shape.ControlPoint2X, shape.ControlPoint2Y);
+
+                    Point pStart = new(shape.StartX, shape.StartY);
                     Point pEnd = new(shape.EndX, shape.EndY);
-                    fig.Segments.Add(new BezierSegment(p1, p2, pEnd, true));
+                    var controlPoints = shape.GetControlPoints();
+
+                    if (controlPoints.Count == 1)
+                    {
+                        Point p1 = new(controlPoints[0].X, controlPoints[0].Y);
+                        fig.Segments.Add(new QuadraticBezierSegment(p1, pEnd, true));
+                    }
+                    else if (controlPoints.Count == 2)
+                    {
+                        Point p1 = new(controlPoints[0].X, controlPoints[0].Y);
+                        Point p2 = new(controlPoints[1].X, controlPoints[1].Y);
+                        fig.Segments.Add(new BezierSegment(p1, p2, pEnd, true));
+                    }
+                    else if (controlPoints.Count > 2)
+                    {
+                        var allPoints = new List<Point>(controlPoints.Count + 2) { pStart };
+                        foreach (var cp in controlPoints)
+                        {
+                            allPoints.Add(new Point(cp.X, cp.Y));
+                        }
+                        allPoints.Add(pEnd);
+
+                        const int steps = 64;
+                        var polyLine = new PolyLineSegment();
+                        for (int i = 1; i <= steps; i++)
+                        {
+                            double t = (double)i / steps;
+                            polyLine.Points.Add(EvaluateDeCasteljau(allPoints, t));
+                        }
+                        fig.Segments.Add(polyLine);
+                    }
+                    else
+                    {
+                        fig.Segments.Add(new LineSegment(pEnd, true));
+                    }
+
                     var geom = new PathGeometry();
                     geom.Figures.Add(fig);
                     return geom;
@@ -148,5 +183,30 @@ public static class ShapeGeometryHelper
             default:
                 return new RectangleGeometry(new Rect(0, 0, w, h));
         }
+    }
+
+    public static Point EvaluateDeCasteljau(IReadOnlyList<Point> points, double t)
+    {
+        int n = points.Count;
+        Span<double> px = n <= 64 ? stackalloc double[n] : new double[n];
+        Span<double> py = n <= 64 ? stackalloc double[n] : new double[n];
+
+        for (int i = 0; i < n; i++)
+        {
+            px[i] = points[i].X;
+            py[i] = points[i].Y;
+        }
+
+        double oneMinusT = 1.0 - t;
+        for (int r = 1; r < n; r++)
+        {
+            for (int i = 0; i < n - r; i++)
+            {
+                px[i] = oneMinusT * px[i] + t * px[i + 1];
+                py[i] = oneMinusT * py[i] + t * py[i + 1];
+            }
+        }
+
+        return new Point(px[0], py[0]);
     }
 }
