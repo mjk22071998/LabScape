@@ -6,6 +6,7 @@ using System.Windows.Media;
 using LabScape.App.Helpers;
 using LabScape.Core.Enums;
 using LabScape.Core.Interfaces;
+using LabScape.Core.Models;
 using LabScape.ViewModels;
 using LabScape.ViewModels.Commands;
 using LabScape.ViewModels.Items;
@@ -33,6 +34,11 @@ public class SelectionAdorner : Adorner
     private static readonly Brush ControlPointBrush = new SolidColorBrush(Color.FromRgb(99, 102, 241)); // Indigo accent
     private static readonly Pen ControlPointPen = new(Brushes.White, 1.5);
 
+    // draw.io-style midpoint handle between consecutive points on Bezier curve
+    private static readonly Brush MidpointHandleBrush = new SolidColorBrush(Color.FromArgb(200, 14, 165, 233));
+    private static readonly Pen MidpointHandlePen = new(Brushes.White, 1.2);
+    private static readonly Pen MidpointPlusPen = new(Brushes.White, 1.0);
+
     private static readonly Brush CornerRadiusBrush = new SolidColorBrush(Color.FromRgb(245, 158, 11)); // Amber
     private static readonly Pen CornerRadiusPen = new(new SolidColorBrush(Color.FromRgb(180, 83, 9)), 1.5);
 
@@ -58,10 +64,12 @@ public class SelectionAdorner : Adorner
         DonutInnerRadius,
         LineStart, LineEnd,
         BezierStart, BezierEnd,
-        BezierControlPoint1, BezierControlPoint2
+        BezierControlPoint
     }
 
     private DragMode _activeDrag = DragMode.None;
+    private int _activeBezierControlPointIndex = -1;
+    private List<ControlPoint> _initialControlPoints = new();
     private Point _dragStartPoint;
     private Point _dragStartLocal;
     private Point _dragStartCanvas;
@@ -80,6 +88,9 @@ public class SelectionAdorner : Adorner
         DottedTangentPen.Freeze();
         ControlPointBrush.Freeze();
         ControlPointPen.Freeze();
+        MidpointHandleBrush.Freeze();
+        MidpointHandlePen.Freeze();
+        MidpointPlusPen.Freeze();
         CornerRadiusBrush.Freeze();
         CornerRadiusPen.Freeze();
         DonutBrush.Freeze();
@@ -274,42 +285,29 @@ public class SelectionAdorner : Adorner
         double offset = CalculateOffset(zoom);
         bool use4Handles = ShouldUse4CornerHandles(w, h, zoom);
 
-        // 1. Line Shape: Exactly 3 handles (Start, End, Rotation) - no outer bounding box
+        // 1. Line Shape: Exactly 2 handles (Start, End) - no rotation handle, no outer bounding box
         if (_item is ShapeItemViewModel shapeLine && shapeLine.ShapeType == ShapeType.Line)
         {
             Point pStart = new(0, h / 2.0);
             Point pEnd = new(w, h / 2.0);
-            Point pMid = new(w / 2.0, h / 2.0);
-            Point pRot = new(w / 2.0, h / 2.0 - rotOffset);
 
             // Selection guide line
             dc.DrawLine(BoxPen, pStart, pEnd);
 
             if (!ShowHandles) return;
 
-            // Rotation stalk
-            dc.DrawLine(BoxPen, pMid, pRot);
-
             // 1 & 2: Start and End handles
             DrawHandle(dc, pStart, hs);
             DrawHandle(dc, pEnd, hs);
-
-            // 3: Rotation handle
-            dc.DrawEllipse(Brushes.White, HandlePen, pRot, hs / 2, hs / 2);
             return;
         }
 
-        // 2. Bezier Curve Shape: Exactly 5 handles (Start, End, 2 Control Points with dotted originating lines, Rotation)
+        // 2. Bezier Curve Shape: draw.io-style multi-control-point editing (Start, End, all Control Points, Midpoints, NO rotation handle)
         if (_item is ShapeItemViewModel shapeBezier && shapeBezier.ShapeType == ShapeType.Bezier)
         {
+            var cpList = shapeBezier.GetControlPoints();
             Point pStart = new(shapeBezier.StartX, shapeBezier.StartY);
             Point pEnd = new(shapeBezier.EndX, shapeBezier.EndY);
-            Point cp1 = new(shapeBezier.ControlPoint1X, shapeBezier.ControlPoint1Y);
-            Point cp2 = new(shapeBezier.ControlPoint2X, shapeBezier.ControlPoint2Y);
-
-            double midX = (pStart.X + pEnd.X) / 2.0;
-            double topY = Math.Min(Math.Min(pStart.Y, pEnd.Y), Math.Min(cp1.Y, cp2.Y));
-            Point pRot = new(midX, topY - rotOffset);
 
             if (!ShowHandles)
             {
@@ -317,23 +315,30 @@ public class SelectionAdorner : Adorner
                 return;
             }
 
-            // Dotted lines connecting control points to their respective originating anchor points
-            dc.DrawLine(DottedTangentPen, pStart, cp1);
-            dc.DrawLine(DottedTangentPen, pEnd, cp2);
+            var nodes = new List<Point>(cpList.Count + 2) { pStart };
+            foreach (var cp in cpList)
+            {
+                nodes.Add(new Point(cp.X, cp.Y));
+            }
+            nodes.Add(pEnd);
 
-            // Rotation stalk
-            dc.DrawLine(BoxPen, new Point(midX, topY), pRot);
+            // Dotted tangent lines connecting consecutive points on control polygon & Midpoint '+' handles
+            for (int i = 0; i < nodes.Count - 1; i++)
+            {
+                dc.DrawLine(DottedTangentPen, nodes[i], nodes[i + 1]);
+                Point mid = new((nodes[i].X + nodes[i + 1].X) / 2.0, (nodes[i].Y + nodes[i + 1].Y) / 2.0);
+                DrawMidpointHandle(dc, mid, hs * 0.85);
+            }
 
-            // 1 & 2: Start and End anchor handles
+            // Start and End anchor handles
             DrawHandle(dc, pStart, hs);
             DrawHandle(dc, pEnd, hs);
 
-            // 3 & 4: Control points connected to originating points
-            dc.DrawEllipse(ControlPointBrush, ControlPointPen, cp1, shs / 2, shs / 2);
-            dc.DrawEllipse(ControlPointBrush, ControlPointPen, cp2, shs / 2, shs / 2);
-
-            // 5: Rotation handle
-            dc.DrawEllipse(Brushes.White, HandlePen, pRot, hs / 2, hs / 2);
+            // Circular control point handles
+            foreach (var cp in cpList)
+            {
+                dc.DrawEllipse(ControlPointBrush, ControlPointPen, new Point(cp.X, cp.Y), shs / 2, shs / 2);
+            }
             return;
         }
 
@@ -393,12 +398,21 @@ public class SelectionAdorner : Adorner
         dc.DrawRectangle(HandleBrush, HandlePen, new Rect(center.X - size / 2, center.Y - size / 2, size, size));
     }
 
+    private static void DrawMidpointHandle(DrawingContext dc, Point center, double size)
+    {
+        double half = size / 2.0;
+        dc.DrawEllipse(MidpointHandleBrush, MidpointHandlePen, center, half, half);
+        double arm = half * 0.55;
+        dc.DrawLine(MidpointPlusPen, new Point(center.X - arm, center.Y), new Point(center.X + arm, center.Y));
+        dc.DrawLine(MidpointPlusPen, new Point(center.X, center.Y - arm), new Point(center.X, center.Y + arm));
+    }
+
     protected override void OnMouseDown(MouseButtonEventArgs e)
     {
         base.OnMouseDown(e);
         if (!ShowHandles) return;
         if (_item is TextItemViewModel textItem && textItem.IsEditing) return;
-        if (e.LeftButton != MouseButtonState.Pressed) return;
+        if (e.LeftButton != MouseButtonState.Pressed && e.RightButton != MouseButtonState.Pressed) return;
 
         Point p = e.GetPosition(this);
         double w = _item.Width;
@@ -424,22 +438,11 @@ public class SelectionAdorner : Adorner
         _dragStartCanvas = GetCanvasPoint(e);
         _initialCenter = new Point(_initialX + _initialW / 2.0, _initialY + _initialH / 2.0);
 
-        // Line-specific handle hit testing (Exactly 3 handles)
+        // Line-specific handle hit testing (Only Start and End handles, no rotation)
         if (_item is ShapeItemViewModel shapeLine && shapeLine.ShapeType == ShapeType.Line)
         {
             Point pStart = new(0, h / 2.0);
             Point pEnd = new(w, h / 2.0);
-            Point pRot = new(w / 2.0, h / 2.0 - rotOffset);
-
-            if (IsHit(p, pRot, rotHitRadius))
-            {
-                _activeDrag = DragMode.Rotate;
-                Cursor = CursorHelper.GetRotationCursor(_item.Rotation);
-                SetupRotateDrag(e, w, h);
-                CaptureMouse();
-                e.Handled = true;
-                return;
-            }
 
             double rad = _initialRot * Math.PI / 180.0;
             double cos = Math.Cos(rad);
@@ -467,51 +470,82 @@ public class SelectionAdorner : Adorner
             return; // Never trigger 8-box resize handles for Line
         }
 
-        // Bezier-specific handle hit testing (Exactly 5 handles)
+        // Bezier-specific handle hit testing (Endpoints, multi-control-points, and midpoints, no rotation)
         if (_item is ShapeItemViewModel shapeBezier && shapeBezier.ShapeType == ShapeType.Bezier)
         {
+            var cpList = shapeBezier.GetControlPoints();
             Point pStart = new(shapeBezier.StartX, shapeBezier.StartY);
             Point pEnd = new(shapeBezier.EndX, shapeBezier.EndY);
-            Point cp1 = new(shapeBezier.ControlPoint1X, shapeBezier.ControlPoint1Y);
-            Point cp2 = new(shapeBezier.ControlPoint2X, shapeBezier.ControlPoint2Y);
 
-            double midX = (pStart.X + pEnd.X) / 2.0;
-            double topY = Math.Min(Math.Min(pStart.Y, pEnd.Y), Math.Min(cp1.Y, cp2.Y));
-            Point pRot = new(midX, topY - rotOffset);
-
-            _initialCP1X = shapeBezier.ControlPoint1X;
-            _initialCP1Y = shapeBezier.ControlPoint1Y;
-            _initialCP2X = shapeBezier.ControlPoint2X;
-            _initialCP2Y = shapeBezier.ControlPoint2Y;
             _initialStartX = shapeBezier.StartX;
             _initialStartY = shapeBezier.StartY;
             _initialEndX = shapeBezier.EndX;
             _initialEndY = shapeBezier.EndY;
+            _initialControlPoints = cpList.ToList();
 
-            if (IsHit(p, cp1, specialHitRadius))
+            // 1. Check existing control points
+            for (int i = 0; i < cpList.Count; i++)
             {
-                _activeDrag = DragMode.BezierControlPoint1;
-                CaptureMouse();
-                e.Handled = true;
-                return;
+                Point cp = new(cpList[i].X, cpList[i].Y);
+                if (IsHit(p, cp, specialHitRadius))
+                {
+                    if (e.ChangedButton == MouseButton.Right)
+                    {
+                        // Right-click removes this control point if more than 1 point remains
+                        if (cpList.Count > 1)
+                        {
+                            var oldPoints = cpList.ToList();
+                            shapeBezier.RemoveControlPoint(i);
+                            var newPoints = shapeBezier.GetControlPoints().ToList();
+                            UpdateBezierDimensions(shapeBezier);
+                            _undoRedoService.ExecuteCommand(new ModifyBezierControlPointsCommand(
+                                shapeBezier,
+                                shapeBezier.StartX, shapeBezier.StartY, shapeBezier.EndX, shapeBezier.EndY,
+                                oldPoints,
+                                shapeBezier.StartX, shapeBezier.StartY, shapeBezier.EndX, shapeBezier.EndY,
+                                newPoints));
+                            InvalidateAdorner();
+                            _onModified?.Invoke();
+                            e.Handled = true;
+                            return;
+                        }
+                    }
+                    else if (e.ChangedButton == MouseButton.Left)
+                    {
+                        _activeDrag = DragMode.BezierControlPoint;
+                        _activeBezierControlPointIndex = i;
+                        CaptureMouse();
+                        e.Handled = true;
+                        return;
+                    }
+                }
             }
-            else if (IsHit(p, cp2, specialHitRadius))
+
+            // 2. Check midpoint handles for adding a new control point
+            var nodes = new List<Point>(cpList.Count + 2) { pStart };
+            foreach (var cp in cpList) nodes.Add(new Point(cp.X, cp.Y));
+            nodes.Add(pEnd);
+
+            if (e.ChangedButton == MouseButton.Left)
             {
-                _activeDrag = DragMode.BezierControlPoint2;
-                CaptureMouse();
-                e.Handled = true;
-                return;
+                for (int i = 0; i < nodes.Count - 1; i++)
+                {
+                    Point mid = new((nodes[i].X + nodes[i + 1].X) / 2.0, (nodes[i].Y + nodes[i + 1].Y) / 2.0);
+                    if (IsHit(p, mid, specialHitRadius))
+                    {
+                        shapeBezier.AddControlPoint(Math.Round(mid.X, 1), Math.Round(mid.Y, 1), i);
+                        UpdateBezierDimensions(shapeBezier);
+                        _activeDrag = DragMode.BezierControlPoint;
+                        _activeBezierControlPointIndex = i;
+                        CaptureMouse();
+                        e.Handled = true;
+                        return;
+                    }
+                }
             }
-            else if (IsHit(p, pRot, rotHitRadius))
-            {
-                _activeDrag = DragMode.Rotate;
-                Cursor = CursorHelper.GetRotationCursor(_item.Rotation);
-                SetupRotateDrag(e, w, h);
-                CaptureMouse();
-                e.Handled = true;
-                return;
-            }
-            else if (IsHit(p, pStart, hitRadius))
+
+            // 3. Check Start and End anchor handles
+            if (IsHit(p, pStart, hitRadius))
             {
                 _activeDrag = DragMode.BezierStart;
                 CaptureMouse();
@@ -724,21 +758,11 @@ public class SelectionAdorner : Adorner
                     break;
                 }
 
-            case DragMode.BezierControlPoint1:
-                if (_item is ShapeItemViewModel shapeCp1)
+            case DragMode.BezierControlPoint:
+                if (_item is ShapeItemViewModel shapeCp && _activeBezierControlPointIndex >= 0)
                 {
-                    shapeCp1.ControlPoint1X = Math.Round(currentLocal.X, 1);
-                    shapeCp1.ControlPoint1Y = Math.Round(currentLocal.Y, 1);
-                    UpdateBezierDimensions(shapeCp1);
-                }
-                break;
-
-            case DragMode.BezierControlPoint2:
-                if (_item is ShapeItemViewModel shapeCp2)
-                {
-                    shapeCp2.ControlPoint2X = Math.Round(currentLocal.X, 1);
-                    shapeCp2.ControlPoint2Y = Math.Round(currentLocal.Y, 1);
-                    UpdateBezierDimensions(shapeCp2);
+                    shapeCp.SetControlPoint(_activeBezierControlPointIndex, Math.Round(currentLocal.X, 1), Math.Round(currentLocal.Y, 1));
+                    UpdateBezierDimensions(shapeCp);
                 }
                 break;
 
@@ -1064,14 +1088,26 @@ public class SelectionAdorner : Adorner
                     _undoRedoService.ExecuteCommand(new ModifyInnerRadiusCommand(shape, _initialInnerRadius, shape.InnerRadius));
                 }
             }
-            else if (_activeDrag is DragMode.BezierStart or DragMode.BezierEnd or DragMode.BezierControlPoint1 or DragMode.BezierControlPoint2)
+            else if (_activeDrag is DragMode.BezierStart or DragMode.BezierEnd or DragMode.BezierControlPoint)
             {
                 if (_item is ShapeItemViewModel shape)
                 {
-                    bool changed = Math.Abs(shape.ControlPoint1X - _initialCP1X) > 0.1 ||
-                                  Math.Abs(shape.ControlPoint1Y - _initialCP1Y) > 0.1 ||
-                                  Math.Abs(shape.ControlPoint2X - _initialCP2X) > 0.1 ||
-                                  Math.Abs(shape.ControlPoint2Y - _initialCP2Y) > 0.1 ||
+                    var currentPoints = shape.GetControlPoints().ToList();
+                    bool pointsChanged = _initialControlPoints.Count != currentPoints.Count;
+                    if (!pointsChanged)
+                    {
+                        for (int i = 0; i < currentPoints.Count; i++)
+                        {
+                            if (Math.Abs(currentPoints[i].X - _initialControlPoints[i].X) > 0.1 ||
+                                Math.Abs(currentPoints[i].Y - _initialControlPoints[i].Y) > 0.1)
+                            {
+                                pointsChanged = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    bool changed = pointsChanged ||
                                   Math.Abs(shape.StartX - _initialStartX) > 0.1 ||
                                   Math.Abs(shape.StartY - _initialStartY) > 0.1 ||
                                   Math.Abs(shape.EndX - _initialEndX) > 0.1 ||
@@ -1082,9 +1118,9 @@ public class SelectionAdorner : Adorner
                         _undoRedoService.ExecuteCommand(new ModifyBezierControlPointsCommand(
                             shape,
                             _initialStartX, _initialStartY, _initialEndX, _initialEndY,
-                            _initialCP1X, _initialCP1Y, _initialCP2X, _initialCP2Y,
+                            _initialControlPoints,
                             shape.StartX, shape.StartY, shape.EndX, shape.EndY,
-                            shape.ControlPoint1X, shape.ControlPoint1Y, shape.ControlPoint2X, shape.ControlPoint2Y));
+                            currentPoints));
                     }
                 }
             }
@@ -1130,11 +1166,8 @@ public class SelectionAdorner : Adorner
         {
             Point pStart = new(0, h / 2.0);
             Point pEnd = new(w, h / 2.0);
-            Point pRot = new(w / 2.0, h / 2.0 - rotOffset);
 
-            if (IsHit(p, pRot, rotHitRadius))
-                Cursor = CursorHelper.GetRotationCursor(_item.Rotation);
-            else if (IsHit(p, pStart, hitRadius) || IsHit(p, pEnd, hitRadius))
+            if (IsHit(p, pStart, hitRadius) || IsHit(p, pEnd, hitRadius))
                 Cursor = Cursors.Cross;
             else
                 Cursor = Cursors.Arrow;
@@ -1143,23 +1176,40 @@ public class SelectionAdorner : Adorner
 
         if (_item is ShapeItemViewModel shapeBezier && shapeBezier.ShapeType == ShapeType.Bezier)
         {
+            var cpList = shapeBezier.GetControlPoints();
             Point pStart = new(shapeBezier.StartX, shapeBezier.StartY);
             Point pEnd = new(shapeBezier.EndX, shapeBezier.EndY);
-            Point cp1 = new(shapeBezier.ControlPoint1X, shapeBezier.ControlPoint1Y);
-            Point cp2 = new(shapeBezier.ControlPoint2X, shapeBezier.ControlPoint2Y);
 
-            double midX = (pStart.X + pEnd.X) / 2.0;
-            double topY = Math.Min(Math.Min(pStart.Y, pEnd.Y), Math.Min(cp1.Y, cp2.Y));
-            Point pRot = new(midX, topY - rotOffset);
-
-            if (IsHit(p, pRot, rotHitRadius))
-                Cursor = CursorHelper.GetRotationCursor(_item.Rotation);
-            else if (IsHit(p, cp1, specialHitRadius) || IsHit(p, cp2, specialHitRadius))
-                Cursor = Cursors.Hand;
-            else if (IsHit(p, pStart, hitRadius) || IsHit(p, pEnd, hitRadius))
+            if (IsHit(p, pStart, hitRadius) || IsHit(p, pEnd, hitRadius))
+            {
                 Cursor = Cursors.Cross;
-            else
-                Cursor = Cursors.Arrow;
+                return;
+            }
+
+            foreach (var cp in cpList)
+            {
+                if (IsHit(p, new Point(cp.X, cp.Y), specialHitRadius))
+                {
+                    Cursor = Cursors.Hand;
+                    return;
+                }
+            }
+
+            var nodes = new List<Point>(cpList.Count + 2) { pStart };
+            foreach (var cp in cpList) nodes.Add(new Point(cp.X, cp.Y));
+            nodes.Add(pEnd);
+
+            for (int i = 0; i < nodes.Count - 1; i++)
+            {
+                Point mid = new((nodes[i].X + nodes[i + 1].X) / 2.0, (nodes[i].Y + nodes[i + 1].Y) / 2.0);
+                if (IsHit(p, mid, specialHitRadius))
+                {
+                    Cursor = Cursors.Hand;
+                    return;
+                }
+            }
+
+            Cursor = Cursors.Arrow;
             return;
         }
 
@@ -1224,15 +1274,13 @@ public class SelectionAdorner : Adorner
         double rotHitRadius = (BaseHandleSize / 2.0 + 4.0) / Math.Max(0.05, zoom);
         bool use4Handles = ShouldUse4CornerHandles(w, h, zoom);
 
-        // Line item has only 3 handles (Start, End, Rotation)
+        // Line item has only 2 handles (Start, End) - no rotation handle
         if (_item is ShapeItemViewModel shapeLine && shapeLine.ShapeType == ShapeType.Line)
         {
             Point pStart = new(0, h / 2.0);
             Point pEnd = new(w, h / 2.0);
-            Point pRot = new(w / 2.0, h / 2.0 - rotOffset);
 
-            if (IsHit(p, pRot, rotHitRadius) ||
-                IsHit(p, pStart, hitRadius) ||
+            if (IsHit(p, pStart, hitRadius) ||
                 IsHit(p, pEnd, hitRadius))
             {
                 return new PointHitTestResult(this, p);
@@ -1240,26 +1288,39 @@ public class SelectionAdorner : Adorner
             return null;
         }
 
-        // Bezier curve has only 5 handles (Start, End, CP1, CP2, Rotation)
+        // Bezier curve has endpoints, all control points, and midpoints - no rotation handle
         if (_item is ShapeItemViewModel shapeBezier && shapeBezier.ShapeType == ShapeType.Bezier)
         {
+            var cpList = shapeBezier.GetControlPoints();
             Point pStart = new(shapeBezier.StartX, shapeBezier.StartY);
             Point pEnd = new(shapeBezier.EndX, shapeBezier.EndY);
-            Point cp1 = new(shapeBezier.ControlPoint1X, shapeBezier.ControlPoint1Y);
-            Point cp2 = new(shapeBezier.ControlPoint2X, shapeBezier.ControlPoint2Y);
 
-            double midX = (pStart.X + pEnd.X) / 2.0;
-            double topY = Math.Min(Math.Min(pStart.Y, pEnd.Y), Math.Min(cp1.Y, cp2.Y));
-            Point pRot = new(midX, topY - rotOffset);
-
-            if (IsHit(p, pRot, rotHitRadius) ||
-                IsHit(p, cp1, specialHitRadius) ||
-                IsHit(p, cp2, specialHitRadius) ||
-                IsHit(p, pStart, hitRadius) ||
-                IsHit(p, pEnd, hitRadius))
+            if (IsHit(p, pStart, hitRadius) || IsHit(p, pEnd, hitRadius))
             {
                 return new PointHitTestResult(this, p);
             }
+
+            foreach (var cp in cpList)
+            {
+                if (IsHit(p, new Point(cp.X, cp.Y), specialHitRadius))
+                {
+                    return new PointHitTestResult(this, p);
+                }
+            }
+
+            var nodes = new List<Point>(cpList.Count + 2) { pStart };
+            foreach (var cp in cpList) nodes.Add(new Point(cp.X, cp.Y));
+            nodes.Add(pEnd);
+
+            for (int i = 0; i < nodes.Count - 1; i++)
+            {
+                Point mid = new((nodes[i].X + nodes[i + 1].X) / 2.0, (nodes[i].Y + nodes[i + 1].Y) / 2.0);
+                if (IsHit(p, mid, specialHitRadius))
+                {
+                    return new PointHitTestResult(this, p);
+                }
+            }
+
             return null;
         }
 
@@ -1312,10 +1373,18 @@ public class SelectionAdorner : Adorner
 
     private static void UpdateBezierDimensions(ShapeItemViewModel shape)
     {
-        double minX = Math.Min(Math.Min(shape.StartX, shape.EndX), Math.Min(shape.ControlPoint1X, shape.ControlPoint2X));
-        double maxX = Math.Max(Math.Max(shape.StartX, shape.EndX), Math.Max(shape.ControlPoint1X, shape.ControlPoint2X));
-        double minY = Math.Min(Math.Min(shape.StartY, shape.EndY), Math.Min(shape.ControlPoint1Y, shape.ControlPoint2Y));
-        double maxY = Math.Max(Math.Max(shape.StartY, shape.EndY), Math.Max(shape.ControlPoint1Y, shape.ControlPoint2Y));
+        double minX = Math.Min(shape.StartX, shape.EndX);
+        double maxX = Math.Max(shape.StartX, shape.EndX);
+        double minY = Math.Min(shape.StartY, shape.EndY);
+        double maxY = Math.Max(shape.StartY, shape.EndY);
+
+        foreach (var cp in shape.GetControlPoints())
+        {
+            if (cp.X < minX) minX = cp.X;
+            if (cp.X > maxX) maxX = cp.X;
+            if (cp.Y < minY) minY = cp.Y;
+            if (cp.Y > maxY) maxY = cp.Y;
+        }
 
         double spanX = minX < 0 ? maxX - minX : maxX;
         double spanY = minY < 0 ? maxY - minY : maxY;

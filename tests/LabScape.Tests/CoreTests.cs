@@ -4054,149 +4054,40 @@ public class CoreTests
 
 
     [Fact]
-
-
-
-    public void SelectionAdorner_CodeAnalysis_VerifiesLine3Handles_AndBezier5HandlesWithDottedTangents()
-
-
-
+    public void SelectionAdorner_CodeAnalysis_VerifiesLine2Handles_AndBezierMultiHandlesWithMidpoints_NoRotation()
     {
-
-
-
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
-
-
-
         string? projectRoot = null;
-
-
-
         while (dir != null)
-
-
-
         {
-
-
-
             if (File.Exists(Path.Combine(dir.FullName, "LabScape.slnx")))
-
-
-
             {
-
-
-
                 projectRoot = dir.FullName;
-
-
-
                 break;
-
-
-
             }
-
-
-
             dir = dir.Parent;
-
-
-
         }
 
-
-
-
-
-
-
         Assert.NotNull(projectRoot);
-
-
-
         string adornerPath = Path.Combine(projectRoot, "src", "LabScape.App", "Adorners", "SelectionAdorner.cs");
-
-
-
         Assert.True(File.Exists(adornerPath));
-
-
-
-
-
-
-
         string code = File.ReadAllText(adornerPath);
 
-
-
-
-
-
-
-        // 1. Line must have only 3 handles (Start, End, Rotation)
-
-
-
+        // 1. Line must have only 2 handles (Start, End) with NO rotation handle
         Assert.Contains("shapeLine.ShapeType == ShapeType.Line", code);
-
-
-
         Assert.Contains("pStart", code);
-
-
-
         Assert.Contains("pEnd", code);
-
-
-
-        Assert.Contains("pRot", code);
-
-
-
         Assert.Contains("DragMode.LineStart", code);
-
-
-
         Assert.Contains("DragMode.LineEnd", code);
+        Assert.DoesNotContain("pRot = new(w / 2.0, h / 2.0 - rotOffset);", code);
 
-
-
-
-
-
-
-        // 2. Bezier must have 5 handles (Start, End, CP1, CP2, Rotation) and dotted line connecting control points to originating endpoints
-
-
-
+        // 2. Bezier must have endpoints, all control points, draw.io-style midpoints, and NO rotation handle
         Assert.Contains("shapeBezier.ShapeType == ShapeType.Bezier", code);
-
-
-
         Assert.Contains("DottedTangentPen", code);
-
-
-
-        Assert.Contains("dc.DrawLine(DottedTangentPen, pStart, cp1);", code);
-
-
-
-        Assert.Contains("dc.DrawLine(DottedTangentPen, pEnd, cp2);", code);
-
-
-
-        Assert.Contains("DragMode.BezierControlPoint1", code);
-
-
-
-        Assert.Contains("DragMode.BezierControlPoint2", code);
-
-
-
+        Assert.Contains("GetControlPoints", code);
+        Assert.Contains("Midpoint", code);
+        Assert.Contains("DragMode.BezierControlPoint", code);
+        Assert.DoesNotContain("pRot = new(midX, topY - rotOffset);", code);
     }
 
 
