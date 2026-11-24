@@ -363,6 +363,9 @@ public partial class PropertiesViewModel : ObservableObject
 
 
     [RelayCommand]
+    public void Deselect() => _canvasViewModel?.ClearSelection();
+
+    [RelayCommand]
 
     public void MoveToFront() => _canvasViewModel?.MoveToFront();
 

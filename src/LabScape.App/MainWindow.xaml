@@ -78,21 +78,21 @@
             <fluent:Ribbon.Menu>
                 <fluent:Backstage Header="File">
                     <fluent:BackstageTabControl>
-                        <fluent:Button Header="New Floorplan (Ctrl+N)" Command="{Binding NewTabCommand}"
+                        <fluent:Button Header="New Floorplan" ToolTip="New floorplan (Ctrl+N)" Command="{Binding NewTabCommand}"
                                        Icon="{StaticResource IconNewTab}" LargeIcon="{StaticResource IconNewTab}"/>
-                        <fluent:Button Header="Open / Import JSON... (Ctrl+O)" Click="OpenJson_Click"
+                        <fluent:Button Header="Open JSON..." ToolTip="Open JSON floorplan (Ctrl+O)" Click="OpenJson_Click"
                                        Icon="{StaticResource IconOpen}" LargeIcon="{StaticResource IconOpen}"/>
-                        <fluent:Button Header="Save JSON (Ctrl+S)" Click="SaveJson_Click"
+                        <fluent:Button Header="Save" ToolTip="Save floorplan (Ctrl+S)" Click="SaveJson_Click"
                                        Icon="{StaticResource IconSave}" LargeIcon="{StaticResource IconSave}"/>
-                        <fluent:Button Header="Save As JSON... (Ctrl+Shift+S)" Click="SaveAsJson_Click"
+                        <fluent:Button Header="Save As..." ToolTip="Save as new file (Ctrl+Shift+S)" Click="SaveAsJson_Click"
                                        Icon="{StaticResource IconSaveAs}" LargeIcon="{StaticResource IconSaveAs}"/>
-                        <fluent:Button Header="Close Tab (Ctrl+W)" Command="{Binding CloseActiveTabCommand}"
+                        <fluent:Button Header="Close Tab" ToolTip="Close current tab (Ctrl+W)" Command="{Binding CloseActiveTabCommand}"
                                        Icon="{StaticResource IconCloseTab}" LargeIcon="{StaticResource IconCloseTab}"/>
-                        <fluent:Button Header="Page Setup... (Ctrl+Shift+P)" Click="OpenPageSetupDialog_Click"
+                        <fluent:Button Header="Page Setup..." ToolTip="Canvas dimensions and paper setup (Ctrl+Shift+P)" Click="OpenPageSetupDialog_Click"
                                        Icon="{StaticResource IconPageSetupDialog}" LargeIcon="{StaticResource IconPageSetupDialog}"/>
-                        <fluent:Button Header="Export to Web JSON..." Click="ExportJson_Click"
+                        <fluent:Button Header="Export Web JSON..." ToolTip="Export standalone JSON for HTML5 web viewer" Click="ExportJson_Click"
                                        Icon="{StaticResource IconExport}" LargeIcon="{StaticResource IconExport}"/>
-                        <fluent:Button Header="Toggle Light / Dark Theme (F8)" Click="ThemeToggle_Click"
+                        <fluent:Button Header="Toggle Dark Theme" ToolTip="Toggle theme (F8)" Click="ThemeToggle_Click"
                                        Icon="{StaticResource IconThemeDark}" LargeIcon="{StaticResource IconThemeDark}"/>
                         <fluent:Button Header="Exit" Click="Exit_Click"
                                        Icon="{StaticResource IconExit}" LargeIcon="{StaticResource IconExit}"/>
@@ -124,7 +124,7 @@
                 </fluent:RibbonGroupBox>
 
                 <!-- History & Clipboard -->
-                <fluent:RibbonGroupBox Header="Clipboard &amp; History">
+                <fluent:RibbonGroupBox Header="Clipboard">
                     <fluent:Button Header="Paste" Command="{Binding Canvas.PasteCommand}" ToolTip="Paste items (Ctrl+V)"
                                    Size="Large"
                                    Icon="{StaticResource IconPaste}" LargeIcon="{StaticResource IconPaste}"/>
@@ -149,7 +149,7 @@
                 </fluent:RibbonGroupBox>
 
                 <!-- Tools & Zoom Navigation -->
-                <fluent:RibbonGroupBox Header="Tools &amp; View">
+                <fluent:RibbonGroupBox Header="Tools">
                     <fluent:ToggleButton Header="Select" IsChecked="True"
                                          Size="Large"
                                          Icon="{StaticResource IconSelect}" LargeIcon="{StaticResource IconSelect}"/>
@@ -172,7 +172,7 @@
 
 
                 <!-- Canvas Surface & Grid View -->
-                <fluent:RibbonGroupBox Header="Grid &amp; Guides">
+                <fluent:RibbonGroupBox Header="Guides">
                     <fluent:CheckBox Header="Show Grid" IsChecked="{Binding Canvas.ShowGrid}"
                                      Icon="{StaticResource IconShowGrid}"/>
                     <fluent:CheckBox Header="Snap to Grid" IsChecked="{Binding Canvas.SnapToGrid}"
@@ -258,7 +258,7 @@
                 </fluent:RibbonGroupBox>
 
                 <!-- Page Dimensions Group -->
-                <fluent:RibbonGroupBox Header="Page Dimensions">
+                <fluent:RibbonGroupBox Header="Dimensions">
                     <StackPanel VerticalAlignment="Center" Margin="4,2">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                             <TextBlock Text="Width:" FontSize="10.5" Width="45" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
@@ -282,7 +282,7 @@
                 </fluent:RibbonGroupBox>
 
                 <!-- Canvas Guides & Surface Group -->
-                <fluent:RibbonGroupBox Header="Grid &amp; Guides">
+                <fluent:RibbonGroupBox Header="Guides">
                     <fluent:CheckBox Header="Show Grid" IsChecked="{Binding Canvas.ShowGrid}"
                                      Icon="{StaticResource IconShowGrid}"/>
                     <fluent:CheckBox Header="Snap to Grid" IsChecked="{Binding Canvas.SnapToGrid}"
@@ -350,7 +350,7 @@
                 </fluent:RibbonGroupBox>
 
                 <!-- Canvas Guides & Surface Group -->
-                <fluent:RibbonGroupBox Header="Grid &amp; Guides">
+                <fluent:RibbonGroupBox Header="Guides">
                     <fluent:CheckBox Header="Show Grid" IsChecked="{Binding Canvas.ShowGrid}"
                                      Icon="{StaticResource IconShowGrid}"/>
                     <fluent:CheckBox Header="Snap to Grid" IsChecked="{Binding Canvas.SnapToGrid}"
@@ -441,7 +441,7 @@
 
             <!-- 2. Database Tab -->
             <fluent:RibbonTabItem Header="Database">
-                <fluent:RibbonGroupBox Header="Inventory Database">
+                <fluent:RibbonGroupBox Header="Database">
                     <fluent:Button Header="Connect Database..." Click="DatabaseConnect_Click"
                                    Size="Large"
                                    Icon="{StaticResource IconDatabase}" LargeIcon="{StaticResource IconDatabase}"/>
@@ -449,7 +449,7 @@
                                    Size="Large"
                                    Icon="{StaticResource IconSync}" LargeIcon="{StaticResource IconSync}"/>
                 </fluent:RibbonGroupBox>
-                <fluent:RibbonGroupBox Header="IP &amp; Workstations">
+                <fluent:RibbonGroupBox Header="IP Assignment">
                     <fluent:Button Header="Batch Assign IPs..." Click="BatchAssignIps_Click"
                                    Size="Large"
                                    Icon="{StaticResource IconSettings}" LargeIcon="{StaticResource IconSettings}"/>
@@ -461,7 +461,7 @@
 
             <!-- 3. Export & Web Tab -->
             <fluent:RibbonTabItem Header="Export &amp; Web">
-                <fluent:RibbonGroupBox Header="Web &amp; Document Interchange">
+                <fluent:RibbonGroupBox Header="Files &amp; Web">
                     <fluent:Button Header="Open in Web Viewer" Click="PreviewWebViewer_Click" ToolTip="Launch standalone HTML5 2D Canvas viewer in browser"
                                    Size="Large"
                                    Icon="{StaticResource IconWebViewer}" LargeIcon="{StaticResource IconWebViewer}"/>
@@ -718,13 +718,11 @@
                 </Border>
             </StatusBarItem>
 
-            <!-- 2. Active Tab & Document Info -->
+            <!-- 2. Active Document Page Info -->
             <StatusBarItem Grid.Column="1">
                 <StackPanel Orientation="Horizontal" Margin="8,0" VerticalAlignment="Center">
                     <Path Data="M 2 1 H 7 L 10 4 V 11 A 1 1 0 0 1 9 12 H 3 A 1 1 0 0 1 2 11 Z M 7 1 V 4 H 10" 
                           Stroke="{DynamicResource AppTextMutedBrush}" StrokeThickness="1" Fill="Transparent" Width="10" Height="11" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding ActiveTab.Title, StringFormat='Active: {0}'}" FontSize="11" FontWeight="Medium" Foreground="{DynamicResource StatusBarForegroundBrush}"/>
-                    <Border Width="1" Height="10" Background="{DynamicResource AppBorderBrush}" Margin="8,0"/>
                     <TextBlock Text="{Binding Canvas.PageSizeDisplayText}" FontSize="11" Foreground="{DynamicResource AppTextMutedBrush}" ToolTip="Page size preset, orientation and pixel dimensions"/>
                 </StackPanel>
             </StatusBarItem>
@@ -734,7 +732,7 @@
                 <Border Background="{DynamicResource StatusWarningBackgroundBrush}" BorderBrush="{DynamicResource StatusWarningBorderBrush}" BorderThickness="1" CornerRadius="11" Padding="8,2" Margin="4,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <Path Data="M 5 0 L 10 9 H 0 Z M 5 3 V 6 M 5 7.5 V 8" Stroke="{DynamicResource StatusWarningForegroundBrush}" StrokeThickness="1" Width="10" Height="9" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding ValidationWarningCount, StringFormat='{}{0} Unassigned PC(s)'}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource StatusWarningForegroundBrush}"/>
+                        <TextBlock Text="{Binding ValidationWarningCount, StringFormat='{}{0} Unassigned'}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource StatusWarningForegroundBrush}"/>
                     </StackPanel>
                 </Border>
             </StatusBarItem>
@@ -744,7 +742,7 @@
                 <Border Background="{DynamicResource StatusErrorBackgroundBrush}" BorderBrush="{DynamicResource StatusErrorBorderBrush}" BorderThickness="1" CornerRadius="11" Padding="8,2" Margin="4,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <Path Data="M 1 5 H 9 M 5 1 A 4 4 0 1 1 4.99 1" Stroke="{DynamicResource StatusErrorForegroundBrush}" StrokeThickness="1.2" Width="9" Height="9" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding ValidationErrorCount, StringFormat='{}{0} IP Conflict(s)'}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource StatusErrorForegroundBrush}"/>
+                        <TextBlock Text="{Binding ValidationErrorCount, StringFormat='{}{0} Conflicts'}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource StatusErrorForegroundBrush}"/>
                     </StackPanel>
                 </Border>
             </StatusBarItem>

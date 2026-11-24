@@ -80,431 +80,162 @@
 
             <StackPanel Margin="10,12,10,16">
 
-                <!-- Header Banner -->
+                <!-- Header -->
+                <DockPanel Margin="0,0,0,12">
+                    <TextBlock Text="Canvas Setup" FontWeight="SemiBold" FontSize="13" Foreground="{DynamicResource AppTextPrimaryBrush}" VerticalAlignment="Center"/>
+                </DockPanel>
 
-                <Border Background="{DynamicResource SectionHeaderBackgroundBrush}" BorderBrush="{DynamicResource SectionHeaderBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,12">
-
-                    <StackPanel>
-
-                        <DockPanel>
-
-                            <TextBlock Text="CANVAS &amp; PAGE SETUP"
-
-                                       FontWeight="Bold" FontSize="11.5" Foreground="{DynamicResource SectionHeaderForegroundBrush}" VerticalAlignment="Center"/>
-
-                            <Border DockPanel.Dock="Right" Background="{DynamicResource AccentSubtleBrush}" BorderBrush="{DynamicResource AccentBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="6,1">
-
-                                <TextBlock Text="PAGE" FontSize="8.5" FontWeight="Bold" Foreground="{DynamicResource SectionHeaderForegroundBrush}"/>
-
-                            </Border>
-
-                        </DockPanel>
-
-                        <TextBlock Text="Standard Page Size &amp; Paper Boundary" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SectionHeaderSubForegroundBrush}" Margin="0,4,0,0" TextWrapping="Wrap"/>
-
-                    </StackPanel>
-
-                </Border>
-
-
-
-                <!-- Visio-Style Auto-Size & Multi-Page Grid -->
-
-                <GroupBox Header="Auto Size &amp; Page Grid" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
-
+                <!-- Page & Paper -->
+                <GroupBox Header="Paper &amp; Grid" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
                     <StackPanel Margin="4,6" TextElement.FontWeight="Normal">
-
-                        <CheckBox Content="Auto-Expand Pages (Visio Style)" IsChecked="{Binding AutoSize}" Margin="0,2,0,6"
-
-                                  ToolTip="Automatically add pages as shapes cross boundaries, and shrink to minimum possible pages"/>
-
-
-
-                        <!-- Live Multi-Page Badge -->
-
-                        <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="8,6" Margin="0,2,0,4">
-
-                            <StackPanel>
-
-                                <DockPanel Margin="0,0,0,3">
-
-                                    <TextBlock Text="Current Grid:" FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}"/>
-
-                                    <TextBlock Text="{Binding PageGridSummary}" DockPanel.Dock="Right" FontSize="10.5" FontWeight="SemiBold" Foreground="{DynamicResource AccentPrimaryBrush}"/>
-
-                                </DockPanel>
-
-                                <DockPanel>
-
-                                    <TextBlock Text="Canvas Size:" FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}"/>
-
-                                    <TextBlock Text="{Binding Canvas.PageSizeDisplayText}" DockPanel.Dock="Right" FontSize="10" FontFamily="Consolas, Segoe UI" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
-
-                                </DockPanel>
-
-                            </StackPanel>
-
-                        </Border>
-
-                    </StackPanel>
-
-                </GroupBox>
-
-
-
-                <!-- 1. Page Size Preset Selection -->
-
-                <GroupBox Header="Page Size Preset" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
-
-                    <StackPanel Margin="4,6" TextElement.FontWeight="Normal">
-
-                        <TextBlock Text="Standard Preset:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,2,0,4"/>
-
                         <ComboBox ItemsSource="{Binding AvailablePresets}"
-
                                   SelectedItem="{Binding SelectedPresetOption, Mode=TwoWay}"
-
                                   DisplayMemberPath="DisplayName"
-
                                   Margin="0,0,0,8"/>
 
-
-
-                        <!-- Quick-Pick Preset Pills -->
-
-                        <TextBlock Text="Quick Presets:" FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}" Margin="0,0,0,4"/>
-
-                        <WrapPanel Margin="0,0,0,4">
-
-                            <Button Content="A3 (Lab Standard)" Command="{Binding SetPagePresetCommand}" CommandParameter="{x:Static enums:PageSizePreset.A3}"
-
-                                    Margin="0,0,4,4" Padding="6,3" FontSize="10" Cursor="Hand"/>
-
-                            <Button Content="A4" Command="{Binding SetPagePresetCommand}" CommandParameter="{x:Static enums:PageSizePreset.A4}"
-
-                                    Margin="0,0,4,4" Padding="6,3" FontSize="10" Cursor="Hand"/>
-
-                            <Button Content="US Letter" Command="{Binding SetPagePresetCommand}" CommandParameter="{x:Static enums:PageSizePreset.Letter}"
-
-                                    Margin="0,0,4,4" Padding="6,3" FontSize="10" Cursor="Hand"/>
-
-                            <Button Content="1080p Screen" Command="{Binding SetPagePresetCommand}" CommandParameter="{x:Static enums:PageSizePreset.Screen1080p}"
-
-                                    Margin="0,0,4,4" Padding="6,3" FontSize="10" Cursor="Hand"/>
-
-                        </WrapPanel>
-
-                    </StackPanel>
-
-                </GroupBox>
-
-
-
-                <!-- 2. Page Orientation -->
-
-                <GroupBox Header="Page Orientation" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
-
-                    <StackPanel Margin="4,6" TextElement.FontWeight="Normal">
-
-                        <Border Background="{DynamicResource InputBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="2" Margin="0,2,0,6">
-
+                        <!-- Live Grid & Size Status -->
+                        <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="8,5" Margin="0,0,0,8">
                             <Grid>
-
                                 <Grid.ColumnDefinitions>
-
                                     <ColumnDefinition Width="*"/>
-
-                                    <ColumnDefinition Width="*"/>
-
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-
-                                <!-- Landscape Button -->
-
-                                <Button Grid.Column="0" Command="{Binding SetOrientationCommand}" CommandParameter="{x:Static enums:PageOrientation.Landscape}"
-
-                                        Padding="4,5" BorderThickness="1" Cursor="Hand" Margin="1">
-
-                                    <Button.Style>
-
-                                        <Style TargetType="Button">
-
-                                            <Setter Property="Background" Value="Transparent"/>
-
-                                            <Setter Property="Foreground" Value="{DynamicResource AppTextSecondaryBrush}"/>
-
-                                            <Setter Property="BorderBrush" Value="Transparent"/>
-
-                                            <Setter Property="Template">
-
-                                                <Setter.Value>
-
-                                                    <ControlTemplate TargetType="Button">
-
-                                                        <Border Background="{TemplateBinding Background}"
-
-                                                                BorderBrush="{TemplateBinding BorderBrush}"
-
-                                                                BorderThickness="{TemplateBinding BorderThickness}"
-
-                                                                CornerRadius="4" Padding="{TemplateBinding Padding}">
-
-                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-
-                                                        </Border>
-
-                                                    </ControlTemplate>
-
-                                                </Setter.Value>
-
-                                            </Setter>
-
-                                            <Style.Triggers>
-
-                                                <Trigger Property="IsMouseOver" Value="True">
-
-                                                    <Setter Property="Background" Value="{DynamicResource CardHoverBackgroundBrush}"/>
-
-                                                    <Setter Property="Foreground" Value="{DynamicResource AppTextPrimaryBrush}"/>
-
-                                                </Trigger>
-
-                                                <DataTrigger Binding="{Binding IsLandscape}" Value="True">
-
-                                                    <Setter Property="Background" Value="{DynamicResource AccentSubtleBrush}"/>
-
-                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentPrimaryBrush}"/>
-
-                                                    <Setter Property="Foreground" Value="{DynamicResource AccentPrimaryBrush}"/>
-
-                                                    <Setter Property="FontWeight" Value="SemiBold"/>
-
-                                                </DataTrigger>
-
-                                            </Style.Triggers>
-
-                                        </Style>
-
-                                    </Button.Style>
-
-                                    <StackPanel Orientation="Horizontal">
-
-                                        <Image Source="{StaticResource IconLandscape}" Width="14" Height="14" Margin="0,0,5,0"/>
-
-                                        <TextBlock Text="Landscape" FontSize="11" VerticalAlignment="Center"/>
-
-                                    </StackPanel>
-
-                                </Button>
-
-
-
-                                <!-- Portrait Button -->
-
-                                <Button Grid.Column="1" Command="{Binding SetOrientationCommand}" CommandParameter="{x:Static enums:PageOrientation.Portrait}"
-
-                                        Padding="4,5" BorderThickness="1" Cursor="Hand" Margin="1">
-
-                                    <Button.Style>
-
-                                        <Style TargetType="Button">
-
-                                            <Setter Property="Background" Value="Transparent"/>
-
-                                            <Setter Property="Foreground" Value="{DynamicResource AppTextSecondaryBrush}"/>
-
-                                            <Setter Property="BorderBrush" Value="Transparent"/>
-
-                                            <Setter Property="Template">
-
-                                                <Setter.Value>
-
-                                                    <ControlTemplate TargetType="Button">
-
-                                                        <Border Background="{TemplateBinding Background}"
-
-                                                                BorderBrush="{TemplateBinding BorderBrush}"
-
-                                                                BorderThickness="{TemplateBinding BorderThickness}"
-
-                                                                CornerRadius="4" Padding="{TemplateBinding Padding}">
-
-                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-
-                                                        </Border>
-
-                                                    </ControlTemplate>
-
-                                                </Setter.Value>
-
-                                            </Setter>
-
-                                            <Style.Triggers>
-
-                                                <Trigger Property="IsMouseOver" Value="True">
-
-                                                    <Setter Property="Background" Value="{DynamicResource CardHoverBackgroundBrush}"/>
-
-                                                    <Setter Property="Foreground" Value="{DynamicResource AppTextPrimaryBrush}"/>
-
-                                                </Trigger>
-
-                                                <DataTrigger Binding="{Binding IsPortrait}" Value="True">
-
-                                                    <Setter Property="Background" Value="{DynamicResource AccentSubtleBrush}"/>
-
-                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentPrimaryBrush}"/>
-
-                                                    <Setter Property="Foreground" Value="{DynamicResource AccentPrimaryBrush}"/>
-
-                                                    <Setter Property="FontWeight" Value="SemiBold"/>
-
-                                                </DataTrigger>
-
-                                            </Style.Triggers>
-
-                                        </Style>
-
-                                    </Button.Style>
-
-                                    <StackPanel Orientation="Horizontal">
-
-                                        <Image Source="{StaticResource IconPortrait}" Width="14" Height="14" Margin="0,0,5,0"/>
-
-                                        <TextBlock Text="Portrait" FontSize="11" VerticalAlignment="Center"/>
-
-                                    </StackPanel>
-
-                                </Button>
-
+                                <TextBlock Text="{Binding Canvas.PageSizeDisplayText}" FontSize="10.5" FontFamily="Consolas, Segoe UI" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="{Binding PageGridSummary}" FontSize="10.5" FontWeight="SemiBold" Foreground="{DynamicResource AccentPrimaryBrush}" VerticalAlignment="Center"/>
                             </Grid>
-
                         </Border>
 
+                        <CheckBox Content="Auto-expand canvas" IsChecked="{Binding AutoSize}" Margin="0,2,0,2"
+                                  ToolTip="Automatically expand canvas pages when shapes cross boundaries"/>
                     </StackPanel>
-
                 </GroupBox>
 
-
-
-                <!-- 3. Physical & Pixel Dimensions -->
-
-                <GroupBox Header="Page Dimensions (Pixels @ 96 DPI)" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
-
+                <!-- Page Orientation -->
+                <GroupBox Header="Orientation" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
                     <StackPanel Margin="4,6" TextElement.FontWeight="Normal">
+                        <Border Background="{DynamicResource InputBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="2">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <!-- Landscape Button -->
+                                <Button Grid.Column="0" Command="{Binding SetOrientationCommand}" CommandParameter="{x:Static enums:PageOrientation.Landscape}"
+                                        Padding="4,5" BorderThickness="1" Cursor="Hand" Margin="1">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AppTextSecondaryBrush}"/>
+                                            <Setter Property="BorderBrush" Value="Transparent"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                                CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource CardHoverBackgroundBrush}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource AppTextPrimaryBrush}"/>
+                                                </Trigger>
+                                                <DataTrigger Binding="{Binding IsLandscape}" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource AccentSubtleBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentPrimaryBrush}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource AccentPrimaryBrush}"/>
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{StaticResource IconLandscape}" Width="14" Height="14" Margin="0,0,5,0"/>
+                                        <TextBlock Text="Landscape" FontSize="11" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
 
-                        <Grid Margin="0,2,0,6">
+                                <!-- Portrait Button -->
+                                <Button Grid.Column="1" Command="{Binding SetOrientationCommand}" CommandParameter="{x:Static enums:PageOrientation.Portrait}"
+                                        Padding="4,5" BorderThickness="1" Cursor="Hand" Margin="1">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AppTextSecondaryBrush}"/>
+                                            <Setter Property="BorderBrush" Value="Transparent"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                                CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource CardHoverBackgroundBrush}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource AppTextPrimaryBrush}"/>
+                                                </Trigger>
+                                                <DataTrigger Binding="{Binding IsPortrait}" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource AccentSubtleBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentPrimaryBrush}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource AccentPrimaryBrush}"/>
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{StaticResource IconPortrait}" Width="14" Height="14" Margin="0,0,5,0"/>
+                                        <TextBlock Text="Portrait" FontSize="11" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </GroupBox>
 
+                <!-- Page Dimensions -->
+                <GroupBox Header="Dimensions" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
+                    <StackPanel Margin="4,6" TextElement.FontWeight="Normal">
+                        <Grid Margin="0,2,0,2">
                             <Grid.ColumnDefinitions>
-
                                 <ColumnDefinition Width="*"/>
-
+                                <ColumnDefinition Width="8"/>
                                 <ColumnDefinition Width="*"/>
-
                             </Grid.ColumnDefinitions>
-
                             <!-- Width -->
-
-                            <StackPanel Grid.Column="0" Margin="0,0,4,0">
-
-                                <TextBlock Text="Width (px):" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,3"/>
-
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Width (px)" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,3"/>
                                 <TextBox Text="{Binding CanvasWidthText, UpdateSourceTrigger=LostFocus}"
-
                                          Style="{StaticResource NumericCoordinateTextBoxStyle}"/>
-
                             </StackPanel>
-
                             <!-- Height -->
-
-                            <StackPanel Grid.Column="1" Margin="4,0,0,0">
-
-                                <TextBlock Text="Height (px):" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,3"/>
-
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Height (px)" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,3"/>
                                 <TextBox Text="{Binding CanvasHeightText, UpdateSourceTrigger=LostFocus}"
-
                                          Style="{StaticResource NumericCoordinateTextBoxStyle}"/>
-
                             </StackPanel>
-
                         </Grid>
-
-                        <TextBlock Text="Standard 96 DPI: 1 mm ≈ 3.78 px | 1 in = 96 px" FontSize="9.5" Foreground="{DynamicResource AppTextMutedBrush}" TextWrapping="Wrap"/>
-
                     </StackPanel>
-
                 </GroupBox>
 
-
-
-                <!-- 4. Viewport & Navigation -->
-
-                <GroupBox Header="Page Viewport" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
-
+                <!-- Grid & Guides -->
+                <GroupBox Header="Guides" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
                     <StackPanel Margin="4,6" TextElement.FontWeight="Normal">
-
-                        <Button Command="{Binding FitPageCommand}" Margin="0,2,0,6" Padding="6,5" Cursor="Hand">
-
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-
-                                <Image Source="{StaticResource IconFitPage}" Width="14" Height="14" Margin="0,0,6,0"/>
-
-                                <TextBlock Text="Fit Page to Screen" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
-
-                            </StackPanel>
-
-                        </Button>
-
-                        <Button Command="{Binding Canvas.ResetZoomCommand}" Margin="0,0,0,6" Padding="6,4" Cursor="Hand">
-
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-
-                                <Image Source="{StaticResource IconResetZoom}" Width="13" Height="13" Margin="0,0,6,0"/>
-
-                                <TextBlock Text="Reset Zoom (100%)" FontSize="11" VerticalAlignment="Center"/>
-
-                            </StackPanel>
-
-                        </Button>
-
-                    </StackPanel>
-
-                </GroupBox>
-
-
-
-                <!-- 5. Grid & Guides -->
-
-                <GroupBox Header="Grid &amp; Guides" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
-
-                    <StackPanel Margin="4,6" TextElement.FontWeight="Normal">
-
-                        <CheckBox Content="Show Alignment Grid" IsChecked="{Binding Canvas.ShowGrid}" Margin="0,2,0,4"/>
-
+                        <CheckBox Content="Grid" IsChecked="{Binding Canvas.ShowGrid}" Margin="0,2,0,4"/>
                         <CheckBox Content="Snap to Grid" IsChecked="{Binding Canvas.SnapToGrid}" Margin="0,2,0,4"/>
-
-                        <CheckBox Content="Show Metric Rulers" IsChecked="{Binding Canvas.ShowRulers}" Margin="0,2,0,4"/>
-
+                        <CheckBox Content="Rulers" IsChecked="{Binding Canvas.ShowRulers}" Margin="0,2,0,2"/>
                     </StackPanel>
-
                 </GroupBox>
-
-
-
-                <!-- Help Tip Footer -->
-
-                <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="8,8" Margin="0,4,0,0">
-
-                    <StackPanel Orientation="Horizontal">
-
-                        <Path Data="M 4 1 A 3 3 0 0 1 7 4 C 7 5.5 5.5 6.5 5.5 7.5 H 2.5 C 2.5 6.5 1 5.5 1 4 A 3 3 0 0 1 4 1 Z M 2.5 8.5 H 5.5" Stroke="{DynamicResource AccentPrimaryBrush}" StrokeThickness="1" Fill="Transparent" Width="9" Height="10" Margin="0,0,6,0" VerticalAlignment="Top"/>
-
-                        <TextBlock Text="Drag stencils from the library onto the canvas to place lab devices and furniture."
-
-                                   FontSize="10.5" Foreground="{DynamicResource AppTextMutedBrush}" TextWrapping="Wrap" LineHeight="14"/>
-
-                    </StackPanel>
-
-                </Border>
 
             </StackPanel>
 
@@ -543,29 +274,13 @@
 
 
                 <!-- Header / Item Type Banner -->
-
-                <Border Background="{DynamicResource SectionHeaderBackgroundBrush}" BorderBrush="{DynamicResource SectionHeaderBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,12">
-
-                    <StackPanel>
-
-                        <DockPanel>
-
-                            <TextBlock Text="{Binding HeaderTitle}"
-
-                                       FontWeight="Bold" FontSize="11.5" Foreground="{DynamicResource SectionHeaderForegroundBrush}" VerticalAlignment="Center"/>
-
-                            <Border DockPanel.Dock="Right" Background="{DynamicResource AccentSubtleBrush}" BorderBrush="{DynamicResource AccentBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="6,1">
-
-                                <TextBlock Text="PROPERTIES" FontSize="8.5" FontWeight="Bold" Foreground="{DynamicResource SectionHeaderForegroundBrush}"/>
-
-                            </Border>
-
-                        </DockPanel>
-
-                        <TextBlock Text="{Binding HeaderSubtitle}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SectionHeaderSubForegroundBrush}" Margin="0,4,0,0" TextWrapping="Wrap"/>
-
-                    </StackPanel>
-
+                <Border Background="{DynamicResource SectionHeaderBackgroundBrush}" BorderBrush="{DynamicResource SectionHeaderBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,10">
+                    <DockPanel>
+                        <TextBlock Text="{Binding HeaderTitle}" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource SectionHeaderForegroundBrush}" VerticalAlignment="Center"/>
+                        <Button Command="{Binding DeselectCommand}" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="4,2" HorizontalAlignment="Right">
+                            <TextBlock Text="Deselect" FontSize="10.5" Foreground="{DynamicResource AppTextMutedBrush}"/>
+                        </Button>
+                    </DockPanel>
                 </Border>
 
 
@@ -601,18 +316,18 @@
                 </GroupBox>
 
                 <!-- Custom Image Section -->
-                <GroupBox Header="Custom Image" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}"
+                <GroupBox Header="Graphic" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}"
                           Visibility="{Binding IsSingleSelection, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <StackPanel Margin="4,6" TextElement.FontWeight="Normal">
                         <Border Visibility="{Binding SelectedItem.HasCustomImage, Converter={StaticResource BooleanToVisibilityConverter}}"
                                 Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}"
                                 BorderThickness="1" CornerRadius="6" Padding="8">
                             <StackPanel>
-                                <TextBlock Text="Custom Graphic Active" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource AccentPrimaryBrush}" Margin="0,0,0,3"/>
-                                <TextBlock Text="{Binding SelectedItem.CustomImagePath, TargetNullValue='Embedded Custom Image'}" FontSize="10" Foreground="{DynamicResource AppTextSecondaryBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,0,6"/>
+                                
+                                <TextBlock Text="{Binding SelectedItem.CustomImagePath, TargetNullValue='Custom Graphic'}" FontSize="10" Foreground="{DynamicResource AppTextSecondaryBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,0,6"/>
                                 <DockPanel LastChildFill="False">
                                     <Button Content="Change..." Click="Properties_ChangeCustomImage_Click" Width="80" Padding="4,2" Cursor="Hand" Margin="0,0,6,0"/>
-                                    <Button Content="Clear Image" Click="Properties_ClearCustomImage_Click" Width="80" Padding="4,2" Cursor="Hand"/>
+                                    <Button Content="Clear" Click="Properties_ClearCustomImage_Click" Width="80" Padding="4,2" Cursor="Hand"/>
                                 </DockPanel>
                             </StackPanel>
                         </Border>
@@ -621,7 +336,7 @@
                                 Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}"
                                 BorderThickness="1" CornerRadius="6" Padding="8">
                             <StackPanel>
-                                <TextBlock Text="Using standard vector stencil." FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}" Margin="0,0,0,6"/>
+                                
                                 <Button Content="Attach Custom Image..." Click="Properties_ChangeCustomImage_Click" Padding="6,3" Cursor="Hand" HorizontalAlignment="Left"/>
                             </StackPanel>
                         </Border>
@@ -632,7 +347,7 @@
 
                 <!-- 2. Device IP Configuration (Single Device: Manual Static IP or Database Linked) -->
 
-                <GroupBox Header="Network &amp; IP Configuration" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}"
+                <GroupBox Header="Network" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}"
 
                           Visibility="{Binding IsSingleDevice, Converter={StaticResource BooleanToVisibilityConverter}}">
 
@@ -804,7 +519,7 @@
 
                             <!-- IP Address Input -->
 
-                            <TextBlock Text="Manual Static IPv4 Address:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,3"/>
+                            <TextBlock Text="IP Address:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,3"/>
 
                             <TextBox Text="{Binding DeviceIpAddress, UpdateSourceTrigger=PropertyChanged}" Padding="6,4" Margin="0,0,0,4"
 
@@ -844,11 +559,11 @@
 
                                 </Grid.ColumnDefinitions>
 
-                                <Button Grid.Column="0" Content="Next Available IP" Command="{Binding SuggestNextIpCommand}"
+                                <Button Grid.Column="0" Content="Next IP" Command="{Binding SuggestNextIpCommand}"
 
                                         Padding="4,3" FontSize="10.5" ToolTip="Scan canvas and auto-fill the next available IP in subnet"/>
 
-                                <Button Grid.Column="2" Content="Clear IP" Command="{Binding ClearDeviceIpCommand}" Foreground="{DynamicResource StatusErrorBrush}"
+                                <Button Grid.Column="2" Content="Clear" Command="{Binding ClearDeviceIpCommand}" Foreground="{DynamicResource StatusErrorBrush}"
 
                                         Padding="4,3" FontSize="10.5" ToolTip="Reset device to unassigned IP state"/>
 
@@ -878,7 +593,7 @@
 
                             <!-- Device ID / Hardware Tag -->
 
-                            <TextBlock Text="Workstation ID / Asset Tag:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,3"/>
+                            <TextBlock Text="Asset Tag:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,3"/>
 
                             <TextBox Text="{Binding DeviceId, UpdateSourceTrigger=PropertyChanged}" Padding="6,4" Margin="0,0,0,4"
 
@@ -902,11 +617,11 @@
 
                                 <StackPanel>
 
-                                    <TextBlock Text="Linked to Database Device:" FontSize="10" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
+                                    <TextBlock Text="Linked Device:" FontSize="10" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
 
                                     <TextBlock Text="{Binding LinkedDatabaseDeviceName}" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource AccentPrimaryBrush}" Margin="0,2,0,4"/>
 
-                                    <Button Content="Unlink (Convert to Manual Static)" Command="{Binding SwitchToManualModeCommand}"
+                                    <Button Content="Unlink" Command="{Binding SwitchToManualModeCommand}"
 
                                             Padding="4,2" FontSize="10" HorizontalAlignment="Left" Foreground="{DynamicResource StatusWarningBrush}"
 
@@ -928,7 +643,7 @@
 
                                     <DockPanel Margin="0,0,0,6">
 
-                                        <TextBlock Text="Link from Database Inventory:" FontWeight="SemiBold" FontSize="11"
+                                        <TextBlock Text="Database Inventory:" FontWeight="SemiBold" FontSize="11"
 
                                                    Foreground="{DynamicResource AppTextPrimaryBrush}" VerticalAlignment="Center"/>
 
@@ -966,7 +681,7 @@
 
                                                    IsHitTestVisible="False"/>
 
-                                        <TextBlock Text="Filter by name, IP, or MAC..."
+                                        <TextBlock Text="Search inventory..."
 
                                                    FontSize="11"
 
@@ -1200,7 +915,7 @@
 
                                             <Path Data="M 5 1 A 4 4 0 1 0 5 9 A 4 4 0 0 0 5 1 M 8 8 L 12 12" Stroke="{DynamicResource AppTextMutedBrush}" StrokeThickness="1.2" Width="13" Height="13" HorizontalAlignment="Center" Margin="0,0,0,4" Opacity="0.6"/>
 
-                                            <TextBlock Text="No unassigned workstations match filter."
+                                            <TextBlock Text="No workstations match filter."
 
                                                        FontSize="11" FontWeight="SemiBold"
 
@@ -1208,7 +923,7 @@
 
                                                        HorizontalAlignment="Center" TextAlignment="Center"/>
 
-                                            <TextBlock Text="Try a different query or switch to Manual IP."
+                                            <TextBlock Text="Try another query or switch to Manual IP."
 
                                                        FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}"
 
@@ -1232,7 +947,7 @@
 
                 <!-- 2b. Batch Workstation IP Configuration (When Multiple Devices Selected) -->
 
-                <GroupBox Header="Batch Workstation IP Configuration" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}"
+                <GroupBox Header="Batch Network" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}"
 
                           Visibility="{Binding IsMultipleDevices, Converter={StaticResource BooleanToVisibilityConverter}}">
 
@@ -1242,9 +957,7 @@
 
                                    FontWeight="SemiBold" FontSize="11.5" Foreground="{DynamicResource AccentPrimaryBrush}" Margin="0,0,0,4"/>
 
-                        <TextBlock Text="Assign sequential manual static IPs in spatial canvas row/column order."
-
-                                   FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                        
 
 
 
@@ -1264,7 +977,7 @@
 
                             <StackPanel Grid.Column="0">
 
-                                <TextBlock Text="Start IPv4:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,2"/>
+                                <TextBlock Text="Start IP:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,2"/>
 
                                 <TextBox Text="{Binding BatchStartIp, UpdateSourceTrigger=PropertyChanged}" Padding="5,3"
 
@@ -1288,13 +1001,13 @@
 
                         <!-- Hostname Auto-Rename -->
 
-                        <TextBlock Text="Hostname Prefix:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,2"/>
+                        <TextBlock Text="Prefix:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,2"/>
 
                         <TextBox Text="{Binding BatchNamePrefix, UpdateSourceTrigger=PropertyChanged}" Padding="5,3" Margin="0,0,0,4"
 
                                  FontFamily="Consolas, Segoe UI" FontSize="11"/>
 
-                        <CheckBox Content="Auto-number names (PC-01, PC-02...)" IsChecked="{Binding BatchRenameDevices}"
+                        <CheckBox Content="Auto-number (PC-01, PC-02...)" IsChecked="{Binding BatchRenameDevices}"
 
                                   FontSize="10.5" Margin="0,0,0,10" Foreground="{DynamicResource AppTextPrimaryBrush}"/>
 
@@ -1302,13 +1015,13 @@
 
                         <!-- Action Buttons -->
 
-                        <Button Content="Batch Assign Sequential IPs" Command="{Binding BatchAssignSequentialIpsCommand}"
+                        <Button Content="Assign Sequential IPs" Command="{Binding BatchAssignSequentialIpsCommand}"
 
                                 Style="{StaticResource AccentButtonStyle}"
 
                                 Padding="8,5" Margin="0,0,0,6"/>
 
-                        <Button Content="Clear Selected IPs" Command="{Binding BatchClearIpsCommand}"
+                        <Button Content="Clear IPs" Command="{Binding BatchClearIpsCommand}"
 
                                 Style="{StaticResource DangerButtonStyle}"
 
@@ -1322,7 +1035,7 @@
 
                 <!-- 3. Transform & Coordinates (Figma / Webflow 2-Column Compact Layout) -->
 
-                <GroupBox Header="Transform &amp; Dimensions" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
+                <GroupBox Header="Transform" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
 
                     <StackPanel Margin="4,6" TextElement.FontWeight="Normal">
 
@@ -1500,7 +1213,7 @@
 
                 <!-- Text & Typography (for Text Items) -->
 
-                <GroupBox Header="Text &amp; Typography" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}"
+                <GroupBox Header="Typography" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}"
 
                           Visibility="{Binding IsText, Converter={StaticResource BooleanToVisibilityConverter}}">
 
@@ -1508,7 +1221,7 @@
 
                         <!-- Content -->
 
-                        <TextBlock Text="Content:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,2,0,4"/>
+                        <TextBlock Text="Text:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,2,0,4"/>
 
                         <TextBox Text="{Binding ItemText, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" MinHeight="50" MaxHeight="100" TextWrapping="Wrap" Padding="6,4" Margin="0,0,0,8" VerticalScrollBarVisibility="Auto"/>
 
@@ -1530,7 +1243,7 @@
 
                             <StackPanel Grid.Column="0">
 
-                                <TextBlock Text="Font Family:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,3"/>
+                                <TextBlock Text="Font Family:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,3"/>
 
                                 <ComboBox ItemsSource="{Binding FontFamiliesList}" SelectedItem="{Binding ItemFontFamily}"/>
 
@@ -1538,7 +1251,7 @@
 
                             <StackPanel Grid.Column="2">
 
-                                <TextBlock Text="Size:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,3"/>
+                                <TextBlock Text="Size:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,3"/>
 
                                 <ComboBox ItemsSource="{Binding FontSizesList}" SelectedItem="{Binding ItemFontSize}" IsEditable="True"/>
 
@@ -1550,7 +1263,7 @@
 
                         <!-- Formatting Toolbar: Bold, Italic, Alignments (Segmented Button Group) -->
 
-                        <TextBlock Text="Style &amp; Alignment:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,4"/>
+                        <TextBlock Text="Style:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,0,0,4"/>
 
                         <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="3" Margin="0,0,0,8" HorizontalAlignment="Left">
 
@@ -1648,7 +1361,7 @@
 
                         <!-- Background Fill -->
 
-                        <TextBlock Text="Background Fill:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,2,0,4"/>
+                        <TextBlock Text="Fill:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,2,0,4"/>
 
                         <Grid Margin="0,0,0,4">
 
@@ -1708,7 +1421,7 @@
 
                         <DockPanel Margin="0,4,0,2">
 
-                            <TextBlock Text="Border Thickness:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
+                            <TextBlock Text="Thickness:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
 
                             <TextBlock Text="{Binding ItemBorderThickness, StringFormat='{}{0:F0} px'}" Foreground="{DynamicResource AppTextPrimaryBrush}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
 
@@ -1718,7 +1431,7 @@
 
 
 
-                        <TextBlock Text="Border Color:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,2,0,4"/>
+                        <TextBlock Text="Border:" FontSize="10.5" Foreground="{DynamicResource AppTextSecondaryBrush}" Margin="0,2,0,4"/>
 
                         <Grid Margin="0,0,0,4">
 
@@ -1778,7 +1491,7 @@
 
                 <!-- 4. Layering & Stacking Order (Dedicated Proper Section) -->
 
-                <GroupBox Header="Layering &amp; Order" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
+                <GroupBox Header="Layers" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}">
 
                     <StackPanel Margin="4,6" TextElement.FontWeight="Normal">
 
@@ -1866,7 +1579,7 @@
 
                 <!-- 5. Appearance & Style (Fill & Stroke) -->
 
-                <GroupBox Header="Appearance &amp; Style" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}"
+                <GroupBox Header="Appearance" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}"
 
                           Visibility="{Binding IsAppearanceApplicable, Converter={StaticResource BooleanToVisibilityConverter}}">
 
@@ -1882,7 +1595,7 @@
 
                             <DockPanel Margin="0,0,0,6">
 
-                                <TextBlock Text="Fill Appearance:" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Text="Fill:" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
 
                                 <Border HorizontalAlignment="Right" Width="70" Height="18" CornerRadius="4"
 
@@ -1921,7 +1634,7 @@
                                             ToolTip="Open Color Spectrum &amp; Picker Dialog (All 16.7M Colors)">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="🎨" FontSize="10" Margin="0,0,3,0" VerticalAlignment="Center"/>
-                                            <TextBlock Text="All Colors..." FontSize="9.5" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Custom..." FontSize="9.5" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                 </Grid>
@@ -2250,7 +1963,7 @@
 
                             <DockPanel Margin="0,0,0,6">
 
-                                <TextBlock Text="Stroke (Border) Appearance:" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Text="Outline:" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
 
                                 <Border HorizontalAlignment="Right" Width="70" Height="18" CornerRadius="4"
 
@@ -2291,7 +2004,7 @@
                                             ToolTip="Open Color Spectrum &amp; Picker Dialog (All 16.7M Colors)">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="🎨" FontSize="10" Margin="0,0,3,0" VerticalAlignment="Center"/>
-                                            <TextBlock Text="All Colors..." FontSize="9.5" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Custom..." FontSize="9.5" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                 </Grid>
@@ -2484,7 +2197,7 @@
 
                             <DockPanel Margin="0,6,0,2">
 
-                                <TextBlock Text="Stroke Thickness:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
+                                <TextBlock Text="Thickness:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
 
                                 <TextBlock Text="{Binding CommonStrokeThickness, StringFormat='{}{0:F0} px'}" Foreground="{DynamicResource AppTextPrimaryBrush}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
 
@@ -2498,13 +2211,13 @@
                         <StackPanel Visibility="{Binding HasSvgColors, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,10,0,0">
                             <Separator Background="{DynamicResource CardBorderBrush}" Margin="0,2,0,8"/>
                             <DockPanel Margin="0,0,0,4">
-                                <TextBlock Text="SVG Individual Colors:" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Text="Custom Colors:" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
                                 <Button Command="{Binding ResetAllSvgColorsCommand}" HorizontalAlignment="Right" Padding="6,2" FontSize="10"
                                         ToolTip="Reset all individual SVG colors back to original stencil colors" Background="Transparent" BorderBrush="{DynamicResource CardBorderBrush}">
-                                    <TextBlock Text="↺ Reset All" FontSize="10"/>
+                                    <TextBlock Text="Reset" FontSize="10"/>
                                 </Button>
                             </DockPanel>
-                            <TextBlock Text="Customize every individual color in this SVG stencil:" FontSize="10" Foreground="{DynamicResource AppTextMutedBrush}" Margin="0,0,0,6"/>
+                            
 
                             <ItemsControl ItemsSource="{Binding SvgColors}">
                                 <ItemsControl.ItemTemplate>
@@ -2566,7 +2279,7 @@
 
                 <!-- 6. Shape Parameters (Corner Radius & Donut Inner Radius) -->
 
-                <GroupBox Header="Geometry Parameters" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}"
+                <GroupBox Header="Geometry" Margin="0,0,0,10" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimaryBrush}"
 
                           Visibility="{Binding IsShape, Converter={StaticResource BooleanToVisibilityConverter}}">
 
@@ -2580,7 +2293,7 @@
 
                             <DockPanel Margin="0,0,0,2">
 
-                                <TextBlock Text="Corner Radius (px):" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
+                                <TextBlock Text="Corner Radius:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
 
                                 <TextBlock Text="{Binding CommonCornerRadius, StringFormat='{}{0:F0} px'}" Foreground="{DynamicResource AppTextPrimaryBrush}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
 
@@ -2598,7 +2311,7 @@
 
                             <DockPanel Margin="0,0,0,2">
 
-                                <TextBlock Text="Donut Inner Radius (%):" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
+                                <TextBlock Text="Inner Radius:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}"/>
 
                                 <TextBlock Text="{Binding CommonInnerRadius, StringFormat='{}{0:F0}'}" Foreground="{DynamicResource AppTextPrimaryBrush}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
 
@@ -2611,7 +2324,7 @@
                         <!-- Bezier Curve Control Points -->
                         <StackPanel Visibility="{Binding IsBezier, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,0,0,8">
                             <DockPanel Margin="0,0,0,6">
-                                <TextBlock Text="Bezier Control Points:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Text="Control Points:" FontSize="11" Foreground="{DynamicResource AppTextSecondaryBrush}" VerticalAlignment="Center"/>
                                 <Border HorizontalAlignment="Right" Background="{DynamicResource AccentSubtleBrush}" BorderBrush="{DynamicResource AccentBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="6,1">
                                     <TextBlock Text="{Binding BezierControlPointsCount, StringFormat='{}{0} Points'}" FontSize="9.5" FontWeight="SemiBold" Foreground="{DynamicResource SectionHeaderForegroundBrush}"/>
                                 </Border>
@@ -2622,11 +2335,11 @@
                                     <ColumnDefinition Width="6"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Button Grid.Column="0" Content="+ Add Point" Height="26"
+                                <Button Grid.Column="0" Content="+ Add" Height="26"
                                         Command="{Binding AddBezierControlPointCommand}"
                                         IsEnabled="{Binding CanAddBezierControlPoint}"
                                         ToolTip="Add a new control point to the Bezier curve (or click any '+' midpoint on the canvas)"/>
-                                <Button Grid.Column="2" Content="- Remove Point" Height="26"
+                                <Button Grid.Column="2" Content="- Remove" Height="26"
                                         Command="{Binding RemoveBezierControlPointCommand}"
                                         IsEnabled="{Binding CanRemoveBezierControlPoint}"
                                         ToolTip="Remove the last control point (or right-click any control point handle on the canvas)"/>

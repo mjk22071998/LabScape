@@ -15,7 +15,7 @@ public static class GpuRenderingService
     private static bool _isInitialized;
 
     public static int GraphicsTier { get; private set; } = 2;
-    public static string GpuStatusSummary { get; private set; } = "GPU Accelerated";
+    public static string GpuStatusSummary { get; private set; } = "D3D11 Tier 2";
     public static string GpuStatusTooltip { get; private set; } = "Hardware Acceleration: Direct3D Tier 2 (Full GPU Pipeline)";
     public static bool IsHardwareAccelerated => GraphicsTier >= 2;
 
@@ -61,17 +61,17 @@ public static class GpuRenderingService
             GraphicsTier = RenderCapability.Tier >> 16;
             if (GraphicsTier >= 2)
             {
-                GpuStatusSummary = "GPU Accelerated";
+                GpuStatusSummary = "D3D11 Tier 2";
                 GpuStatusTooltip = "Hardware Acceleration: Direct3D Tier 2 (Shader Model 3.0+ Full GPU Pipeline)";
             }
             else if (GraphicsTier == 1)
             {
-                GpuStatusSummary = "GPU Accelerated (Tier 1)";
+                GpuStatusSummary = "D3D11 Tier 1";
                 GpuStatusTooltip = "Hardware Acceleration: Direct3D Tier 1 (Partial GPU Acceleration)";
             }
             else
             {
-                GpuStatusSummary = "Software Mode (Tier 0)";
+                GpuStatusSummary = "Software (Tier 0)";
                 GpuStatusTooltip = "Hardware Acceleration: Tier 0 (No GPU acceleration available)";
             }
         }

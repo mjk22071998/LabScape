@@ -159,7 +159,7 @@ public partial class MainWindow : RibbonWindow
 
                 ViewModel.IsDatabaseConnected = true;
 
-                ViewModel.DatabaseStatusText = $"Database: PostgreSQL ({cachedDevices.Count} devices - Cached)";
+                ViewModel.DatabaseStatusText = $"PostgreSQL ({cachedDevices.Count} cached)";
 
             }
 
@@ -227,9 +227,9 @@ public partial class MainWindow : RibbonWindow
 
                                         ViewModel.DatabaseStatusText = profile.UseMock
 
-                                            ? $"Database: Simulated ({devices.Count} devices)"
+                                            ? $"Simulated ({devices.Count} devices)"
 
-                                            : $"Database: PostgreSQL ({devices.Count} devices)";
+                                            : $"PostgreSQL ({devices.Count} devices)";
 
                                     }
 
@@ -251,7 +251,7 @@ public partial class MainWindow : RibbonWindow
 
                                         ViewModel.IsDatabaseConnected = false;
 
-                                        ViewModel.DatabaseStatusText = "Database: Disconnected (Click to Connect)";
+                                        ViewModel.DatabaseStatusText = "Disconnected";
 
                                     }
 
@@ -279,7 +279,7 @@ public partial class MainWindow : RibbonWindow
 
                                         ViewModel.IsDatabaseConnected = false;
 
-                                        ViewModel.DatabaseStatusText = "Database: Disconnected (Click to Connect)";
+                                        ViewModel.DatabaseStatusText = "Disconnected";
 
                                     }
 
@@ -299,7 +299,7 @@ public partial class MainWindow : RibbonWindow
 
                     ViewModel.IsDatabaseConnected = false;
 
-                    ViewModel.DatabaseStatusText = "Database: Disconnected (Click to Connect)";
+                    ViewModel.DatabaseStatusText = "Disconnected";
 
                 }
 
@@ -315,7 +315,7 @@ public partial class MainWindow : RibbonWindow
 
                     ViewModel.IsDatabaseConnected = false;
 
-                    ViewModel.DatabaseStatusText = "Database: Disconnected (Click to Connect)";
+                    ViewModel.DatabaseStatusText = "Disconnected";
 
                 }
 
@@ -1573,9 +1573,9 @@ public partial class MainWindow : RibbonWindow
 
             ViewModel.DatabaseStatusText = profile.UseMock
 
-                ? $"Database: Simulated ({devices.Count} devices)"
+                ? $"Simulated ({devices.Count} devices)"
 
-                : $"Database: PostgreSQL ({devices.Count} devices)";
+                : $"PostgreSQL ({devices.Count} devices)";
 
 
 
@@ -1597,7 +1597,7 @@ public partial class MainWindow : RibbonWindow
 
             ViewModel.IsDatabaseConnected = false;
 
-            ViewModel.DatabaseStatusText = "Database: Connection Failed";
+            ViewModel.DatabaseStatusText = "Connection Failed";
 
             MessageBox.Show(
 

@@ -43,7 +43,7 @@ public partial class MainViewModel : ObservableObject
     private string _windowTitle = "LabScape - Enterprise Physical Layout Designer";
 
     [ObservableProperty]
-    private string _gpuStatusText = "GPU Accelerated";
+    private string _gpuStatusText = "D3D11 Tier 2";
 
     [ObservableProperty]
     private string _gpuStatusTooltip = "Hardware Acceleration: Direct3D Tier 2 (Shader Model 3.0+ Full GPU Pipeline)";
@@ -52,7 +52,7 @@ public partial class MainViewModel : ObservableObject
     private bool _isDatabaseConnected;
 
     [ObservableProperty]
-    private string _databaseStatusText = "Database: Disconnected";
+    private string _databaseStatusText = "Disconnected";
 
     [ObservableProperty]
     private string _activeTool = "Select"; // "Select", "Pan"
